@@ -52,7 +52,7 @@ export default function RootLayout({
     <html lang="th">
       <body className={`${sarabun.className} bg-gray-50 min-h-screen flex flex-col`}>
         {/* <Header /> */}
-        <main className="flex-grow">
+        <main className="bg-white flex-grow">
           {children}
         </main>
         {/* <Footer /> */}

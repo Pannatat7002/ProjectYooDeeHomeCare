@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -53,6 +54,26 @@ const YoodeeHomeCareLogoText = ({ size = 'xl', dark = true }: { size?: 'xl' | '2
     </div>
 );
 // --- END LOGO Text Component ---
+
+// --- Brand/Chain Card Component ---
+const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoUrl?: string }) => {
+    if (!brandName) return null;
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between">
+            <div>
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">แบรนด์/เครือบริษัท</span>
+                <h3 className="text-lg font-bold text-gray-900 mt-0.5">{brandName}</h3>
+            </div>
+            {brandLogoUrl && (
+                <div className="h-12 w-auto max-w-[120px] flex items-center justify-end">
+                    <img src={brandLogoUrl} alt={`${brandName} Logo`} className="max-h-full object-contain" />
+                </div>
+            )}
+        </div>
+    );
+};
+// --- END Brand/Chain Card Component ---
 
 // --- Trial Offer Card Component (UNCHANGED) ---
 const TrialOfferCard = () => (
@@ -424,7 +445,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                 {/* 1. Header Section */}
                 <div className="mb-8">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-snug">{center.name}</h1>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4">
                         <p className="flex items-center">
                             <MapPin className="h-4 w-4 mr-1 text-gray-400" /> {center.address}
                         </p>
@@ -433,50 +454,56 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             <span className="font-semibold text-gray-800 mr-1">{center.rating.toFixed(1)}</span>
                             <span className="text-gray-500">(รีวิว)</span>
                         </div>
-                    </div>
-                </div>
-
-                {/* 2. Gallery Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[280px] md:h-[400px] rounded-2xl overflow-hidden mb-12 relative group shadow-lg">
-                    {/* รูปใหญ่ซ้ายมือ */}
-                    <div className="md:col-span-2 h-full">
-                        <img
-                            src={mainImage}
-                            alt="Main center image"
-                            className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
-                            onClick={() => setIsGalleryOpen(true)}
-                            onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                        />
-                    </div>
-                    {/* Grid ขวามือ */}
-                    <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
-                        {galleryImages.slice(1).map((url, idx) => (
-                            <div key={idx} className="h-full overflow-hidden">
-                                <img
-                                    src={url}
-                                    alt={`Gallery thumbnail ${idx + 2}`}
-                                    className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
-                                    onClick={() => { setActiveImage(url); setIsGalleryOpen(true); }}
-                                    onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                                />
+                        {center.hasGovernmentCertificate && (
+                            <div className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
+                                <ShieldCheck className="h-3 w-3 mr-1" />
+                                รับรองจาก .สปสช
                             </div>
-                        ))}
+                        )}
                     </div>
 
-                    <button
-                        onClick={() => setIsGalleryOpen(true)}
-                        className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-xl text-xs font-semibold shadow-md hover:bg-white transition-all border border-gray-200"
-                    >
-                        ดูรูปทั้งหมด ({allImages.length})
-                    </button>
-                    {/* Optional: Wishlist/Share Button */}
-                    <div className="absolute top-4 right-4 flex space-x-2">
-                        <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-red-500 transition-colors shadow-md">
-                            <Heart className="w-5 h-5" />
+                    {/* Gallery Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[300px] md:h-[400px] rounded-2xl overflow-hidden relative">
+                        {/* รูปใหญ่ซ้ายมือ */}
+                        <div className="md:col-span-2 h-full">
+                            <img
+                                src={mainImage}
+                                alt="Main center image"
+                                className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
+                                onClick={() => setIsGalleryOpen(true)}
+                                onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                            />
+                        </div>
+                        {/* Grid ขวามือ */}
+                        <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
+                            {galleryImages.slice(1).map((url, idx) => (
+                                <div key={idx} className="h-full overflow-hidden">
+                                    <img
+                                        src={url}
+                                        alt={`Gallery thumbnail ${idx + 2}`}
+                                        className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
+                                        onClick={() => { setActiveImage(url); setIsGalleryOpen(true); }}
+                                        onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={() => setIsGalleryOpen(true)}
+                            className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-xl text-xs font-semibold shadow-md hover:bg-white transition-all border border-gray-200"
+                        >
+                            ดูรูปทั้งหมด ({allImages.length})
                         </button>
-                        <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-indigo-500 transition-colors shadow-md">
-                            <Share2 className="w-5 h-5" />
-                        </button>
+                        {/* Optional: Wishlist/Share Button */}
+                        <div className="absolute top-4 right-4 flex space-x-2">
+                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-red-500 transition-colors shadow-md">
+                                <Heart className="w-5 h-5" />
+                            </button>
+                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-indigo-500 transition-colors shadow-md">
+                                <Share2 className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -703,6 +730,9 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         {/* Option: Include Trial Offer Card here */}
                         {/* <TrialOfferCard /> */}
 
+                        {/* Brand/Chain Card */}
+                        <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
+
                         {/* Existing Price/Contact Card (Sticky) */}
                         <div className="sticky top-24 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 z-10">
 
@@ -835,24 +865,9 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         </a>
                     </div>
                 </div>
-
-                {/* Bottom Cookie/Privacy Bar */}
-                {/* <div className="bg-gray-800 text-xs text-gray-300 py-3">
-                    <div className="container max-w-6xl mx-auto px-4 flex justify-between items-center flex-wrap gap-2">
-                        <p className="flex-grow">
-                            เว็บไซต์นี้มีการใช้คุกกี้เพื่อประสบการณ์ใช้งานเว็บไซต์ที่ดีขึ้น รายละเอียดและข้อมูลคุกกี้เพิ่มเติม
-                            <Link href="/cookie-policy" className="underline hover:text-white ml-1">นโยบายคุกกี้</Link>
-                        </p>
-                        <div className="flex space-x-3 flex-shrink-0">
-                            <button className="text-white hover:text-indigo-400 transition-colors">ฉันเข้าใจ</button>
-                            <button className="px-3 py-1 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors">ยอมรับทั้งหมด</button>
-                        </div>
-                    </div>
-                </div> */}
             </footer>
 
             {/* Gallery Modal */}
-            {/* // การเรียกใช้ในไฟล์หลัก (เวอร์ชันล่าสุดที่ถูกแก้ไขให้เป็น Slideshow/Grid mode) */}
             {isGalleryOpen && (
                 <GalleryModal
                     images={allImages}

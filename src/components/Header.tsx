@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -12,12 +11,11 @@ export default function Header() {
                 <div className="container max-w-6xl mx-auto px-4 py-3 flex justify-between items-center h-20">
                     {/* Logo/Brand (Left) */}
                     <div className="flex items-center gap-2">
-                        <Link href="/">
-                            <img src="/YooDeeHomeCare.png" alt="YoodeeHomeCare Logo" className="h-8 w-auto" />
-                        </Link>
+                        <img src="/YooDeeHomeCare.png" alt="YoodeeHomeCare Logo" className="h-8 w-auto" />
+                        {/* <YoodeeHomeCareLogoText size="xl" /> */}
                     </div>
 
-                    {/* Navigation Links (Center) */}
+                    {/* Navigation Links (Center) - Simplified Nav for Detail Page */}
                     <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-gray-900 hover:text-indigo-600 font-semibold">หน้าแรก</Link>
                         <Link href="/about" className="text-gray-900 hover:text-indigo-600">เกี่ยวกับเรา</Link>
@@ -35,16 +33,16 @@ export default function Header() {
                         </div>
                         {/* CTA Button */}
                         <Link
-                            href="/contact"
+                            href="/consultation"
                             className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-300/50"
-                            onClick={() => gtag.event({ action: 'click_header_cta', category: 'Conversion', label: 'Contact_Header' })}
+                            onClick={() => gtag.event({ action: 'click_header_cta', category: 'Conversion', label: 'Contact_Consultation' })}
                         >
                             ติดต่อสอบถาม
                         </Link>
                         {/* Mobile Menu Icon (Placeholder) */}
-                        <div className="lg:hidden text-gray-700 cursor-pointer">
+                        <button className="lg:hidden text-gray-700 cursor-pointer p-2">
                             <Menu className="w-6 h-6" />
-                        </div>
+                        </button>
                     </div>
                 </div>
             </div>

@@ -9,6 +9,7 @@
     "type": "monthly",
     "rating": 5,
     "phone": "​098-193-8856",
+    "hasGovernmentCertificate": true,
     "imageUrls": [
       "https://pi-ban.weebly.com/uploads/1/5/0/9/150903513/92115.jpg",
       "https://pi-ban.weebly.com/uploads/1/5/0/9/150903513/447601.jpg",
@@ -49,7 +50,9 @@
       }
     ],
     "website": "https://pi-ban.weebly.com/nursinghome.html",
-    "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3872.4730289454365!2d100.53060207586697!3d13.930416993131445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e281b5b9df1739%3A0x6b01000fca22356b!2z4Lio4Li54LiZ4Lii4LmM4LiU4Li54LmB4Lil4Lic4Li54LmJ4Liq4Li54LiH4Lit4Liy4Lii4Li4IOC5gOC4reC5h-C4meC5gOC4iOC4p-C4suC4ouC5gOC4meC4reC4o-C5jOC4quC4i-C4tOC5iOC4h-C5guC4ruC4oSDguJXguLTguKfguLLguJnguJnguJfguYwgMzgvMQ!5e0!3m2!1sth!2sus!4v1752588636135!5m2!1sth!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>"
+    "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3872.4730289454365!2d100.53060207586697!3d13.930416993131445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e281b5b9df1739%3A0x6b01000fca22356b!2z4Lio4Li54LiZ4Lii4LmM4LiU4Li54LmB4Lil4Lic4Li54LmJ4Liq4Li54LiH4Lit4Liy4Lii4Li4IOC5gOC4reC5h-C4meC5gOC4iOC4p-C4suC4ouC5gOC4meC4reC4o-C5jOC4quC4i-C4tOC5iOC4h-C5guC4ruC4oSDguJXguLTguKfguLLguJnguJnguJfguYwgMzgvMQ!5e0!3m2!1sth!2sus!4v1752588636135!5m2!1sth!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
+    "brandName": "Home Care Piban",
+    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
   },
   {
     "id": 22,
@@ -100,7 +103,9 @@
         ]
       }
     ],
-    "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3873.9534015236495!2d100.57931127586605!3d13.84183569520111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311d63ddb9ff8035%3A0xf933f27d420dc979!2z4Lio4Li54LiZ4Lii4LmM4LiU4Li54LmB4Lil4Lic4Li54LmJ4Liq4Li54LiH4Lit4Liy4Lii4Li4IOC4n-C4ueC4peC4n-C4tOC4pSDguKXguLTguJ_guKfguLTguYjguIc!5e0!3m2!1sth!2sus!4v1752588661016!5m2!1sth!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>"
+    "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3873.9534015236495!2d100.57931127586605!3d13.84183569520111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311d63ddb9ff8035%3A0xf933f27d420dc979!2z4Lio4Li54LiZ4Lii4LmM4LiU4Li54LmB4Lil4Lic4Li54LmJ4Liq4Li54LiH4Lit4Liy4Lii4Li4IOC4n-C4ueC4peC4n-C4tOC4pSDguKXguLTguJ_guKfguLTguYjguIc!5e0!3m2!1sth!2sus!4v1752588661016!5m2!1sth!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
+    "brandName": "Home Care Piban",
+    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
   },
   {
     "id": 24,
@@ -112,6 +117,7 @@
     "type": "monthly",
     "rating": 5,
     "phone": "0981938856",
+    "hasGovernmentCertificate": true,
     "website": "https://pi-ban.weebly.com/",
     "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3858.1083916823873!2d100.46308907501721!3d13.884698794202928!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e285f830c5c2c1%3A0x9267539de6c02019!2z4LmC4Liu4Lih4LmB4LiE4Lij4LmM4Lig4Li04Lia4Liy4LilIOC4quC4luC4suC4meC4lOC4ueC5geC4peC4nOC4ueC5ieC4quC4ueC4h-C4reC4suC4ouC4uCDguKrguLLguILguLLguYTguJfguKPguKHguYnguLI!5e1!3m2!1sen!2sth!4v1763568176655!5m2!1sen!2sth\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
     "imageUrls": [
@@ -142,7 +148,9 @@
           "บริการดูแลผู้สูงอายุแบบเต็มเวลา เน้นการดูแลต่อเนื่องตลอด 24 ชั่วโมง โดยทีมงานมืออาชีพที่ผ่านการฝึกอบรมเฉพาะทาง มีการดูแลทั้งด้านสุขภาพร่างกาย การติดตามการรับประทานยา การดูแลกิจวัตรประจำวัน รวมถึงการสร้างบรรยากาศที่อบอุ่นและเป็นมิตร เพื่อให้ผู้สูงอายุรู้สึกเหมือนอยู่บ้าน​"
         ]
       }
-    ]
+    ],
+    "brandName": "Home Care Piban",
+    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
   },
   {
     "id": 27,
@@ -192,6 +200,8 @@
           "บริการนี้ออกแบบมาเพื่อเสริมสร้างคุณภาพชีวิตของผู้สูงอายุให้ดียิ่งขึ้น โดยรวมถึงกิจกรรมต่าง ๆ ที่ช่วยกระตุ้นการเคลื่อนไหว การทำกิจกรรมสังคม และการดูแลด้านจิตใจ เช่น การจัดกิจกรรมกลุ่ม การฝึกสมอง และการสนับสนุนให้ผู้สูงอายุได้ทำกิจกรรมที่ตนเองสนใจ เพื่อให้พวกเขารู้สึกมีคุณค่าและมีความสุขในชีวิตประจำวัน​​​"
         ]
       }
-    ]
+    ],
+    "brandName": "Home Care Piban",
+    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
   }
 ]

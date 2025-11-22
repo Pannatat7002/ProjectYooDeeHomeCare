@@ -20,4 +20,7 @@ export interface CareCenter {
     description: string;
     services: string[];
     packages: Package[];
+    hasGovernmentCertificate?: boolean;
+    brandName?: string;
+    brandLogoUrl?: string;
 }
