@@ -19,7 +19,8 @@ interface Consultation {
     submittedAt: string;
 }
 
-const API_URL = 'http://localhost:3001/api/care-centers/consultations';
+const API_URL = '/api/care-centers/consultations';
+// const API_URL = 'http://localhost:3001/api/care-centers/consultations';
 
 export default function ConsultationManagement() {
     // --- State ---

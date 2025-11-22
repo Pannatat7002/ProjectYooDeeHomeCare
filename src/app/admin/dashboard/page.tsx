@@ -28,7 +28,8 @@ export default function DashboardPage() {
     });
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/care-centers')
+        fetch('/api/care-centers')
+            // fetch('http://localhost:3001/api/care-centers')
             .then(res => res.json())
             .then((data: CareCenter[]) => {
                 setCenters(data);

@@ -24,7 +24,7 @@ export default function Footer() {
                             แพลตฟอร์มค้นหาและเปรียบเทียบศูนย์ดูแลผู้สูงอายุ และผู้ป่วยพักฟื้น ที่ครบถ้วนและน่าเชื่อถือที่สุด
                         </p>
                         <div className="flex space-x-3 pt-2">
-                            <a href="#" aria-label="Facebook" className="p-2 bg-gray-700 rounded-full text-indigo-400 hover:text-indigo-600 transition-colors">
+                            <a href="https://www.facebook.com/share/17rrsmB3fj" aria-label="Facebook" className="p-2 bg-gray-700 rounded-full text-indigo-400 hover:text-indigo-600 transition-colors">
                                 <Facebook className="h-4 w-4" />
                             </a>
                             <a href="#" aria-label="Line" className="p-2 bg-gray-700 rounded-full text-indigo-400 hover:text-indigo-600 transition-colors">
