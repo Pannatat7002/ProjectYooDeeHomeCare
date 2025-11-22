@@ -29,13 +29,19 @@ export default function ContactPage() {
 
     return (
         <>
-            <Header />
             <div className="min-h-screen bg-gray-50">
                 {/* Hero Section */}
-                <div className="bg-indigo-900 text-white py-20">
-                    <div className="container mx-auto px-4 text-center">
+                <div
+                    className="relative h-[450px] flex items-center justify-center bg-cover bg-center"
+                    style={{
+                        backgroundImage: 'url("/images/hero-background.jpg")',
+                        backgroundPosition: 'center 40%',
+                    }}
+                >
+                    <div className="absolute inset-0 bg-blue-900/60"></div>
+                    <div className="relative z-10 container mx-auto px-4 text-center text-white">
                         <h1 className="text-4xl md:text-5xl font-bold mb-6">ติดต่อเรา</h1>
-                        <p className="text-xl text-indigo-200 max-w-2xl mx-auto">
+                        <p className="text-xl text-blue-100 max-w-2xl mx-auto">
                             มีข้อสงสัยหรือต้องการคำปรึกษา? ทีมงานของเราพร้อมดูแลและให้คำแนะนำท่านตลอดเวลา
                         </p>
                     </div>
@@ -50,8 +56,8 @@ export default function ContactPage() {
 
                                 <div className="space-y-6">
                                     <div className="flex items-start">
-                                        <div className="bg-indigo-50 p-3 rounded-lg mr-4">
-                                            <MapPin className="w-6 h-6 text-indigo-600" />
+                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
+                                            <MapPin className="w-6 h-6 text-blue-600" />
                                         </div>
                                         <div>
                                             <p className="font-semibold text-gray-900">ที่อยู่</p>
@@ -64,8 +70,8 @@ export default function ContactPage() {
                                     </div>
 
                                     <div className="flex items-start">
-                                        <div className="bg-indigo-50 p-3 rounded-lg mr-4">
-                                            <Phone className="w-6 h-6 text-indigo-600" />
+                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
+                                            <Phone className="w-6 h-6 text-blue-600" />
                                         </div>
                                         <div>
                                             <p className="font-semibold text-gray-900">เบอร์โทรศัพท์</p>
@@ -75,8 +81,8 @@ export default function ContactPage() {
                                     </div>
 
                                     <div className="flex items-start">
-                                        <div className="bg-indigo-50 p-3 rounded-lg mr-4">
-                                            <Mail className="w-6 h-6 text-indigo-600" />
+                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
+                                            <Mail className="w-6 h-6 text-blue-600" />
                                         </div>
                                         <div>
                                             <p className="font-semibold text-gray-900">อีเมล</p>
@@ -86,8 +92,8 @@ export default function ContactPage() {
                                     </div>
 
                                     <div className="flex items-start">
-                                        <div className="bg-indigo-50 p-3 rounded-lg mr-4">
-                                            <Clock className="w-6 h-6 text-indigo-600" />
+                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
+                                            <Clock className="w-6 h-6 text-blue-600" />
                                         </div>
                                         <div>
                                             <p className="font-semibold text-gray-900">เวลาทำการ</p>
@@ -113,7 +119,7 @@ export default function ContactPage() {
                                                 name="name"
                                                 value={formData.name}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                 placeholder="กรุณากรอกชื่อของคุณ"
                                                 required
                                             />
@@ -126,7 +132,7 @@ export default function ContactPage() {
                                                 name="phone"
                                                 value={formData.phone}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                 placeholder="กรุณากรอกเบอร์โทรศัพท์"
                                                 required
                                             />
@@ -141,7 +147,7 @@ export default function ContactPage() {
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             placeholder="name@example.com"
                                             required
                                         />
@@ -154,7 +160,7 @@ export default function ContactPage() {
                                             name="subject"
                                             value={formData.subject}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                         >
                                             <option value="">กรุณาเลือกหัวข้อ</option>
                                             <option value="inquiry">สอบถามข้อมูลทั่วไป</option>
@@ -172,7 +178,7 @@ export default function ContactPage() {
                                             value={formData.message}
                                             onChange={handleChange}
                                             rows={5}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             placeholder="รายละเอียดที่ต้องการสอบถาม..."
                                             required
                                         ></textarea>
@@ -180,7 +186,7 @@ export default function ContactPage() {
 
                                     <button
                                         type="submit"
-                                        className="w-full bg-indigo-600 text-white font-bold py-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center shadow-lg shadow-indigo-200"
+                                        className="w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center shadow-lg shadow-blue-200"
                                     >
                                         <Send className="w-5 h-5 mr-2" />
                                         ส่งข้อความ
@@ -207,7 +213,6 @@ export default function ContactPage() {
                     </div>
                 </div>
             </div>
-            <Footer />
         </>
     );
 }

@@ -7,8 +7,7 @@ import {
     Home, User, Phone, Mail, Clock, MessageSquare
 } from 'lucide-react';
 
-// --- 1. TYPES (สมมติว่า CareCenter และ Package ถูกกำหนดไว้ที่อื่น, แต่เพื่อให้โค้ดนี้รันได้ ผมขอสมมติ Type มาให้) ---
-// คุณต้องแน่ใจว่า CareCenter และ Package ถูกนำเข้าอย่างถูกต้องจาก '@/src/types'
+// --- 1. TYPES ---
 interface Package { name: string; price: number; details: string[]; }
 interface CareCenter {
     id: number;
@@ -26,6 +25,9 @@ interface CareCenter {
     description: string;
     services: string[];
     packages: Package[];
+    hasGovernmentCertificate?: boolean;
+    brandName?: string;
+    brandLogoUrl?: string;
 }
 
 interface Consultation {
@@ -44,13 +46,14 @@ interface Consultation {
 }
 
 // ----------------------------------------------------------------------
-// --- 2. ManagePage Component (จัดการศูนย์ดูแล) - ตัดมาเป็นคอมโพเนนต์ย่อย ---
+// --- 2. ManagePage Component (จัดการศูนย์ดูแล) ---
 // ----------------------------------------------------------------------
 
 const INITIAL_FORM_STATE: Omit<CareCenter, 'id'> = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
-    imageUrls: [''], description: '', services: [], packages: []
+    imageUrls: [''], description: '', services: [], packages: [],
+    hasGovernmentCertificate: false, brandName: '', brandLogoUrl: ''
 };
 
 const MASTER_SERVICES = [
@@ -104,7 +107,10 @@ function ManageCenterPage() {
                 ...center,
                 imageUrls: center.imageUrls?.length ? center.imageUrls : [''],
                 packages: center.packages || [],
-                services: center.services || []
+                services: center.services || [],
+                hasGovernmentCertificate: center.hasGovernmentCertificate || false,
+                brandName: center.brandName || '',
+                brandLogoUrl: center.brandLogoUrl || ''
             });
         } else {
             setEditingId(null);
@@ -188,14 +194,13 @@ function ManageCenterPage() {
                 <h1 className="text-2xl font-bold text-gray-800">จัดการข้อมูลศูนย์ดูแล</h1>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                     <Plus className="w-5 h-5 mr-2" /> เพิ่มศูนย์ดูแลใหม่
                 </button>
             </div>
 
             {/* Table */}
-            {/* ... (ส่วนตารางและ Pagination เหมือนเดิม) ... */}
             <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
@@ -341,6 +346,34 @@ function ManageCenterPage() {
                                         <textarea rows={5} className="w-full border rounded-md px-3 py-2"
                                             value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                                     </div>
+
+                                    {/* New Fields: Government Certificate & Brand */}
+                                    <div className="md:col-span-2 flex items-center space-x-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                        <input
+                                            type="checkbox"
+                                            id="hasGovernmentCertificate"
+                                            className="rounded text-blue-600 focus:ring-blue-500 h-5 w-5"
+                                            checked={formData.hasGovernmentCertificate || false}
+                                            onChange={e => setFormData({ ...formData, hasGovernmentCertificate: e.target.checked })}
+                                        />
+                                        <label htmlFor="hasGovernmentCertificate" className="text-sm font-bold text-blue-800 select-none cursor-pointer">
+                                            ได้รับการรับรองจาก สปสช. (Government Certificate)
+                                        </label>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อแบรนด์/เครือ (Brand Name)</label>
+                                        <input type="text" className="w-full border rounded-md px-3 py-2"
+                                            placeholder="เช่น Home Care Piban"
+                                            value={formData.brandName || ''} onChange={e => setFormData({ ...formData, brandName: e.target.value })} />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">โลโก้แบรนด์ (URL)</label>
+                                        <input type="text" className="w-full border rounded-md px-3 py-2"
+                                            placeholder="https://..."
+                                            value={formData.brandLogoUrl || ''} onChange={e => setFormData({ ...formData, brandLogoUrl: e.target.value })} />
+                                    </div>
                                 </div>
 
                                 {/* Images Management */}
@@ -378,7 +411,7 @@ function ManageCenterPage() {
                                                 <input type="checkbox"
                                                     checked={formData.services.includes(service)}
                                                     onChange={() => toggleService(service)}
-                                                    className="rounded text-indigo-600 focus:ring-indigo-500"
+                                                    className="rounded text-blue-600 focus:ring-blue-500"
                                                 />
                                                 <span>{service}</span>
                                             </label>
@@ -434,7 +467,7 @@ function ManageCenterPage() {
                                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
                                     ยกเลิก
                                 </button>
-                                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center shadow-lg">
+                                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center shadow-lg">
                                     <Save className="w-4 h-4 mr-2" /> บันทึกข้อมูล
                                 </button>
                             </div>
@@ -548,7 +581,7 @@ function ConsultationManagement() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-indigo-600 text-white text-sm font-semibold border-b">
+                            <tr className="bg-blue-600 text-white text-sm font-semibold border-b">
                                 <th className="py-4 px-4 w-12 text-center">#</th>
                                 <th className="py-4 px-4">ข้อมูลผู้ติดต่อ</th>
                                 <th className="py-4 px-4">รายละเอียด</th>
@@ -564,7 +597,7 @@ function ConsultationManagement() {
                                 <tr><td colSpan={6} className="py-8 text-center text-gray-500">ไม่พบรายการติดต่อ</td></tr>
                             ) : (
                                 paginatedConsultations.map((consultation, index) => (
-                                    <tr key={consultation.id} className="hover:bg-indigo-50 text-sm text-gray-800 transition-colors">
+                                    <tr key={consultation.id} className="hover:bg-blue-50 text-sm text-gray-800 transition-colors">
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td className="py-3 px-4 font-medium min-w-[200px]">
                                             <p className='font-bold'>{consultation.name}</p>
@@ -574,7 +607,7 @@ function ConsultationManagement() {
                                             <p className="text-xs text-gray-500 flex items-center mt-1"><Clock className='w-3 h-3 mr-1' /> ส่งเมื่อ: {formatDate(consultation.submittedAt)}</p>
                                         </td>
                                         <td className="py-3 px-4 min-w-[200px]">
-                                            <p className="font-semibold text-indigo-600">ศูนย์: {consultation.branch}</p>
+                                            <p className="font-semibold text-blue-600">ศูนย์: {consultation.branch}</p>
                                             <p className="text-xs text-gray-700">งบประมาณ: {consultation.budget}</p>
                                             <p className="text-xs text-gray-700">ประเภทห้อง: {consultation.roomType}</p>
                                             <p className="text-xs text-gray-700">เวลาสะดวก: {consultation.convenientTime}</p>
@@ -612,16 +645,16 @@ function ConsultationManagement() {
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-2 border rounded-full hover:bg-indigo-100 disabled:opacity-50 transition-colors"
+                                className="p-2 border rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors"
                             >
-                                <ChevronLeft className="w-5 h-5 text-indigo-600" />
+                                <ChevronLeft className="w-5 h-5 text-blue-600" />
                             </button>
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-2 border rounded-full hover:bg-indigo-100 disabled:opacity-50 transition-colors"
+                                className="p-2 border rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors"
                             >
-                                <ChevronRight className="w-5 h-5 text-indigo-600" />
+                                <ChevronRight className="w-5 h-5 text-blue-600" />
                             </button>
                         </div>
                     </div>
@@ -649,7 +682,7 @@ export default function AdminDashboard() {
                             <button
                                 onClick={() => setActiveTab('centers')}
                                 className={`px-4 py-2 text-sm font-medium flex items-center border-b-2 transition-colors ${activeTab === 'centers'
-                                    ? 'border-indigo-600 text-indigo-600'
+                                    ? 'border-blue-600 text-blue-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
@@ -658,7 +691,7 @@ export default function AdminDashboard() {
                             <button
                                 onClick={() => setActiveTab('consultations')}
                                 className={`ml-4 px-4 py-2 text-sm font-medium flex items-center border-b-2 transition-colors ${activeTab === 'consultations'
-                                    ? 'border-indigo-600 text-indigo-600'
+                                    ? 'border-blue-600 text-blue-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >

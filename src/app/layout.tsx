@@ -51,11 +51,11 @@ export default function RootLayout({
   return (
     <html lang="th">
       <body className={`${sarabun.className} bg-gray-50 min-h-screen flex flex-col`}>
-        {/* <Header /> */}
+        <Header />
         <main className="bg-white flex-grow">
           {children}
         </main>
-        {/* <Footer /> */}
+        <Footer />
       </body>
 
       {/* Google Analytics Scripts */}

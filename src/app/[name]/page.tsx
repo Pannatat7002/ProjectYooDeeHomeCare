@@ -43,8 +43,8 @@ interface ConsultationFormData {
 // ใช้ Tailwind utilities ในการกำหนดสีตามสไตล์ YoodeeHomeCare
 const YoodeeHomeCareLogoText = ({ size = 'xl', dark = true }: { size?: 'xl' | '2xl', dark?: boolean }) => (
     <div className={`flex items-baseline font-extrabold tracking-tight ${size === 'xl' ? 'text-xl' : 'text-2xl'}`}>
-        {/* Deep Blue/Indigo for 'YooDee' */}
-        <span className={`text-[#0E1B4F] ${dark ? 'dark:text-indigo-400' : ''}`}>
+        {/* Deep Blue/blue for 'YooDee' */}
+        <span className={`text-[#0E1B4F] ${dark ? 'dark:text-blue-400' : ''}`}>
             YooDee
         </span>
         {/* Dark Gray/White for 'HomeCare' */}
@@ -90,11 +90,11 @@ const TrialOfferCard = () => (
 
         <ul className="space-y-2 text-sm text-gray-700 mb-4 pl-1">
             <li className="flex items-center">
-                <ShieldCheck className="w-4 h-4 mr-2 text-indigo-500 flex-shrink-0" />
+                <ShieldCheck className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
                 บรรยากาศเหมือนบ้าน อบอุ่น ปลอดภัย
             </li>
             <li className="flex items-center">
-                <CheckCircle2 className="w-4 h-4 mr-2 text-indigo-500 flex-shrink-0" />
+                <CheckCircle2 className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
                 ทีมมืออาชีพดูแลใกล้ชิด 24 ชม.
             </li>
         </ul>
@@ -106,7 +106,7 @@ const TrialOfferCard = () => (
             </p>
             <a
                 href="tel:098-193-8856"
-                className="text-base font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+                className="text-base font-medium text-blue-600 hover:text-blue-800 transition-colors"
                 onClick={() => gtag.event({ action: 'click_trial_call', category: 'Promotion', label: '098-193-8856' })}
             >
                 📞 098-193-8856
@@ -355,7 +355,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
                     <p className="text-gray-500 text-sm animate-pulse">กำลังโหลดข้อมูล...</p>
                 </div>
             </div>
@@ -366,10 +366,10 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center">
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
-                    <Info className="w-16 h-16 text-indigo-200 mx-auto mb-4" />
+                    <Info className="w-16 h-16 text-blue-200 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold text-gray-800 mb-2">ไม่พบข้อมูลศูนย์ดูแล</h1>
                     <p className="text-gray-500 mb-6">ข้อมูลที่คุณค้นหาอาจถูกลบ หรือ URL ไม่ถูกต้อง</p>
-                    <Link href="/" className="inline-flex items-center justify-center px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all font-medium w-full">
+                    <Link href="/" className="inline-flex items-center justify-center px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all font-medium w-full">
                         <ArrowLeft className="w-5 h-5 mr-2" /> กลับหน้าค้นหา
                     </Link>
                 </div>
@@ -389,54 +389,9 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24 md:pb-12">
-
-            {/* ========================================================================================= */}
-            {/* 1. HEADER & NAVBAR */}
-            {/* ========================================================================================= */}
-            <header className="sticky top-0 z-20">
-                <div className="bg-white shadow-sm border-b border-gray-100">
-                    <div className="container max-w-6xl mx-auto px-4 py-3 flex justify-between items-center h-20">
-                        {/* Logo/Brand (Left) */}
-                        <div className="flex items-center gap-2">
-                            <img src="/YooDeeHomeCare.png" alt="YoodeeHomeCare Logo" className="h-8 w-auto" />
-                            {/* <YoodeeHomeCareLogoText size="xl" /> */}
-                        </div>
-
-                        {/* Navigation Links (Center) - Simplified Nav for Detail Page */}
-                        <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium absolute left-1/2 transform -translate-x-1/2">
-                            <Link href="/" className="text-gray-900 hover:text-indigo-600 font-semibold">หน้าแรก</Link>
-                            <Link href="/about" className="text-gray-900 hover:text-indigo-600">เกี่ยวกับเรา</Link>
-                            <Link href="/services" className="text-gray-900 hover:text-indigo-600">บริการของเรา</Link>
-                            <Link href="/contact" className="text-gray-900 hover:text-indigo-600">ติดต่อเรา</Link>
-                        </nav>
-
-                        {/* Contact/CTA (Right) */}
-                        <div className="flex items-center space-x-4">
-                            {/* TH/EN Switcher */}
-                            <div className="flex items-center space-x-1 text-sm font-bold hidden sm:flex">
-                                <span className="text-gray-900">TH</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="text-gray-400 hover:text-gray-700">EN</span>
-                            </div>
-                            {/* CTA Button */}
-                            <Link
-                                href="/consultation"
-                                className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-300/50"
-                                onClick={() => gtag.event({ action: 'click_header_cta', category: 'Conversion', label: 'Contact_Consultation' })}
-                            >
-                                ติดต่อสอบถาม
-                            </Link>
-                            {/* Mobile Menu Icon (Placeholder) */}
-                            <button className="lg:hidden text-gray-700 cursor-pointer p-2">
-                                <Menu className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
             <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 <div className="text-left pb-4">
-                    <Link href="/" className="inline-flex items-center text-black-600 font-medium text-md hover:text-indigo-800 transition-colors">
+                    <Link href="/" className="inline-flex items-center text-black-600 font-medium text-md hover:text-blue-800 transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         กลับหน้าค้นหาศูนย์ดูแล
                     </Link>
@@ -500,7 +455,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-red-500 transition-colors shadow-md">
                                 <Heart className="w-5 h-5" />
                             </button>
-                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-indigo-500 transition-colors shadow-md">
+                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-blue-500 transition-colors shadow-md">
                                 <Share2 className="w-5 h-5" />
                             </button>
                         </div>
@@ -524,7 +479,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">สิ่งอำนวยความสะดวกและบริการ</h2>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {center.services?.map((s, i) => (
-                                    <div key={i} className="flex items-start p-3 rounded-lg bg-indigo-50 text-indigo-700 transition-colors">
+                                    <div key={i} className="flex items-start p-3 rounded-lg bg-blue-50 text-blue-700 transition-colors">
                                         <CheckCircle2 className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
                                         <span className="text-sm font-medium">{s}</span>
                                     </div>
@@ -592,10 +547,10 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             </section>
                         )}
                         {/* Consultation Form - Separated into its own function for clarity or kept here as is */}
-                        <section className="bg-white rounded-2xl shadow-xl border border-teal-200 p-6 md:p-8 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 to-green-500"></div>
+                        <section className="bg-white rounded-2xl shadow-xl border border-blue-200 p-6 md:p-8 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-green-500"></div>
                             <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-                                <span className="text-teal-600">นัดปรึกษา ดูสถานที่</span> ทดลองอยู่ **ฟรี**
+                                <span className="text-blue-600">นัดปรึกษา ดูสถานที่</span> ทดลองอยู่ **ฟรี**
                             </h2>
                             <form className="space-y-5" onSubmit={handleSubmit}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -604,7 +559,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
                                         <input
                                             id="name" type="text" name="name" value={formData.name} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
                                             placeholder="ระบุชื่อ-นามสกุล" required
                                         />
                                     </div>
@@ -613,7 +568,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
                                         <input
                                             id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
                                             placeholder="ระบุเบอร์โทรศัพท์" required
                                         />
                                     </div>
@@ -622,7 +577,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
                                         <input
                                             id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
                                             placeholder="ระบุ LINE ID"
                                         />
                                     </div>
@@ -631,7 +586,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
                                         <input
                                             id="email" type="email" name="email" value={formData.email} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
                                             placeholder="ระบุอีเมล"
                                         />
                                     </div>
@@ -641,7 +596,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         <div className="relative">
                                             <select
                                                 id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
                                             >
                                                 <option value="" disabled>เลือกประเภทห้อง</option>
                                                 <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
@@ -659,7 +614,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         <div className="relative">
                                             <select
                                                 id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
                                             >
                                                 <option value="" disabled>เลือกช่วงราคา</option>
                                                 <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
@@ -677,7 +632,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         <div className="relative">
                                             <select
                                                 id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
                                             >
                                                 <option value="" disabled>เลือกช่วงเวลา</option>
                                                 <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
@@ -697,7 +652,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ฝากข้อความถึง (ถ้ามี)</label>
                                     <textarea
                                         id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3}
-                                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 focus:border-teal-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
                                         placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"
                                     ></textarea>
                                 </div>
@@ -706,7 +661,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                     <button
                                         type="submit"
                                         disabled={submitStatus === 'submitting'}
-                                        className={`w-full md:w-auto bg-teal-500 hover:bg-teal-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-teal-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-blue-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
                                         {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลเพื่อรับคำปรึกษาฟรี'}
                                     </button>
@@ -739,7 +694,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             <div className="mb-6 pb-4 border-b border-gray-100">
                                 <span className="text-gray-500 text-sm font-medium block mb-1">ราคาเริ่มต้น</span>
                                 <div className="flex items-baseline">
-                                    <span className="text-4xl font-extrabold text-indigo-600">฿{center.price.toLocaleString()}</span>
+                                    <span className="text-4xl font-extrabold text-blue-600">฿{center.price.toLocaleString()}</span>
                                     <span className="text-gray-500 ml-1 text-base font-semibold">
                                         /{center.type === 'daily' ? 'วัน' : 'เดือน'}
                                     </span>
@@ -753,7 +708,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 <a
                                     href={`tel:${center.phone}`}
                                     onClick={() => gtag.event({ action: 'click_call_sticky', category: 'Conversion', label: center.name })}
-                                    className="w-full flex items-center justify-center px-4 py-3.5 bg-indigo-500 text-white text-base font-extrabold rounded-xl hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-300/50 active:scale-[0.99] transform"
+                                    className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform"
                                 >
                                     <Phone className="w-5 h-5 mr-2" /> โทรปรึกษาทันที : {center.phone}
                                 </a>
@@ -764,7 +719,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={() => gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name })}
-                                        className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-indigo-600 border-2 border-indigo-200 text-base font-extrabold rounded-xl hover:border-indigo-500 hover:text-indigo-700 transition-all active:scale-[0.99] transform"
+                                        className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-xl hover:border-blue-500 hover:text-blue-700 transition-all active:scale-[0.99] transform"
                                     >
                                         <Globe className="w-5 h-5 mr-2" /> เข้าชมเว็บไซต์
                                     </a>
@@ -793,10 +748,10 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 แพลตฟอร์มค้นหาและเปรียบเทียบศูนย์ดูแลผู้สูงอายุ และผู้ป่วยพักฟื้น ที่ครบถ้วนและน่าเชื่อถือที่สุด
                             </p>
                             <div className="flex space-x-3 pt-2">
-                                <a href="https://www.facebook.com/share/17rrsmB3fj" aria-label="Facebook" className="p-2 bg-gray-700 rounded-full text-indigo-400 hover:text-indigo-600 transition-colors">
+                                <a href="https://www.facebook.com/share/17rrsmB3fj" aria-label="Facebook" className="p-2 bg-gray-700 rounded-full text-blue-400 hover:text-blue-600 transition-colors">
                                     <Facebook className="h-4 w-4" />
                                 </a>
-                                <a href="#" aria-label="Line" className="p-2 bg-gray-700 rounded-full text-indigo-400 hover:text-indigo-600 transition-colors">
+                                <a href="#" aria-label="Line" className="p-2 bg-gray-700 rounded-full text-blue-400 hover:text-blue-600 transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle-code h-4 w-4"><path d="M7.9 20A9 9 0 0 1 12 12V8" /><path d="M12 2a10 10 0 0 0-9.25 13c-.1 1 .5 2 1.25 2.75L2 22l3.5-1.5c.75.75 1.75 1.25 2.75 1.25A10 10 0 0 0 22 12 10 10 0 0 0 12 2Z" /><path d="m10 10-2 2 2 2" /><path d="m14 10 2 2-2 2" /></svg>
                                 </a>
                             </div>
@@ -806,10 +761,10 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         <div className="space-y-3">
                             <h4 className="text-base font-bold text-white mb-3">เกี่ยวกับเรา</h4>
                             <ul className="space-y-2 text-sm text-gray-400">
-                                <li><Link href="/concept" className="hover:text-indigo-400 transition-colors">แนวคิดโครงการ</Link></li>
-                                <li><Link href="/whyus" className="hover:text-indigo-400 transition-colors">ทำไมเราเลือกเรา</Link></li>
-                                <li><Link href="/testimonials" className="hover:text-indigo-400 transition-colors">คำรับรองจากลูกค้า</Link></li>
-                                <li><Link href="/articles" className="hover:text-indigo-400 transition-colors">สาระน่ารู้</Link></li>
+                                <li><Link href="/concept" className="hover:text-blue-400 transition-colors">แนวคิดโครงการ</Link></li>
+                                <li><Link href="/whyus" className="hover:text-blue-400 transition-colors">ทำไมเราเลือกเรา</Link></li>
+                                <li><Link href="/testimonials" className="hover:text-blue-400 transition-colors">คำรับรองจากลูกค้า</Link></li>
+                                <li><Link href="/articles" className="hover:text-blue-400 transition-colors">สาระน่ารู้</Link></li>
                             </ul>
                         </div>
 
@@ -817,11 +772,11 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         <div className="space-y-3">
                             <h4 className="text-base font-bold text-white mb-3">บริการของเรา</h4>
                             <ul className="space-y-2 text-sm text-gray-400">
-                                <li><Link href="/service/monthly" className="hover:text-indigo-400 transition-colors">ศูนย์ดูแลรายเดือน</Link></li>
-                                <li><Link href="/service/daily" className="hover:text-indigo-400 transition-colors">ศูนย์ดูแลรายวัน</Link></li>
-                                <li><Link href="/service/rehab" className="hover:text-indigo-400 transition-colors">ดูแลฟื้นฟู/กลับบ้าน</Link></li>
-                                <li><Link href="/service/aquatic" className="hover:text-indigo-400 transition-colors">คลินิกกายภาพบำบัด</Link></li>
-                                <li><Link href="/service/tms" className="hover:text-indigo-400 transition-colors">คลินิก TMS</Link></li>
+                                <li><Link href="/service/monthly" className="hover:text-blue-400 transition-colors">ศูนย์ดูแลรายเดือน</Link></li>
+                                <li><Link href="/service/daily" className="hover:text-blue-400 transition-colors">ศูนย์ดูแลรายวัน</Link></li>
+                                <li><Link href="/service/rehab" className="hover:text-blue-400 transition-colors">ดูแลฟื้นฟู/กลับบ้าน</Link></li>
+                                <li><Link href="/service/aquatic" className="hover:text-blue-400 transition-colors">คลินิกกายภาพบำบัด</Link></li>
+                                <li><Link href="/service/tms" className="hover:text-blue-400 transition-colors">คลินิก TMS</Link></li>
                             </ul>
                         </div>
 
@@ -829,13 +784,13 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         <div className="space-y-3">
                             <h4 className="text-base font-bold text-white mb-3">โปรแกรมของเรา</h4>
                             <ul className="space-y-2 text-sm text-gray-400">
-                                <li><Link href="/program/elderly" className="hover:text-indigo-400 transition-colors">ดูแลผู้สูงอายุ</Link></li>
-                                <li><Link href="/program/stroke" className="hover:text-indigo-400 transition-colors">ดูแลผู้ป่วยระยะพักฟื้น</Link></li>
-                                <li><Link href="/program/bedridden" className="hover:text-indigo-400 transition-colors">ดูแลผู้ป่วยติดเตียง</Link></li>
-                                <li><Link href="/program/alzheimer" className="hover:text-indigo-400 transition-colors">ดูแลผู้ป่วยอัลไซเมอร์</Link></li>
-                                <li><Link href="/program/parkinson" className="hover:text-indigo-400 transition-colors">ดูแลผู้ป่วยพาร์กินสัน</Link></li>
-                                <li><Link href="/program/cancer" className="hover:text-indigo-400 transition-colors">ดูแลผู้ป่วยมะเร็ง/เคมีบำบัด</Link></li>
-                                <li><Link href="/program/palliative" className="hover:text-indigo-400 transition-colors">ดูแลผู้ป่วยระยะสุดท้าย</Link></li>
+                                <li><Link href="/program/elderly" className="hover:text-blue-400 transition-colors">ดูแลผู้สูงอายุ</Link></li>
+                                <li><Link href="/program/stroke" className="hover:text-blue-400 transition-colors">ดูแลผู้ป่วยระยะพักฟื้น</Link></li>
+                                <li><Link href="/program/bedridden" className="hover:text-blue-400 transition-colors">ดูแลผู้ป่วยติดเตียง</Link></li>
+                                <li><Link href="/program/alzheimer" className="hover:text-blue-400 transition-colors">ดูแลผู้ป่วยอัลไซเมอร์</Link></li>
+                                <li><Link href="/program/parkinson" className="hover:text-blue-400 transition-colors">ดูแลผู้ป่วยพาร์กินสัน</Link></li>
+                                <li><Link href="/program/cancer" className="hover:text-blue-400 transition-colors">ดูแลผู้ป่วยมะเร็ง/เคมีบำบัด</Link></li>
+                                <li><Link href="/program/palliative" className="hover:text-blue-400 transition-colors">ดูแลผู้ป่วยระยะสุดท้าย</Link></li>
                             </ul>
                         </div>
 
@@ -843,11 +798,11 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         <div className="space-y-3">
                             <h4 className="text-base font-bold text-white mb-3">โครงการอื่นๆ</h4>
                             <ul className="space-y-2 text-sm text-gray-400">
-                                <li><Link href="/project/wellness" className="hover:text-indigo-400 transition-colors">โครงการ Wellness Center</Link></li>
-                                <li><Link href="/project/homecare" className="hover:text-indigo-400 transition-colors">โครงการ Home Care</Link></li>
-                                <li><Link href="/project/academy" className="hover:text-indigo-400 transition-colors">โครงการ Healthcare Academy</Link></li>
-                                <li><Link href="/project/foundation" className="hover:text-indigo-400 transition-colors">โครงการ Foundation</Link></li>
-                                <li><Link href="/investment" className="hover:text-indigo-400 transition-colors">การลงทุน</Link></li>
+                                <li><Link href="/project/wellness" className="hover:text-blue-400 transition-colors">โครงการ Wellness Center</Link></li>
+                                <li><Link href="/project/homecare" className="hover:text-blue-400 transition-colors">โครงการ Home Care</Link></li>
+                                <li><Link href="/project/academy" className="hover:text-blue-400 transition-colors">โครงการ Healthcare Academy</Link></li>
+                                <li><Link href="/project/foundation" className="hover:text-blue-400 transition-colors">โครงการ Foundation</Link></li>
+                                <li><Link href="/investment" className="hover:text-blue-400 transition-colors">การลงทุน</Link></li>
                             </ul>
                         </div>
 
@@ -857,7 +812,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     <div className="mt-10 pt-4 border-t border-gray-800 text-sm text-gray-400 flex justify-between items-end flex-wrap">
                         <p>
                             ©{new Date().getFullYear()} YoodeeHomeCare. All rights reserved. |
-                            <Link href="/privacy" className="text-indigo-400 hover:text-indigo-500 ml-1">นโยบายความเป็นส่วนตัว</Link>
+                            <Link href="/privacy" className="text-blue-400 hover:text-blue-500 ml-1">นโยบายความเป็นส่วนตัว</Link>
                         </p>
                         <a href="tel:098-193-8856" className="bg-green-600 rounded-full p-3 shadow-lg hover:bg-green-700 transition-colors mt-4 md:mt-0 cursor-pointer"
                             onClick={() => gtag.event({ action: 'click_footer_cta', category: 'Conversion', label: '098-193-8856' })}>

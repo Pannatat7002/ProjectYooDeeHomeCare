@@ -7,12 +7,12 @@ import { LayoutDashboard, Database, LogOut } from 'lucide-react';
 export default function AdminSidebar() {
     const pathname = usePathname();
 
-    const isActive = (path: string) => pathname === path ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50';
+    const isActive = (path: string) => pathname === path ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50';
 
     return (
         <div className="w-64 bg-white border-r h-screen flex flex-col fixed left-0 top-0 z-30">
             <div className="p-6 border-b">
-                <h1 className="text-xl font-bold text-indigo-900">Admin Panel</h1>
+                <h1 className="text-xl font-bold text-blue-900">Admin Panel</h1>
             </div>
             <nav className="flex-1 p-4 space-y-2">
                 <Link href="/admin/dashboard" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/dashboard')}`}>

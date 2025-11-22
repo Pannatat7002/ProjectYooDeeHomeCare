@@ -153,7 +153,7 @@ export default function ConsultationManagement() {
 
     return (
         <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-            <h1 className="text-3xl font-extrabold text-indigo-700 mb-6 flex items-center">
+            <h1 className="text-3xl font-extrabold text-blue-700 mb-6 flex items-center">
                 <User className="w-8 h-8 mr-3" />
                 รายการผู้สนใจ/ผู้ปรึกษา (Consultations)
             </h1>
@@ -163,7 +163,7 @@ export default function ConsultationManagement() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-indigo-600 text-white text-sm font-semibold border-b">
+                            <tr className="bg-blue-600 text-white text-sm font-semibold border-b">
                                 <th className="py-4 px-4 w-12 text-center">#</th>
                                 <th className="py-4 px-4">ข้อมูลผู้ติดต่อ</th>
                                 <th className="py-4 px-4">รายละเอียด</th>
@@ -179,7 +179,7 @@ export default function ConsultationManagement() {
                                 <tr><td colSpan={6} className="py-8 text-center text-gray-500">ไม่พบรายการติดต่อ</td></tr>
                             ) : (
                                 paginatedConsultations.map((consultation, index) => (
-                                    <tr key={consultation.id} className="hover:bg-indigo-50 text-sm text-gray-800 transition-colors">
+                                    <tr key={consultation.id} className="hover:bg-blue-50 text-sm text-gray-800 transition-colors">
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td className="py-3 px-4 font-medium min-w-[200px]">
                                             <p className='font-bold'>{consultation.name}</p>
@@ -201,7 +201,7 @@ export default function ConsultationManagement() {
                                             </p>
                                         </td>
                                         <td className="py-3 px-4 min-w-[200px]">
-                                            <p className="font-semibold text-indigo-600">ศูนย์: {consultation.branch}</p>
+                                            <p className="font-semibold text-blue-600">ศูนย์: {consultation.branch}</p>
                                             <p className="text-xs text-gray-700">งบประมาณ: {consultation.budget}</p>
                                             <p className="text-xs text-gray-700">ประเภทห้อง: {consultation.roomType}</p>
                                             <p className="text-xs text-gray-700">เวลาสะดวก: {consultation.convenientTime}</p>
@@ -241,16 +241,16 @@ export default function ConsultationManagement() {
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-2 border rounded-full hover:bg-indigo-100 disabled:opacity-50 transition-colors"
+                                className="p-2 border rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors"
                             >
-                                <ChevronLeft className="w-5 h-5 text-indigo-600" />
+                                <ChevronLeft className="w-5 h-5 text-blue-600" />
                             </button>
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-2 border rounded-full hover:bg-indigo-100 disabled:opacity-50 transition-colors"
+                                className="p-2 border rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors"
                             >
-                                <ChevronRight className="w-5 h-5 text-indigo-600" />
+                                <ChevronRight className="w-5 h-5 text-blue-600" />
                             </button>
                         </div>
                     </div>

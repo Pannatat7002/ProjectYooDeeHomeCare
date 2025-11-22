@@ -1,8 +1,31 @@
 import { NextResponse } from 'next/server';
 import { getCareCenters, saveCareCenters } from '../../../lib/db';
 
-export async function GET() {
-    const careCenters = getCareCenters();
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    let careCenters = getCareCenters();
+
+    const hasGovernmentCertificate = searchParams.get('hasGovernmentCertificate');
+    if (hasGovernmentCertificate !== null) {
+        careCenters = careCenters.filter((c: any) => c.hasGovernmentCertificate === (hasGovernmentCertificate === 'true'));
+    }
+
+    const brandName = searchParams.get('brandName');
+    if (brandName) {
+        careCenters = careCenters.filter((c: any) => c.brandName === brandName);
+    }
+
+    const type = searchParams.get('type');
+    if (type) {
+        careCenters = careCenters.filter((c: any) => c.type === type);
+    }
+
+    const name = searchParams.get('name');
+    if (name) {
+        careCenters = careCenters.filter((c: any) => c.name === name);
+    }
+
+
     return NextResponse.json(careCenters);
 }
 

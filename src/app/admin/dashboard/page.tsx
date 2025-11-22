@@ -63,8 +63,8 @@ export default function DashboardPage() {
             {/* KPI Cards */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
                 <div className="bg-white p-6 rounded-xl shadow flex justify-between items-center">
-                    <div><p className="text-gray-500 text-sm">ทั้งหมด</p><p className="text-3xl font-bold text-indigo-600">{stats.total}</p></div>
-                    <div className="p-3 bg-indigo-100 rounded-full"><Building2 className="text-indigo-600" /></div>
+                    <div><p className="text-gray-500 text-sm">ทั้งหมด</p><p className="text-3xl font-bold text-blue-600">{stats.total}</p></div>
+                    <div className="p-3 bg-blue-100 rounded-full"><Building2 className="text-blue-600" /></div>
                 </div>
                 <div className="bg-white p-6 rounded-xl shadow flex justify-between items-center">
                     <div><p className="text-gray-500 text-sm">ราคาเฉลี่ย</p><p className="text-3xl font-bold text-green-600">฿{stats.avgPrice.toLocaleString()}</p></div>

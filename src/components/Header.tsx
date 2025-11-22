@@ -17,10 +17,10 @@ export default function Header() {
 
                     {/* Navigation Links (Center) - Simplified Nav for Detail Page */}
                     <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium absolute left-1/2 transform -translate-x-1/2">
-                        <Link href="/" className="text-gray-900 hover:text-indigo-600 font-semibold">หน้าแรก</Link>
-                        <Link href="/about" className="text-gray-900 hover:text-indigo-600">เกี่ยวกับเรา</Link>
-                        <Link href="/services" className="text-gray-900 hover:text-indigo-600">บริการของเรา</Link>
-                        <Link href="/contact" className="text-gray-900 hover:text-indigo-600">ติดต่อเรา</Link>
+                        <Link href="/" className="text-gray-900 hover:text-blue-600 font-semibold">หน้าแรก</Link>
+                        <Link href="/about" className="text-gray-900 hover:text-blue-600">เกี่ยวกับเรา</Link>
+                        <Link href="/services" className="text-gray-900 hover:text-blue-600">บริการของเรา</Link>
+                        <Link href="/contact" className="text-gray-900 hover:text-blue-600">ติดต่อเรา</Link>
                     </nav>
 
                     {/* Contact/CTA (Right) */}
@@ -33,8 +33,8 @@ export default function Header() {
                         </div>
                         {/* CTA Button */}
                         <Link
-                            href="/consultation"
-                            className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-300/50"
+                            href="/contact"
+                            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-md shadow-blue-300/50"
                             onClick={() => gtag.event({ action: 'click_header_cta', category: 'Conversion', label: 'Contact_Consultation' })}
                         >
                             ติดต่อสอบถาม

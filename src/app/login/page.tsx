@@ -45,7 +45,7 @@ export default function LoginPage() {
                         />
                     </div>
                     {error && <p className="text-red-600 text-sm">{error}</p>}
-                    <button type="submit" className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                    <button type="submit" className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                         เข้าสู่ระบบ
                     </button>
                 </form>
