@@ -10,17 +10,23 @@ export default function Header() {
             <div className="bg-white shadow-sm border-b border-gray-100">
                 <div className="container max-w-6xl mx-auto px-4 py-3 flex justify-between items-center h-20">
                     {/* Logo/Brand (Left) */}
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                         <img src="/YooDeeHomeCare.png" alt="YoodeeHomeCare Logo" className="h-8 w-auto" />
-                        {/* <YoodeeHomeCareLogoText size="xl" /> */}
+                    </div> */}
+                    <div className="flex items-baseline text-2xl sm:text-2xl font-extrabold tracking-tight">
+                        <span className="text-[#0E1B4F] dark:text-[#18395B]">
+                            YooDee
+                        </span>
+                        <span className="text-gray-900 dark:text-gray-200 font-semibold ml-0.5">
+                            HomeCare
+                        </span>
                     </div>
-
                     {/* Navigation Links (Center) - Simplified Nav for Detail Page */}
                     <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-gray-900 hover:text-blue-600 font-semibold">หน้าแรก</Link>
                         <Link href="/about" className="text-gray-900 hover:text-blue-600">เกี่ยวกับเรา</Link>
                         <Link href="/services" className="text-gray-900 hover:text-blue-600">บริการของเรา</Link>
-                        <Link href="/contact" className="text-gray-900 hover:text-blue-600">ติดต่อเรา</Link>
+                        {/* <Link href="/contact" className="text-gray-900 hover:text-blue-600">ติดต่อเรา</Link> */}
                     </nav>
 
                     {/* Contact/CTA (Right) */}

@@ -51,8 +51,8 @@
     ],
     "website": "https://pi-ban.weebly.com/nursinghome.html",
     "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3872.4730289454365!2d100.53060207586697!3d13.930416993131445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e281b5b9df1739%3A0x6b01000fca22356b!2z4Lio4Li54LiZ4Lii4LmM4LiU4Li54LmB4Lil4Lic4Li54LmJ4Liq4Li54LiH4Lit4Liy4Lii4Li4IOC5gOC4reC5h-C4meC5gOC4iOC4p-C4suC4ouC5gOC4meC4reC4o-C5jOC4quC4i-C4tOC5iOC4h-C5guC4ruC4oSDguJXguLTguKfguLLguJnguJnguJfguYwgMzgvMQ!5e0!3m2!1sth!2sus!4v1752588636135!5m2!1sth!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
-    "brandName": "Home Care Piban",
-    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
+    "brandName": "NJY Group",
+    "brandLogoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYDPMoqFXZvfULNuQ04n0KTvqTeEzYbgv6kg&s"
   },
   {
     "id": 22,
@@ -159,7 +159,7 @@
     "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d242.1725922654585!2d100.38412068568695!3d13.79324749936109!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29100073099b5%3A0xc0f250b3c287706e!2z4LmA4Lit4LmH4LiZIOC5gOC4iCDguKfguLLguKIg4LmC4Liu4Lih4LmB4LiE4Lij4LmMIOC4geC4suC4o-C4lOC4ueC5geC4peC4nOC4ueC5ieC4quC4ueC4h-C4reC4suC4ouC4uOC4q-C4o-C4t-C4reC4nOC4ueC5ieC4oeC4teC4oOC4suC4p-C4sOC4nuC4tuC5iOC4h-C4nuC4tOC4hw!5e0!3m2!1sen!2sth!4v1752591434752!5m2!1sen!2sth\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
     "price": 15000,
     "type": "both",
-    "rating": 0,
+    "rating": 4.4,
     "phone": "098-193-8856",
     "description": "บริการของเราที่ \"สาขาบรมราชชนนี\n1. การดูแลผู้ป่วยติดเตียง\nเชี่ยวชาญการป้องกันแผลกดทับ (พลิกตัวทุก 2 ชม.)\nดูแลความสะอาดร่างกายและการขับถ่ายโดยผู้เชี่ยวชาญ\nเฝ้าระวังสัญญาณชีพและดูแลโภชนาการ (รวมให้อาหารทางสายยาง)\n2. การดูแลแบบประคับประคอง (Palliative Care)\nเน้น \"คุณภาพชีวิต\" และความสุขสบายทางใจ\nบรรเทาความเจ็บปวด (Pain Management) ให้ผู้ป่วยผ่อนคลายที่สุด\nดูแลประคับประคองจิตใจผู้ป่วยและญาติอย่างใกล้ชิด\n3. กายภาพบำบัดฟื้นฟู (Rehabilitation)\nฟื้นฟูผู้ป่วย Stroke, หลังผ่าตัด, กล้ามเนื้ออ่อนแรง\nออกแบบโปรแกรม \"ตัวต่อตัว\" โดยนักกายภาพบำบัด\nฝึกการทรงตัว ลุก-นั่ง-ยืน-เดิน เพื่อกลับมาช่วยเหลือตัวเอง\n​✅ ดูแล 24 ชม. โดยทีมพยาบาลและผู้เชี่ยวชาญ\n✅ มาตรฐานแฟรนไชส์ DBD (การันตีคุณภาพ)\n✅ ราคาโปร่งใส คุ้มค่า (ตอบโจทย์ Ads)\n✅ ปลอดภัย สะอาด อบอุ่นเหมือนบ้าน",
     "website": "https://pi-ban.weebly.com/home-care.html",
@@ -202,6 +202,7 @@
       }
     ],
     "brandName": "Home Care Piban",
-    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
+    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg",
+    "hasGovernmentCertificate": false
   }
 ]

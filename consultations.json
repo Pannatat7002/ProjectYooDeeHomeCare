@@ -24,21 +24,21 @@
     "budget": "ต่ำกว่า 20,000",
     "convenientTime": "ช่วงเช้า (9:00 - 12:00)",
     "message": "",
-    "status": "pending",
+    "status": "followed_up",
     "submittedAt": "2025-11-20T12:09:10.175Z"
   },
   {
-    "id": 1763795805791,
-    "name": "PANNATAT SAMAN",
+    "id": 1763838161802,
+    "name": "pannatat saman",
     "phone": "0958057052",
-    "lineId": "หฟกฟหกฟกหฟกฟ",
-    "email": "Pannatat7002@gmail.com",
-    "roomType": "ห้องพักรวม",
-    "branch": "ฟูลฟิล ลิฟวิ่ง สถานดูแลผู้สูงอายุ ผู้ป่วยพักฟื้น",
-    "budget": "ต่ำกว่า 20,000",
+    "lineId": "TestLINE ID (ถ้า",
+    "email": "pannatat7002@gmail.com",
+    "roomType": "V.I.P",
+    "branch": "เอ็นเจวายโฮมแคร์ ​ ​สาขาบรมฯ64",
+    "budget": "20,000 - 30,000",
     "convenientTime": "ช่วงเช้า (9:00 - 12:00)",
-    "message": "adasdasdasdadadas",
+    "message": "test ฝากข้อความถึง (ถ้ามี)\n",
     "status": "pending",
-    "submittedAt": "2025-11-22T07:16:45.791Z"
+    "submittedAt": "2025-11-22T19:02:41.802Z"
   }
 ]

@@ -32,3 +32,7 @@ export const saveCareCenters = (data: any[]) => saveDataToFile(DB_PATH, data);
 export const getConsultations = () => loadDataFromFile<any>(CONSULTATIONS_PATH);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const saveConsultations = (data: any[]) => saveDataToFile(CONSULTATIONS_PATH, data);
+
+const CONTACTS_PATH = path.join(process.cwd(), 'contacts.json');
+export const getContacts = () => loadDataFromFile<any>(CONTACTS_PATH);
+export const saveContacts = (data: any[]) => saveDataToFile(CONTACTS_PATH, data);

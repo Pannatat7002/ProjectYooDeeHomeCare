@@ -10,12 +10,23 @@ export async function PUT(
         const { id } = await params;
         const consultationId = Number(id);
         const body = await request.json();
+
+        console.log(`🔄 PUT Request for Consultation ID: ${id} (Parsed: ${consultationId})`);
+        console.log('📦 Body:', body);
+
         const consultations = getConsultations();
         const index = consultations.findIndex((c: any) => c.id === consultationId);
 
         if (index !== -1) {
+            console.log(`✅ Found consultation at index ${index}. Current status: ${consultations[index].status}`);
+
             consultations[index] = { ...consultations[index], ...body, id: consultationId };
+
+            console.log(`📝 Updating to new status: ${consultations[index].status}`);
+
             saveConsultations(consultations);
+
+            console.log('💾 Saved consultations to file.');
 
             return NextResponse.json({
                 success: true,
@@ -23,6 +34,7 @@ export async function PUT(
                 data: consultations[index],
             });
         } else {
+            console.warn(`❌ Consultation ID ${consultationId} not found.`);
             return NextResponse.json(
                 { success: false, message: 'ไม่พบรายการปรึกษา' },
                 { status: 404 }

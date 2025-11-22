@@ -20,7 +20,6 @@ interface Consultation {
 }
 
 const API_URL = '/api/care-centers/consultations';
-// const API_URL = 'http://localhost:3001/api/care-centers/consultations';
 
 export default function ConsultationManagement() {
     // --- State ---
@@ -35,7 +34,7 @@ export default function ConsultationManagement() {
     const fetchConsultations = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch(API_URL);
+            const res = await fetch(API_URL, { cache: 'no-store' });
             if (!res.ok) throw new Error('Failed to fetch consultations');
 
             const result: { data: Consultation[] } = await res.json();
@@ -77,22 +76,22 @@ export default function ConsultationManagement() {
         }
     };
 
-    // Handler สำหรับการเปลี่ยนสถานะการติดตาม (สมมติว่าต้องการเปลี่ยน status ใน API)
+    // Handler สำหรับการเปลี่ยนสถานะการติดตาม
     const handleUpdateStatus = async (consultation: Consultation, newStatus: string) => {
         const payload = { status: newStatus };
 
         try {
-            const res = await fetch(`${API_URL}/${consultation.id}`, { // สมมติว่ามี PUT/PATCH endpoint
+            const res = await fetch(`${API_URL}/${consultation.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                cache: 'no-store'
             });
 
             if (res.ok) {
                 alert(`เปลี่ยนสถานะเป็น "${newStatus}" สำเร็จ`);
                 fetchConsultations(); // โหลดข้อมูลใหม่
             } else {
-                // API อาจไม่รองรับ method PUT/PATCH จึงแจ้งเตือนตามความเป็นจริง
                 alert(`เปลี่ยนสถานะไม่สำเร็จ (ID: ${consultation.id} | สถานะ: ${newStatus})`);
             }
         } catch (error) {
