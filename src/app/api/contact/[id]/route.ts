@@ -6,7 +6,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
         const params = await context.params;
         const id = Number(params.id);
         const body = await request.json();
-        const contacts = getContacts();
+        const contacts = await getContacts();
         const index = contacts.findIndex((c: any) => c.id === id);
 
         if (index === -1) {
@@ -14,7 +14,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
         }
 
         contacts[index] = { ...contacts[index], ...body };
-        saveContacts(contacts);
+        await saveContacts(contacts);
 
         return NextResponse.json({ message: 'Message updated', data: contacts[index] });
     } catch (error) {
@@ -26,7 +26,7 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
     try {
         const params = await context.params;
         const id = Number(params.id);
-        let contacts = getContacts();
+        let contacts = await getContacts();
         const initialLength = contacts.length;
         contacts = contacts.filter((c: any) => c.id !== id);
 
@@ -34,7 +34,7 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
             return NextResponse.json({ message: 'Message not found' }, { status: 404 });
         }
 
-        saveContacts(contacts);
+        await saveContacts(contacts);
         return NextResponse.json({ message: 'Message deleted' });
     } catch (error) {
         return NextResponse.json({ message: 'Error deleting message' }, { status: 500 });

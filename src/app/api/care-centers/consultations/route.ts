@@ -4,7 +4,7 @@ import { getConsultations, saveConsultations } from '../../../../lib/db';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    const consultations = getConsultations();
+    const consultations = await getConsultations();
     return NextResponse.json({
         success: true,
         count: consultations.length,
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const consultations = getConsultations();
+        const consultations = await getConsultations();
         const newConsultation = {
             id: Date.now(),
             name,
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         };
 
         consultations.push(newConsultation);
-        saveConsultations(consultations);
+        await saveConsultations(consultations);
 
         return NextResponse.json(
             {

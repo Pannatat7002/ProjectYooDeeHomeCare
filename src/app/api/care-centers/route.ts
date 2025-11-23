@@ -3,7 +3,7 @@ import { getCareCenters, saveCareCenters } from '../../../lib/db';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    let careCenters = getCareCenters();
+    let careCenters = await getCareCenters();
 
     const hasGovernmentCertificate = searchParams.get('hasGovernmentCertificate');
     if (hasGovernmentCertificate !== null) {
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const careCenters = getCareCenters();
+        const careCenters = await getCareCenters();
 
         const nextCenterId = careCenters.length > 0
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         };
 
         careCenters.push(newCenter);
-        saveCareCenters(careCenters);
+        await saveCareCenters(careCenters);
 
         return NextResponse.json(newCenter, { status: 201 });
     } catch (error) {

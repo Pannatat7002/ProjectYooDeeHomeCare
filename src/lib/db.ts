@@ -1,38 +1,53 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import fs from 'fs';
-import path from 'path';
+import { getSheet, rowsToData } from './googleSheets';
 
-const DB_PATH = path.join(process.cwd(), 'db.json');
-const CONSULTATIONS_PATH = path.join(process.cwd(), 'consultations.json');
-
-export const loadDataFromFile = <T>(filePath: string): T[] => {
-    try {
-        if (fs.existsSync(filePath)) {
-            const data = fs.readFileSync(filePath, 'utf-8');
-            return data.trim() ? JSON.parse(data) : [];
+// Helper to format data for Google Sheets (stringify objects/arrays)
+const formatRowForSheet = (item: any) => {
+    const row: any = {};
+    for (const key in item) {
+        const value = item[key];
+        if (typeof value === 'object' && value !== null) {
+            row[key] = JSON.stringify(value);
+        } else {
+            row[key] = value;
         }
-        return [];
-    } catch (error) {
-        console.error(`Error reading file ${path.basename(filePath)}:`, error);
-        return [];
     }
+    return row;
 };
 
-export const saveDataToFile = <T>(filePath: string, data: T[]) => {
+const saveDataToSheet = async (sheetName: string, data: any[]) => {
     try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+        const sheet = await getSheet(sheetName);
+        if (data.length > 0) {
+            const headers = Object.keys(data[0]);
+            await sheet.setHeaderRow(headers);
+        }
+        await sheet.clearRows();
+        const rows = data.map(formatRowForSheet);
+        await sheet.addRows(rows);
     } catch (error) {
-        console.error(`Error writing to file ${path.basename(filePath)}:`, error);
+        console.error(`Error saving to sheet ${sheetName}:`, error);
+        throw error;
     }
 };
 
-export const getCareCenters = () => loadDataFromFile<any>(DB_PATH);
-export const saveCareCenters = (data: any[]) => saveDataToFile(DB_PATH, data);
+const loadDataFromSheet = async (sheetName: string) => {
+    try {
+        const sheet = await getSheet(sheetName);
+        const rows = await sheet.getRows();
+        return rowsToData(rows);
+    } catch (error) {
+        console.error(`Error loading from sheet ${sheetName}:`, error);
+        return [];
+    }
+};
 
-export const getConsultations = () => loadDataFromFile<any>(CONSULTATIONS_PATH);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const saveConsultations = (data: any[]) => saveDataToFile(CONSULTATIONS_PATH, data);
+export const getCareCenters = async () => loadDataFromSheet('CareCenters');
+export const saveCareCenters = async (data: any[]) => saveDataToSheet('CareCenters', data);
 
-const CONTACTS_PATH = path.join(process.cwd(), 'contacts.json');
-export const getContacts = () => loadDataFromFile<any>(CONTACTS_PATH);
-export const saveContacts = (data: any[]) => saveDataToFile(CONTACTS_PATH, data);
+export const getConsultations = async () => loadDataFromSheet('Consultations');
+export const saveConsultations = async (data: any[]) => saveDataToSheet('Consultations', data);
+
+export const getContacts = async () => loadDataFromSheet('Contacts');
+export const saveContacts = async (data: any[]) => saveDataToSheet('Contacts', data);
+

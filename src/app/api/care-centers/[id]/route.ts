@@ -8,7 +8,7 @@ export async function GET(
 ) {
     const { id } = await params;
     const centerId = parseInt(id);
-    const careCenters = getCareCenters();
+    const careCenters = await getCareCenters();
     const center = careCenters.find((c: any) => c.id === centerId);
 
     if (center) {
@@ -26,12 +26,12 @@ export async function PUT(
         const { id } = await params;
         const centerId = parseInt(id);
         const body = await request.json();
-        const careCenters = getCareCenters();
+        const careCenters = await getCareCenters();
         const index = careCenters.findIndex((c: any) => c.id === centerId);
 
         if (index !== -1) {
             careCenters[index] = { ...careCenters[index], ...body, id: centerId };
-            saveCareCenters(careCenters);
+            await saveCareCenters(careCenters);
             return NextResponse.json(careCenters[index]);
         } else {
             return NextResponse.json({ message: 'Center not found' }, { status: 404 });
@@ -50,12 +50,12 @@ export async function DELETE(
 ) {
     const { id } = await params;
     const centerId = parseInt(id);
-    const careCenters = getCareCenters();
+    const careCenters = await getCareCenters();
     const index = careCenters.findIndex((c: any) => c.id === centerId);
 
     if (index !== -1) {
         careCenters.splice(index, 1);
-        saveCareCenters(careCenters);
+        await saveCareCenters(careCenters);
         return new NextResponse(null, { status: 204 });
     } else {
         return NextResponse.json({ message: 'Center not found' }, { status: 404 });

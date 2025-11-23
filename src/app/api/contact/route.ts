@@ -4,14 +4,14 @@ import { getContacts, saveContacts } from '../../../lib/db';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    const contacts = getContacts();
+    const contacts = await getContacts();
     return NextResponse.json({ data: contacts });
 }
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const contacts = getContacts();
+        const contacts = await getContacts();
 
         const newContact = {
             id: Date.now(),
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         };
 
         contacts.push(newContact);
-        saveContacts(contacts);
+        await saveContacts(contacts);
 
         return NextResponse.json({ message: 'Message sent successfully', data: newContact }, { status: 201 });
     } catch (error) {

@@ -14,7 +14,7 @@ export async function PUT(
         console.log(`🔄 PUT Request for Consultation ID: ${id} (Parsed: ${consultationId})`);
         console.log('📦 Body:', body);
 
-        const consultations = getConsultations();
+        const consultations = await getConsultations();
         const index = consultations.findIndex((c: any) => c.id === consultationId);
 
         if (index !== -1) {
@@ -24,7 +24,7 @@ export async function PUT(
 
             console.log(`📝 Updating to new status: ${consultations[index].status}`);
 
-            saveConsultations(consultations);
+            await saveConsultations(consultations);
 
             console.log('💾 Saved consultations to file.');
 
@@ -55,12 +55,12 @@ export async function DELETE(
     try {
         const { id } = await params;
         const consultationId = Number(id);
-        const consultations = getConsultations();
+        const consultations = await getConsultations();
         const index = consultations.findIndex((c: any) => c.id === consultationId);
 
         if (index !== -1) {
             consultations.splice(index, 1);
-            saveConsultations(consultations);
+            await saveConsultations(consultations);
             return new NextResponse(null, { status: 204 });
         } else {
             return NextResponse.json(
