@@ -185,7 +185,7 @@ export default function HomePage() {
                     {/* Badge: Certified (ถ้ามี) - ย้ายไปอยู่ด้านล่างแทน */}
                     {center.hasGovernmentCertificate && (
                       <div className="absolute bottom-2 left-2 bg-green-600/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm flex items-center gap-1">
-                        รับรองจาก สปสช
+                        รับรองจาก สบส
                       </div>
                     )}
 
@@ -216,14 +216,13 @@ export default function HomePage() {
                       {/* ราคาหลัก (รายเดือน) */}
                       <div className="text-lg font-medium text-blue-800 mb-1">
                         {/* จำลองการแสดงช่วงราคา ถ้ามี */}
-                        <span className="text-2xl">{center.price.toLocaleString()}</span> -
+                        <span className="text-2xl">{center.price?.toLocaleString() ?? '0'}</span> -
                         <span className="text-2xl">{(center.price + 5000).toLocaleString()}</span> บาท/เดือน
                       </div>
 
                       {/* ราคาเสริม (รายวัน) */}
                       <div className="text-gray-700 text-md font-bold">
-                        <span className="text-red-500">{Math.floor(center.price / 30).toLocaleString()}</span> บาท/วัน
-                      </div>
+                        <span className="block text-2xl font-extrabold text-green-600">฿{center.price?.toLocaleString() ?? '0'}</span>                      </div>
                     </div>
 
                     {/* <div className="flex justify-between items-center text-sm text-gray-500 mt-4 pt-4 border-t border-gray-100">

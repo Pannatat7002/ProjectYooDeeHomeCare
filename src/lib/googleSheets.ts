@@ -1,25 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
+import { PRIVATE_KEY, SHEET_ID, CLIENT_EMAIL } from '../secrets';
 
-const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID;
-const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
-const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY;
-
-if (!SPREADSHEET_ID || !GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY) {
-    console.error('Google Sheets credentials are missing in environment variables.');
-}
-
+// 1. ตั้งค่าการยืนยันตัวตน (Authentication)
 const serviceAccountAuth = new JWT({
-    email: GOOGLE_CLIENT_EMAIL,
-    key: GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    email: CLIENT_EMAIL,
+    key: PRIVATE_KEY.replace(/\\n/g, '\n'), // แก้ปัญหา \n ใน Vercel/Next.js
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-export const doc = new GoogleSpreadsheet(SPREADSHEET_ID as string, serviceAccountAuth);
+export const doc = new GoogleSpreadsheet(SHEET_ID, serviceAccountAuth);
 
+// 2. Helper: ดึง Sheet ตามชื่อ (ถ้าไม่มีจะสร้างใหม่)
 export const getSheet = async (title: string) => {
     try {
-        await doc.loadInfo();
+        await doc.loadInfo(); // โหลดข้อมูล Spreadsheet
         let sheet = doc.sheetsByTitle[title];
         if (!sheet) {
             sheet = await doc.addSheet({ title });
@@ -31,25 +27,45 @@ export const getSheet = async (title: string) => {
     }
 };
 
+// 3. Helper: แปลง Rows จาก Google Sheets เป็น JSON Data ปกติ
+// (ปรับปรุงใหม่: แปลงตัวเลขและ JSON อัตโนมัติ)
 export const rowsToData = (rows: any[]) => {
     return rows.map((row) => {
+        // ใช้ toObject() แทน _header เพื่อความเข้ากันได้กับทุกเวอร์ชัน
+        const rawObj = row.toObject ? row.toObject() : row;
         const obj: any = {};
-        row._header.forEach((header: string) => {
-            let value = row.get(header);
-            // Attempt to parse JSON for complex fields
+
+        // วนลูปผ่านทุก key ใน object
+        Object.keys(rawObj).forEach((header: string) => {
+            let value = rawObj[header];
+
+            // A. แปลง JSON String (สำหรับ Array/Object ที่เก็บใน Cell)
             if (typeof value === 'string' && (value.startsWith('[') || value.startsWith('{'))) {
                 try {
                     value = JSON.parse(value);
                 } catch {
-                    // keep as string if parse fails
+                    // ถ้า parse ไม่ผ่าน ให้เก็บเป็น string เหมือนเดิม
                 }
             }
-            // Convert "TRUE"/"FALSE" strings to booleans if needed, or rely on JSON parse
+
+            // B. แปลง Boolean
             if (value === 'TRUE') value = true;
             if (value === 'FALSE') value = false;
 
+            // C. แปลง Number (เพิ่มใหม่ ✅)
+            // เช็คว่าเป็นตัวเลขหรือไม่ และต้องไม่ใช่ค่าว่าง
+            if (!isNaN(Number(value)) && value !== '') {
+                // ข้อยกเว้น: ถ้าเป็นเบอร์โทรศัพท์ (ขึ้นต้นด้วย 0 และยาว) อย่าแปลงเป็น number เพราะเลข 0 นำหน้าจะหาย
+                const isPhoneNumber = typeof value === 'string' && value.startsWith('0') && value.length > 8;
+
+                if (!isPhoneNumber) {
+                    value = Number(value);
+                }
+            }
+
             obj[header] = value;
         });
+
         return obj;
     });
 };

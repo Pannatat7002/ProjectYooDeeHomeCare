@@ -22,13 +22,8 @@ const loadDataFromFile = (filePath: string) => {
 async function migrate() {
     console.log('Starting migration...');
 
-    // Check if env vars are present
-    if (!process.env.GOOGLE_SHEET_ID || !process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-        console.error('Missing Google Sheets credentials in environment variables.');
-        console.error('Please ensure .env.local is created and you run this script with:');
-        console.error('npx tsx --env-file=.env.local scripts/migrate-to-sheets.ts');
-        process.exit(1);
-    }
+    // Credentials are now handled via src/secrets.ts
+
 
     const careCenters = loadDataFromFile(DB_PATH);
     console.log(`Found ${careCenters.length} care centers.`);

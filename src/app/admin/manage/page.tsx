@@ -237,8 +237,8 @@ function ManageCenterPage() {
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td className="py-3 px-4 font-semibold">{center.name}</td>
                                         <td className="py-3 px-4 max-w-xs truncate" title={center.address}>{center.address}</td>
-                                        <td className="py-3 px-4">฿{center.price.toLocaleString()}</td>
-                                        <td className="py-3 px-4">{center.rating.toFixed(1)}</td>
+                                        <td className="py-3 px-4">฿{center.price?.toLocaleString() ?? '0'}</td>
+                                        <td className="py-3 px-4">{(center.rating || 0).toFixed(1)}</td>
                                         <td className="py-3 px-4">
                                             {center.type === 'both' ? 'รายวัน/รายเดือน' : center.type === 'daily' ? 'รายวัน' : 'รายเดือน'}
                                         </td>
@@ -368,7 +368,7 @@ function ManageCenterPage() {
                                             onChange={e => setFormData({ ...formData, hasGovernmentCertificate: e.target.checked })}
                                         />
                                         <label htmlFor="hasGovernmentCertificate" className="text-sm font-bold text-blue-800 select-none cursor-pointer">
-                                            ได้รับการรับรองจาก สปสช. (Government Certificate)
+                                            ได้รับการรับรองจาก สบส. (Government Certificate)
                                         </label>
                                     </div>
 
@@ -460,8 +460,7 @@ function ManageCenterPage() {
                                                     <div className="md:col-span-5">
                                                         <input type="text" placeholder="รายละเอียด (คั่นด้วย comma ,)"
                                                             className="w-full border rounded px-2 py-1.5 text-sm"
-                                                            value={pkg.details.join(', ')}
-                                                            onChange={(e) => handlePackageChange(idx, 'details', e.target.value)}
+                                                            value={Array.isArray(pkg.details) ? pkg.details.join(', ') : ''} onChange={(e) => handlePackageChange(idx, 'details', e.target.value)}
                                                         />
                                                     </div>
                                                 </div>
