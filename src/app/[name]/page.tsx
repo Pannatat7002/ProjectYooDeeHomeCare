@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
     MapPin, Star, Phone, Globe, CheckCircle2, ArrowLeft,
-    Share2, Heart, ShieldCheck, Info, DollarSign, Calendar, Mail, Facebook, X, Menu,
+    Share2, Heart, ShieldCheck, Info, DollarSign, Calendar, X,
     ChevronDown,
     ChevronRight,
     ChevronLeft
@@ -224,6 +223,8 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
     const [loading, setLoading] = useState(true);
     const [activeImage, setActiveImage] = useState<string>('');
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+    const [relatedCenters, setRelatedCenters] = useState<CareCenter[]>([]); // NEW STATE
+
     // ในส่วนของ State (ตรวจสอบว่ามีตัวนี้อยู่)
     const [initialModalIndex, setInitialModalIndex] = useState(0);
     const openGallery = (index: number, imageClicked: string) => {
@@ -231,6 +232,12 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
         setInitialModalIndex(index);
         setIsGalleryOpen(true);
     };
+
+    // Helper to create slug (duplicated from home page)
+    const createSlug = (name: string) => {
+        return encodeURIComponent(name.replace(/\s+/g, '-'));
+    };
+
     // Initial Form State
     const initialFormData: ConsultationFormData = {
         name: '', phone: '', lineId: '', email: '', roomType: '',
@@ -275,7 +282,6 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
             alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
             gtag.event({ action: 'submit_form_exception', category: 'Error', label: center?.name || 'Unknown' });
         } finally {
-            // Wait a moment before resetting status for user feedback
             setTimeout(() => setSubmitStatus('idle'), 2000);
         }
     };
@@ -283,55 +289,57 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
     // Helper to extract map source URL
     const getMapSrc = (iframeString: string | undefined): string | null => {
         if (!iframeString) return null;
-        const srcMatch = iframeString.match(/src="([^"]*)"/);
-        return srcMatch ? srcMatch[1] : null;
+        const match = iframeString.match(/src="([^"]+)"/);
+        return match ? match[1] : null;
     };
 
-
-    // Combined useEffect for parameter decoding, data fetching, and state initialization
     useEffect(() => {
         let isMounted = true;
 
         const fetchData = async (slugName: string) => {
-            if (!slugName) return;
-
             try {
                 const res = await fetch('/api/care-centers');
                 const data: CareCenter[] = await res.json();
 
-                const targetName = decodeSlug(slugName).replace(/\s+/g, '');
+                if (!isMounted) return;
+
+                const decodedName = decodeSlug(slugName);
+                const targetName = decodedName.replace(/\s+/g, '');
+
                 const foundCenter = data.find(c =>
                     c.name.replace(/\s+/g, '') === targetName ||
-                    c.name === decodeSlug(slugName)
+                    c.name === decodedName
                 );
 
-                if (isMounted) {
-                    if (foundCenter) {
-                        setCenter(foundCenter);
-                        // Set the first image as active, default to placeholder if none exists
-                        const initialImage = foundCenter.imageUrls?.[0] || 'https://via.placeholder.com/800x600?text=No+Image';
-                        setActiveImage(initialImage);
-                        setFormData(prev => ({ ...prev, branch: foundCenter.name }));
+                if (foundCenter) {
+                    setCenter(foundCenter);
+                    // Set the first image as active, default to placeholder if none exists
+                    const initialImage = foundCenter.imageUrls?.[0] || 'https://via.placeholder.com/800x600?text=No+Image';
+                    setActiveImage(initialImage);
+                    setFormData(prev => ({ ...prev, branch: foundCenter.name }));
 
-                        gtag.event({
-                            action: 'view_item',
-                            category: 'Engagement',
-                            label: foundCenter.name,
-                            value: foundCenter.price,
-                            page_location: window.location.href,
-                            center_id: foundCenter.id,
-                            center_type: foundCenter.type,
-                            slug: slugName
-                        });
-                    } else {
-                        gtag.event({
-                            action: 'view_item_not_found',
-                            category: 'Error',
-                            label: slugName
-                        });
-                    }
-                    setLoading(false);
+                    // Set Related Centers (exclude current, take up to 3)
+                    const others = data.filter(c => c.id !== foundCenter.id);
+                    setRelatedCenters(others.slice(0, 3));
+
+                    gtag.event({
+                        action: 'view_item',
+                        category: 'Engagement',
+                        label: foundCenter.name,
+                        value: foundCenter.price,
+                        page_location: window.location.href,
+                        center_id: foundCenter.id,
+                        center_type: foundCenter.type,
+                        slug: slugName
+                    });
+                } else {
+                    gtag.event({
+                        action: 'view_item_not_found',
+                        category: 'Error',
+                        label: slugName
+                    });
                 }
+                setLoading(false);
             } catch (error) {
                 console.error("Error fetching center:", error);
                 if (isMounted) {
@@ -341,15 +349,15 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
         };
 
         params.then(resolvedParams => {
-            fetchData(resolvedParams.name);
+            if (isMounted) {
+                fetchData(resolvedParams.name);
+            }
         });
 
         return () => {
             isMounted = false;
         };
-    }, [params]); // Depend on params only
-
-    // --- Loading & Not Found States ---
+    }, [params]);
 
     if (loading) {
         return (
@@ -388,7 +396,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
     // --- Render Main Content ---
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-24 md:pb-12">
+        <div className="min-h-screen bg-gray-50/50 pb-24 md:pb-12">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 <div className="text-left pb-4">
                     <Link href="/" className="inline-flex items-center text-black-600 font-medium text-md hover:text-blue-800 transition-colors">
@@ -734,6 +742,81 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         </div>
                     </div>
                 </div>
+
+                {/* --- Recommended Centers Section --- */}
+                {relatedCenters.length > 0 && (
+                    <div className="mt-20 border-t border-gray-200 pt-12">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {relatedCenters.map(rc => (
+                                <Link
+                                    key={rc.id}
+                                    href={`/${createSlug(rc.name)}`}
+                                    className="block group"
+                                    onClick={() => gtag.event({ action: 'click_related_center', category: 'Navigation', label: rc.name })}
+                                >
+                                    <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
+                                        {/* Image Section */}
+                                        <div className="relative h-56 overflow-hidden">
+                                            <img
+                                                src={rc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
+                                                alt={rc.name}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                                            <div className="absolute top-3 left-3 flex gap-2">
+                                                {rc.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
+                                                {rc.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
+                                                {rc.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
+                                            </div>
+                                            {rc.hasGovernmentCertificate && (
+                                                <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
+                                                    <ShieldCheck className="w-3 h-3" /> กรม สบส.
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Content Section */}
+                                        <div className="p-5 flex-grow flex flex-col">
+                                            <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                                {rc.name}
+                                            </h3>
+                                            <p className="text-gray-500 text-sm flex items-center mb-3">
+                                                <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
+                                                <span className="line-clamp-1">{rc.address}</span>
+                                            </p>
+                                            <div className="flex items-center mb-4">
+                                                <div className="flex text-yellow-400">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rc.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs text-gray-400 ml-2 font-medium">
+                                                    {rc.rating ? rc.rating.toFixed(1) : '0.0'} (รีวิว)
+                                                </span>
+                                            </div>
+
+                                            {/* Footer Section */}
+                                            <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
+                                                    <p className="text-lg font-bold text-blue-600">
+                                                        ฿{rc.price?.toLocaleString() ?? '0'}
+                                                        <span className="text-xs text-gray-400 font-normal ml-1">/เดือน</span>
+                                                    </p>
+                                                </div>
+                                                <div className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-200 transition-colors">
+                                                    <ChevronRight className="w-4 h-4" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </main>
 
             {/* 4. FOOTER (Minor cleanup for Logo component usage and icon import) */}

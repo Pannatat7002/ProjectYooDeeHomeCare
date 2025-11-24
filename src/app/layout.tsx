@@ -21,23 +21,65 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   // ===============================
 
-  title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุ รายวัน รายเดือน",
-  description: "บริการค้นหาศูนย์ดูแลผู้สูงอายุที่ได้มาตรฐาน ใกล้บ้านคุณ พร้อมเปรียบเทียบราคาและรีวิว ดูแลโดยทีมงานมืออาชีพ",
-  keywords: ["ศูนย์ดูแลผู้สูงอายุ", "บ้านพักคนชรา", "Nursing Home", "ดูแลผู้ป่วยติดเตียง", "กายภาพบำบัดผู้สูงอายุ"],
+  // ** 1. SEO หลัก (Title & Description & Keywords) **
+  // ใช้ Title ที่เน้นคำค้นหาหลักและบริการสำคัญ
+  title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุ/ผู้ป่วยพักฟื้น รายวัน รายเดือน",  // ใช้ Description ที่ดึงดูดใจและใส่คุณสมบัติเด่นที่ปรากฏในภาพ (การเปรียบเทียบราคา/ช่วงราคา)
+  description:
+    "ยกระดับคุณภาพชีวิตของผู้สูงอายุและผู้ป่วยพักฟื้น ด้วยการค้นหา ศูนย์ดูแลที่ได้มาตรฐานสูงสุด พร้อมเปรียบเทียบราคา รีวิว และบริการ รายวัน/รายเดือน ใกล้บ้านคุณ ให้คนที่คุณรักได้รับการดูแลที่ดีที่สุดอย่างแท้จริง",  // เพิ่ม Keywords ที่ครอบคลุมคำค้นหาที่เกี่ยวข้อง
+  keywords:
+    ["ศูนย์ดูแลผู้สูงอายุ", "บ้านพักคนชรา", "Nursing Home", "ดูแลผู้ป่วยพักฟื้น",
+      "กายภาพบำบัดผู้สูงอายุ", "ศูนย์ดูแลมาตรฐาน", "ยกระดับคุณภาพชีวิตผู้สูงอายุ",
+      "ดูแลรายวัน", "ดูแลรายเดือน", "เปรียบเทียบศูนย์ดูแล",
+      // <<< เพิ่มคำที่เน้นความสะดวก/ทำเล >>>
+      "ศูนย์ดูแลผู้สูงอายุใกล้ฉัน",
+      "ศูนย์ดูแลผู้สูงอายุใกล้บ้าน",
+      "ค้นหาสะดวก",
+      "ศูนย์ดูแลใกล้บ้านพักคนชรา"],
+  // ** 2. Robots Tag (สำหรับควบคุม Bot ของ Search Engine) **
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
+  },
+
+  // ** 3. Icons (Favicon) **
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
+
+  // ** 4. Open Graph (สำหรับแชร์บน Facebook, Line) **
   openGraph: {
-    title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุที่ดีที่สุด",
-    description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ",
-    url: BASE_URL, // ใช้ค่าที่กำหนดไว้
+    title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุที่ดีที่สุด", // Title สำหรับ Social Media
+    description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ พร้อมเปรียบเทียบราคาและรีวิว", // Description สำหรับ Social Media
+    url: BASE_URL,
     siteName: "YoodeeHomeCare",
     images: [
       {
         url: "/YooDeeHomeCare.png", // Next.js จะรวม BASE_URL เข้ากับ Path นี้โดยอัตโนมัติ
         width: 1200,
         height: 630,
+        alt: "YoodeeHomeCare: ศูนย์ดูแลผู้สูงอายุ รายวัน รายเดือน พร้อมเปรียบเทียบ",
       },
     ],
     locale: "th_TH",
     type: "website",
+  },
+
+  // ** 5. Twitter Card (สำหรับแชร์บน X/Twitter) **
+  twitter: {
+    card: 'summary_large_image', // รูปแบบการ์ดแบบรูปภาพขนาดใหญ่
+    title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุที่ดีที่สุด",
+    description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ",
+    creator: '@YoodeeHomeCare', // เปลี่ยนเป็น Twitter Handle ของ YoodeeHomeCare
+    images: ['/YooDeeHomeCare.png'],
   },
 };
 
