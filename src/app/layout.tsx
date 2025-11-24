@@ -5,6 +5,7 @@ import { Sarabun } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { GA_TRACKING_ID } from "../lib/gtag";
+import { Analytics } from "@vercel/analytics/next";
 
 const sarabun = Sarabun({
   weight: ['400', '500', '700'],
@@ -56,6 +57,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <Analytics />
       </body>
 
       {/* Google Analytics Scripts */}
