@@ -73,44 +73,48 @@ export default function HomePage() {
 
   // --- Render ---
   return (
-    <>
-      {/* 💡 ส่วนใหม่: Hero Section พร้อม Background Image และ Search Bar */}
+    <div className="min-h-screen bg-gray-50/50">
+      {/* 💡 Hero Section พร้อม Background Image และ Search Bar แบบ Modern */}
       <div
-        className="relative h-[450px] flex items-center justify-center bg-cover bg-center"
+        className="relative pt-16 pb-20 px-4 bg-cover bg-center"
         style={{
-          backgroundImage: 'url("/images/hero-background.jpg")', // 💡 เปลี่ยน path รูปภาพตามจริง
-          backgroundPosition: 'center 40%', // ปรับตำแหน่งรูป
+          backgroundImage: 'url("/images/hero-background.jpg")', // ใช้รูปภาพจากไฟล์ local
+          backgroundPosition: 'center 30%'
         }}
       >
-        {/* Overlay สีดำจางๆ เพื่อให้อ่านตัวหนังสือได้ชัดเจน */}
-        <div className="absolute inset-0 bg-black opacity-10"></div>
+        {/* Overlay สีดำจางๆ */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
 
-        <div className="z-10 container max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">
-            ค้นหาสถานที่ดูแลที่ดีที่สุด
-          </h1>
-          <p className="text-xl text-white/90 mb-8 drop-shadow">
-            ศูนย์ดูแลผู้สูงอายุและผู้ป่วยพักฟื้นทั่วประเทศ
-          </p>
+        <div className="relative z-10 container max-w-5xl mx-auto text-center">
 
-          {/* Search Bar ภายใต้ Hero */}
-          <div className="bg-white p-4 md:p-6 rounded-xl shadow-2xl mx-auto max-w-3xl">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-              <div className="md:col-span-2 relative">
-                <div className="relative">
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-all text-base"
-                    placeholder="ชื่อศูนย์, จังหวัด, หรือบริการ..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <Search className="absolute left-3 top-3 text-gray-400 h-5 w-5" />
-                </div>
+          {/* Logo / Title Area */}
+          <div className="mb-10 flex flex-col items-center justify-center">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg tracking-tight">
+              ค้นหาสถานที่ดูแลผู้สูงอายุและผู้ป่วยพักฟื้น
+            </h1>
+            <p className="text-white/90 text-lg md:text-xl font-light drop-shadow-md max-w-2xl mx-auto">
+              แหล่งรวมศูนย์ดูแลที่ได้มาตรฐาน ครบครัน และปลอดภัยสำหรับคนที่คุณรัก
+            </p>
+          </div>
+
+          {/* Search Bar Modern Style */}
+          <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-sm p-3 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20">
+            <div className="flex flex-col md:flex-row gap-2">
+              <div className="flex-grow relative">
+                <Search className="absolute left-4 top-3.5 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all text-gray-700 placeholder-gray-400 font-medium"
+                  placeholder="ค้นหาชื่อศูนย์, จังหวัด, หรือบริการ..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              <div>
+
+              {/* Filters Dropdown (Desktop) */}
+              <div className="hidden md:flex gap-2">
                 <select
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-all text-base bg-white"
+                  className="px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:bg-gray-100 transition-colors font-medium"
                   value={careType}
                   onChange={handleCareTypeChange}
                 >
@@ -118,33 +122,77 @@ export default function HomePage() {
                   <option value="daily">รายวัน</option>
                   <option value="monthly">รายเดือน</option>
                 </select>
-              </div>
-              <div>
                 <select
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-all text-base bg-white"
+                  className="px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:bg-gray-100 transition-colors font-medium"
                   value={priceRange}
                   onChange={handlePriceChange}
                 >
                   <option value="all">ทุกราคา</option>
-                  <option value="0-20000">ต่ำกว่า 20,000</option>
-                  <option value="20001-25000">20,001 - 25,000</option>
-                  <option value="25001-999999">มากกว่า 25,000</option>
+                  <option value="0-20000">ต่ำกว่า 20k</option>
+                  <option value="20001-25000">20k - 25k</option>
+                  <option value="25001-999999">มากกว่า 25k</option>
                 </select>
               </div>
+
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 active:scale-95">
+                ค้นหา
+              </button>
+            </div>
+
+            {/* Mobile Filters (Visible only on mobile) */}
+            <div className="flex md:hidden gap-2 mt-2">
+              <select
+                className="w-1/2 px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium"
+                value={careType}
+                onChange={handleCareTypeChange}
+              >
+                <option value="all">ทุกประเภท</option>
+                <option value="daily">รายวัน</option>
+                <option value="monthly">รายเดือน</option>
+              </select>
+              <select
+                className="w-1/2 px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium"
+                value={priceRange}
+                onChange={handlePriceChange}
+              >
+                <option value="all">ทุกราคา</option>
+                <option value="0-20000">ต่ำกว่า 20k</option>
+                <option value="20001-25000">20k - 25k</option>
+                <option value="25001-999999">มากกว่า 25k</option>
+              </select>
             </div>
           </div>
+
+          {/* Quick Tags / Pills */}
+          <div className="mt-8 flex flex-wrap justify-center gap-2">
+            {['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'เชียงใหม่', 'กายภาพบำบัด', 'ดูแลผู้ป่วยติดเตียง'].map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setSearchTerm(tag)}
+                className="px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-sm text-white hover:bg-white hover:text-blue-600 transition-all shadow-sm font-medium"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
         </div>
       </div>
 
 
       <div className="container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
-        {/* 🛑 ส่วน Filter Section เดิมถูกลบออกไป เพื่อย้าย Filter ไปไว้ใน Hero แล้ว */}
 
-        {/* แสดงจำนวนผลลัพธ์ */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            ผลลัพธ์การค้นหา ({loading ? '...' : filteredCenters.length})
-          </h2>
+        {/* Header Results */}
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">
+              ศูนย์ดูแลแนะนำ
+            </h2>
+            <p className="text-gray-500 text-sm mt-1">คัดสรรมาเพื่อคนที่คุณรัก</p>
+          </div>
+          <span className="text-gray-400 text-sm">
+            ค้นพบ {loading ? '...' : filteredCenters.length} แห่ง
+          </span>
         </div>
 
 
@@ -157,82 +205,100 @@ export default function HomePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCenters.map(center => (
-              // 💡 ทำให้ Card ทั้งหมดสามารถคลิกได้ โดยใช้ Link ห่อ Div หลัก
               <Link
                 key={center.id}
                 href={`/${createSlug(center.name)}`}
-                className="block" // ต้องเป็น block เพื่อให้ Link คลุมทั้ง Card
+                className="block group"
                 onClick={() => gtag.event({ action: 'view_item_list', category: 'Discovery', label: center.name, center_id: center.id })}
               >
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full border border-gray-100 cursor-pointer">
-                  {/* 1. ส่วนรูปภาพ */}
-                  <div className="block h-48 overflow-hidden relative group">
+                <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
+
+                  {/* 1. Image Section */}
+                  <div className="relative h-56 overflow-hidden">
                     <img
                       src={center.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
                       alt={center.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
                     />
 
-                    {/* Badge: Exclusive (ถ้ามี) */}
-                    <div className="absolute top-0 left-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-br-lg shadow-md">
-                      {center.type === 'both' ? 'รายวัน/เดือน' : center.type === 'daily' ? 'รายวัน' : 'รายเดือน'}
+                    {/* Overlay Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex gap-2">
+                      {center.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
+                      {center.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
+                      {center.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
                     </div>
 
-                    {/* Badge: ประเภท (ย้ายจากมุมขวาบน มาเป็นป้ายบอกประเภทบริการ) */}
-                    {/* ไม่ได้ใช้แล้วตามภาพตัวอย่าง */}
-
-                    {/* Badge: Certified (ถ้ามี) - ย้ายไปอยู่ด้านล่างแทน */}
                     {center.hasGovernmentCertificate && (
-                      <div className="absolute bottom-2 left-2 bg-green-600/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm flex items-center gap-1">
-                        รับรองจาก กรม สบส.
+                      <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                          <path fillRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.498 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
+                        </svg>
+                        กรม สบส.
                       </div>
                     )}
-
-                    {/* Icon กล้อง/แผนที่ Placeholder (จำลองจากภาพ) */}
-                    <div className="absolute bottom-2 right-2 p-2 bg-black/50 text-white rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                        <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5a.75.75 0 00.75-.75v-1.94l-2.432-2.432a1.5 1.5 0 00-2.12 0L11.75 14.25l-.78-.78a.75.75 0 00-1.06 0L4.5 18.06z" clipRule="evenodd" />
-                      </svg>
-                    </div>
                   </div>
 
-                  {/* 2. ส่วนเนื้อหา */}
-                  <div className="p-4 md:p-5 flex-grow flex flex-col">
+                  {/* 2. Content Section */}
+                  <div className="p-5 flex-grow flex flex-col">
 
-                    {/* ชื่อ */}
-                    <h3 className="text-xl font-bold text-gray-900 leading-tight mb-1">
+                    {/* Title */}
+                    <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
                       {center.name}
                     </h3>
 
-                    {/* ที่อยู่ */}
-                    <p className="text-gray-600 text-sm flex items-start mb-4 line-clamp-2">
-                      <MapPin className="h-4 w-4 mr-1.5 text-gray-400 flex-shrink-0 mt-0.5" />
-                      {center.address}
+                    {/* Location */}
+                    <p className="text-gray-500 text-sm flex items-center mb-3">
+                      <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
+                      <span className="line-clamp-1">{center.address}</span>
                     </p>
 
-                    {/* 3. ส่วนราคาและรายละเอียด */}
-                    <div className="mt-auto pt-3 border-t border-gray-100">
-                      {/* ราคาหลัก (รายเดือน) */}
-                      <div className="text-lg font-medium text-blue-800 mb-1">
-                        {/* จำลองการแสดงช่วงราคา ถ้ามี */}
-                        <span className="text-2xl">{center.price?.toLocaleString() ?? '0'}</span> -
-                        <span className="text-2xl">{(center.price + 5000).toLocaleString()}</span> บาท/เดือน
+                    {/* Rating & Reviews */}
+                    <div className="flex items-center mb-4">
+                      <div className="flex text-yellow-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(center.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
+                        ))}
                       </div>
-
-                      {/* ราคาเสริม (รายวัน) */}
-                      <div className="text-gray-700 text-md font-bold">
-                        <span className="block text-2xl font-extrabold text-green-600">฿{center.price?.toLocaleString() ?? '0'}</span>                      </div>
+                      <span className="text-xs text-gray-400 ml-2 font-medium">
+                        {center.rating ? center.rating.toFixed(1) : '0.0'} (รีวิว)
+                      </span>
                     </div>
 
-                    {/* <div className="flex justify-between items-center text-sm text-gray-500 mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-gray-400">
-                          <path fillRule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6v-1.5A.75.75 0 016.75 2.25zm13.5 9a.75.75 0 00-1.5 0v5.25a.75.75 0 001.5 0v-5.25z" clipRule="evenodd" />
-                        </svg>
-                        <span> เข้าวร่วมเมื่อ: 22/11/2025 8:58</span> 
+                    {/* Facilities Tags (Mockup) */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full">ดูแล 24 ชม.</span>
+                      <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full">กายภาพ</span>
+                      <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full">อาหาร 3 มื้อ</span>
+                    </div>
+
+                    {/* 3. Footer Section (Price & Action) */}
+                    <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
+                        <p className="text-lg font-bold text-blue-600">
+                          ฿{center.price?.toLocaleString() ?? '0'}
+                          <span className="text-xs text-gray-400 font-normal ml-1">/เดือน</span>
+                        </p>
                       </div>
-                    </div> */}
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        <button className="w-8 h-8 rounded-full bg-gray-50 hover:bg-blue-50 text-gray-400 hover:text-blue-600 flex items-center justify-center transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                          </svg>
+                        </button>
+                        <button className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-200 transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
 
                   </div>
                 </div>
@@ -253,6 +319,6 @@ export default function HomePage() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
