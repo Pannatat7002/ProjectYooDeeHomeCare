@@ -6,7 +6,7 @@ export default function Footer() {
     return (
         <footer className="bg-gray-900 text-white mt-12">
             <div className="container max-w-6xl mx-auto px-4 py-10">
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
 
                     {/* 1. Logo/Address Column */}
                     <div className="col-span-2 lg:col-span-1 space-y-4">
@@ -87,12 +87,12 @@ export default function Footer() {
                 </div>
 
                 {/* Copyright & Disclaimer */}
-                <div className="mt-10 pt-4 border-t border-gray-800 text-sm text-gray-400 flex justify-between items-end flex-wrap">
-                    <p>
+                <div className="mt-10 pt-4 border-t border-gray-800 text-sm text-gray-400 flex flex-col md:flex-row justify-between items-center md:items-end gap-4">
+                    <p className="text-center md:text-left">
                         ©{new Date().getFullYear()} YoodeeHomeCare. All rights reserved. |
                         <Link href="/privacy" className="text-blue-400 hover:text-blue-500 ml-1">นโยบายความเป็นส่วนตัว</Link>
                     </p>
-                    <Link href="/contact" className="bg-green-600 rounded-full p-3 shadow-lg hover:bg-green-700 transition-colors mt-4 md:mt-0 cursor-pointer block">
+                    <Link href="/contact" className="bg-green-600 rounded-full px-4 py-3 shadow-lg hover:bg-green-700 transition-colors cursor-pointer block text-center">
                         <span className="text-white text-xs font-semibold">ปรึกษาเรื่องที่พักกับเจ้าหน้าที่</span>
                     </Link>
                 </div>

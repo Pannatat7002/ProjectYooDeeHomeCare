@@ -368,7 +368,7 @@ function ManageCenterPage() {
                                             onChange={e => setFormData({ ...formData, hasGovernmentCertificate: e.target.checked })}
                                         />
                                         <label htmlFor="hasGovernmentCertificate" className="text-sm font-bold text-blue-800 select-none cursor-pointer">
-                                            ได้รับการรับรองจาก สบส. (Government Certificate)
+                                            ได้รับรองจาก กรม สบส. (Government Certificate)
                                         </label>
                                     </div>
 

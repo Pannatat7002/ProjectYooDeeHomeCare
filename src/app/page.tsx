@@ -185,7 +185,7 @@ export default function HomePage() {
                     {/* Badge: Certified (ถ้ามี) - ย้ายไปอยู่ด้านล่างแทน */}
                     {center.hasGovernmentCertificate && (
                       <div className="absolute bottom-2 left-2 bg-green-600/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm flex items-center gap-1">
-                        รับรองจาก สบส
+                        รับรองจาก กรม สบส.
                       </div>
                     )}
 
