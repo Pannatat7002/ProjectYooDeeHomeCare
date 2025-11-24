@@ -69,3 +69,40 @@ export const rowsToData = (rows: any[]) => {
         return obj;
     });
 };
+
+// 4. Helper: บันทึกข้อมูลการสมัครเป็นผู้ให้บริการ
+export const appendProviderSignup = async (data: any) => {
+    try {
+        const sheet = await getSheet('ProviderSignups');
+
+        // ตั้งค่า Header ถ้ายังไม่มี
+        await sheet.loadHeaderRow();
+        if (!sheet.headerValues || sheet.headerValues.length === 0) {
+            await sheet.setHeaderRow([
+                'timestamp',
+                'centerName',
+                'ownerName',
+                'phone',
+                'email',
+                'lineId',
+                'address',
+                'subdistrict',
+                'district',
+                'province',
+                'postalCode',
+                'centerType',
+                'capacity',
+                'services',
+                'description',
+                'status'
+            ]);
+        }
+
+        // เพิ่มแถวใหม่
+        await sheet.addRow(data);
+        return { success: true };
+    } catch (error) {
+        console.error('Error appending provider signup:', error);
+        throw error;
+    }
+};
