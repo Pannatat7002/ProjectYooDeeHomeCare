@@ -52,7 +52,8 @@
     "website": "https://pi-ban.weebly.com/nursinghome.html",
     "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3872.4730289454365!2d100.53060207586697!3d13.930416993131445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e281b5b9df1739%3A0x6b01000fca22356b!2z4Lio4Li54LiZ4Lii4LmM4LiU4Li54LmB4Lil4Lic4Li54LmJ4Liq4Li54LiH4Lit4Liy4Lii4Li4IOC5gOC4reC5h-C4meC5gOC4iOC4p-C4suC4ouC5gOC4meC4reC4o-C5jOC4quC4i-C4tOC5iOC4h-C5guC4ruC4oSDguJXguLTguKfguLLguJnguJnguJfguYwgMzgvMQ!5e0!3m2!1sth!2sus!4v1752588636135!5m2!1sth!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
     "brandName": "NJY Group",
-    "brandLogoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYDPMoqFXZvfULNuQ04n0KTvqTeEzYbgv6kg&s"
+    "brandLogoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYDPMoqFXZvfULNuQ04n0KTvqTeEzYbgv6kg&s",
+    "province": "นนทบุรี"
   },
   {
     "id": 22,
@@ -105,7 +106,8 @@
     ],
     "mapUrl": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3873.9534015236495!2d100.57931127586605!3d13.84183569520111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311d63ddb9ff8035%3A0xf933f27d420dc979!2z4Lio4Li54LiZ4Lii4LmM4LiU4Li54LmB4Lil4Lic4Li54LmJ4Liq4Li54LiH4Lit4Liy4Lii4Li4IOC4n-C4ueC4peC4n-C4tOC4pSDguKXguLTguJ_guKfguLTguYjguIc!5e0!3m2!1sth!2sus!4v1752588661016!5m2!1sth!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
     "brandName": "Home Care Piban",
-    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
+    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg",
+    "province": "กรุงเทพมหานคร"
   },
   {
     "id": 24,
@@ -150,7 +152,8 @@
       }
     ],
     "brandName": "Home Care Piban",
-    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg"
+    "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg",
+    "province": "นนทบุรี"
   },
   {
     "id": 27,
@@ -203,6 +206,7 @@
     ],
     "brandName": "Home Care Piban",
     "brandLogoUrl": "https://franzbiz.com/wp-content/uploads/2024/11/123993.jpg",
-    "hasGovernmentCertificate": false
+    "hasGovernmentCertificate": false,
+    "province": "กรุงเทพมหานคร"
   }
 ]

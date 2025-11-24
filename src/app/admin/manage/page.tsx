@@ -28,6 +28,7 @@ interface CareCenter {
     hasGovernmentCertificate?: boolean;
     brandName?: string;
     brandLogoUrl?: string;
+    province?: string;
 }
 
 interface Consultation {
@@ -64,7 +65,7 @@ const INITIAL_FORM_STATE: Omit<CareCenter, 'id'> = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
     imageUrls: [''], description: '', services: [], packages: [],
-    hasGovernmentCertificate: false, brandName: '', brandLogoUrl: ''
+    hasGovernmentCertificate: false, brandName: '', brandLogoUrl: '', province: ''
 };
 
 const MASTER_SERVICES = [
@@ -121,7 +122,8 @@ function ManageCenterPage() {
                 services: center.services || [],
                 hasGovernmentCertificate: center.hasGovernmentCertificate || false,
                 brandName: center.brandName || '',
-                brandLogoUrl: center.brandLogoUrl || ''
+                brandLogoUrl: center.brandLogoUrl || '',
+                province: center.province || ''
             });
         } else {
             setEditingId(null);
@@ -219,6 +221,7 @@ function ManageCenterPage() {
                             <tr className="bg-gray-50 text-gray-600 text-sm font-semibold border-b">
                                 <th className="py-4 px-4 w-16 text-center">ลำดับ</th>
                                 <th className="py-4 px-4">ชื่อศูนย์ดูแล</th>
+                                <th className="py-4 px-4">จังหวัด</th>
                                 <th className="py-4 px-4">ที่อยู่</th>
                                 <th className="py-4 px-4">ราคา</th>
                                 <th className="py-4 px-4">เรตติ้ง</th>
@@ -228,14 +231,15 @@ function ManageCenterPage() {
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
-                                <tr><td colSpan={7} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                                <tr><td colSpan={8} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
                             ) : paginatedCenters.length === 0 ? (
-                                <tr><td colSpan={7} className="py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>
+                                <tr><td colSpan={8} className="py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>
                             ) : (
                                 paginatedCenters.map((center, index) => (
                                     <tr key={center.id} className="hover:bg-gray-50 text-sm text-gray-700 transition-colors">
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td className="py-3 px-4 font-semibold">{center.name}</td>
+                                        <td className="py-3 px-4">{center.province || '-'}</td>
                                         <td className="py-3 px-4 max-w-xs truncate" title={center.address}>{center.address}</td>
                                         <td className="py-3 px-4">฿{center.price?.toLocaleString() ?? '0'}</td>
                                         <td className="py-3 px-4">{(center.rating || 0).toFixed(1)}</td>
@@ -307,6 +311,13 @@ function ManageCenterPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
                                         <textarea required rows={2} className="w-full border rounded-md px-3 py-2"
                                             value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">จังหวัด</label>
+                                        <input type="text" className="w-full border rounded-md px-3 py-2"
+                                            placeholder="เช่น กรุงเทพมหานคร, นนทบุรี"
+                                            value={formData.province || ''} onChange={e => setFormData({ ...formData, province: e.target.value })} />
                                     </div>
 
                                     <div>

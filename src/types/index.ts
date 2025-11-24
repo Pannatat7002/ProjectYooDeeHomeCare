@@ -23,4 +23,5 @@ export interface CareCenter {
     hasGovernmentCertificate?: boolean;
     brandName?: string;
     brandLogoUrl?: string;
+    province?: string;
 }

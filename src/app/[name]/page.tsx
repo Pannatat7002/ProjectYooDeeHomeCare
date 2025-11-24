@@ -405,410 +405,234 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     </Link>
                 </div>
 
-                {/* 1. Header Section */}
-                <div className="mb-8">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-snug">{center.name}</h1>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4">
-                        <p className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1 text-gray-400" /> {center.address}
-                        </p>
-                        <div className="flex items-center">
-                            <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-                            <span className="font-semibold text-gray-800 mr-1">{(center.rating || 0).toFixed(1)}</span>
-                            <span className="text-gray-500">(รีวิว)</span>
-                        </div>
-                        {center.hasGovernmentCertificate && (
-                            <div className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
-                                <ShieldCheck className="h-3 w-3 mr-1" />
-                                รับรองจาก กรม สบส.
-                            </div>
-                        )}
-                    </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* LEFT COLUMN */}
+                    <div className="lg:col-span-2 space-y-6">
 
-                    {/* Gallery Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[300px] md:h-[400px] rounded-2xl overflow-hidden relative">
-                        {/* รูปใหญ่ซ้ายมือ */}
-                        <div className="md:col-span-2 h-full">
-                            <img
-                                src={mainImage}
-                                alt="Main center image"
-                                className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
-                                onClick={() => setIsGalleryOpen(true)}
-                                onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                            />
-                        </div>
-                        {/* Grid ขวามือ */}
-                        <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
-                            {galleryImages.slice(1).map((url, idx) => (
-                                <div key={idx} className="h-full overflow-hidden">
-                                    <img
-                                        src={url}
-                                        alt={`Gallery thumbnail ${idx + 2}`}
-                                        className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
-                                        onClick={() => { setActiveImage(url); setIsGalleryOpen(true); }}
-                                        onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                                    />
+                        {/* Image Gallery Section */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="relative h-[300px] md:h-[400px] bg-gray-100 cursor-pointer group" onClick={() => openGallery(0, mainImage)}>
+                                <img src={mainImage} alt={center.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                    <span className="bg-black/50 text-white px-4 py-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center backdrop-blur-sm">
+                                        <Share2 className="w-4 h-4 mr-2" /> ดูรูปภาพทั้งหมด
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={() => setIsGalleryOpen(true)}
-                            className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-xl text-xs font-semibold shadow-md hover:bg-white transition-all border border-gray-200"
-                        >
-                            ดูรูปทั้งหมด ({allImages.length})
-                        </button>
-                        {/* Optional: Wishlist/Share Button */}
-                        <div className="absolute top-4 right-4 flex space-x-2">
-                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-red-500 transition-colors shadow-md">
-                                <Heart className="w-5 h-5" />
-                            </button>
-                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-blue-500 transition-colors shadow-md">
-                                <Share2 className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 3. Content Layout: Main (Left) + Sidebar (Right) */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-
-                    {/* Left Column: Details */}
-                    <div className="lg:col-span-2 space-y-12">
-                        {/* Description */}
-                        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">เกี่ยวกับศูนย์ดูแล</h2>
-                            <p className="text-gray-700 leading-relaxed text-base whitespace-pre-line">
-                                {center.description}
-                            </p>
-                        </section>
-                        {/* Facilities */}
-                        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">สิ่งอำนวยความสะดวกและบริการ</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {center.services?.map((s, i) => (
-                                    <div key={i} className="flex items-start p-3 rounded-lg bg-blue-50 text-blue-700 transition-colors">
-                                        <CheckCircle2 className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm font-medium">{s}</span>
-                                    </div>
-                                ))}
                             </div>
-                        </section>
-                        {/* Packages */}
-                        {center.packages && center.packages.length > 0 && (
-                            <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">แพ็กเกจราคา</h2>
-                                <div className="space-y-4">
-                                    {center.packages.map((pkg, idx) => (
-                                        <div key={idx} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-green-300 hover:shadow-md transition-all group">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <h4 className="font-semibold text-lg text-gray-800 group-hover:text-green-700 transition-colors">{pkg.name}</h4>
-                                                    <p className="text-sm text-gray-500">
-                                                        {pkg.details || `เหมาะสำหรับผู้ที่ต้องการการดูแลระดับ ${idx + 1}`}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right flex-shrink-0 ml-4">
-                                                    <span className="block text-2xl font-extrabold text-green-600">฿{pkg.price?.toLocaleString() ?? '0'}</span>
-                                                    <span className="text-xs text-gray-400">ต่อเดือน</span>
-                                                </div>
-                                            </div>
-                                            {pkg.details && pkg.details.length > 0 && (
-                                                <div className="mt-4 pt-4 border-t border-gray-100">
-                                                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                        {pkg.details.map((d, i) => (
-                                                            <li key={i} className="text-sm text-gray-600 flex items-start">
-                                                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 mt-1 flex-shrink-0"></div> {d}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            )}
+                            {/* Thumbnails */}
+                            {galleryImages.length > 1 && (
+                                <div className="grid grid-cols-5 gap-1 p-1 bg-gray-50">
+                                    {galleryImages.map((img, idx) => (
+                                        <div key={idx} className="relative h-20 cursor-pointer overflow-hidden rounded-lg border border-gray-200 hover:border-blue-500 transition-all" onClick={() => openGallery(idx, img)}>
+                                            <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
                                         </div>
                                     ))}
                                 </div>
-                            </section>
-                        )}
-                        {/* Map */}
-                        {center.mapUrl && (
-                            <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">สถานที่ตั้ง</h2>
-                                <div className="rounded-xl overflow-hidden shadow-inner border h-[350px] bg-gray-100 relative">
-                                    {getMapSrc(center.mapUrl) ? (
-                                        <iframe
-                                            src={getMapSrc(center.mapUrl)!}
-                                            width="100%"
-                                            height="100%"
-                                            style={{ border: 0 }}
-                                            allowFullScreen
-                                            loading="lazy"
-                                            className="filter grayscale-[10%] hover:grayscale-0 transition-all duration-500"
-                                            title={`Map of ${center.name}`}
-                                        />
-                                    ) : (
-                                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 flex-col">
-                                            <MapPin className="w-10 h-10 mb-2 opacity-30" />
-                                            <span>ไม่สามารถโหลดแผนที่ได้</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-                        )}
-                        {/* Consultation Form - Separated into its own function for clarity or kept here as is */}
-                        <section className="bg-white rounded-2xl shadow-xl border border-blue-200 p-6 md:p-8 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-green-500"></div>
-                            <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-                                <span className="text-blue-600">นัดปรึกษา ดูสถานที่</span> ทดลองอยู่ **ฟรี**
-                            </h2>
-                            <form className="space-y-5" onSubmit={handleSubmit}>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    {/* Name */}
-                                    <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
-                                        <input
-                                            id="name" type="text" name="name" value={formData.name} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุชื่อ-นามสกุล" required
-                                        />
-                                    </div>
-                                    {/* Phone */}
-                                    <div>
-                                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
-                                        <input
-                                            id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุเบอร์โทรศัพท์" required
-                                        />
-                                    </div>
-                                    {/* LINE ID */}
-                                    <div>
-                                        <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
-                                        <input
-                                            id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุ LINE ID"
-                                        />
-                                    </div>
-                                    {/* Email */}
-                                    <div>
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
-                                        <input
-                                            id="email" type="email" name="email" value={formData.email} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุอีเมล"
-                                        />
-                                    </div>
-                                    {/* Room Type */}
-                                    <div>
-                                        <label htmlFor="roomType" className="block text-sm font-medium text-gray-700 mb-1">ประเภทห้องพักที่สนใจ <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <select
-                                                id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
-                                            >
-                                                <option value="" disabled>เลือกประเภทห้อง</option>
-                                                <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
-                                                <option value="ห้องพักรวม">ห้องรวม</option>
-                                                <option value="V.I.P">V.I.P</option>
-                                            </select>
-                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                                <ChevronDown className="w-4 h-4 text-gray-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Budget */}
-                                    <div>
-                                        <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">อัตราค่าบริการที่สนใจ <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <select
-                                                id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
-                                            >
-                                                <option value="" disabled>เลือกช่วงราคา</option>
-                                                <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
-                                                <option value="20,000 - 30,000">20,000 - 30,000</option>
-                                                <option value="มากกว่า 30,000">มากกว่า 30,000</option>
-                                            </select>
-                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                                <ChevronDown className="w-4 h-4 text-gray-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Convenient Time */}
-                                    <div>
-                                        <label htmlFor="convenientTime" className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลาที่สะดวกให้ติดต่อกลับ <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <select
-                                                id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
-                                            >
-                                                <option value="" disabled>เลือกช่วงเวลา</option>
-                                                <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
-                                                <option value="ช่วงบ่าย (13:00 - 17:00)">13:00 - 17:00</option>
-                                                <option value="ช่วงเย็น (17:00 - 20:00)">17:00 - 20:00</option>
-                                            </select>
-                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                                <ChevronDown className="w-4 h-4 text-gray-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Hidden Branch field */}
-                                    <input type="hidden" name="branch" value={formData.branch} />
-                                </div>
-                                {/* Message */}
+                            )}
+                        </div>
+
+                        {/* Header Info */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                            <div className="flex flex-wrap items-start justify-between gap-4">
                                 <div>
-                                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ฝากข้อความถึง (ถ้ามี)</label>
-                                    <textarea
-                                        id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3}
-                                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                        placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"
-                                    ></textarea>
-                                </div>
-                                {/* Submit Button */}
-                                <div className="flex justify-center pt-2">
-                                    <button
-                                        type="submit"
-                                        disabled={submitStatus === 'submitting'}
-                                        className={`w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-blue-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}
-                                    >
-                                        {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลเพื่อรับคำปรึกษาฟรี'}
-                                    </button>
-                                </div>
-                                {submitStatus === 'success' && (
-                                    <p className="text-center text-sm font-medium text-green-600 mt-3 flex items-center justify-center">
-                                        <CheckCircle2 className="w-4 h-4 mr-1.5" /> ส่งข้อมูลสำเร็จ!
+                                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{center.name}</h1>
+                                    <p className="text-gray-500 flex items-center mb-3">
+                                        <MapPin className="w-4 h-4 mr-1 text-red-500" />
+                                        {center.address}
                                     </p>
-                                )}
-                                {submitStatus === 'error' && (
-                                    <p className="text-center text-sm font-medium text-red-600 mt-3 flex items-center justify-center">
-                                        <Info className="w-4 h-4 mr-1.5" /> เกิดข้อผิดพลาด! กรุณาลองใหม่อีกครั้ง
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-100">
+                                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
+                                            <span className="font-bold text-gray-800">{center.rating.toFixed(1)}</span>
+                                            <span className="text-xs text-gray-500 ml-1">(รีวิว)</span>
+                                        </div>
+                                        {center.hasGovernmentCertificate && (
+                                            <div className="flex items-center bg-green-50 px-2 py-1 rounded-lg border border-green-100 text-green-700 text-xs font-medium">
+                                                <ShieldCheck className="w-3 h-3 mr-1" />
+                                                ขึ้นทะเบียนแล้ว
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm text-gray-500 mb-1">ราคาเริ่มต้น</p>
+                                    <p className="text-3xl font-bold text-blue-600">
+                                        ฿{center.price.toLocaleString()}
+                                        <span className="text-sm text-gray-400 font-normal ml-1">/เดือน</span>
                                     </p>
-                                )}
-                            </form>
-                        </section>
-                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    {/* Right Column: Sticky Sidebar (Booking Card) */}
-                    <div className="lg:col-span-1">
-                        {/* Option: Include Trial Offer Card here */}
-                        {/* <TrialOfferCard /> */}
-
-                        {/* Brand/Chain Card */}
+                        {/* Brand Card */}
                         <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
 
-                        {/* Existing Price/Contact Card (Sticky) */}
-                        <div className="sticky top-24 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 z-10">
+                        {/* Description */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                                <Info className="w-5 h-5 mr-2 text-blue-500" />
+                                รายละเอียด
+                            </h2>
+                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">{center.description}</p>
+                        </div>
 
-                            <div className="mb-6 pb-4 border-b border-gray-100">
-                                <span className="text-gray-500 text-sm font-medium block mb-1">ราคาเริ่มต้น</span>
-                                <div className="flex items-baseline">
-                                    <span className="text-4xl font-extrabold text-blue-600">฿{center.price?.toLocaleString() ?? '0'}</span>
-                                    <span className="text-gray-500 ml-1 text-base font-semibold">
-                                        /{center.type === 'daily' ? 'วัน' : 'เดือน'}
-                                    </span>
-                                </div>
-                                <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                                    <DollarSign className='w-3 h-3 mr-1' /> คุ้มค่าและแนะนำ
+                        {/* Services */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                                <Heart className="w-5 h-5 mr-2 text-pink-500" />
+                                บริการของเรา
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {center.services.map((service, idx) => (
+                                    <div key={idx} className="flex items-start p-3 bg-gray-50 rounded-xl">
+                                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                                        <span className="text-gray-700">{service}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Map */}
+                        {center.mapUrl && (
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 overflow-hidden">
+                                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                                    <MapPin className="w-5 h-5 mr-2 text-red-500" />
+                                    แผนที่
+                                </h2>
+                                <div className="aspect-video w-full rounded-xl overflow-hidden bg-gray-100 relative">
+                                    <iframe
+                                        src={getMapSrc(center.mapUrl) || center.mapUrl}
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        allowFullScreen
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        className="absolute inset-0 w-full h-full"
+                                    ></iframe>
                                 </div>
                             </div>
+                        )}
+                    </div>
 
-                            <div className="space-y-4">
-                                <a
-                                    href={`tel:${center.phone}`}
-                                    onClick={() => gtag.event({ action: 'click_call_sticky', category: 'Conversion', label: center.name })}
-                                    className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform"
-                                >
-                                    <Phone className="w-5 h-5 mr-2" /> โทรปรึกษาทันที : {center.phone}
-                                </a>
+                    {/* RIGHT COLUMN: Sidebar */}
+                    <div className="lg:col-span-1">
+                        <div className="sticky top-24 space-y-6">
+                            <TrialOfferCard />
 
-                                {center.website && (
-                                    <a
-                                        href={center.website}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={() => gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name })}
-                                        className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-xl hover:border-blue-500 hover:text-blue-700 transition-all active:scale-[0.99] transform"
+                            {/* Contact Form */}
+                            <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-600"></div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">สนใจสอบถามข้อมูล</h3>
+                                <p className="text-sm text-gray-500 mb-6">กรอกข้อมูลเพื่อให้เจ้าหน้าที่ติดต่อกลับ</p>
+
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล</label>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            required
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+                                            placeholder="ระบุชื่อของคุณ"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            required
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+                                            placeholder="0xx-xxx-xxxx"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Line ID (ถ้ามี)</label>
+                                        <input
+                                            type="text"
+                                            name="lineId"
+                                            value={formData.lineId}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+                                            placeholder="ระบุ Line ID"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">ข้อความเพิ่มเติม</label>
+                                        <textarea
+                                            name="message"
+                                            rows={3}
+                                            value={formData.message}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none resize-none"
+                                            placeholder="สอบถามรายละเอียดเพิ่มเติม..."
+                                        ></textarea>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={submitStatus === 'submitting' || submitStatus === 'success'}
+                                        className={`w-full py-3 rounded-xl font-bold text-white shadow-lg transition-all transform hover:-translate-y-0.5 ${submitStatus === 'success' ? 'bg-green-500 hover:bg-green-600' :
+                                                submitStatus === 'error' ? 'bg-red-500 hover:bg-red-600' :
+                                                    'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                                            }`}
                                     >
-                                        <Globe className="w-5 h-5 mr-2" /> เข้าชมเว็บไซต์
-                                    </a>
-                                )}
-                            </div>
-
-                            <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-                                <p className="text-xs text-gray-400">
-                                    ติดต่อผ่าน YoodeeHomeCare ไม่มีค่าใช้จ่ายเพิ่มเติม
-                                </p>
+                                        {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' :
+                                            submitStatus === 'success' ? 'ส่งข้อมูลสำเร็จ!' :
+                                                submitStatus === 'error' ? 'ลองใหม่อีกครั้ง' :
+                                                    'ส่งข้อมูลติดต่อ'}
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* --- Recommended Centers Section --- */}
+                {/* Related Centers */}
                 {relatedCenters.length > 0 && (
-                    <div className="mt-20 border-t border-gray-200 pt-12">
+                    <div className="mt-12 pt-8 border-t border-gray-200">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {relatedCenters.map(rc => (
-                                <Link
-                                    key={rc.id}
-                                    href={`/${createSlug(rc.name)}`}
-                                    className="block group"
-                                    onClick={() => gtag.event({ action: 'click_related_center', category: 'Navigation', label: rc.name })}
-                                >
-                                    <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
-                                        {/* Image Section */}
-                                        <div className="relative h-56 overflow-hidden">
-                                            <img
-                                                src={rc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
-                                                alt={rc.name}
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                                            <div className="absolute top-3 left-3 flex gap-2">
-                                                {rc.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
-                                                {rc.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
-                                                {rc.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
-                                            </div>
-                                            {rc.hasGovernmentCertificate && (
-                                                <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
-                                                    <ShieldCheck className="w-3 h-3" /> กรม สบส.
-                                                </div>
-                                            )}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {relatedCenters.map((rc) => (
+                                <Link key={rc.id} href={`/${createSlug(rc.name)}`} className="group block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all flex flex-col h-full">
+                                    <div className="relative h-48 bg-gray-100">
+                                        <img
+                                            src={rc.imageUrls?.[0] || PLACEHOLDER_IMAGE}
+                                            alt={rc.name}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-blue-600 shadow-sm">
+                                            {rc.type === 'daily' ? 'รายวัน' : rc.type === 'monthly' ? 'รายเดือน' : 'รายวัน/เดือน'}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 flex flex-col flex-grow">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">{rc.name}</h3>
+                                        <p className="text-sm text-gray-500 mb-3 line-clamp-1 flex items-center">
+                                            <MapPin className="w-3 h-3 mr-1" /> {rc.address}
+                                        </p>
+
+                                        <div className="flex items-center mb-4">
+                                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                            <span className="text-xs text-gray-400 ml-2 font-medium">
+                                                {rc.rating ? rc.rating.toFixed(1) : '0.0'} (รีวิว)
+                                            </span>
                                         </div>
 
-                                        {/* Content Section */}
-                                        <div className="p-5 flex-grow flex flex-col">
-                                            <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
-                                                {rc.name}
-                                            </h3>
-                                            <p className="text-gray-500 text-sm flex items-center mb-3">
-                                                <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
-                                                <span className="line-clamp-1">{rc.address}</span>
-                                            </p>
-                                            <div className="flex items-center mb-4">
-                                                <div className="flex text-yellow-400">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rc.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
-                                                    ))}
-                                                </div>
-                                                <span className="text-xs text-gray-400 ml-2 font-medium">
-                                                    {rc.rating ? rc.rating.toFixed(1) : '0.0'} (รีวิว)
-                                                </span>
+                                        <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
+                                                <p className="text-lg font-bold text-blue-600">
+                                                    ฿{rc.price?.toLocaleString() ?? '0'}
+                                                    <span className="text-xs text-gray-400 font-normal ml-1">/เดือน</span>
+                                                </p>
                                             </div>
-
-                                            {/* Footer Section */}
-                                            <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
-                                                    <p className="text-lg font-bold text-blue-600">
-                                                        ฿{rc.price?.toLocaleString() ?? '0'}
-                                                        <span className="text-xs text-gray-400 font-normal ml-1">/เดือน</span>
-                                                    </p>
-                                                </div>
-                                                <div className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-200 transition-colors">
-                                                    <ChevronRight className="w-4 h-4" />
-                                                </div>
+                                            <div className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-200 transition-colors">
+                                                <ChevronRight className="w-4 h-4" />
                                             </div>
                                         </div>
                                     </div>
@@ -818,8 +642,6 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     </div>
                 )}
             </main>
-
-            {/* 4. FOOTER (Minor cleanup for Logo component usage and icon import) */}
 
             {/* Gallery Modal */}
             {isGalleryOpen && (
