@@ -41,6 +41,7 @@ export default function Header() {
                         <Link href="/" className="text-gray-900 hover:text-blue-600 transition-colors">หน้าแรก</Link>
                         <Link href="/about" className="text-gray-900 hover:text-blue-600 transition-colors">เกี่ยวกับเรา</Link>
                         <Link href="/services" className="text-gray-900 hover:text-blue-600 transition-colors">บริการของเรา</Link>
+                        <Link href="/contact" className="text-gray-900 hover:text-blue-600 transition-colors">ติดต่อเรา</Link>
                         {/* เพิ่มลิงก์ 'สมัครเป็นผู้ให้บริการ' ในเมนูหลัก (Desktop) */}
                         <Link href="/provider-signup" className="text-gray-900 hover:text-blue-600 transition-colors">สมัครเป็นผู้ให้บริการ</Link>
                     </nav>
@@ -59,7 +60,7 @@ export default function Header() {
                             className="hidden sm:flex px-4 md:px-6 py-2.5 bg-blue-600 text-white text-sm md:text-base rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-xl shadow-blue-400/30"
                             onClick={() => gtag.event({ action: 'click_header_cta', category: 'Conversion', label: 'Contact_Consultation' })}
                         >
-                            ติดต่อสอบถาม
+                            ลงประกาศ
                         </Link>
                         {/* Mobile Menu Toggle */}
                         <button
@@ -113,7 +114,7 @@ export default function Header() {
                                     gtag.event({ action: 'click_mobile_menu_cta', category: 'Conversion', label: 'Contact_Consultation' });
                                 }}
                             >
-                                ติดต่อสอบถาม
+                                สนใจเข้ารวม
                             </Link>
                             {/* Language Switcher in Mobile Menu */}
                             <div className="flex items-center justify-center space-x-2 text-sm font-bold pt-4 border-t mt-4 border-gray-100">

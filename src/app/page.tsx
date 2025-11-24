@@ -78,7 +78,7 @@ export default function HomePage() {
       <div
         className="relative pt-16 pb-20 px-4 bg-cover bg-center"
         style={{
-          backgroundImage: 'url("/images/hero-background.jpg")', // ใช้รูปภาพจากไฟล์ local
+          backgroundImage: 'url("/images/hero-background.jpg")',
           backgroundPosition: 'center 30%'
         }}
       >
@@ -161,19 +161,6 @@ export default function HomePage() {
                 <option value="25001-999999">มากกว่า 25k</option>
               </select>
             </div>
-          </div>
-
-          {/* Quick Tags / Pills */}
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'เชียงใหม่', 'กายภาพบำบัด', 'ดูแลผู้ป่วยติดเตียง'].map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setSearchTerm(tag)}
-                className="px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-sm text-white hover:bg-white hover:text-blue-600 transition-all shadow-sm font-medium"
-              >
-                {tag}
-              </button>
-            ))}
           </div>
 
         </div>
@@ -268,15 +255,24 @@ export default function HomePage() {
                       </span>
                     </div>
 
-                    {/* Facilities Tags (Mockup) */}
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full">ดูแล 24 ชม.</span>
-                      <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full">กายภาพ</span>
-                      <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full">อาหาร 3 มื้อ</span>
-                    </div>
+                    {/* Services Tags - แสดง 3 อันแรก */}
+                    {/* {center.services && center.services.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {center.services.slice(0, 3).map((service, idx) => (
+                          <span key={idx} className="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                            {service}
+                          </span>
+                        ))}
+                        {center.services.length > 3 && (
+                          <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                            +{center.services.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )} */}
 
                     {/* 3. Footer Section (Price & Action) */}
-                    <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                    <div className="mt-auto pt-1 border-t border-gray-50 flex items-center justify-between">
                       <div>
                         <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
                         <p className="text-lg font-bold text-blue-600">

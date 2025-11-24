@@ -63,65 +63,11 @@ export default function ContactPage() {
                 </div>
 
                 <div className="container mx-auto px-4 py-16">
-                    <div className="grid lg:grid-cols-3 gap-12">
-                        {/* Contact Info */}
-                        <div className="lg:col-span-1 space-y-8">
-                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-                                <h3 className="text-xl font-bold text-gray-900 mb-6">ข้อมูลการติดต่อ</h3>
+                    <div className="max-w-3xl mx-auto">
 
-                                <div className="space-y-6">
-                                    <div className="flex items-start">
-                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
-                                            <MapPin className="w-6 h-6 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-gray-900">ที่อยู่</p>
-                                            <p className="text-gray-600 mt-1">
-                                                123 อาคารยูดีทาวเวอร์ ชั้น 15 <br />
-                                                ถนนสุขุมวิท แขวงคลองเตย <br />
-                                                เขตคลองเตย กรุงเทพฯ 10110
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start">
-                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
-                                            <Phone className="w-6 h-6 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-gray-900">เบอร์โทรศัพท์</p>
-                                            <p className="text-gray-600">095-805-7052</p>
-                                            {/* <p className="text-gray-600">089-999-9999 (สายด่วน)</p> */}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start">
-                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
-                                            <Mail className="w-6 h-6 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-gray-900">อีเมล</p>
-                                            <p className="text-gray-600 mt-1">Pannatat7002@gmail.com</p>
-                                            {/* <p className="text-gray-600">support@yoodeehomecare.com</p> */}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start">
-                                        <div className="bg-blue-50 p-3 rounded-lg mr-4">
-                                            <Clock className="w-6 h-6 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-gray-900">เวลาทำการ</p>
-                                            <p className="text-gray-600 mt-1">จันทร์ - ศุกร์: 09:00 - 18:00 น.</p>
-                                            <p className="text-gray-600">เสาร์ - อาทิตย์: 10:00 - 17:00 น.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Contact Form */}
-                        <div className="lg:col-span-2">
+                        <div>
                             <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                                 <h3 className="text-2xl font-bold text-gray-900 mb-6">ส่งข้อความถึงเรา</h3>
                                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -181,6 +127,7 @@ export default function ContactPage() {
                                             <option value="inquiry">สอบถามข้อมูลทั่วไป</option>
                                             <option value="consultation">ขอคำปรึกษาการหาศูนย์ดูแล</option>
                                             <option value="partnership">สนใจร่วมเป็นพาร์ทเนอร์</option>
+                                            <option value="announcement">ลงประกาศศูนย์ดูแล</option>
                                             <option value="other">อื่นๆ</option>
                                         </select>
                                     </div>
@@ -211,21 +158,7 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    {/* Map Section */}
-                    <div className="mt-12">
-                        <div className="bg-gray-200 rounded-2xl h-96 w-full overflow-hidden shadow-lg relative">
-                            {/* Placeholder for Google Maps */}
-                            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                                <div className="text-center">
-                                    <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                                    <p className="text-gray-500 font-medium">Google Maps Placeholder</p>
-                                    <p className="text-sm text-gray-400">13.7563° N, 100.5018° E</p>
-                                </div>
-                            </div>
-                            {/* If you have a real map component or iframe, insert it here */}
-                            {/* <iframe src="..." className="w-full h-full border-0" allowFullScreen loading="lazy"></iframe> */}
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </>
