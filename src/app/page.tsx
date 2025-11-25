@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, MapPin, Star } from 'lucide-react';
+import { Search, MapPin, Star, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { CareCenter } from '../types';
 import * as gtag from '../lib/gtag';
@@ -77,6 +77,22 @@ export default function HomePage() {
     return result;
   }, [searchTerm, careType, priceRange, province, centers]);
 
+  // --- Popular Provinces Logic ---
+  const popularProvinces = useMemo(() => {
+    if (centers.length === 0) return [];
+    const counts: Record<string, number> = {};
+    centers.forEach(c => {
+      if (c.province) {
+        counts[c.province] = (counts[c.province] || 0) + 1;
+      }
+    });
+    // Sort by count desc, take top 5
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([prov]) => prov);
+  }, [centers]);
+
   // --- Utility Functions ---
   const handleCareTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCareType(e.target.value);
@@ -95,6 +111,13 @@ export default function HomePage() {
 
   const createSlug = (name: string) => {
     return encodeURIComponent(name.replace(/\s+/g, '-'));
+  };
+
+  const scrollToResults = () => {
+    const element = document.getElementById('results-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   // --- Render ---
@@ -134,7 +157,41 @@ export default function HomePage() {
                   placeholder="ค้นหาชื่อศูนย์, จังหวัด, หรือบริการ..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
                 />
+              </div>
+
+              {/* Mobile Filters (Visible only on mobile) - Moved here for better flow */}
+              <div className="flex md:hidden gap-2">
+                <select
+                  className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
+                  value={province}
+                  onChange={handleProvinceChange}
+                >
+                  <option value="all">ทุกจังหวัด</option>
+                  {THAI_PROVINCES.map(prov => (
+                    <option key={prov} value={prov}>{prov}</option>
+                  ))}
+                </select>
+                <select
+                  className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
+                  value={careType}
+                  onChange={handleCareTypeChange}
+                >
+                  <option value="all">ทุกประเภท</option>
+                  <option value="daily">รายวัน</option>
+                  <option value="monthly">รายเดือน</option>
+                </select>
+                <select
+                  className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
+                  value={priceRange}
+                  onChange={handlePriceChange}
+                >
+                  <option value="all">ทุกราคา</option>
+                  <option value="0-20000">&lt; 20k</option>
+                  <option value="20001-25000">20k-25k</option>
+                  <option value="25001-999999">&gt; 25k</option>
+                </select>
               </div>
 
               {/* Filters Dropdown (Desktop) */}
@@ -170,42 +227,48 @@ export default function HomePage() {
                 </select>
               </div>
 
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 active:scale-95">
+              <button
+                onClick={scrollToResults}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 active:scale-95 whitespace-nowrap"
+              >
                 ค้นหา
               </button>
             </div>
 
-            {/* Mobile Filters (Visible only on mobile) */}
-            <div className="flex md:hidden gap-2 mt-2">
-              <select
-                className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
-                value={province}
-                onChange={handleProvinceChange}
-              >
-                <option value="all">ทุกจังหวัด</option>
-                {THAI_PROVINCES.map(prov => (
-                  <option key={prov} value={prov}>{prov}</option>
-                ))}
-              </select>
-              <select
-                className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
-                value={careType}
-                onChange={handleCareTypeChange}
-              >
-                <option value="all">ทุกประเภท</option>
-                <option value="daily">รายวัน</option>
-                <option value="monthly">รายเดือน</option>
-              </select>
-              <select
-                className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
-                value={priceRange}
-                onChange={handlePriceChange}
-              >
-                <option value="all">ทุกราคา</option>
-                <option value="0-20000">ต่ำกว่า 20k</option>
-                <option value="20001-25000">20k - 25k</option>
-                <option value="25001-999999">มากกว่า 25k</option>
-              </select>
+            {/* Quick Select - จังหวัดยอดนิยม (Dynamic) */}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <span className="text-gray-500 text-sm font-medium mr-1">จังหวัดยอดนิยม:</span>
+              {popularProvinces.length > 0 ? popularProvinces.map((prov) => (
+                <button
+                  key={prov}
+                  onClick={() => {
+                    setProvince(prov);
+                    gtag.event({ action: 'quick_select_province', category: 'Engagement', label: prov });
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${province === prov
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
+                    }`}
+                >
+                  <MapPin className="w-3 h-3" />
+                  {prov}
+                </button>
+              )) : (
+                <span className="text-gray-400 text-sm italic">กำลังโหลด...</span>
+              )}
+
+              {province !== 'all' && (
+                <button
+                  onClick={() => {
+                    setProvince('all');
+                    gtag.event({ action: 'clear_province_filter', category: 'Engagement' });
+                  }}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs md:text-sm font-medium text-red-500 hover:bg-red-50 transition-all ml-1"
+                >
+                  <XCircle className="w-4 h-4" />
+                  ล้างตัวกรอง
+                </button>
+              )}
             </div>
           </div>
 
@@ -213,7 +276,7 @@ export default function HomePage() {
       </div>
 
 
-      <div className="container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
+      <div id="results-section" className="container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
 
         {/* Header Results */}
         <div className="flex justify-between items-end mb-6">
