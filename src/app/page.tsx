@@ -227,6 +227,23 @@ export default function HomePage() {
                         กรม สบส.
                       </div>
                     )}
+
+                    {/* Partner Status Badge */}
+                    <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1 ${center.isPartner ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                      {center.isPartner ? (
+                        <>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                            <path fillRule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 11.82a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
+                          </svg>
+                          YooDee Verify
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                          ข้อมูลเบื้องต้น
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {/* 2. Content Section */}
@@ -255,30 +272,21 @@ export default function HomePage() {
                       </span>
                     </div>
 
-                    {/* Services Tags - แสดง 3 อันแรก */}
-                    {/* {center.services && center.services.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        {center.services.slice(0, 3).map((service, idx) => (
-                          <span key={idx} className="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-medium">
-                            {service}
-                          </span>
-                        ))}
-                        {center.services.length > 3 && (
-                          <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-medium">
-                            +{center.services.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )} */}
-
                     {/* 3. Footer Section (Price & Action) */}
                     <div className="mt-auto pt-1 border-t border-gray-50 flex items-center justify-between">
                       <div>
                         <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
-                        <p className="text-lg font-bold text-blue-600">
-                          ฿{center.price?.toLocaleString() ?? '0'}
-                          <span className="text-xs text-gray-400 font-normal ml-1">/เดือน</span>
-                        </p>
+                        {center.isPartner ? (
+                          <p className="text-lg font-bold text-blue-600">
+                            ฿{center.price?.toLocaleString() ?? '0'}
+                            <span className="text-xs text-gray-400 font-normal ml-1">/เดือน</span>
+                          </p>
+                        ) : (
+                          <p className="text-lg font-bold text-gray-500">
+                            {center.price < 20000 ? '$' : center.price < 40000 ? '$$' : '$$$'}
+                            <span className="text-xs text-gray-400 font-normal ml-1">(ประมาณการ)</span>
+                          </p>
+                        )}
                       </div>
 
                       {/* Action Buttons */}

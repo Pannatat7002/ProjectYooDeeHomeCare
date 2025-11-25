@@ -65,7 +65,12 @@ const saveDataToSheet = async (sheetName: string, data: any[]) => {
 
         // ถ้าเป็นการ Save ครั้งแรก หรือมีการเปลี่ยน Header
         if (data.length > 0) {
-            const headers = Object.keys(data[0]);
+            // Collect ALL unique keys from ALL items, not just the first one
+            const allKeys = new Set<string>();
+            data.forEach(item => {
+                Object.keys(item).forEach(key => allKeys.add(key));
+            });
+            const headers = Array.from(allKeys);
             await sheet.setHeaderRow(headers);
         }
 

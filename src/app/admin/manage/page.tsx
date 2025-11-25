@@ -28,6 +28,7 @@ interface CareCenter {
     hasGovernmentCertificate?: boolean;
     brandName?: string;
     brandLogoUrl?: string;
+    isPartner?: boolean;
 }
 
 interface Consultation {
@@ -64,7 +65,8 @@ const INITIAL_FORM_STATE: Omit<CareCenter, 'id'> = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
     imageUrls: [''], description: '', services: [], packages: [],
-    hasGovernmentCertificate: false, brandName: '', brandLogoUrl: ''
+    hasGovernmentCertificate: false, brandName: '', brandLogoUrl: '',
+    isPartner: false
 };
 
 const MASTER_SERVICES = [
@@ -121,7 +123,8 @@ function ManageCenterPage() {
                 services: center.services || [],
                 hasGovernmentCertificate: center.hasGovernmentCertificate || false,
                 brandName: center.brandName || '',
-                brandLogoUrl: center.brandLogoUrl || ''
+                brandLogoUrl: center.brandLogoUrl || '',
+                isPartner: center.isPartner || false
             });
         } else {
             setEditingId(null);
@@ -358,18 +361,33 @@ function ManageCenterPage() {
                                             value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                                     </div>
 
-                                    {/* New Fields: Government Certificate & Brand */}
-                                    <div className="md:col-span-2 flex items-center space-x-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                                        <input
-                                            type="checkbox"
-                                            id="hasGovernmentCertificate"
-                                            className="rounded text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                            checked={formData.hasGovernmentCertificate || false}
-                                            onChange={e => setFormData({ ...formData, hasGovernmentCertificate: e.target.checked })}
-                                        />
-                                        <label htmlFor="hasGovernmentCertificate" className="text-sm font-bold text-blue-800 select-none cursor-pointer">
-                                            ได้รับรองจาก กรม สบส. (Government Certificate)
-                                        </label>
+                                    {/* New Fields: Government Certificate & Brand & Partner */}
+                                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                            <input
+                                                type="checkbox"
+                                                id="hasGovernmentCertificate"
+                                                className="rounded text-blue-600 focus:ring-blue-500 h-5 w-5"
+                                                checked={formData.hasGovernmentCertificate || false}
+                                                onChange={e => setFormData({ ...formData, hasGovernmentCertificate: e.target.checked })}
+                                            />
+                                            <label htmlFor="hasGovernmentCertificate" className="text-sm font-bold text-blue-800 select-none cursor-pointer">
+                                                ได้รับรองจาก กรม สบส.
+                                            </label>
+                                        </div>
+
+                                        <div className="flex items-center space-x-2 bg-green-50 p-3 rounded-lg border border-green-100">
+                                            <input
+                                                type="checkbox"
+                                                id="isPartner"
+                                                className="rounded text-green-600 focus:ring-green-500 h-5 w-5"
+                                                checked={formData.isPartner || false}
+                                                onChange={e => setFormData({ ...formData, isPartner: e.target.checked })}
+                                            />
+                                            <label htmlFor="isPartner" className="text-sm font-bold text-green-800 select-none cursor-pointer">
+                                                YooDee Verify (พาร์ทเนอร์)
+                                            </label>
+                                        </div>
                                     </div>
 
                                     <div>

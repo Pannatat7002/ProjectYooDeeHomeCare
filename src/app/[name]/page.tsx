@@ -423,6 +423,17 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 รับรองจาก กรม สบส.
                             </div>
                         )}
+                        {center.isPartner ? (
+                            <div className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-200">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Verified Partner
+                            </div>
+                        ) : (
+                            <div className="flex items-center bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold border border-gray-200">
+                                <Info className="h-3 w-3 mr-1" />
+                                ข้อมูลเบื้องต้น
+                            </div>
+                        )}
                     </div>
 
                     {/* Gallery Grid */}
@@ -470,6 +481,47 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     </div>
                 </div>
 
+                {/* YooDee Verify Strip (For Partners Only) */}
+                {center.isPartner && (
+                    <div className="mb-10 rounded-2xl overflow-hidden shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
+                        <div className="bg-gradient-to-r from-[#0E1B4F] to-blue-600 text-white p-5 md:p-6 flex flex-col md:flex-row items-center justify-between relative">
+                            {/* Decorative Background Elements */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400 opacity-10 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+
+                            <div className="flex items-center relative z-10 w-full md:w-auto mb-4 md:mb-0">
+                                <div className="bg-white/20 p-3 rounded-full mr-5 backdrop-blur-sm shadow-inner border border-white/10 shrink-0">
+                                    <ShieldCheck className="w-8 h-8 text-yellow-300" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl md:text-2xl font-extrabold flex items-center tracking-tight">
+                                        YooDee Verify
+                                        <span className="ml-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center">
+                                            <CheckCircle2 className="w-3 h-3 mr-1" /> Verified
+                                        </span>
+                                    </h3>
+                                    <p className="text-blue-100 text-sm md:text-base mt-1 font-medium">
+                                        ศูนย์นี้ผ่านการตรวจสอบมาตรฐานความปลอดภัยและบริการโดยทีมงาน YooDee HomeCare
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="relative z-10 flex items-center space-x-6 md:border-l md:border-white/20 md:pl-6">
+                                <div className="text-center md:text-right">
+                                    <p className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Status</p>
+                                    <p className="font-bold text-white">Official Partner</p>
+                                </div>
+                                <div className="hidden md:block">
+                                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                                        {/* Placeholder for YooDee Logo Icon if available, using text for now */}
+                                        <span className="text-[#0E1B4F] font-black text-xs">YD</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* 3. Content Layout: Main (Left) + Sidebar (Right) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
@@ -494,8 +546,8 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 ))}
                             </div>
                         </section>
-                        {/* Packages */}
-                        {center.packages && center.packages.length > 0 && (
+                        {/* Packages (Only for Partners) */}
+                        {center.isPartner && center.packages && center.packages.length > 0 && (
                             <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">แพ็กเกจราคา</h2>
                                 <div className="space-y-4">
@@ -554,138 +606,152 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 </div>
                             </section>
                         )}
-                        {/* Consultation Form - Separated into its own function for clarity or kept here as is */}
-                        <section className="bg-white rounded-2xl shadow-xl border border-blue-200 p-6 md:p-8 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-green-500"></div>
-                            <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-                                <span className="text-blue-600">นัดปรึกษา ดูสถานที่</span> ทดลองอยู่ **ฟรี**
-                            </h2>
-                            <form className="space-y-5" onSubmit={handleSubmit}>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    {/* Name */}
-                                    <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
-                                        <input
-                                            id="name" type="text" name="name" value={formData.name} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุชื่อ-นามสกุล" required
-                                        />
-                                    </div>
-                                    {/* Phone */}
-                                    <div>
-                                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
-                                        <input
-                                            id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุเบอร์โทรศัพท์" required
-                                        />
-                                    </div>
-                                    {/* LINE ID */}
-                                    <div>
-                                        <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
-                                        <input
-                                            id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุ LINE ID"
-                                        />
-                                    </div>
-                                    {/* Email */}
-                                    <div>
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
-                                        <input
-                                            id="email" type="email" name="email" value={formData.email} onChange={handleInputChange}
-                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                            placeholder="ระบุอีเมล"
-                                        />
-                                    </div>
-                                    {/* Room Type */}
-                                    <div>
-                                        <label htmlFor="roomType" className="block text-sm font-medium text-gray-700 mb-1">ประเภทห้องพักที่สนใจ <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <select
-                                                id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
-                                            >
-                                                <option value="" disabled>เลือกประเภทห้อง</option>
-                                                <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
-                                                <option value="ห้องพักรวม">ห้องรวม</option>
-                                                <option value="V.I.P">V.I.P</option>
-                                            </select>
-                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                                <ChevronDown className="w-4 h-4 text-gray-400" />
+                        {/* Consultation Form (Partner) OR Join CTA (Non-Partner) */}
+                        {center.isPartner ? (
+                            <section className="bg-white rounded-2xl shadow-xl border border-blue-200 p-6 md:p-8 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-green-500"></div>
+                                <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
+                                    <span className="text-blue-600">นัดปรึกษา ดูสถานที่</span> ทดลองอยู่ **ฟรี**
+                                </h2>
+                                <form className="space-y-5" onSubmit={handleSubmit}>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        {/* Name */}
+                                        <div>
+                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
+                                            <input
+                                                id="name" type="text" name="name" value={formData.name} onChange={handleInputChange}
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                                placeholder="ระบุชื่อ-นามสกุล" required
+                                            />
+                                        </div>
+                                        {/* Phone */}
+                                        <div>
+                                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
+                                            <input
+                                                id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                                placeholder="ระบุเบอร์โทรศัพท์" required
+                                            />
+                                        </div>
+                                        {/* LINE ID */}
+                                        <div>
+                                            <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
+                                            <input
+                                                id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange}
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                                placeholder="ระบุ LINE ID"
+                                            />
+                                        </div>
+                                        {/* Email */}
+                                        <div>
+                                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
+                                            <input
+                                                id="email" type="email" name="email" value={formData.email} onChange={handleInputChange}
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                                placeholder="ระบุอีเมล"
+                                            />
+                                        </div>
+                                        {/* Room Type */}
+                                        <div>
+                                            <label htmlFor="roomType" className="block text-sm font-medium text-gray-700 mb-1">ประเภทห้องพักที่สนใจ <span className="text-red-500">*</span></label>
+                                            <div className="relative">
+                                                <select
+                                                    id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required
+                                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
+                                                >
+                                                    <option value="" disabled>เลือกประเภทห้อง</option>
+                                                    <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
+                                                    <option value="ห้องพักรวม">ห้องรวม</option>
+                                                    <option value="V.I.P">V.I.P</option>
+                                                </select>
+                                                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    {/* Budget */}
-                                    <div>
-                                        <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">อัตราค่าบริการที่สนใจ <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <select
-                                                id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
-                                            >
-                                                <option value="" disabled>เลือกช่วงราคา</option>
-                                                <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
-                                                <option value="20,000 - 30,000">20,000 - 30,000</option>
-                                                <option value="มากกว่า 30,000">มากกว่า 30,000</option>
-                                            </select>
-                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                                <ChevronDown className="w-4 h-4 text-gray-400" />
+                                        {/* Budget */}
+                                        <div>
+                                            <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">อัตราค่าบริการที่สนใจ <span className="text-red-500">*</span></label>
+                                            <div className="relative">
+                                                <select
+                                                    id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required
+                                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
+                                                >
+                                                    <option value="" disabled>เลือกช่วงราคา</option>
+                                                    <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
+                                                    <option value="20,000 - 30,000">20,000 - 30,000</option>
+                                                    <option value="มากกว่า 30,000">มากกว่า 30,000</option>
+                                                </select>
+                                                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    {/* Convenient Time */}
-                                    <div>
-                                        <label htmlFor="convenientTime" className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลาที่สะดวกให้ติดต่อกลับ <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <select
-                                                id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
-                                            >
-                                                <option value="" disabled>เลือกช่วงเวลา</option>
-                                                <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
-                                                <option value="ช่วงบ่าย (13:00 - 17:00)">13:00 - 17:00</option>
-                                                <option value="ช่วงเย็น (17:00 - 20:00)">17:00 - 20:00</option>
-                                            </select>
-                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                                <ChevronDown className="w-4 h-4 text-gray-400" />
+                                        {/* Convenient Time */}
+                                        <div>
+                                            <label htmlFor="convenientTime" className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลาที่สะดวกให้ติดต่อกลับ <span className="text-red-500">*</span></label>
+                                            <div className="relative">
+                                                <select
+                                                    id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required
+                                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
+                                                >
+                                                    <option value="" disabled>เลือกช่วงเวลา</option>
+                                                    <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
+                                                    <option value="ช่วงบ่าย (13:00 - 17:00)">13:00 - 17:00</option>
+                                                    <option value="ช่วงเย็น (17:00 - 20:00)">17:00 - 20:00</option>
+                                                </select>
+                                                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                                                </div>
                                             </div>
                                         </div>
+                                        {/* Hidden Branch field */}
+                                        <input type="hidden" name="branch" value={formData.branch} />
                                     </div>
-                                    {/* Hidden Branch field */}
-                                    <input type="hidden" name="branch" value={formData.branch} />
-                                </div>
-                                {/* Message */}
-                                <div>
-                                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ฝากข้อความถึง (ถ้ามี)</label>
-                                    <textarea
-                                        id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3}
-                                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
-                                        placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"
-                                    ></textarea>
-                                </div>
-                                {/* Submit Button */}
-                                <div className="flex justify-center pt-2">
-                                    <button
-                                        type="submit"
-                                        disabled={submitStatus === 'submitting'}
-                                        className={`w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-blue-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}
-                                    >
-                                        {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลเพื่อรับคำปรึกษาฟรี'}
-                                    </button>
-                                </div>
-                                {submitStatus === 'success' && (
-                                    <p className="text-center text-sm font-medium text-green-600 mt-3 flex items-center justify-center">
-                                        <CheckCircle2 className="w-4 h-4 mr-1.5" /> ส่งข้อมูลสำเร็จ!
-                                    </p>
-                                )}
-                                {submitStatus === 'error' && (
-                                    <p className="text-center text-sm font-medium text-red-600 mt-3 flex items-center justify-center">
-                                        <Info className="w-4 h-4 mr-1.5" /> เกิดข้อผิดพลาด! กรุณาลองใหม่อีกครั้ง
-                                    </p>
-                                )}
-                            </form>
-                        </section>
+                                    {/* Message */}
+                                    <div>
+                                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ฝากข้อความถึง (ถ้ามี)</label>
+                                        <textarea
+                                            id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3}
+                                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800"
+                                            placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"
+                                        ></textarea>
+                                    </div>
+                                    {/* Submit Button */}
+                                    <div className="flex justify-center pt-2">
+                                        <button
+                                            type="submit"
+                                            disabled={submitStatus === 'submitting'}
+                                            className={`w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-blue-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        >
+                                            {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลเพื่อรับคำปรึกษาฟรี'}
+                                        </button>
+                                    </div>
+                                    {submitStatus === 'success' && (
+                                        <p className="text-center text-sm font-medium text-green-600 mt-3 flex items-center justify-center">
+                                            <CheckCircle2 className="w-4 h-4 mr-1.5" /> ส่งข้อมูลสำเร็จ!
+                                        </p>
+                                    )}
+                                    {submitStatus === 'error' && (
+                                        <p className="text-center text-sm font-medium text-red-600 mt-3 flex items-center justify-center">
+                                            <Info className="w-4 h-4 mr-1.5" /> เกิดข้อผิดพลาด! กรุณาลองใหม่อีกครั้ง
+                                        </p>
+                                    )}
+                                </form>
+                            </section>
+                        ) : (
+                            <section className="bg-gray-50 rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                                    สนใจศูนย์ดูแลนี้?
+                                </h2>
+                                <p className="text-gray-600 mb-6">
+                                    ข้อมูลนี้เป็นข้อมูลเบื้องต้น หากคุณเป็นเจ้าของศูนย์ดูแลนี้ สามารถเข้าร่วมเป็นพาร์ทเนอร์กับเราเพื่อแสดงข้อมูลครบถ้วนและรับการจองได้ทันที
+                                </p>
+                                <Link href="/provider-signup" className="inline-flex items-center justify-center px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+                                    เข้าร่วมเป็นพาร์ทเนอร์ (ฟรี)
+                                </Link>
+                            </section>
+                        )}
                     </div>
 
                     {/* Right Column: Sticky Sidebar (Booking Card) */}
@@ -702,35 +768,68 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             <div className="mb-6 pb-4 border-b border-gray-100">
                                 <span className="text-gray-500 text-sm font-medium block mb-1">ราคาเริ่มต้น</span>
                                 <div className="flex items-baseline">
-                                    <span className="text-4xl font-extrabold text-blue-600">฿{center.price?.toLocaleString() ?? '0'}</span>
+                                    {center.isPartner ? (
+                                        <span className="text-4xl font-extrabold text-blue-600">฿{center.price?.toLocaleString() ?? '0'}</span>
+                                    ) : (
+                                        <span className="text-4xl font-extrabold text-gray-500">
+                                            {center.price < 20000 ? '$' : center.price < 40000 ? '$$' : '$$$'}
+                                        </span>
+                                    )}
                                     <span className="text-gray-500 ml-1 text-base font-semibold">
                                         /{center.type === 'daily' ? 'วัน' : 'เดือน'}
                                     </span>
                                 </div>
-                                <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                                    <DollarSign className='w-3 h-3 mr-1' /> คุ้มค่าและแนะนำ
-                                </div>
+                                {center.isPartner && (
+                                    <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                        <DollarSign className='w-3 h-3 mr-1' /> คุ้มค่าและแนะนำ
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-4">
-                                <a
-                                    href={`tel:${center.phone}`}
-                                    onClick={() => gtag.event({ action: 'click_call_sticky', category: 'Conversion', label: center.name })}
-                                    className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform"
-                                >
-                                    <Phone className="w-5 h-5 mr-2" /> โทรปรึกษาทันที : {center.phone}
-                                </a>
+                                {center.isPartner ? (
+                                    <>
+                                        <a
+                                            href={`tel:${center.phone}`}
+                                            onClick={() => gtag.event({ action: 'click_call_sticky', category: 'Conversion', label: center.name })}
+                                            className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform"
+                                        >
+                                            <Phone className="w-5 h-5 mr-2" /> โทรปรึกษาทันที : {center.phone}
+                                        </a>
 
-                                {center.website && (
-                                    <a
-                                        href={center.website}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={() => gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name })}
-                                        className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-xl hover:border-blue-500 hover:text-blue-700 transition-all active:scale-[0.99] transform"
-                                    >
-                                        <Globe className="w-5 h-5 mr-2" /> เข้าชมเว็บไซต์
-                                    </a>
+                                        {center.website && (
+                                            <a
+                                                href={center.website}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name })}
+                                                className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-xl hover:border-blue-500 hover:text-blue-700 transition-all active:scale-[0.99] transform"
+                                            >
+                                                <Globe className="w-5 h-5 mr-2" /> เข้าชมเว็บไซต์
+                                            </a>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <a
+                                            href={`tel:${center.phone}`}
+                                            onClick={() => gtag.event({ action: 'click_call_sticky', category: 'Conversion', label: center.name })}
+                                            className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform"
+                                        >
+                                            <Phone className="w-5 h-5 mr-2" /> โทรปรึกษาทันที : {center.phone}
+                                        </a>
+                                        {center.website && (
+                                            <a
+                                                href={center.website}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name })}
+                                                className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-xl hover:border-blue-500 hover:text-blue-700 transition-all active:scale-[0.99] transform"
+                                            >
+                                                <Globe className="w-5 h-5 mr-2" /> เข้าชมเว็บไซต์
+                                            </a>
+                                        )}
+                                    </>
                                 )}
                             </div>
 
