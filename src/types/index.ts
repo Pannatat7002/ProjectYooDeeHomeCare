@@ -8,6 +8,7 @@ export interface CareCenter {
     id: number;
     name: string;
     address: string;
+    province?: string;
     lat: number;
     lng: number;
     price: number;

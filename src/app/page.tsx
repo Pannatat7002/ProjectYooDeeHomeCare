@@ -8,13 +8,31 @@ import * as gtag from '../lib/gtag';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
+// รายชื่อจังหวัดทั้งหมดในประเทศไทย
+const THAI_PROVINCES = [
+  'กรุงเทพมหานคร', 'กระบี่', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร', 'ขอนแก่น',
+  'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี', 'ชัยนาท', 'ชัยภูมิ', 'ชุมพร',
+  'เชียงราย', 'เชียงใหม่', 'ตรัง', 'ตราด', 'ตาก', 'นครนายก',
+  'นครปฐม', 'นครพนม', 'นครราชสีมา', 'นครศรีธรรมราช', 'นครสวรรค์', 'นนทบุรี',
+  'นราธิวาส', 'น่าน', 'บึงกาฬ', 'บุรีรัมย์', 'ปทุมธานี', 'ประจวบคีรีขันธ์',
+  'ปราจีนบุรี', 'ปัตตานี', 'พระนครศรีอยุธยา', 'พะเยา', 'พังงา', 'พัทลุง',
+  'พิจิตร', 'พิษณุโลก', 'เพชรบุรี', 'เพชรบูรณ์', 'แพร่', 'ภูเก็ต',
+  'มหาสารคาม', 'มุกดาหาร', 'แม่ฮ่องสอน', 'ยโสธร', 'ยะลา', 'ร้อยเอ็ด',
+  'ระนอง', 'ระยอง', 'ราชบุรี', 'ลพบุรี', 'ลำปาง', 'ลำพูน',
+  'เลย', 'ศรีสะเกษ', 'สกลนคร', 'สงขลา', 'สตูล', 'สมุทรปราการ',
+  'สมุทรสงคราม', 'สมุทรสาคร', 'สระแก้ว', 'สระบุรี', 'สิงห์บุรี', 'สุโขทัย',
+  'สุพรรณบุรี', 'สุราษฎร์ธานี', 'สุรินทร์', 'หนองคาย', 'หนองบัวลำภู', 'อ่างทอง',
+  'อำนาจเจริญ', 'อุดรธานี', 'อุตรดิตถ์', 'อุทัยธานี', 'อุบลราชธานี'
+];
+
 export default function HomePage() {
-  // --- State and Logic (UNCHANGED) ---
+  // --- State and Logic ---
   const [centers, setCenters] = useState<CareCenter[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [careType, setCareType] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
+  const [province, setProvince] = useState('all');
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- Fetch Data ---
@@ -53,8 +71,11 @@ export default function HomePage() {
       const [min, max] = priceRange.split('-').map(Number);
       result = result.filter(c => c.price >= min && c.price <= max);
     }
+    if (province !== 'all') {
+      result = result.filter(c => c.province === province);
+    }
     return result;
-  }, [searchTerm, careType, priceRange, centers]);
+  }, [searchTerm, careType, priceRange, province, centers]);
 
   // --- Utility Functions ---
   const handleCareTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -65,6 +86,11 @@ export default function HomePage() {
   const handlePriceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPriceRange(e.target.value);
     gtag.event({ action: 'filter_price', category: 'Engagement', label: e.target.value });
+  };
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setProvince(e.target.value);
+    gtag.event({ action: 'filter_province', category: 'Engagement', label: e.target.value });
   };
 
   const createSlug = (name: string) => {
@@ -115,6 +141,16 @@ export default function HomePage() {
               <div className="hidden md:flex gap-2">
                 <select
                   className="px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:bg-gray-100 transition-colors font-medium"
+                  value={province}
+                  onChange={handleProvinceChange}
+                >
+                  <option value="all">ทุกจังหวัด</option>
+                  {THAI_PROVINCES.map(prov => (
+                    <option key={prov} value={prov}>{prov}</option>
+                  ))}
+                </select>
+                <select
+                  className="px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:bg-gray-100 transition-colors font-medium"
                   value={careType}
                   onChange={handleCareTypeChange}
                 >
@@ -142,7 +178,17 @@ export default function HomePage() {
             {/* Mobile Filters (Visible only on mobile) */}
             <div className="flex md:hidden gap-2 mt-2">
               <select
-                className="w-1/2 px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium"
+                className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
+                value={province}
+                onChange={handleProvinceChange}
+              >
+                <option value="all">ทุกจังหวัด</option>
+                {THAI_PROVINCES.map(prov => (
+                  <option key={prov} value={prov}>{prov}</option>
+                ))}
+              </select>
+              <select
+                className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
                 value={careType}
                 onChange={handleCareTypeChange}
               >
@@ -151,7 +197,7 @@ export default function HomePage() {
                 <option value="monthly">รายเดือน</option>
               </select>
               <select
-                className="w-1/2 px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium"
+                className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm"
                 value={priceRange}
                 onChange={handlePriceChange}
               >
