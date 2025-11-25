@@ -482,7 +482,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                 </div>
 
                 {/* YooDee Verify Strip (For Partners Only) */}
-                {center.isPartner && (
+                {center.isPartner ? (
                     <div className="mb-10 rounded-2xl overflow-hidden shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
                         <div className="bg-gradient-to-r from-[#0E1B4F] to-blue-600 text-white p-5 md:p-6 flex flex-col md:flex-row items-center justify-between relative">
                             {/* Decorative Background Elements */}
@@ -520,7 +520,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             </div>
                         </div>
                     </div>
-                )}
+                ) : null}
 
                 {/* 3. Content Layout: Main (Left) + Sidebar (Right) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -547,7 +547,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             </div>
                         </section>
                         {/* Packages (Only for Partners) */}
-                        {center.isPartner && center.packages && center.packages.length > 0 && (
+                        {center.isPartner && center.packages && center.packages.length > 0 ? (
                             <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">แพ็กเกจราคา</h2>
                                 <div className="space-y-4">
@@ -580,7 +580,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                     ))}
                                 </div>
                             </section>
-                        )}
+                        ) : null}
                         {/* Map */}
                         {center.mapUrl && (
                             <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -779,11 +779,11 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                         /{center.type === 'daily' ? 'วัน' : 'เดือน'}
                                     </span>
                                 </div>
-                                {center.isPartner && (
+                                {center.isPartner ? (
                                     <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                         <DollarSign className='w-3 h-3 mr-1' /> คุ้มค่าและแนะนำ
                                     </div>
-                                )}
+                                ) : null}
                             </div>
 
                             <div className="space-y-4">
