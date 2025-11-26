@@ -55,7 +55,7 @@ export default function Footer() {
                                 <Facebook className="h-5 w-5" /> {/* ปรับขนาด icon เป็น h-5 w-5 */}
                             </a>
                             <a
-                                href="https://line.me/R/ti/p/@yourlineid" // ควรเปลี่ยนเป็น Line ID จริง
+                                href="https://line.me/R/ti/p/@256zihiv" // ควรเปลี่ยนเป็น Line ID จริง
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Line"

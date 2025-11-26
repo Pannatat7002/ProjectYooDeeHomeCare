@@ -5,7 +5,7 @@ import { Heart, Users, TrendingUp, Shield, CheckCircle, MessageCircle, Phone, Ma
 
 export default function ProviderSignupPage() {
     // LINE Official Account URL - แก้ไขเป็น LINE ID ของคุณ
-    const LINE_URL = 'https://line.me/ti/p/@yoodeehomecare'; // เปลี่ยนเป็น LINE Official Account ของคุณ
+    const LINE_URL = 'https://line.me/R/ti/p/@256zihiv'; // เปลี่ยนเป็น LINE Official Account ของคุณ
 
     const handleLineClick = () => {
         window.open(LINE_URL, '_blank');
