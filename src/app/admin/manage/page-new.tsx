@@ -1,16 +1,20 @@
-﻿/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, Shield, User as UserIcon, Settings } from 'lucide-react';
-import { getAdmin, isAuthenticated, logout, AdminData } from '../../../lib/auth-client';
+import { getAdmin, isAuthenticated, logout, AdminData } from '../../..//lib/auth-client';
 
 // Import components
+// import ManageCenterPage from './components/ManageCenterPage';
+// import ConsultationManagement from './components/ConsultationManagement';
+// import ContactMessageManagement from './components/ContactMessageManagement';
+// import ManageBlogPage from './components/ManageBlogPage';
 import ManageAdminPage from './components/ManageAdminPage';
 import ManageCenterPage from './components/ManageCenterPage';
 import ManageBlogPage from './components/ManageBlogPage';
-import ConsultationManagement from './components/ConsultationManagement';
+import ConsultationManagement from '../consultation/page';
 import ContactMessageManagement from './components/ContactMessageManagement';
 
 type TabType = 'centers' | 'consultations' | 'contacts' | 'blogs' | 'admins';

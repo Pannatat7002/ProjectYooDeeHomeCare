@@ -33,7 +33,7 @@ const parseSheetRow = (row: any) => {
         if (typeof value === 'string' && (value.startsWith('{') || value.startsWith('['))) {
             try {
                 value = JSON.parse(value);
-            } catch (e) {
+            } catch {
                 // ถ้า parse ไม่ได้ ก็ให้เป็น string เหมือนเดิม
             }
         }
@@ -146,3 +146,13 @@ export const saveContacts = async (data: any[]) => saveDataToSheet('Contacts', d
 export const addCareCenter = async (item: any) => addDataToSheet('CareCenters', item);
 export const addConsultation = async (item: any) => addDataToSheet('Consultations', item);
 export const addContact = async (item: any) => addDataToSheet('Contacts', item);
+
+// 4. BLOGS
+export const getBlogs = async () => loadDataFromSheet('Blogs');
+export const saveBlogs = async (data: any[]) => saveDataToSheet('Blogs', data);
+export const addBlog = async (item: any) => addDataToSheet('Blogs', item);
+
+// 5. ADMINS
+export const getAdmins = async () => loadDataFromSheet('Admins');
+export const saveAdmins = async (data: any[]) => saveDataToSheet('Admins', data);
+export const addAdmin = async (item: any) => addDataToSheet('Admins', item);

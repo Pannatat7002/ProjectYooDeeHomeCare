@@ -1,50 +1,77 @@
-﻿/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Shield, User as UserIcon, Settings } from 'lucide-react';
-import { getAdmin, isAuthenticated, logout, AdminData } from '../../../lib/auth-client';
-
-// Import components
+import { LogOut, Shield, User as UserIcon } from 'lucide-react';
 import ManageAdminPage from './components/ManageAdminPage';
 import ManageCenterPage from './components/ManageCenterPage';
-import ManageBlogPage from './components/ManageBlogPage';
 import ConsultationManagement from './components/ConsultationManagement';
 import ContactMessageManagement from './components/ContactMessageManagement';
+import ManageBlogPage from './components/ManageBlogPage';
 
-type TabType = 'centers' | 'consultations' | 'contacts' | 'blogs' | 'admins';
+// Helper function สำหรับ fetch ที่มี authentication
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    const headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`,
+    };
+
+    const response = await fetch(url, { ...options, headers });
+
+    // ถ้า token หมดอายุหรือไม่ถูกต้อง
+    if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin');
+        window.location.href = '/login';
+        throw new Error('Authentication failed');
+    }
+
+    return response;
+};
 
 export default function AdminManagePage() {
     const router = useRouter();
-    const [isAuthChecking, setIsAuthChecking] = useState(true);
-    const [currentAdmin, setCurrentAdmin] = useState<AdminData | null>(null);
-    const [activeTab, setActiveTab] = useState<TabType>('centers');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [currentAdmin, setCurrentAdmin] = useState<any>(null);
+    const [activeTab, setActiveTab] = useState<'centers' | 'consultations' | 'contacts' | 'blogs' | 'admins'>('centers');
 
     // ตรวจสอบ authentication
     useEffect(() => {
-        if (!isAuthenticated()) {
+        const token = localStorage.getItem('token');
+        const adminData = localStorage.getItem('admin');
+
+        if (!token || !adminData) {
             router.push('/login');
             return;
         }
 
-        const admin = getAdmin();
-        if (admin) {
+        try {
+            const admin = JSON.parse(adminData);
             setCurrentAdmin(admin);
+            setIsAuthenticated(true);
+        } catch (error) {
+            console.error('Invalid admin data:', error);
+            router.push('/login');
         }
-
-        setIsAuthChecking(false);
     }, [router]);
 
     const handleLogout = () => {
-        if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
-            logout();
-        }
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin');
+        router.push('/login');
     };
 
-    if (isAuthChecking) {
+    if (!isAuthenticated) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">กำลังตรวจสอบสิทธิ์...</p>
@@ -52,17 +79,6 @@ export default function AdminManagePage() {
             </div>
         );
     }
-
-    const tabs = [
-        { id: 'centers' as TabType, label: 'ศูนย์ดูแล', icon: Settings },
-        { id: 'consultations' as TabType, label: 'คำปรึกษา', icon: UserIcon },
-        { id: 'contacts' as TabType, label: 'ข้อความติดต่อ', icon: UserIcon },
-        { id: 'blogs' as TabType, label: 'บทความ', icon: Settings },
-        ...(currentAdmin?.role === 'super_admin'
-            ? [{ id: 'admins' as TabType, label: 'จัดการ Admin', icon: Shield }]
-            : []
-        ),
-    ];
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -77,7 +93,7 @@ export default function AdminManagePage() {
                                     Admin Panel
                                 </h1>
                                 <p className="text-xs text-gray-500">
-                                    YooDee HomeCare Management System
+                                    YooDee HomeCare Management
                                 </p>
                             </div>
                         </div>
@@ -110,20 +126,25 @@ export default function AdminManagePage() {
             <div className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <nav className="flex space-x-8" aria-label="Tabs">
-                        {tabs.map((tab) => (
+                        {[
+                            { id: 'centers', label: 'ศูนย์ดูแล' },
+                            { id: 'consultations', label: 'คำปรึกษา' },
+                            { id: 'contacts', label: 'ข้อความติดต่อ' },
+                            { id: 'blogs', label: 'บทความ' },
+                            ...(currentAdmin?.role === 'super_admin' ? [{ id: 'admins', label: 'จัดการ Admin' }] : []),
+                        ].map((tab) => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
+                                onClick={() => setActiveTab(tab.id as any)}
                                 className={`
-                                    py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2
+                                    py-4 px-1 border-b-2 font-medium text-sm transition-colors
                                     ${activeTab === tab.id
                                         ? 'border-blue-600 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }
                                 `}
                             >
-                                <tab.icon className="w-4 h-4" />
-                                <span>{tab.label}</span>
+                                {tab.label}
                             </button>
                         ))}
                     </nav>
@@ -141,3 +162,6 @@ export default function AdminManagePage() {
         </div>
     );
 }
+
+// ส่งออก fetchWithAuth เพื่อให้ components อื่นใช้งาน
+export { fetchWithAuth };
