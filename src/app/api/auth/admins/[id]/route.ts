@@ -10,11 +10,12 @@ import { Admin } from '../../../../../types';
  */
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     return requireSuperAdmin(request, async () => {
         try {
-            const id = parseInt(params.id);
+            const { id: idParam } = await params;
+            const id = parseInt(idParam);
             const body = await request.json();
             const { username, password, email, fullName, role, isActive } = body;
 
@@ -78,11 +79,12 @@ export async function PUT(
  */
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     return requireSuperAdmin(request, async () => {
         try {
-            const id = parseInt(params.id);
+            const { id: idParam } = await params;
+            const id = parseInt(idParam);
             const admins: Admin[] = await getAdmins();
 
             const adminIndex = admins.findIndex((a) => a.id === id);
