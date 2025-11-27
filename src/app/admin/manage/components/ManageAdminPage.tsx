@@ -2,32 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, FilePenLine, X, Save, Shield, UserX, UserCheck } from 'lucide-react';
-
-// Helper function สำหรับ fetch ที่มี authentication
-const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        throw new Error('No authentication token found');
-    }
-
-    const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-        'Authorization': `Bearer ${token}`,
-    };
-
-    const response = await fetch(url, { ...options, headers });
-
-    if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('admin');
-        window.location.href = '/login';
-        throw new Error('Authentication failed');
-    }
-
-    return response;
-};
+import { fetchWithAuth } from '../../../../lib/auth-client';
 
 interface Admin {
     id: number;
@@ -255,8 +230,8 @@ export default function ManageAdminPage() {
                                         <td className="py-3 px-4">
                                             <span
                                                 className={`px-3 py-1 rounded-full text-xs font-semibold ${admin.role === 'super_admin'
-                                                        ? 'bg-purple-100 text-purple-700'
-                                                        : 'bg-blue-100 text-blue-700'
+                                                    ? 'bg-purple-100 text-purple-700'
+                                                    : 'bg-blue-100 text-blue-700'
                                                     }`}
                                             >
                                                 {admin.role === 'super_admin' ? 'Super Admin' : 'Admin'}
@@ -266,8 +241,8 @@ export default function ManageAdminPage() {
                                             <button
                                                 onClick={() => toggleActive(admin)}
                                                 className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-semibold ${admin.isActive
-                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                    : 'bg-red-100 text-red-700 hover:bg-red-200'
                                                     }`}
                                             >
                                                 {admin.isActive ? (

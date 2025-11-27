@@ -6,6 +6,7 @@ import {
     X, Save, ImageIcon, XCircle
 } from 'lucide-react';
 import { CareCenter, Package } from '@/src/types';
+import { fetchWithAuth } from '../../../../lib/auth-client';
 
 const INITIAL_FORM_STATE: Omit<CareCenter, 'id'> = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
@@ -66,7 +67,7 @@ export default function ManageCenterPage() {
     const handleDelete = async (id: number) => {
         if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')) return;
         try {
-            const res = await fetch(`/api/care-centers/${id}`, { method: 'DELETE' });
+            const res = await fetchWithAuth(`/api/care-centers/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 fetchCenters();
             } else {
@@ -109,7 +110,7 @@ export default function ManageCenterPage() {
         const url = editingId ? `/api/care-centers/${editingId}` : '/api/care-centers';
         const method = editingId ? 'PUT' : 'POST';
         try {
-            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const res = await fetchWithAuth(url, { method, body: JSON.stringify(payload) });
             if (!res.ok) throw new Error('Failed to save');
             alert('บันทึกข้อมูลสำเร็จ');
             closeModal();

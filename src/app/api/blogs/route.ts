@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getBlogs, saveBlogs } from '../../../lib/db';
+import { requireAuth } from '../../../lib/middleware';
 
 const slugify = (text: string) => {
     return text
@@ -29,42 +30,44 @@ export async function GET(request: Request) {
     return NextResponse.json(blogs);
 }
 
-export async function POST(request: Request) {
-    try {
-        const body = await request.json();
-        const blogs = await getBlogs();
+export async function POST(request: NextRequest) {
+    return requireAuth(request, async () => {
+        try {
+            const body = await request.json();
+            const blogs = await getBlogs();
 
-        const nextId = blogs.length > 0
-            ? Math.max(...blogs.map((b: any) => b.id)) + 1
-            : 1;
+            const nextId = blogs.length > 0
+                ? Math.max(...blogs.map((b: any) => b.id)) + 1
+                : 1;
 
-        const slug = body.slug || slugify(body.title);
+            const slug = body.slug || slugify(body.title);
 
-        // Ensure slug is unique
-        let uniqueSlug = slug;
-        let counter = 1;
-        while (blogs.some((b: any) => b.slug === uniqueSlug)) {
-            uniqueSlug = `${slug}-${counter}`;
-            counter++;
+            // Ensure slug is unique
+            let uniqueSlug = slug;
+            let counter = 1;
+            while (blogs.some((b: any) => b.slug === uniqueSlug)) {
+                uniqueSlug = `${slug}-${counter}`;
+                counter++;
+            }
+
+            const newBlog = {
+                id: nextId,
+                ...body,
+                slug: uniqueSlug,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+
+            blogs.push(newBlog);
+            await saveBlogs(blogs);
+
+            return NextResponse.json({ success: true, data: newBlog }, { status: 201 });
+        } catch (err) {
+            console.error('Error creating blog:', err);
+            return NextResponse.json(
+                { success: false, message: 'เกิดข้อผิดพลาดในการสร้างบทความ' },
+                { status: 500 }
+            );
         }
-
-        const newBlog = {
-            id: nextId,
-            ...body,
-            slug: uniqueSlug,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        };
-
-        blogs.push(newBlog);
-        await saveBlogs(blogs);
-
-        return NextResponse.json(newBlog, { status: 201 });
-    } catch (error) {
-        console.error('Error creating blog:', error);
-        return NextResponse.json(
-            { message: 'Error creating blog' },
-            { status: 500 }
-        );
-    }
+    });
 }

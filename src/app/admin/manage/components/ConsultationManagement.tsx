@@ -5,6 +5,7 @@ import {
     User, Phone, Mail, MessageSquare, Clock, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Consultation } from '@/src/types';
+import { fetchWithAuth } from '../../../../lib/auth-client';
 
 export default function ConsultationManagement() {
     const [consultations, setConsultations] = useState<Consultation[]>([]);
@@ -16,14 +17,14 @@ export default function ConsultationManagement() {
     const fetchConsultations = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch(API_URL);
+            const res = await fetchWithAuth(API_URL);
             if (!res.ok) throw new Error('Failed to fetch consultations');
 
             const result: { data: Consultation[] } = await res.json();
             setConsultations(result.data.sort((a, b) => b.id - a.id));
         } catch (error) {
             console.error('Fetch error:', error);
-            alert('ไม่สามารถโหลดข้อมูล Consultations ได้');
+            // alert('ไม่สามารถโหลดข้อมูล Consultations ได้');
         } finally {
             setIsLoading(false);
         }
@@ -36,7 +37,7 @@ export default function ConsultationManagement() {
     const handleDelete = async (id: number) => {
         if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการติดต่อนี้?')) return;
         try {
-            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            const res = await fetchWithAuth(`${API_URL}/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 alert('ลบรายการสำเร็จ');
                 fetchConsultations();
@@ -49,9 +50,8 @@ export default function ConsultationManagement() {
     const handleUpdateStatus = async (consultation: Consultation, newStatus: string) => {
         const payload = { status: newStatus };
         try {
-            const res = await fetch(`${API_URL}/${consultation.id}`, {
+            const res = await fetchWithAuth(`${API_URL}/${consultation.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 

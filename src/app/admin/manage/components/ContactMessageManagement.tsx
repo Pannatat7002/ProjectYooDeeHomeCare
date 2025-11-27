@@ -5,6 +5,7 @@ import {
     Mail, Phone, Clock, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { ContactMessage } from '@/src/types';
+import { fetchWithAuth } from '../../../../lib/auth-client';
 
 export default function ContactMessageManagement() {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -16,14 +17,14 @@ export default function ContactMessageManagement() {
     const fetchMessages = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch(API_URL);
+            const res = await fetchWithAuth(API_URL);
             if (!res.ok) throw new Error('Failed to fetch messages');
 
             const result: { data: ContactMessage[] } = await res.json();
             setMessages(result.data.sort((a, b) => b.id - a.id));
         } catch (error) {
             console.error('Fetch error:', error);
-            alert('ไม่สามารถโหลดข้อมูลข้อความได้');
+            // alert('ไม่สามารถโหลดข้อมูลข้อความได้');
         } finally {
             setIsLoading(false);
         }
@@ -36,7 +37,7 @@ export default function ContactMessageManagement() {
     const handleDelete = async (id: number) => {
         if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อความนี้?')) return;
         try {
-            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            const res = await fetchWithAuth(`${API_URL}/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 alert('ลบข้อความสำเร็จ');
                 fetchMessages();
@@ -48,9 +49,8 @@ export default function ContactMessageManagement() {
 
     const handleUpdateStatus = async (message: ContactMessage, newStatus: string) => {
         try {
-            const res = await fetch(`${API_URL}/${message.id}`, {
+            const res = await fetchWithAuth(`${API_URL}/${message.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
             });
 
