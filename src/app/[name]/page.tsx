@@ -113,6 +113,38 @@ const TrialOfferCard = () => (
         </div>
     </div>
 );
+
+const ShareButton = () => {
+
+    // 2. ฟังก์ชันสำหรับแชร์เนื้อหา
+    const handleShare = async () => {
+        const shareData = {
+            title: 'หัวข้อที่ต้องการแชร์',
+            text: 'ลองดูเนื้อหานี้สิ เจ๋งมาก!',
+            url: window.location.href, // หรือ URL ที่คุณต้องการ
+        };
+
+        try {
+            // ตรวจสอบว่า Browser รองรับ Web Share API หรือไม่
+            if (navigator.share) {
+                await navigator.share(shareData);
+                console.log('Shared successfully');
+            } else {
+                // Fallback: ถ้าแชร์ไม่ได้ ให้ Copy Link แทน
+                await navigator.clipboard.writeText(shareData.url);
+                alert('คัดลอกลิงก์เรียบร้อยแล้ว!');
+            }
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
+    };
+
+    return (
+        <button onClick={handleShare} className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-blue-500 transition-colors shadow-md">
+            <Share2 className="w-5 h-5" />
+        </button>
+    );
+};
 // --- END Trial Offer Card Component ---
 
 // --- Full Screen Gallery Modal Component ---
@@ -471,12 +503,10 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         </button>
                         {/* Optional: Wishlist/Share Button */}
                         <div className="absolute top-4 right-4 flex space-x-2">
-                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-red-500 transition-colors shadow-md">
+                            {/* <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-red-500 transition-colors shadow-md">
                                 <Heart className="w-5 h-5" />
-                            </button>
-                            <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-700 hover:text-blue-500 transition-colors shadow-md">
-                                <Share2 className="w-5 h-5" />
-                            </button>
+                            </button> */}
+                            <ShareButton />
                         </div>
                     </div>
                 </div>
