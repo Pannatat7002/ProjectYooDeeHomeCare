@@ -22,17 +22,18 @@ export default function Header() {
                     */}
                     <Link
                         href="/"
-                        className="flex items-center text-2xl sm:text-3xl font-extrabold tracking-tight"
+                        className="flex flex-col items-center justify-center p-8 select-none hover:opacity-90 transition-opacity duration-200 group"
                     >
-                        {/* ปรับขนาดและเน้นสี: text-2xl/3xl, font-black, เน้นสีน้ำเงินของแบรนด์
-                        */}
-                        <span className="text-[#0E1B4F] dark:text-[#18395B] font-black">
-                            YooDee
+                        {/* ส่วนหัวข้อภาษาอังกฤษ: ThaiCareCenter */}
+                        {/* ใช้ span แทน h1 เพื่อความปลอดภัยเมื่ออยู่ใน Link แต่ยังคงสไตล์เดิมไว้ */}
+                        <span className="text-3xl font-semibold text-[#2b64a0] tracking-tight mb-2 leading-none">
+                            ThaiCareCenter
                         </span>
-                        {/* ปรับขนาดและเน้นสี: font-extrabold, ใช้สีน้ำเงินอ่อนลงเล็กน้อย 
-                        */}
-                        <span className="text-blue-600 dark:text-blue-400 font-extrabold ml-1">
-                            HomeCare
+
+                        {/* ส่วนคำอธิบายภาษาไทย */}
+                        {/* ใช้ text-gray-500 ตามต้นฉบับ และปรับ margin-top ให้ชิดขึ้น */}
+                        <span className="text-1xl text-gray-500 font-normal mt-[-0.5rem] group-hover:text-gray-600 transition-colors">
+                            เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย
                         </span>
                     </Link>
 

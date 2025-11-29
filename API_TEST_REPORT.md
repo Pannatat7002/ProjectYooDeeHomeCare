@@ -184,7 +184,7 @@ export const rowsToData = (rows: any[]) => {
 
 **ข้อมูลการเชื่อมต่อ:**
 - Sheet ID: `1TQ_pBwT7r1KCY2h5pZ3LDDofhIUSucbduGxI891fEIc`
-- Service Account: `yoodeehomecare@excare-service-project.iam.gserviceaccount.com`
+- Service Account: `ThaiCareCenter@excare-service-project.iam.gserviceaccount.com`
 - Sheets ที่ใช้งาน:
   - CareCenters
   - Consultations

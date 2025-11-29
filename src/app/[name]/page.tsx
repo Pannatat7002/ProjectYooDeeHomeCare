@@ -39,8 +39,8 @@ interface ConsultationFormData {
 // =========================================================================================
 
 // --- LOGO Text Component (Deep Blue/Dark Gray style) ---
-// ใช้ Tailwind utilities ในการกำหนดสีตามสไตล์ YoodeeHomeCare
-const YoodeeHomeCareLogoText = ({ size = 'xl', dark = true }: { size?: 'xl' | '2xl', dark?: boolean }) => (
+// ใช้ Tailwind utilities ในการกำหนดสีตามสไตล์ ThaiCareCenter
+const ThaiCareCenterLogoText = ({ size = 'xl', dark = true }: { size?: 'xl' | '2xl', dark?: boolean }) => (
     <div className={`flex items-baseline font-extrabold tracking-tight ${size === 'xl' ? 'text-xl' : 'text-2xl'}`}>
         {/* Deep Blue/blue for 'YooDee' */}
         <span className={`text-[#0E1B4F] ${dark ? 'dark:text-blue-400' : ''}`}>
@@ -865,7 +865,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
 
                             <div className="mt-6 pt-6 border-t border-gray-100 text-center">
                                 <p className="text-xs text-gray-400">
-                                    ติดต่อผ่าน YoodeeHomeCare ไม่มีค่าใช้จ่ายเพิ่มเติม
+                                    ติดต่อผ่าน ThaiCareCenter ไม่มีค่าใช้จ่ายเพิ่มเติม
                                 </p>
                             </div>
                         </div>

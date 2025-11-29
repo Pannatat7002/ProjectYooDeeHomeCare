@@ -218,7 +218,7 @@ export default function TermsPage() {
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[100px]">อีเมล:</span>
                                     <a href="mailto:Pannatat7002@gmail.com" className="text-gray-900 hover:text-gray-700 underline">
-                                        support@yoodeehomecare.com
+                                        support@ThaiCareCenter.com
                                     </a>
                                 </li>
                                 <li className="flex items-start">

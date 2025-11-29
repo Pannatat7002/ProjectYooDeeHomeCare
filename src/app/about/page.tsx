@@ -18,7 +18,7 @@ export default function AboutPage() {
                     <div className="relative z-10 container mx-auto px-4 text-center text-white">
                         <h1 className="text-4xl md:text-5xl font-bold mb-6">เกี่ยวกับเรา</h1>
                         <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-                            YoodeeHomeCare มุ่งมั่นที่จะยกระดับคุณภาพชีวิตของผู้สูงอายุและผู้ป่วยพักฟื้น
+                            ThaiCareCenter มุ่งมั่นที่จะยกระดับคุณภาพชีวิตของผู้สูงอายุและผู้ป่วยพักฟื้น
                             ด้วยการเชื่อมโยงท่านกับศูนย์ดูแลที่มีคุณภาพและได้มาตรฐาน
                         </p>
                     </div>
@@ -70,7 +70,7 @@ export default function AboutPage() {
                         <div className="max-w-3xl mx-auto text-center">
                             <h2 className="text-3xl font-bold text-gray-900 mb-8">เรื่องราวของเรา</h2>
                             <p className="text-gray-600 mb-6 leading-relaxed">
-                                YoodeeHomeCare ก่อตั้งขึ้นจากประสบการณ์ส่วนตัวที่ต้องมองหาสถานที่ดูแลสำหรับคนในครอบครัว
+                                ThaiCareCenter ก่อตั้งขึ้นจากประสบการณ์ส่วนตัวที่ต้องมองหาสถานที่ดูแลสำหรับคนในครอบครัว
                                 เราพบว่าการหาข้อมูลที่ครบถ้วนและน่าเชื่อถือนั้นเป็นเรื่องยาก
                                 จึงเกิดเป็นแรงบันดาลใจในการสร้างพื้นที่กลางที่รวบรวมข้อมูลศูนย์ดูแลต่างๆ ไว้อย่างเป็นระบบ
                             </p>

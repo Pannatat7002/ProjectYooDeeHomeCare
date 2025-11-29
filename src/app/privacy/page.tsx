@@ -371,8 +371,8 @@ export default function PrivacyPage() {
                             <ul className="space-y-3 text-gray-700">
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[120px]">อีเมล:</span>
-                                    <a href="mailto:privacy@yoodeehomecare.com" className="text-gray-900 hover:text-gray-700 underline font-medium">
-                                        privacy@yoodeehomecare.com
+                                    <a href="mailto:privacy@ThaiCareCenter.com" className="text-gray-900 hover:text-gray-700 underline font-medium">
+                                        privacy@ThaiCareCenter.com
                                     </a>
                                 </li>
                                 <li className="flex items-start">

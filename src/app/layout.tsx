@@ -14,7 +14,7 @@ const sarabun = Sarabun({
 });
 
 // กำหนด Base URL ของเว็บไซต์
-const BASE_URL = 'https://yoodeehomecare.com';
+const BASE_URL = 'https://ThaiCareCenter.com';
 
 export const metadata: Metadata = {
   // === เพิ่ม metadataBase ที่นี่ ===
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
   // ** 1. SEO หลัก (Title & Description & Keywords) **
   // ใช้ Title ที่เน้นคำค้นหาหลักและบริการสำคัญ
-  title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุ/ผู้ป่วยพักฟื้น รายวัน รายเดือน",  // ใช้ Description ที่ดึงดูดใจและใส่คุณสมบัติเด่นที่ปรากฏในภาพ (การเปรียบเทียบราคา/ช่วงราคา)
+  title: "ThaiCareCenter - ค้นหาศูนย์ดูแลผู้สูงอายุ/ผู้ป่วยพักฟื้น รายวัน รายเดือน",  // ใช้ Description ที่ดึงดูดใจและใส่คุณสมบัติเด่นที่ปรากฏในภาพ (การเปรียบเทียบราคา/ช่วงราคา)
   description:
     "ยกระดับคุณภาพชีวิตของผู้สูงอายุและผู้ป่วยพักฟื้น ด้วยการค้นหา ศูนย์ดูแลที่ได้มาตรฐานสูงสุด พร้อมเปรียบเทียบราคา รีวิว และบริการ รายวัน/รายเดือน ใกล้บ้านคุณ ให้คนที่คุณรักได้รับการดูแลที่ดีที่สุดอย่างแท้จริง",  // เพิ่ม Keywords ที่ครอบคลุมคำค้นหาที่เกี่ยวข้อง
   keywords:
@@ -50,23 +50,23 @@ export const metadata: Metadata = {
 
   // ** 3. Icons (Favicon) **
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    icon: '/logo_thai_care_center_v1.png',
+    shortcut: '/logo_thai_care_center_v1.png',
+    apple: '/logo_thai_care_center_v1.png',
   },
 
   // ** 4. Open Graph (สำหรับแชร์บน Facebook, Line) **
   openGraph: {
-    title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุที่ดีที่สุด", // Title สำหรับ Social Media
+    title: "ThaiCareCenter - เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย", // Title สำหรับ Social Media
     description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ พร้อมเปรียบเทียบราคาและรีวิว", // Description สำหรับ Social Media
     url: BASE_URL,
-    siteName: "YoodeeHomeCare",
+    siteName: "ThaiCareCenter",
     images: [
       {
-        url: "/YooDeeHomeCare.png", // Next.js จะรวม BASE_URL เข้ากับ Path นี้โดยอัตโนมัติ
+        url: "/ThaiCareCenter.png", // Next.js จะรวม BASE_URL เข้ากับ Path นี้โดยอัตโนมัติ
         width: 1200,
         height: 630,
-        alt: "YoodeeHomeCare: ศูนย์ดูแลผู้สูงอายุ รายวัน รายเดือน พร้อมเปรียบเทียบ",
+        alt: "ThaiCareCenter: เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย",
       },
     ],
     locale: "th_TH",
@@ -76,10 +76,10 @@ export const metadata: Metadata = {
   // ** 5. Twitter Card (สำหรับแชร์บน X/Twitter) **
   twitter: {
     card: 'summary_large_image', // รูปแบบการ์ดแบบรูปภาพขนาดใหญ่
-    title: "YoodeeHomeCare - ค้นหาศูนย์ดูแลผู้สูงอายุที่ดีที่สุด",
+    title: "ThaiCareCenter - เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย",
     description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ",
-    creator: '@YoodeeHomeCare', // เปลี่ยนเป็น Twitter Handle ของ YoodeeHomeCare
-    images: ['/YooDeeHomeCare.png'],
+    creator: '@ThaiCareCenter', // เปลี่ยนเป็น Twitter Handle ของ ThaiCareCenter
+    images: ['/ThaiCareCenter.png'],
   },
 };
 

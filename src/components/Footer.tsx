@@ -16,13 +16,19 @@ export default function Footer() {
                             {/* Logo: ปรับให้สอดคล้องกับ Header ที่ปรับปรุงแล้ว */}
                             <Link
                                 href="/"
-                                className="flex items-center text-2xl sm:text-3xl font-extrabold tracking-tight mb-2" // เพิ่ม mb-2
+                                className="flex flex-col items-center justify-center p-8 select-none  dark:bg-slate-900 
+             hover:opacity-90 transition-all duration-200 group"
                             >
-                                <span className="text-white font-black">
-                                    YooDee
+                                {/* ส่วนหัวข้อภาษาอังกฤษ: ThaiCareCenter */}
+                                {/* Light: สีน้ำเงินต้นฉบับ | Dark: สีฟ้าสว่าง (Blue-400) */}
+                                <span className="text-3xl font-semibold text-[#52a9ff] dark:text-blue-400 tracking-tight mb-2 leading-none transition-colors">
+                                    ThaiCareCenter
                                 </span>
-                                <span className="text-blue-400 font-extrabold ml-1">
-                                    HomeCare
+
+                                {/* ส่วนคำอธิบายภาษาไทย */}
+                                {/* Light: สีเทา | Dark: สีเทาอ่อน (Gray-400) */}
+                                <span className="text-xl text-white dark:text-gray-400 font-normal mt-[-0.5rem] group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                                    เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย
                                 </span>
                             </Link>
                         </div>
@@ -36,10 +42,10 @@ export default function Footer() {
                                 <PhoneCall className="h-4 w-4 mr-2 text-blue-400" />
                                 <span>โทร: 095-805-7052</span>
                             </a>
-                            <a href="mailto:contact@yoodeehomecare.com" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="mailto:contact@ThaiCareCenter.com" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
                                 <Mail className="h-4 w-4 mr-2 text-blue-400" />
                                 <span>อีเมล: pannatat7002@gmail.com</span>
-                                {/* <span>อีเมล: contact@yoodeehomecare.com</span> */}
+                                {/* <span>อีเมล: contact@ThaiCareCenter.com</span> */}
                             </a>
                         </div>
 
