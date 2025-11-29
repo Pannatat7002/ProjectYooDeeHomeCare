@@ -99,6 +99,13 @@ export default function Header() {
                             >
                                 บริการของเรา
                             </Link>
+                            <Link
+                                href="/contact"
+                                className="text-gray-900 hover:text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-50 transition-all"
+                                onClick={toggleMobileMenu}
+                            >
+                                ติดต่อเรา
+                            </Link>
                             {/* แก้ไข/เพิ่มลิงก์ให้ชัดเจนและถูกต้องตามชื่อ */}
                             <Link
                                 href="/provider-signup"
