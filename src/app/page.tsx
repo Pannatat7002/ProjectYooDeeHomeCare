@@ -38,7 +38,7 @@ export default function HomePage() {
   // --- Fetch Data ---
   useEffect(() => {
     const startTime = performance.now();
-    fetch('/api/care-centers')
+    fetch('/api/care-centers?status=visible')
       .then(res => res.json())
       .then(data => {
         setCenters(data);

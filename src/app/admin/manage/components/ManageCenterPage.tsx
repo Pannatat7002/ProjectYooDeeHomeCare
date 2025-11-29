@@ -13,7 +13,7 @@ const INITIAL_FORM_STATE: Omit<CareCenter, 'id'> = {
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
     imageUrls: [''], description: '', services: [], packages: [],
     hasGovernmentCertificate: false, brandName: '', brandLogoUrl: '',
-    isPartner: false, province: 'กรุงเทพมหานคร'
+    isPartner: false, province: 'กรุงเทพมหานคร', status: 'visible'
 };
 
 const THAI_PROVINCES = [
@@ -88,7 +88,8 @@ export default function ManageCenterPage() {
                 brandName: center.brandName || '',
                 brandLogoUrl: center.brandLogoUrl || '',
                 isPartner: center.isPartner || false,
-                province: center.province || 'กรุงเทพมหานคร'
+                province: center.province || 'กรุงเทพมหานคร',
+                status: center.status || 'visible'
             });
         } else {
             setEditingId(null);
@@ -190,6 +191,7 @@ export default function ManageCenterPage() {
                                 <th className="py-4 px-4">ที่อยู่</th>
                                 <th className="py-4 px-4">ราคา</th>
                                 <th className="py-4 px-4">เรตติ้ง</th>
+                                <th className="py-4 px-4">สถานะ</th>
                                 <th className="py-4 px-4">ประเภท</th>
                                 <th className="py-4 px-4 text-center">จัดการ</th>
                             </tr>
@@ -208,6 +210,15 @@ export default function ManageCenterPage() {
                                         <td className="py-3 px-4 max-w-xs truncate" title={center.address}>{center.address}</td>
                                         <td className="py-3 px-4">฿{center.price?.toLocaleString() ?? '0'}</td>
                                         <td className="py-3 px-4">{(center.rating || 0).toFixed(1)}</td>
+                                        <td className="py-3 px-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${center.status === 'visible' ? 'bg-green-100 text-green-800' :
+                                                    center.status === 'hidden' ? 'bg-red-100 text-red-800' :
+                                                        'bg-yellow-100 text-yellow-800'
+                                                }`}>
+                                                {center.status === 'visible' ? 'เปิดการแสดง' :
+                                                    center.status === 'hidden' ? 'ปิดการแสดง' : 'รอการอนุมัติ'}
+                                            </span>
+                                        </td>
                                         <td className="py-3 px-4">
                                             {center.type === 'both' ? 'รายวัน/รายเดือน' : center.type === 'daily' ? 'รายวัน' : 'รายเดือน'}
                                         </td>
@@ -323,6 +334,18 @@ export default function ManageCenterPage() {
                                             <option value="monthly">รายเดือน</option>
                                             <option value="daily">รายวัน</option>
                                             <option value="both">รายวัน/รายเดือน</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
+                                        <select className="w-full border rounded-md px-3 py-2"
+                                            value={formData.status}
+                                            onChange={e => setFormData({ ...formData, status: e.target.value as 'visible' | 'hidden' | 'pending' })}
+                                        >
+                                            <option value="visible">เปิดการแสดง</option>
+                                            <option value="hidden">ปิดการแสดง</option>
+                                            <option value="pending">รอการอนุมัติ</option>
                                         </select>
                                     </div>
 

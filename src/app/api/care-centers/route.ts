@@ -27,6 +27,11 @@ export async function GET(request: Request) {
         careCenters = careCenters.filter((c: any) => c.name === name);
     }
 
+    const status = searchParams.get('status');
+    if (status) {
+        careCenters = careCenters.filter((c: any) => c.status === status);
+    }
+
 
     return NextResponse.json(careCenters);
 }

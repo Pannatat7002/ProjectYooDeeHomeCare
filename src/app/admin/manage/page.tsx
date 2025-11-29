@@ -82,7 +82,7 @@ export default function AdminManagePage() {
                             </div>
                         </div>
 
-                        {currentAdmin && (
+                        {/* {currentAdmin && (
                             <div className="flex items-center space-x-4">
                                 <div className="text-right">
                                     <p className="text-sm font-semibold text-gray-900">
@@ -101,7 +101,7 @@ export default function AdminManagePage() {
                                     <span className="text-sm font-medium">ออกจากระบบ</span>
                                 </button>
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </div>
