@@ -139,7 +139,7 @@ export default function HomePage() {
         }}
       >
         {/* Overlay สีดำจางๆ */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-blue-900/50"></div>
 
         <div className="relative z-10 container max-w-5xl mx-auto text-center">
 

@@ -53,7 +53,7 @@ export default function ContactPage() {
                         backgroundPosition: 'center 40%',
                     }}
                 >
-                    <div className="absolute inset-0 bg-blue-900/60"></div>
+                    <div className="absolute inset-0 bg-blue-900/50"></div>
                     <div className="relative z-10 container mx-auto px-4 text-center text-white">
                         <h1 className="text-4xl md:text-5xl font-bold mb-6">ติดต่อเรา</h1>
                         <p className="text-xl text-blue-100 max-w-2xl mx-auto">

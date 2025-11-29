@@ -22,7 +22,7 @@ export default function ProviderSignupPage() {
                         backgroundPosition: 'center 40%',
                     }}
                 >
-                    <div className="absolute inset-0 bg-blue-900/60"></div>
+                    <div className="absolute inset-0 bg-blue-900/50"></div>
                     <div className="relative z-10 container mx-auto px-4 text-center text-white py-20">
                         <div className="inline-block mb-6 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full">
                             <span className="text-sm font-semibold">💼 ร่วมงานกับเรา</span>
