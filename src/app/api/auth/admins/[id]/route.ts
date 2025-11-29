@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getAdmins, saveAdmins } from '../../../../../lib/db';
 import { requireSuperAdmin } from '../../../../../lib/middleware';
-import { Admin } from '../../../../../types';
+import { Admin } from '../../../../../types/index';
 
 /**
  * PUT /api/auth/admins/[id]

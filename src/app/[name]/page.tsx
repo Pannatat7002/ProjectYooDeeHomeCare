@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import * as gtag from '../../lib/gtag'; // ตรวจสอบ path ให้ถูกต้อง
-import { CareCenter } from '../../types'; // ตรวจสอบ path ให้ถูกต้อง
+import { CareCenter } from '../../types/index'; // ตรวจสอบ path ให้ถูกต้อง
 
 // =========================================================================================
 // UTILITIES & CONSTANTS

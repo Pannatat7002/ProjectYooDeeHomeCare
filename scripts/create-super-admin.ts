@@ -5,7 +5,7 @@
 
 import bcrypt from 'bcryptjs';
 import { getAdmins, saveAdmins } from '../src/lib/db';
-import { Admin } from '../src/types';
+import { Admin } from '../src/types/index';
 
 async function createSuperAdmin() {
     try {

@@ -26,6 +26,9 @@ export interface CareCenter {
     brandLogoUrl?: string;
     isPartner?: boolean;
     status?: 'visible' | 'hidden' | 'pending';
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
 }
 
 export interface Blog {
