@@ -1,26 +1,80 @@
 /* eslint-disable react-hooks/immutability */
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, X, Save, Link as LinkIcon, Image as ImageIcon, Layout, FileText } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Link as LinkIcon, Image as ImageIcon, Layout, FileText, Copy, ExternalLink } from 'lucide-react';
 import { Advertisement } from '../../../../types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
+
+// Helper function to extract UTM params from a URL
+const parseUrlParams = (url: string) => {
+    try {
+        const urlObj = new URL(url);
+        return {
+            baseUrl: urlObj.origin + urlObj.pathname,
+            utmSource: urlObj.searchParams.get('utm_source') || '',
+            utmMedium: urlObj.searchParams.get('utm_medium') || '',
+            utmCampaign: urlObj.searchParams.get('utm_campaign') || '',
+        };
+    } catch (e) {
+        return {
+            baseUrl: url,
+            utmSource: '',
+            utmMedium: '',
+            utmCampaign: '',
+        };
+    }
+};
+
+interface AdFormData extends Partial<Advertisement> {
+    baseUrl?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+}
 
 export default function ManageAdsPage() {
     const [ads, setAds] = useState<Advertisement[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
-    const [formData, setFormData] = useState<Partial<Advertisement>>({
+
+    // Expanded Form Data State
+    const [formData, setFormData] = useState<AdFormData>({
         imageUrl: '',
         linkUrl: '',
         title: '',
-        description: ''
+        description: '',
+        baseUrl: '',
+        utmSource: '',
+        utmMedium: '',
+        utmCampaign: ''
     });
 
     useEffect(() => {
         fetchAds();
     }, []);
+
+    // Auto-generate linkUrl when UTM params change
+    useEffect(() => {
+        if (formData.baseUrl) {
+            try {
+                const url = new URL(formData.baseUrl);
+                if (formData.utmSource) url.searchParams.set('utm_source', formData.utmSource);
+                if (formData.utmMedium) url.searchParams.set('utm_medium', formData.utmMedium);
+                if (formData.utmCampaign) url.searchParams.set('utm_campaign', formData.utmCampaign);
+
+                // Only update if different to avoid loop
+                const newUrl = url.toString();
+                if (newUrl !== formData.linkUrl) {
+                    setFormData(prev => ({ ...prev, linkUrl: newUrl }));
+                }
+            } catch (e) {
+                // Invalid URL, do nothing or keep as is
+            }
+        }
+    }, [formData.baseUrl, formData.utmSource, formData.utmMedium, formData.utmCampaign]);
 
     const fetchAds = async () => {
         try {
@@ -37,11 +91,18 @@ export default function ManageAdsPage() {
     const handleOpenModal = (ad?: Advertisement) => {
         if (ad) {
             setEditingAd(ad);
+            // Parse existing URL to fill UTM fields
+            const { baseUrl, utmSource, utmMedium, utmCampaign } = parseUrlParams(ad.linkUrl || '');
+
             setFormData({
                 imageUrl: ad.imageUrl,
                 linkUrl: ad.linkUrl || '',
                 title: ad.title || '',
-                description: ad.description || ''
+                description: ad.description || '',
+                baseUrl,
+                utmSource,
+                utmMedium,
+                utmCampaign
             });
         } else {
             setEditingAd(null);
@@ -49,7 +110,11 @@ export default function ManageAdsPage() {
                 imageUrl: '',
                 linkUrl: '',
                 title: '',
-                description: ''
+                description: '',
+                baseUrl: '', // Default suggestion could go here
+                utmSource: 'facebook', // Default suggestion
+                utmMedium: 'cpc',
+                utmCampaign: ''
             });
         }
         setIsModalOpen(true);
@@ -61,6 +126,10 @@ export default function ManageAdsPage() {
         setFormData({});
     };
 
+    const handleInputChange = (field: keyof AdFormData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -69,13 +138,21 @@ export default function ManageAdsPage() {
             return;
         }
 
+        // Prepare payload (exclude temporary UTM fields from API body if backend doesn't need them)
+        const payload = {
+            imageUrl: formData.imageUrl,
+            linkUrl: formData.linkUrl, // This is the final generated URL
+            title: formData.title,
+            description: formData.description
+        };
+
         try {
             if (editingAd) {
                 // Update
                 const res = await fetchWithAuth(`/api/ads/${editingAd.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify(payload),
                 });
 
                 if (res.ok) {
@@ -90,7 +167,7 @@ export default function ManageAdsPage() {
                 const res = await fetchWithAuth('/api/ads', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify(payload),
                 });
 
                 if (res.ok) {
@@ -127,12 +204,20 @@ export default function ManageAdsPage() {
         }
     };
 
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert('คัดลอกลิงก์เรียบร้อยแล้ว');
+    };
+
     if (loading) return <div className="p-8 text-center">กำลังโหลดข้อมูล...</div>;
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">จัดการโฆษณา (Ads)</h2>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-800">จัดการโฆษณา (Ads)</h2>
+                    <p className="text-sm text-gray-500 mt-1">สร้างแบนเนอร์โฆษณาพร้อมลิงก์ติดตามผล (UTM Tracking)</p>
+                </div>
                 <button
                     onClick={() => handleOpenModal()}
                     className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
@@ -149,7 +234,7 @@ export default function ManageAdsPage() {
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รูปภาพ</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รายละเอียด</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลิงก์ปลายทาง</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลิงก์ปลายทาง (UTM)</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
                             </tr>
                         </thead>
@@ -164,7 +249,7 @@ export default function ManageAdsPage() {
                                 ads.map((ad) => (
                                     <tr key={ad.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="h-16 w-32 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+                                            <div className="h-16 w-32 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 relative group">
                                                 <img
                                                     src={ad.imageUrl}
                                                     alt={ad.title || 'Ad'}
@@ -177,17 +262,29 @@ export default function ManageAdsPage() {
                                             <div className="text-sm font-medium text-gray-900">{ad.title || '-'}</div>
                                             <div className="text-sm text-gray-500 line-clamp-1">{ad.description || '-'}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-6 py-4">
                                             {ad.linkUrl ? (
-                                                <a
-                                                    href={ad.linkUrl}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
-                                                >
-                                                    <LinkIcon className="w-3 h-3" />
-                                                    เปิดลิงก์
-                                                </a>
+                                                <div className="max-w-xs">
+                                                    <div className="text-xs text-gray-500 truncate mb-1" title={ad.linkUrl}>
+                                                        {ad.linkUrl}
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => copyToClipboard(ad.linkUrl || '')}
+                                                            className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1 bg-blue-50 px-2 py-1 rounded"
+                                                        >
+                                                            <Copy className="w-3 h-3" /> คัดลอก
+                                                        </button>
+                                                        <a
+                                                            href={ad.linkUrl}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="text-gray-500 hover:text-gray-700 text-xs flex items-center gap-1 bg-gray-100 px-2 py-1 rounded"
+                                                        >
+                                                            <ExternalLink className="w-3 h-3" /> เปิด
+                                                        </a>
+                                                    </div>
+                                                </div>
                                             ) : (
                                                 <span className="text-gray-400 text-sm">-</span>
                                             )}
@@ -217,20 +314,18 @@ export default function ManageAdsPage() {
                     </table>
                 </div>
             </div>
+
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto">
                     <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                        {/* Backdrop (พื้นหลังสีดำ) */}
                         <div className="fixed inset-0 transition-opacity" aria-hidden="true">
                             <div className="absolute inset-0 bg-gray-900 opacity-50" onClick={handleCloseModal}></div>
                         </div>
 
-                        {/* Spacer เพื่อจัดกึ่งกลาง */}
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                        {/* Modal Content (กล่องฟอร์ม) - เพิ่ม relative และ z-10 เพื่อให้ลอยอยู่เหนือพื้นหลัง */}
-                        <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
+                        <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full relative z-10">
                             <form onSubmit={handleSubmit}>
                                 <div className="bg-white px-6 pt-6 pb-4">
                                     <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
@@ -246,69 +341,39 @@ export default function ManageAdsPage() {
                                         </button>
                                     </div>
 
-                                    {/* Form Grid Layout */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* Left Column: Basic Info & Image */}
+                                        <div className="space-y-5">
+                                            <h4 className="font-semibold text-gray-700 flex items-center">
+                                                <ImageIcon className="w-4 h-4 mr-2" /> ข้อมูลทั่วไป
+                                            </h4>
 
-                                        {/* Title */}
-                                        <div className="col-span-1">
-                                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                                หัวข้อ (Title)
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Layout className="h-4 w-4 text-gray-400" />
-                                                </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1.5">หัวข้อ (Title)</label>
                                                 <input
                                                     type="text"
-                                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-shadow"
+                                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                                     placeholder="เช่น โปรโมชั่นพิเศษ"
                                                     value={formData.title || ''}
-                                                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                                                    onChange={(e) => handleInputChange('title', e.target.value)}
                                                 />
                                             </div>
-                                        </div>
 
-                                        {/* Link URL */}
-                                        <div className="col-span-1">
-                                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                                ลิงก์ปลายทาง (Link URL)
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <LinkIcon className="h-4 w-4 text-gray-400" />
-                                                </div>
-                                                <input
-                                                    type="url"
-                                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-shadow"
-                                                    placeholder="https://..."
-                                                    value={formData.linkUrl || ''}
-                                                    onChange={(e) => setFormData(prev => ({ ...prev, linkUrl: e.target.value }))}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Image URL (Full Width) */}
-                                        <div className="col-span-1 md:col-span-2">
-                                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                                URL รูปภาพ <span className="text-red-500">*</span>
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <ImageIcon className="h-4 w-4 text-gray-400" />
-                                                </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1.5">URL รูปภาพ <span className="text-red-500">*</span></label>
                                                 <input
                                                     type="url"
                                                     required
-                                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-shadow"
+                                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                                     placeholder="https://example.com/image.jpg"
                                                     value={formData.imageUrl || ''}
-                                                    onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                                                    onChange={(e) => handleInputChange('imageUrl', e.target.value)}
                                                 />
                                             </div>
 
                                             {/* Image Preview */}
                                             {formData.imageUrl && (
-                                                <div className="mt-3 relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-dashed border-gray-300 flex items-center justify-center">
+                                                <div className="relative w-full h-40 bg-gray-100 rounded-lg overflow-hidden border border-dashed border-gray-300 flex items-center justify-center">
                                                     <img
                                                         src={formData.imageUrl}
                                                         alt="Preview"
@@ -319,27 +384,98 @@ export default function ManageAdsPage() {
                                                             e.currentTarget.alt = 'ไม่สามารถโหลดรูปภาพได้';
                                                         }}
                                                     />
-                                                    <span className="absolute text-gray-400 text-xs pointer-events-none">ตัวอย่างรูปภาพ</span>
                                                 </div>
                                             )}
-                                        </div>
 
-                                        {/* Description (Full Width) */}
-                                        <div className="col-span-1 md:col-span-2">
-                                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                                รายละเอียด (Description)
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute top-3 left-3 pointer-events-none">
-                                                    <FileText className="h-4 w-4 text-gray-400" />
-                                                </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1.5">รายละเอียด</label>
                                                 <textarea
                                                     rows={3}
-                                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-shadow resize-none"
+                                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
                                                     placeholder="รายละเอียดเพิ่มเติม..."
                                                     value={formData.description || ''}
-                                                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                                                    onChange={(e) => handleInputChange('description', e.target.value)}
                                                 />
+                                            </div>
+                                        </div>
+
+                                        {/* Right Column: UTM Builder */}
+                                        <div className="space-y-5">
+                                            <h4 className="font-semibold text-gray-700 flex items-center">
+                                                <LinkIcon className="w-4 h-4 mr-2" /> ตั้งค่าลิงก์ (UTM Builder)
+                                            </h4>
+
+                                            <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">เว็บปลายทาง (Base URL)</label>
+                                                    <input
+                                                        type="url"
+                                                        className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                        placeholder="https://yoodee.com/promotion"
+                                                        value={formData.baseUrl || ''}
+                                                        onChange={(e) => handleInputChange('baseUrl', e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-500 mb-1">Source (แหล่งที่มา)</label>
+                                                        <select
+                                                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                                                            value={formData.utmSource || ''}
+                                                            onChange={(e) => handleInputChange('utmSource', e.target.value)}
+                                                        >
+                                                            <option value="">ไม่ระบุ</option>
+                                                            <option value="facebook">Facebook</option>
+                                                            <option value="google">Google</option>
+                                                            <option value="line">Line</option>
+                                                            <option value="tiktok">Tiktok</option>
+                                                            <option value="email">Email</option>
+                                                        </select>
+                                                        {/* Optional: Add custom input if 'other' */}
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-500 mb-1">Medium (ประเภทสื่อ)</label>
+                                                        <input
+                                                            type="text"
+                                                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                            placeholder="cpc, banner, feed"
+                                                            value={formData.utmMedium || ''}
+                                                            onChange={(e) => handleInputChange('utmMedium', e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-500 mb-1">Campaign Name (ชื่อแคมเปญ)</label>
+                                                    <input
+                                                        type="text"
+                                                        className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                        placeholder="promo_jan2025"
+                                                        value={formData.utmCampaign || ''}
+                                                        onChange={(e) => handleInputChange('utmCampaign', e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <div className="pt-3 border-t border-gray-200">
+                                                    <label className="block text-xs font-bold text-green-700 mb-1.5">ผลลัพธ์ลิงก์ที่จะบันทึก (Generated URL)</label>
+                                                    <div className="flex space-x-2">
+                                                        <input
+                                                            type="text"
+                                                            readOnly
+                                                            className="flex-1 bg-green-50 text-green-800 text-xs p-2 rounded border border-green-200 font-mono focus:outline-none"
+                                                            value={formData.linkUrl || ''}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => formData.linkUrl && copyToClipboard(formData.linkUrl)}
+                                                            className="bg-white border border-gray-300 text-gray-600 p-2 rounded hover:bg-gray-50"
+                                                            title="Copy"
+                                                        >
+                                                            <Copy className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -348,7 +484,7 @@ export default function ManageAdsPage() {
                                 <div className="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3">
                                     <button
                                         type="submit"
-                                        className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-transparent px-4 py-2.5 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-all"
+                                        className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-transparent px-6 py-2.5 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-all"
                                     >
                                         <Save className="w-4 h-4 mr-2" />
                                         บันทึกข้อมูล
