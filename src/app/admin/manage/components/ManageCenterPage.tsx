@@ -3,17 +3,19 @@
 import { useState, useEffect } from 'react';
 import {
     Plus, FilePenLine, Trash2, ChevronLeft, ChevronRight,
-    X, Save, ImageIcon, XCircle
+    X, Save, ImageIcon, XCircle, Megaphone
 } from 'lucide-react';
 import { CareCenter, Package } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
 
-const INITIAL_FORM_STATE: Omit<CareCenter, 'id'> = {
+const INITIAL_FORM_STATE: any = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
     imageUrls: [''], description: '', services: [], packages: [],
     hasGovernmentCertificate: false, brandName: '', brandLogoUrl: '',
-    isPartner: false, province: 'กรุงเทพมหานคร', status: 'visible'
+    isPartner: false, province: 'กรุงเทพมหานคร', status: 'visible',
+    // UTM Fields
+    utmSource: '', utmMedium: '', utmCampaign: ''
 };
 
 const THAI_PROVINCES = [
@@ -35,6 +37,19 @@ const THAI_PROVINCES = [
 const MASTER_SERVICES = [
     'พยาบาล 24 ชม.', 'กายภาพบำบัด', 'กิจกรรมสันทนาการ', 'ดูแลผู้ป่วยติดเตียง', 'อาหารเฉพาะโรค',
     'ห้องพักส่วนตัว', 'Wi-Fi', 'บริการซักรีด', 'สวนหย่อม', 'ใกล้โรงพยาบาล', 'ดูแลผู้ป่วยอัลไซเมอร์'
+];
+
+// ตัวเลือก Medium มาตรฐาน
+const MEDIUM_OPTIONS = [
+    { value: 'cpc', label: 'CPC / Paid Ads (โฆษณาเสียเงิน)' },
+    { value: 'social', label: 'Social Media (โพสต์โซเชียล)' },
+    { value: 'banner', label: 'Banner / Display (แบนเนอร์)' },
+    { value: 'email', label: 'Email / Newsletter (อีเมล)' },
+    { value: 'referral', label: 'Referral (ลิงก์แนะนำ/บอกต่อ)' },
+    { value: 'organic', label: 'Organic Search (ค้นหาเจอเอง)' },
+    { value: 'offline', label: 'Offline / QR Code (สื่อสิ่งพิมพ์)' },
+    { value: 'video', label: 'Video (วิดีโอ)' },
+    { value: 'blog', label: 'Blog / Content (บทความ)' },
 ];
 
 export default function ManageCenterPage() {
@@ -76,7 +91,7 @@ export default function ManageCenterPage() {
         } catch (error) { console.error(error); alert('เกิดข้อผิดพลาดในการลบ'); }
     };
 
-    const openModal = (center?: CareCenter) => {
+    const openModal = (center?: any) => {
         if (center) {
             setEditingId(center.id);
             setFormData({
@@ -89,7 +104,10 @@ export default function ManageCenterPage() {
                 brandLogoUrl: center.brandLogoUrl || '',
                 isPartner: center.isPartner || false,
                 province: center.province || 'กรุงเทพมหานคร',
-                status: center.status || 'visible'
+                status: center.status || 'visible',
+                utmSource: center.utmSource || '',
+                utmMedium: center.utmMedium || '',
+                utmCampaign: center.utmCampaign || ''
             });
         } else {
             setEditingId(null);
@@ -104,7 +122,7 @@ export default function ManageCenterPage() {
         e.preventDefault();
         const payload = {
             ...formData,
-            imageUrls: formData.imageUrls.filter(url => url.trim() !== ''),
+            imageUrls: formData.imageUrls.filter((url: string) => url.trim() !== ''),
             price: Number(formData.price),
             rating: Number(formData.rating)
         };
@@ -130,7 +148,7 @@ export default function ManageCenterPage() {
     };
 
     const removeImageField = (index: number) => {
-        const newImages = formData.imageUrls.filter((_, i) => i !== index);
+        const newImages = formData.imageUrls.filter((_: any, i: number) => i !== index);
         setFormData({ ...formData, imageUrls: newImages });
     };
 
@@ -151,14 +169,14 @@ export default function ManageCenterPage() {
     };
 
     const removePackage = (index: number) => {
-        const newPackages = formData.packages.filter((_, i) => i !== index);
+        const newPackages = formData.packages.filter((_: any, i: number) => i !== index);
         setFormData({ ...formData, packages: newPackages });
     };
 
     const toggleService = (service: string) => {
         const currentServices = formData.services;
         if (currentServices.includes(service)) {
-            setFormData({ ...formData, services: currentServices.filter(s => s !== service) });
+            setFormData({ ...formData, services: currentServices.filter((s: string) => s !== service) });
         } else {
             setFormData({ ...formData, services: [...currentServices, service] });
         }
@@ -188,39 +206,39 @@ export default function ManageCenterPage() {
                                 <th className="py-4 px-4 w-16 text-center">ลำดับ</th>
                                 <th className="py-4 px-4">ชื่อศูนย์ดูแล</th>
                                 <th className="py-4 px-4">จังหวัด</th>
-                                <th className="py-4 px-4">ที่อยู่</th>
                                 <th className="py-4 px-4">ราคา</th>
-                                <th className="py-4 px-4">เรตติ้ง</th>
                                 <th className="py-4 px-4">สถานะ</th>
-                                <th className="py-4 px-4">ประเภท</th>
+                                <th className="py-4 px-4">Tracking (Source)</th>
                                 <th className="py-4 px-4 text-center">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
-                                <tr><td colSpan={8} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                                <tr><td colSpan={7} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
                             ) : paginatedCenters.length === 0 ? (
-                                <tr><td colSpan={8} className="py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>
+                                <tr><td colSpan={7} className="py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>
                             ) : (
-                                paginatedCenters.map((center, index) => (
+                                paginatedCenters.map((center: any, index) => (
                                     <tr key={center.id} className="hover:bg-gray-50 text-sm text-gray-700 transition-colors">
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td className="py-3 px-4 font-semibold">{center.name}</td>
                                         <td className="py-3 px-4">{center.province || '-'}</td>
-                                        <td className="py-3 px-4 max-w-xs truncate" title={center.address}>{center.address}</td>
                                         <td className="py-3 px-4">฿{center.price?.toLocaleString() ?? '0'}</td>
-                                        <td className="py-3 px-4">{(center.rating || 0).toFixed(1)}</td>
                                         <td className="py-3 px-4">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${center.status === 'visible' ? 'bg-green-100 text-green-800' :
-                                                    center.status === 'hidden' ? 'bg-red-100 text-red-800' :
-                                                        'bg-yellow-100 text-yellow-800'
+                                                center.status === 'hidden' ? 'bg-red-100 text-red-800' :
+                                                    'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {center.status === 'visible' ? 'เปิดการแสดง' :
                                                     center.status === 'hidden' ? 'ปิดการแสดง' : 'รอการอนุมัติ'}
                                             </span>
                                         </td>
-                                        <td className="py-3 px-4">
-                                            {center.type === 'both' ? 'รายวัน/รายเดือน' : center.type === 'daily' ? 'รายวัน' : 'รายเดือน'}
+                                        <td className="py-3 px-4 text-xs text-gray-500">
+                                            {center.utmSource ? (
+                                                <span className="bg-gray-100 px-2 py-1 rounded border">
+                                                    {center.utmSource}
+                                                </span>
+                                            ) : '-'}
                                         </td>
                                         <td className="py-3 px-4 text-center space-x-2">
                                             <button onClick={() => openModal(center)} className="text-blue-600 hover:text-blue-800">
@@ -295,36 +313,32 @@ export default function ManageCenterPage() {
                                         </select>
                                     </div>
 
+                                    {/* ... (fields อื่นๆ เหมือนเดิม) ... */}
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
                                         <textarea required rows={2} className="w-full border rounded-md px-3 py-2"
                                             value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
                                         <input required type="text" className="w-full border rounded-md px-3 py-2"
                                             value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">เว็บไซต์</label>
                                         <input type="text" className="w-full border rounded-md px-3 py-2"
                                             value={formData.website || ''} onChange={e => setFormData({ ...formData, website: e.target.value })} />
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ราคาเริ่มต้น</label>
                                         <input required type="number" className="w-full border rounded-md px-3 py-2"
                                             value={formData.price} onChange={e => setFormData({ ...formData, price: Number(e.target.value) })} />
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">เรตติ้ง (0-5)</label>
                                         <input required type="number" step="0.1" min="0" max="5" className="w-full border rounded-md px-3 py-2"
                                             value={formData.rating} onChange={e => setFormData({ ...formData, rating: Number(e.target.value) })} />
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ประเภท</label>
                                         <select className="w-full border rounded-md px-3 py-2"
@@ -336,7 +350,6 @@ export default function ManageCenterPage() {
                                             <option value="both">รายวัน/รายเดือน</option>
                                         </select>
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
                                         <select className="w-full border rounded-md px-3 py-2"
@@ -348,21 +361,17 @@ export default function ManageCenterPage() {
                                             <option value="pending">รอการอนุมัติ</option>
                                         </select>
                                     </div>
-
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Google Maps Embed Code (Iframe)</label>
                                         <input type="text" className="w-full border rounded-md px-3 py-2"
                                             placeholder='<iframe src="..."></iframe>'
                                             value={formData.mapUrl || ''} onChange={e => setFormData({ ...formData, mapUrl: e.target.value })} />
                                     </div>
-
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">รายละเอียด/คำอธิบาย</label>
                                         <textarea rows={5} className="w-full border rounded-md px-3 py-2"
                                             value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                                     </div>
-
-                                    {/* New Fields: Government Certificate & Brand & Partner */}
                                     <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
                                             <input
@@ -376,7 +385,6 @@ export default function ManageCenterPage() {
                                                 ได้รับรองจาก กรม สบส.
                                             </label>
                                         </div>
-
                                         <div className="flex items-center space-x-2 bg-green-50 p-3 rounded-lg border border-green-100">
                                             <input
                                                 type="checkbox"
@@ -390,14 +398,12 @@ export default function ManageCenterPage() {
                                             </label>
                                         </div>
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อแบรนด์/เครือ (Brand Name)</label>
                                         <input type="text" className="w-full border rounded-md px-3 py-2"
                                             placeholder="เช่น Home Care Piban"
                                             value={formData.brandName || ''} onChange={e => setFormData({ ...formData, brandName: e.target.value })} />
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">โลโก้แบรนด์ (URL)</label>
                                         <input type="text" className="w-full border rounded-md px-3 py-2"
@@ -415,7 +421,7 @@ export default function ManageCenterPage() {
                                         </button>
                                     </div>
                                     <div className="space-y-3">
-                                        {formData.imageUrls.map((url, idx) => (
+                                        {formData.imageUrls.map((url: string, idx: number) => (
                                             <div key={idx} className="flex gap-3 items-start">
                                                 <div className="w-16 h-16 bg-gray-100 rounded border overflow-hidden shrink-0 flex items-center justify-center">
                                                     {url ? <img src={url} alt="preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/64?text=Error')} /> : <ImageIcon className="text-gray-300" />}
@@ -432,7 +438,7 @@ export default function ManageCenterPage() {
                                     </div>
                                 </div>
 
-                                {/* Services Checkboxes */}
+                                {/* Services */}
                                 <div className="border-t pt-4">
                                     <label className="block text-sm font-bold text-gray-700 mb-3">บริการและสิ่งอำนวยความสะดวก</label>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -449,7 +455,7 @@ export default function ManageCenterPage() {
                                     </div>
                                 </div>
 
-                                {/* Packages Management */}
+                                {/* Packages */}
                                 <div className="border-t pt-4">
                                     <div className="flex justify-between items-center mb-3">
                                         <label className="text-lg font-bold text-gray-800">แพ็กเกจค่าบริการ</label>
@@ -458,7 +464,7 @@ export default function ManageCenterPage() {
                                         </button>
                                     </div>
                                     <div className="space-y-4">
-                                        {formData.packages.map((pkg, idx) => (
+                                        {formData.packages.map((pkg: any, idx: number) => (
                                             <div key={idx} className="p-4 bg-gray-50 rounded-lg border relative">
                                                 <button type="button" onClick={() => removePackage(idx)} className="absolute top-2 right-2 text-red-400 hover:text-red-600">
                                                     <XCircle className="w-5 h-5" />
@@ -490,6 +496,47 @@ export default function ManageCenterPage() {
                                         )}
                                     </div>
                                 </div>
+
+                                {/* UTM Parameters Section */}
+                                <div className="border-t pt-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Megaphone className="w-5 h-5 text-indigo-600" />
+                                        <label className="text-lg font-bold text-gray-800">การติดตามโฆษณา (UTM Parameters)</label>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">UTM Source</label>
+                                            <input type="text" className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                placeholder="e.g. facebook, google"
+                                                value={formData.utmSource || ''}
+                                                onChange={e => setFormData({ ...formData, utmSource: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            {/* เปลี่ยนเป็น Dropdown */}
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">UTM Medium</label>
+                                            <select
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                value={formData.utmMedium || ''}
+                                                onChange={e => setFormData({ ...formData, utmMedium: e.target.value })}
+                                            >
+                                                <option value="">-- เลือกประเภทสื่อ --</option>
+                                                {MEDIUM_OPTIONS.map(option => (
+                                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                                ))}
+                                                <option value="other">Other (อื่นๆ)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">UTM Campaign</label>
+                                            <input type="text" className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                placeholder="e.g. summer_sale"
+                                                value={formData.utmCampaign || ''}
+                                                onChange={e => setFormData({ ...formData, utmCampaign: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-2">* ใช้สำหรับระบุแหล่งที่มาของข้อมูลเพื่อวัดผลทางการตลาด</p>
+                                </div>
+
                             </div>
 
                             <div className="mt-8 pt-4 border-t flex justify-end space-x-3 sticky bottom-0 bg-white pb-2">

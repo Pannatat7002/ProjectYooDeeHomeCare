@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, X, Save, Link as LinkIcon, Image as ImageIcon, Layout, FileText, Copy, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Link as LinkIcon, Image as ImageIcon, Copy, ExternalLink } from 'lucide-react';
 import { Advertisement } from '../../../../types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
 
@@ -112,7 +112,7 @@ export default function ManageAdsPage() {
                 title: '',
                 description: '',
                 baseUrl: '', // Default suggestion could go here
-                utmSource: 'facebook', // Default suggestion
+                utmSource: '', // Default empty allowing manual input
                 utmMedium: 'cpc',
                 utmCampaign: ''
             });
@@ -418,21 +418,16 @@ export default function ManageAdsPage() {
                                                 </div>
 
                                                 <div className="grid grid-cols-2 gap-3">
+                                                    {/* แก้ไขตรงนี้: เปลี่ยนจาก Select เป็น Input Text */}
                                                     <div>
                                                         <label className="block text-xs font-medium text-gray-500 mb-1">Source (แหล่งที่มา)</label>
-                                                        <select
-                                                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                                                        <input
+                                                            type="text"
+                                                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                            placeholder="เช่น facebook, google, email"
                                                             value={formData.utmSource || ''}
                                                             onChange={(e) => handleInputChange('utmSource', e.target.value)}
-                                                        >
-                                                            <option value="">ไม่ระบุ</option>
-                                                            <option value="facebook">Facebook</option>
-                                                            <option value="google">Google</option>
-                                                            <option value="line">Line</option>
-                                                            <option value="tiktok">Tiktok</option>
-                                                            <option value="email">Email</option>
-                                                        </select>
-                                                        {/* Optional: Add custom input if 'other' */}
+                                                        />
                                                     </div>
                                                     <div>
                                                         <label className="block text-xs font-medium text-gray-500 mb-1">Medium (ประเภทสื่อ)</label>
@@ -479,23 +474,23 @@ export default function ManageAdsPage() {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3">
-                                    <button
-                                        type="submit"
-                                        className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-transparent px-6 py-2.5 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-all"
-                                    >
-                                        <Save className="w-4 h-4 mr-2" />
-                                        บันทึกข้อมูล
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleCloseModal}
-                                        className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-gray-300 px-4 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all"
-                                    >
-                                        ยกเลิก
-                                    </button>
+                                    <div className="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 mt-6 -mx-6 -mb-4 rounded-b-xl">
+                                        <button
+                                            type="submit"
+                                            className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-transparent px-6 py-2.5 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-all"
+                                        >
+                                            <Save className="w-4 h-4 mr-2" />
+                                            บันทึกข้อมูล
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleCloseModal}
+                                            className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-gray-300 px-4 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all"
+                                        >
+                                            ยกเลิก
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
