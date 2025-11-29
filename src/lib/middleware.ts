@@ -19,6 +19,7 @@ export async function requireAuth(
     const token = extractTokenFromHeader(authHeader);
 
     if (!token) {
+        console.log('❌ Auth failed: No token provided');
         return NextResponse.json(
             { success: false, message: 'ไม่พบ token การยืนยันตัวตน' },
             { status: 401 }
@@ -28,11 +29,14 @@ export async function requireAuth(
     const payload = await verifyToken(token);
 
     if (!payload) {
+        console.log('❌ Auth failed: Invalid or expired token');
         return NextResponse.json(
             { success: false, message: 'Token ไม่ถูกต้องหรือหมดอายุ' },
             { status: 401 }
         );
     }
+
+    console.log('✅ Auth successful for user:', payload.username);
 
     // เพิ่ม user data ใน request
     const authenticatedRequest = request as AuthenticatedRequest;

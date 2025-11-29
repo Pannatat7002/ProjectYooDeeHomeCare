@@ -10,10 +10,11 @@ import { getAdmin, isAuthenticated, logout, AdminData } from '../../../lib/auth-
 import ManageAdminPage from './components/ManageAdminPage';
 import ManageCenterPage from './components/ManageCenterPage';
 import ManageBlogPage from './components/ManageBlogPage';
+import ManageAdsPage from './components/ManageAdsPage';
 import ConsultationManagement from './components/ConsultationManagement';
 import ContactMessageManagement from './components/ContactMessageManagement';
 
-type TabType = 'centers' | 'consultations' | 'contacts' | 'blogs' | 'admins';
+type TabType = 'centers' | 'consultations' | 'contacts' | 'blogs' | 'admins' | 'ads';
 
 export default function AdminManagePage() {
     const router = useRouter();
@@ -58,6 +59,7 @@ export default function AdminManagePage() {
         { id: 'consultations' as TabType, label: 'คำปรึกษา', icon: UserIcon },
         { id: 'contacts' as TabType, label: 'ข้อความติดต่อ', icon: UserIcon },
         { id: 'blogs' as TabType, label: 'บทความ', icon: Settings },
+        { id: 'ads' as TabType, label: 'โฆษณา (Ads)', icon: Settings },
         ...(currentAdmin?.role === 'super_admin'
             ? [{ id: 'admins' as TabType, label: 'จัดการ Admin', icon: Shield }]
             : []
@@ -109,13 +111,13 @@ export default function AdminManagePage() {
             {/* Tabs */}
             <div className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <nav className="flex space-x-8" aria-label="Tabs">
+                    <nav className="flex space-x-8 overflow-x-auto" aria-label="Tabs">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`
-                                    py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2
+                                    py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2 whitespace-nowrap
                                     ${activeTab === tab.id
                                         ? 'border-blue-600 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -136,6 +138,7 @@ export default function AdminManagePage() {
                 {activeTab === 'consultations' && <ConsultationManagement />}
                 {activeTab === 'contacts' && <ContactMessageManagement />}
                 {activeTab === 'blogs' && <ManageBlogPage />}
+                {activeTab === 'ads' && <ManageAdsPage />}
                 {activeTab === 'admins' && currentAdmin?.role === 'super_admin' && <ManageAdminPage />}
             </div>
         </div>

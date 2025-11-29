@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Search, MapPin, Star, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { CareCenter } from '../types';
+import { CareCenter, Advertisement } from '../types';
 import * as gtag from '../lib/gtag';
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 // รายชื่อจังหวัดทั้งหมดในประเทศไทย
 const THAI_PROVINCES = [
@@ -28,16 +26,18 @@ const THAI_PROVINCES = [
 export default function HomePage() {
   // --- State and Logic ---
   const [centers, setCenters] = useState<CareCenter[]>([]);
+  const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [careType, setCareType] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [province, setProvince] = useState('all');
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- Fetch Data ---
   useEffect(() => {
     const startTime = performance.now();
+
+    // Fetch Care Centers
     fetch('/api/care-centers?status=visible')
       .then(res => res.json())
       .then(data => {
@@ -55,6 +55,13 @@ export default function HomePage() {
         console.error("Fetch error:", err);
         gtag.event({ action: 'api_error', category: 'Error', label: err.message });
       });
+
+    // Fetch Ads
+    fetch('/api/ads')
+      .then(res => res.json())
+      .then(data => setAds(data))
+      .catch(err => console.error("Fetch ads error:", err));
+
   }, []);
 
   // --- Advanced Filtering Logic ---
@@ -275,8 +282,46 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* 🌟 Ads Section (ประชาสัมพันธ์) */}
+      {ads.length > 0 && (
+        <div className="border-b border-gray-100 py-8">
+          <div className="container max-w-6xl mx-auto px-4">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <span className="bg-blue-600 w-1.5 h-6 rounded-full mr-3"></span>
+              ประชาสัมพันธ์
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ads.map(ad => (
+                <a
+                  key={ad.id}
+                  href={ad.linkUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group block bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="aspect-[21/9] overflow-hidden relative">
+                    <img
+                      src={ad.imageUrl}
+                      alt={ad.title || 'Advertisement'}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x300?text=No+Image')}
+                    />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                  </div>
+                  {(ad.title || ad.description) && (
+                    <div className="p-4">
+                      {ad.title && <h3 className="font-bold text-gray-800 group-hover:text-blue-600 transition-colors mb-1">{ad.title}</h3>}
+                      {ad.description && <p className="text-sm text-gray-500 line-clamp-2">{ad.description}</p>}
+                    </div>
+                  )}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
-      <div id="results-section" className="container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
+      <div id="results-section" className=" container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
 
         {/* Header Results */}
         <div className="flex justify-between items-end mb-6">

@@ -90,25 +90,40 @@ const saveDataToSheet = async (sheetName: string, data: any[]) => {
 /**
  * ADD (Append): เพิ่มข้อมูลใหม่ต่อท้ายแถวเดิม
  * เหมาะสำหรับ: ฟอร์มกรอกข้อมูลใหม่ (Register, Contact Form)
+ * 
+ * ✅ แก้ไขแล้ว: ตรวจสอบ header ก่อนเพื่อป้องกัน error "No values in the header row"
  */
 const addDataToSheet = async (sheetName: string, newItem: any) => {
     try {
         const sheet = await getSheet(sheetName);
 
-        // ถ้า Sheet ยังว่างอยู่ ให้ตั้ง Header ก่อน
-        const rows = await sheet.getRows();
-        if (rows.length === 0) {
+        // ตรวจสอบว่ามี header หรือยัง
+        let hasHeaders = false;
+        try {
+            await sheet.loadHeaderRow();
+            hasHeaders = sheet.headerValues && sheet.headerValues.length > 0;
+        } catch (err) {
+            // ถ้า loadHeaderRow() error แสดงว่า Sheet ยังไม่มี header เลย
+            console.log(`⚠️  Sheet "${sheetName}" has no headers yet`);
+            hasHeaders = false;
+        }
+
+        // ถ้ายังไม่มี header ให้สร้างจาก keys ของ newItem
+        if (!hasHeaders) {
+            console.log(`📝 Creating headers for sheet "${sheetName}"...`);
             const headers = Object.keys(newItem);
             await sheet.setHeaderRow(headers);
+            console.log(`✅ Headers created:`, headers);
         }
 
         // เพิ่มแถวใหม่ต่อท้าย
         const row = formatRowForSheet(newItem);
         await sheet.addRow(row);
+        console.log(`✅ Row added to sheet "${sheetName}"`);
 
         return true;
     } catch (error) {
-        console.error(`Error adding to sheet ${sheetName}:`, error);
+        console.error(`❌ Error adding to sheet ${sheetName}:`, error);
         throw error;
     }
 };
@@ -156,3 +171,8 @@ export const addBlog = async (item: any) => addDataToSheet('Blogs', item);
 export const getAdmins = async () => loadDataFromSheet('Admins');
 export const saveAdmins = async (data: any[]) => saveDataToSheet('Admins', data);
 export const addAdmin = async (item: any) => addDataToSheet('Admins', item);
+
+// 6. ADS (โฆษณา)
+export const getAds = async () => loadDataFromSheet('Ads');
+export const saveAds = async (data: any[]) => saveDataToSheet('Ads', data);
+export const addAd = async (item: any) => addDataToSheet('Ads', item);

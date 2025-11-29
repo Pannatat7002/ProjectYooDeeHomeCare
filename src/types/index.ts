@@ -99,3 +99,12 @@ export interface JWTPayload {
     iat?: number;
     exp?: number;
 }
+
+export interface Advertisement {
+    id: number;
+    imageUrl: string;
+    linkUrl?: string;
+    title?: string;
+    description?: string;
+    createdAt: string;
+}
