@@ -59,6 +59,20 @@ const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoU
         </div>
     );
 };
+const VerificationByMOPHCard = ({ hasGovernmentCertificate }: { hasGovernmentCertificate: boolean }) => {
+    if (!hasGovernmentCertificate) return null;
+    return (
+        <Link href="https://esta.hss.moph.go.th/shop_passed.php?utm_source=thaicarecenter&utm_medium=%E0%B8%B4banner&utm_campaign=esta">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between">
+                <div>
+                    <h3 className="text-lg font-bold text-gray-900 mt-0.5">ผ่านการรับรองจากกรมสนับสนุนบริการสุขภาพ (สบส.)</h3>
+                </div>
+                <div className="h-12 w-auto max-w-[120px] flex items-center justify-end">
+                    <img src="/images/สบส.png" alt="สบส. Logo" className="max-h-full object-contain" />                </div>
+            </div>
+        </Link>
+    );
+};
 
 const ShareButton = () => {
     const handleShare = async () => {
@@ -591,7 +605,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     {/* Right Column: Sticky Sidebar */}
                     <div className="lg:col-span-1">
                         <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
-
+                        <VerificationByMOPHCard hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)} />
                         <div className="sticky top-24 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 z-10">
                             <div className="mb-6 pb-4 border-b border-gray-100">
                                 <span className="text-gray-500 text-sm font-medium block mb-1">ราคาเริ่มต้น</span>
