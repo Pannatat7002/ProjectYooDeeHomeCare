@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import * as gtag from '../lib/gtag';
 
@@ -22,19 +23,31 @@ export default function Header() {
                     */}
                     <Link
                         href="/"
-                        className="flex flex-col items-center justify-center p-8 select-none hover:opacity-90 transition-opacity duration-200 group"
+                        className="flex items-center gap-3 select-none hover:opacity-90 transition-opacity duration-200 group"
                     >
-                        {/* ส่วนหัวข้อภาษาอังกฤษ: ThaiCareCenter */}
-                        {/* ใช้ span แทน h1 เพื่อความปลอดภัยเมื่ออยู่ใน Link แต่ยังคงสไตล์เดิมไว้ */}
-                        <span className="text-3xl font-semibold text-[#2b64a0] tracking-tight mb-2 leading-none">
-                            ThaiCareCenter
-                        </span>
+                        {/* Logo Image */}
+                        <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-full overflow-hidden">
+                            <Image
+                                src="/favicon_io/android-chrome-192x192.png"
+                                alt="ThaiCareCenter Logo"
+                                fill
+                                className="object-contain" // อาจเปลี่ยนเป็น object-cover หากต้องการให้รูปเต็มวงกลมโดยไม่มีขอบว่าง
+                                priority
+                            />
+                        </div>
 
-                        {/* ส่วนคำอธิบายภาษาไทย */}
-                        {/* ใช้ text-gray-500 ตามต้นฉบับ และปรับ margin-top ให้ชิดขึ้น */}
-                        <span className="text-1xl text-gray-500 font-normal mt-[-0.5rem] group-hover:text-gray-600 transition-colors">
-                            เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย
-                        </span>
+                        {/* Text Content */}
+                        <div className="flex flex-col">
+                            {/* ส่วนหัวข้อภาษาอังกฤษ: ThaiCareCenter */}
+                            <span className="text-2xl md:text-3xl font-semibold text-[#2b64a0] tracking-tight leading-none">
+                                ThaiCareCenter
+                            </span>
+
+                            {/* ส่วนคำอธิบายภาษาไทย */}
+                            <span className="text-xs md:text-sm text-gray-500 font-normal mt-1 group-hover:text-gray-600 transition-colors">
+                                เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย
+                            </span>
+                        </div>
                     </Link>
 
                     {/* Navigation Links (Center) - Desktop Only */}

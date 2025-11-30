@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { Facebook, PhoneCall, Mail } from 'lucide-react'; // เพิ่ม Mail และ PhoneCall icon
+import Image from 'next/image';
+import { Facebook, PhoneCall, Mail } from 'lucide-react';
 
 export default function Footer() {
-    // กำหนดปีปัจจุบันสำหรับ Copyright
     const currentYear = new Date().getFullYear();
 
     return (
@@ -10,28 +10,35 @@ export default function Footer() {
             <div className="container max-w-6xl mx-auto px-4 py-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 md:gap-10">
 
-                    {/* 1. Logo/Contact Info Column - ปรับให้มีข้อมูลติดต่อหลัก */}
+                    {/* 1. Logo/Contact Info Column */}
                     <div className="col-span-2 lg:col-span-2 space-y-4">
-                        <div className="flex flex-col leading-tight">
-                            {/* Logo: ปรับให้สอดคล้องกับ Header ที่ปรับปรุงแล้ว */}
-                            <Link
-                                href="/"
-                                className="flex flex-col items-center justify-center p-8 select-none  dark:bg-slate-900 
-             hover:opacity-90 transition-all duration-200 group"
-                            >
-                                {/* ส่วนหัวข้อภาษาอังกฤษ: ThaiCareCenter */}
-                                {/* Light: สีน้ำเงินต้นฉบับ | Dark: สีฟ้าสว่าง (Blue-400) */}
-                                <span className="text-3xl font-semibold text-[#52a9ff] dark:text-blue-400 tracking-tight mb-2 leading-none transition-colors">
+                        {/* Logo with Image */}
+                        <Link
+                            href="/"
+                            className="flex items-center gap-3 select-none hover:opacity-90 transition-opacity duration-200 group mb-4"
+                        >
+                            {/* Logo Image */}
+                            <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-full overflow-hidden">
+                                <Image
+                                    src="/favicon_io/android-chrome-192x192.png"
+                                    alt="ThaiCareCenter Logo"
+                                    fill
+                                    className="object-contain" // อาจเปลี่ยนเป็น object-cover หากต้องการให้รูปเต็มวงกลมโดยไม่มีขอบว่าง
+                                    priority
+                                />
+                            </div>
+
+                            {/* Text Content */}
+                            <div className="flex flex-col">
+                                <span className="text-2xl md:text-3xl font-semibold text-[#52a9ff] dark:text-blue-400 tracking-tight leading-none">
                                     ThaiCareCenter
                                 </span>
-
-                                {/* ส่วนคำอธิบายภาษาไทย */}
-                                {/* Light: สีเทา | Dark: สีเทาอ่อน (Gray-400) */}
-                                <span className="text-xl text-white dark:text-gray-400 font-normal mt-[-0.5rem] group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                                <span className="text-xs md:text-sm text-white dark:text-gray-400 font-normal mt-1 group-hover:text-gray-300 transition-colors">
                                     เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย
                                 </span>
-                            </Link>
-                        </div>
+                            </div>
+                        </Link>
+
                         <p className="text-sm text-gray-400 max-w-xs">
                             แพลตฟอร์มค้นหาและเปรียบเทียบศูนย์ดูแลผู้สูงอายุ และผู้ป่วยพักฟื้น ที่ครบถ้วนและน่าเชื่อถือที่สุด
                         </p>
@@ -42,10 +49,9 @@ export default function Footer() {
                                 <PhoneCall className="h-4 w-4 mr-2 text-blue-400" />
                                 <span>โทร: 095-805-7052</span>
                             </a>
-                            <a href="mailto:contact@ThaiCareCenter.com" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="mailto:pannatat7002@gmail.com" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
                                 <Mail className="h-4 w-4 mr-2 text-blue-400" />
                                 <span>อีเมล: pannatat7002@gmail.com</span>
-                                {/* <span>อีเมล: contact@ThaiCareCenter.com</span> */}
                             </a>
                         </div>
 
@@ -53,21 +59,20 @@ export default function Footer() {
                         <div className="flex space-x-3 pt-4">
                             <a
                                 href="https://www.facebook.com/share/17rrsmB3fj"
-                                target="_blank" // เพิ่ม target="_blank"
-                                rel="noopener noreferrer" // เพิ่ม rel
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 aria-label="Facebook"
                                 className="p-2 bg-gray-700 rounded-full text-blue-400 hover:bg-blue-600 hover:text-white transition-colors"
                             >
-                                <Facebook className="h-5 w-5" /> {/* ปรับขนาด icon เป็น h-5 w-5 */}
+                                <Facebook className="h-5 w-5" />
                             </a>
                             <a
-                                href="https://line.me/R/ti/p/@256zihiv" // ควรเปลี่ยนเป็น Line ID จริง
+                                href="https://line.me/R/ti/p/@256zihiv"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Line"
                                 className="p-2 bg-gray-700 rounded-full text-green-400 hover:bg-green-500 hover:text-white transition-colors"
                             >
-                                {/* Line Icon ที่ดูคล้าย Line มากขึ้น (แทนที่ MessageCircleCode) */}
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.111 6.889c.175.05.289.245.289.43v.222c0 .285-.18.537-.444.608l-2.611.696.555 1.5c.08.214-.028.455-.25.535l-2.667.926c-.222.078-.465-.03-.544-.252l-.667-1.833a.444.444 0 0 1 .43-.608l2.611-.696-.555-1.5c-.08-.214.028-.455.25-.535l2.667-.926c.222-.078.465.03.544.252l.667 1.833z" />
                                     <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -79,14 +84,13 @@ export default function Footer() {
 
                     {/* 2. เกี่ยวกับเรา (Quick Links) */}
                     <div className="space-y-4">
-                        <h4 className="text-lg font-bold text-white mb-3 border-b border-gray-700 pb-2">เกี่ยวกับเรา</h4> {/* ปรับขนาดและเพิ่มเส้นแบ่ง */}
+                        <h4 className="text-lg font-bold text-white mb-3 border-b border-gray-700 pb-2">เกี่ยวกับเรา</h4>
                         <ul className="space-y-2 text-sm text-gray-400">
                             <li><Link href="/about" className="hover:text-blue-400 transition-colors">เกี่ยวกับเรา</Link></li>
                             <li><Link href="/concept" className="hover:text-blue-400 transition-colors">แนวคิดโครงการ</Link></li>
                             <li><Link href="/whyus" className="hover:text-blue-400 transition-colors">ทำไมเราเลือกเรา</Link></li>
                             <li><Link href="/testimonials" className="hover:text-blue-400 transition-colors">คำรับรองจากลูกค้า</Link></li>
                             <li><Link href="/articles" className="hover:text-blue-400 transition-colors">สาระน่ารู้</Link></li>
-                            {/* เพิ่มลิงก์ 'ติดต่อเรา' และ 'สมัครเป็นผู้ให้บริการ' ที่สำคัญ */}
                             <li className="pt-2"><Link href="/contact" className="hover:text-blue-400 transition-colors font-semibold">ติดต่อเรา</Link></li>
                             <li><Link href="/provider-signup" className="hover:text-blue-400 transition-colors font-semibold">สมัครเป็นผู้ให้บริการ</Link></li>
                         </ul>
@@ -105,7 +109,7 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* 4. โปรแกรมของเรา (Programs) - รวมกับ โครงการอื่นๆ */}
+                    {/* 4. โปรแกรมของเรา (Programs) */}
                     <div className="space-y-4">
                         <h4 className="text-lg font-bold text-white mb-3 border-b border-gray-700 pb-2">โปรแกรม & โครงการ</h4>
                         <ul className="space-y-2 text-sm text-gray-400">
@@ -122,7 +126,7 @@ export default function Footer() {
 
                 </div>
 
-                {/* Copyright & Disclaimer - ปรับปรุง CTA */}
+                {/* Copyright & Disclaimer */}
                 <div className="mt-12 pt-6 border-t border-gray-800 text-sm text-gray-400 flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
                     <p className="text-center md:text-left order-2 md:order-1">
                         ©{currentYear} **YooDee HomeCare**. All rights reserved.
@@ -130,7 +134,7 @@ export default function Footer() {
                         <Link href="/terms" className="text-blue-400 hover:text-blue-500 ml-3">| ข้อกำหนดและเงื่อนไข</Link>
                     </p>
 
-                    {/* CTA Button ด้านล่าง: ปรับใช้ Icon และดูเป็นมิตรมากขึ้น */}
+                    {/* CTA Button */}
                     <Link
                         href="/contact"
                         className="flex items-center space-x-2 bg-green-500 rounded-full px-5 py-3 shadow-xl hover:bg-green-600 transition-colors cursor-pointer text-white text-sm font-bold order-1 md:order-2"
