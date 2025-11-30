@@ -156,6 +156,115 @@ const GalleryModal: React.FC<GalleryModalProps> = ({ images, initialIndex, onClo
     );
 };
 
+interface ConsultationFormProps {
+    formData: ConsultationFormData;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+    handleSubmit: (e: React.FormEvent) => Promise<void>;
+    submitStatus: 'idle' | 'submitting' | 'success' | 'error';
+}
+
+const ConsultationForm: React.FC<ConsultationFormProps> = ({ formData, handleInputChange, handleSubmit, submitStatus }) => {
+    return (
+        <form className="space-y-5" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
+                    <input id="name" type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อ-นามสกุล" required />
+                </div>
+                <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
+                    <input id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุเบอร์โทรศัพท์" required />
+                </div>
+                <div>
+                    <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
+                    <input id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุ LINE ID" />
+                </div>
+                <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
+                    <input id="email" type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุอีเมล" />
+                </div>
+                <div>
+                    <label htmlFor="roomType" className="block text-sm font-medium text-gray-700 mb-1">ประเภทห้องพักที่สนใจ <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <select id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
+                            <option value="" disabled>เลือกประเภทห้อง</option>
+                            <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
+                            <option value="ห้องพักรวม">ห้องรวม</option>
+                            <option value="V.I.P">V.I.P</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+                    </div>
+                </div>
+                <div>
+                    <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">อัตราค่าบริการที่สนใจ <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <select id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
+                            <option value="" disabled>เลือกช่วงราคา</option>
+                            <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
+                            <option value="20,000 - 30,000">20,000 - 30,000</option>
+                            <option value="มากกว่า 30,000">มากกว่า 30,000</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+                    </div>
+                </div>
+                <div>
+                    <label htmlFor="convenientTime" className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลาที่สะดวกให้ติดต่อกลับ <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <select id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
+                            <option value="" disabled>เลือกช่วงเวลา</option>
+                            <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
+                            <option value="ช่วงบ่าย (13:00 - 17:00)">13:00 - 17:00</option>
+                            <option value="ช่วงเย็น (17:00 - 20:00)">17:00 - 20:00</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+                    </div>
+                </div>
+                <input type="hidden" name="branch" value={formData.branch} />
+            </div>
+            <div>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ฝากข้อความถึง (ถ้ามี)</label>
+                <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"></textarea>
+            </div>
+            <div className="flex justify-center pt-2">
+                <button type="submit" disabled={submitStatus === 'submitting'} className={`w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-blue-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                    {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลเพื่อรับคำปรึกษาฟรี'}
+                </button>
+            </div>
+            {submitStatus === 'success' && <p className="text-center text-sm font-medium text-green-600 mt-3 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 mr-1.5" /> ส่งข้อมูลสำเร็จ!</p>}
+            {submitStatus === 'error' && <p className="text-center text-sm font-medium text-red-600 mt-3 flex items-center justify-center"><Info className="w-4 h-4 mr-1.5" /> เกิดข้อผิดพลาด! กรุณาลองใหม่อีกครั้ง</p>}
+        </form>
+    );
+};
+
+interface ConsultationModalProps extends ConsultationFormProps {
+    isOpen: boolean;
+    onClose: () => void;
+    centerName: string;
+}
+
+const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose, formData, handleInputChange, handleSubmit, submitStatus, centerName }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 relative">
+                <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                    <X className="w-5 h-5" />
+                </button>
+                <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                    นัดเยี่ยมชมศูนย์ <span className="text-blue-600">{centerName}</span>
+                </h2>
+                <ConsultationForm
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    handleSubmit={handleSubmit}
+                    submitStatus={submitStatus}
+                />
+            </div>
+        </div>
+    );
+};
+
 // =========================================================================================
 // MAIN COMPONENT
 // =========================================================================================
@@ -167,6 +276,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [relatedCenters, setRelatedCenters] = useState<CareCenter[]>([]);
     const [initialModalIndex, setInitialModalIndex] = useState(0);
+    const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
 
     // Initial Form State
     const initialFormData: ConsultationFormData = {
@@ -405,7 +515,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     </div>
                 </div>
 
-                {/* YooDee Verify Strip */}
+                {/*  ผ่านการยืนยัน Strip */}
                 {isTrue(center.isPartner) && (
                     <div className="mb-10 rounded-2xl overflow-hidden shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
                         <div className="bg-gradient-to-r from-[#0E1B4F] to-blue-600 text-white p-5 md:p-6 flex flex-col md:flex-row items-center justify-between relative">
@@ -417,13 +527,13 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 </div>
                                 <div>
                                     <h3 className="text-xl md:text-2xl font-extrabold flex items-center tracking-tight">
-                                        YooDee Verify
+                                        ผ่านการยืนยัน
                                         <span className="ml-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center">
                                             <CheckCircle2 className="w-3 h-3 mr-1" /> Verified
                                         </span>
                                     </h3>
                                     <p className="text-blue-100 text-sm md:text-base mt-1 font-medium">
-                                        ศูนย์นี้ผ่านการตรวจสอบมาตรฐานความปลอดภัยและบริการโดยทีมงาน YooDee HomeCare
+                                        ศูนย์นี้ผ่านการตรวจสอบมาตรฐานความปลอดภัยและบริการโดยทีมงาน ThaiCareCenter
                                     </p>
                                 </div>
                             </div>
@@ -515,81 +625,19 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 </div>
                             </section>
                         )}
-
+                        {/* 
                         {isTrue(center.isPartner) ? (
                             <section className="bg-white rounded-2xl shadow-xl border border-blue-200 p-6 md:p-8 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-green-500"></div>
                                 <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-                                    <span className="text-blue-600">นัดปรึกษา ดูสถานที่</span> ทดลองอยู่ **ฟรี**
+                                    นัดเยี่ยมชมศูนย์
                                 </h2>
-                                <form className="space-y-5" onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div>
-                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
-                                            <input id="name" type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อ-นามสกุล" required />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
-                                            <input id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุเบอร์โทรศัพท์" required />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
-                                            <input id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุ LINE ID" />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
-                                            <input id="email" type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุอีเมล" />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="roomType" className="block text-sm font-medium text-gray-700 mb-1">ประเภทห้องพักที่สนใจ <span className="text-red-500">*</span></label>
-                                            <div className="relative">
-                                                <select id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
-                                                    <option value="" disabled>เลือกประเภทห้อง</option>
-                                                    <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
-                                                    <option value="ห้องพักรวม">ห้องรวม</option>
-                                                    <option value="V.I.P">V.I.P</option>
-                                                </select>
-                                                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">อัตราค่าบริการที่สนใจ <span className="text-red-500">*</span></label>
-                                            <div className="relative">
-                                                <select id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
-                                                    <option value="" disabled>เลือกช่วงราคา</option>
-                                                    <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
-                                                    <option value="20,000 - 30,000">20,000 - 30,000</option>
-                                                    <option value="มากกว่า 30,000">มากกว่า 30,000</option>
-                                                </select>
-                                                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label htmlFor="convenientTime" className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลาที่สะดวกให้ติดต่อกลับ <span className="text-red-500">*</span></label>
-                                            <div className="relative">
-                                                <select id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
-                                                    <option value="" disabled>เลือกช่วงเวลา</option>
-                                                    <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
-                                                    <option value="ช่วงบ่าย (13:00 - 17:00)">13:00 - 17:00</option>
-                                                    <option value="ช่วงเย็น (17:00 - 20:00)">17:00 - 20:00</option>
-                                                </select>
-                                                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" name="branch" value={formData.branch} />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ฝากข้อความถึง (ถ้ามี)</label>
-                                        <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"></textarea>
-                                    </div>
-                                    <div className="flex justify-center pt-2">
-                                        <button type="submit" disabled={submitStatus === 'submitting'} className={`w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-blue-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}>
-                                            {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลเพื่อรับคำปรึกษาฟรี'}
-                                        </button>
-                                    </div>
-                                    {submitStatus === 'success' && <p className="text-center text-sm font-medium text-green-600 mt-3 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 mr-1.5" /> ส่งข้อมูลสำเร็จ!</p>}
-                                    {submitStatus === 'error' && <p className="text-center text-sm font-medium text-red-600 mt-3 flex items-center justify-center"><Info className="w-4 h-4 mr-1.5" /> เกิดข้อผิดพลาด! กรุณาลองใหม่อีกครั้ง</p>}
-                                </form>
+                                <ConsultationForm
+                                    formData={formData}
+                                    handleInputChange={handleInputChange}
+                                    handleSubmit={handleSubmit}
+                                    submitStatus={submitStatus}
+                                />
                             </section>
                         ) : (
                             <section className="bg-gray-50 rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
@@ -599,7 +647,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                     เข้าร่วมเป็นพาร์ทเนอร์ (ฟรี)
                                 </Link>
                             </section>
-                        )}
+                        )} */}
                     </div>
 
                     {/* Right Column: Sticky Sidebar */}
@@ -610,11 +658,11 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             <div className="mb-6 pb-4 border-b border-gray-100">
                                 <span className="text-gray-500 text-sm font-medium block mb-1">ราคาเริ่มต้น</span>
                                 <div className="flex items-baseline">
-                                    {isTrue(center.isPartner) ? (
-                                        <span className="text-4xl font-extrabold text-blue-600">฿{center.price?.toLocaleString() ?? '0'}</span>
-                                    ) : (
+                                    {/* {isTrue(center.isPartner) ? ( */}
+                                    <span className="text-4xl font-extrabold text-blue-600">฿{center.price?.toLocaleString() ?? '0'}</span>
+                                    {/* ) : (
                                         <span className="text-4xl font-extrabold text-gray-500">{center.price < 20000 ? '$' : center.price < 40000 ? '$$' : '$$$'}</span>
-                                    )}
+                                    )} */}
                                     <span className="text-gray-500 ml-1 text-base font-semibold">/{center.type === 'daily' ? 'วัน' : 'เดือน'}</span>
                                 </div>
                                 {isTrue(center.isPartner) && (
@@ -625,9 +673,15 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             </div>
 
                             <div className="space-y-4">
-                                <a href={`tel:${center.phone}`} onClick={() => gtag.event({ action: 'click_call_sticky', category: 'Conversion', label: center.name })} className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform">
-                                    <Phone className="w-5 h-5 mr-2" /> โทรปรึกษาทันที : {center.phone}
-                                </a>
+                                <button
+                                    onClick={() => {
+                                        setIsConsultationModalOpen(true);
+                                        gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
+                                    }}
+                                    className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform"
+                                >
+                                    <Calendar className="w-5 h-5 mr-2" /> นัดเยี่ยมชมศูนย์
+                                </button>
 
                                 {/* ✅ ปุ่ม Website พร้อม UTM */}
                                 {center.website && (
@@ -727,6 +781,16 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     onClose={() => setIsGalleryOpen(false)}
                 />
             )}
+
+            <ConsultationModal
+                isOpen={isConsultationModalOpen}
+                onClose={() => setIsConsultationModalOpen(false)}
+                formData={formData}
+                handleInputChange={handleInputChange}
+                handleSubmit={handleSubmit}
+                submitStatus={submitStatus}
+                centerName={center.name}
+            />
         </div>
     );
 }

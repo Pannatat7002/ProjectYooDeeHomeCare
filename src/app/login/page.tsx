@@ -83,7 +83,7 @@ export default function LoginPage() {
                         เข้าสู่ระบบผู้ดูแล
                     </h2>
                     <p className="text-gray-500 text-sm">
-                        YooDee HomeCare Admin Panel
+                        ThaiCareCenter Admin Panel
                     </p>
                 </div>
 

@@ -79,7 +79,7 @@ export default function AdminManagePage() {
                                     Admin Panel
                                 </h1>
                                 <p className="text-xs text-gray-500">
-                                    YooDee HomeCare Management System
+                                    ThaiCareCenter Management System
                                 </p>
                             </div>
                         </div>

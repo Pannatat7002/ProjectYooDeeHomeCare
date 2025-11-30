@@ -93,7 +93,7 @@
 //                                     Admin Panel
 //                                 </h1>
 //                                 <p className="text-xs text-gray-500">
-//                                     YooDee HomeCare Management
+//                                     ThaiCareCenter Management
 //                                 </p>
 //                             </div>
 //                         </div>

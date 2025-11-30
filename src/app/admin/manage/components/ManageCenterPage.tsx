@@ -394,7 +394,7 @@ export default function ManageCenterPage() {
                                                 onChange={e => setFormData({ ...formData, isPartner: e.target.checked })}
                                             />
                                             <label htmlFor="isPartner" className="text-sm font-bold text-green-800 select-none cursor-pointer">
-                                                YooDee Verify (พาร์ทเนอร์)
+                                                ผ่านการยืนยัน (พาร์ทเนอร์)
                                             </label>
                                         </div>
                                     </div>

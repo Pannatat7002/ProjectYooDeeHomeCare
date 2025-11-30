@@ -129,7 +129,7 @@ export default function Footer() {
                 {/* Copyright & Disclaimer */}
                 <div className="mt-12 pt-6 border-t border-gray-800 text-sm text-gray-400 flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
                     <p className="text-center md:text-left order-2 md:order-1">
-                        ©{currentYear} **YooDee HomeCare**. All rights reserved.
+                        ©{currentYear} **ThaiCareCenter**. All rights reserved.
                         <Link href="/privacy" className="text-blue-400 hover:text-blue-500 ml-3">| นโยบายความเป็นส่วนตัว</Link>
                         <Link href="/terms" className="text-blue-400 hover:text-blue-500 ml-3">| ข้อกำหนดและเงื่อนไข</Link>
                     </p>
