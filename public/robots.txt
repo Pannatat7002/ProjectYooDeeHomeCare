@@ -1,0 +1,29 @@
+# robots.txt for ThaiCareCenter
+# This file tells search engine crawlers which pages they can and cannot access
+
+# Allow all crawlers to access public content
+User-agent: *
+
+# Block admin and authentication pages
+Disallow: /admin/
+Disallow: /login
+Disallow: /api/
+
+# Block provider signup (if you want to keep it private)
+# Remove the line below if you want search engines to index the signup page
+Disallow: /provider-signup
+
+# Allow all other pages
+Allow: /
+Allow: /about
+Allow: /services
+Allow: /contact
+Allow: /blogs/
+Allow: /privacy
+Allow: /terms
+
+# Sitemap location (you should create this file)
+Sitemap: https://thaicarecenter.com/sitemap.xml
+
+# Crawl-delay to be respectful to your server (optional)
+# Crawl-delay: 1
