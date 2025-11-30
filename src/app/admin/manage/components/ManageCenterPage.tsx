@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
     Plus, FilePenLine, Trash2, ChevronLeft, ChevronRight,
-    X, Save, ImageIcon, XCircle, Megaphone
+    X, Save, ImageIcon, XCircle, Megaphone, Filter, Search
 } from 'lucide-react';
 import { CareCenter, Package } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
@@ -19,6 +19,7 @@ const INITIAL_FORM_STATE: any = {
 };
 
 const THAI_PROVINCES = [
+    'ทั้งหมด', // ตัวเลือกสำหรับแสดงทั้งหมด
     'กรุงเทพมหานคร', 'กระบี่', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร', 'ขอนแก่น',
     'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี', 'ชัยนาท', 'ชัยภูมิ', 'ชุมพร',
     'เชียงราย', 'เชียงใหม่', 'ตรัง', 'ตราด', 'ตาก', 'นครนายก',
@@ -52,6 +53,21 @@ const MEDIUM_OPTIONS = [
     { value: 'blog', label: 'Blog / Content (บทความ)' },
 ];
 
+/**
+ * ฟังก์ชันช่วยจำกัดความยาวของข้อความและเพิ่ม '...'
+ * @param {string} text - ข้อความต้นฉบับ
+ * @param {number} maxLength - ความยาวสูงสุดที่ต้องการ
+ * @returns {string} ข้อความที่ถูกตัด
+ */
+const truncateText = (text: string, maxLength: number): string => {
+    if (!text) return '';
+    if (text.length <= maxLength) {
+        return text;
+    }
+    return text.substring(0, maxLength) + '...';
+};
+
+
 export default function ManageCenterPage() {
     const [centers, setCenters] = useState<CareCenter[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +76,8 @@ export default function ManageCenterPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+    const [filterProvince, setFilterProvince] = useState<string>('ทั้งหมด');
+    const [searchTerm, setSearchTerm] = useState<string>(''); // 1. State สำหรับช่องค้นหา
 
     const fetchCenters = async () => {
         setIsLoading(true);
@@ -67,7 +85,11 @@ export default function ManageCenterPage() {
             const res = await fetch('/api/care-centers');
             if (!res.ok) throw new Error('Failed to fetch');
             const data = await res.json();
-            setCenters(data.sort((a: CareCenter, b: CareCenter) => b.id - a.id));
+            const normalizedData = data.map((center: CareCenter) => ({
+                ...center,
+                imageUrls: Array.isArray(center.imageUrls) && center.imageUrls.length > 0 ? center.imageUrls : [''],
+            }));
+            setCenters(normalizedData.sort((a: CareCenter, b: CareCenter) => b.id - a.id));
         } catch (error) {
             console.error(error);
         } finally {
@@ -78,6 +100,43 @@ export default function ManageCenterPage() {
     useEffect(() => {
         fetchCenters();
     }, []);
+
+    // 2. ปรับปรุง useMemo สำหรับการกรองและการค้นหา
+    const filteredCenters = useMemo(() => {
+        let currentCenters = centers;
+        const lowerCaseSearch = searchTerm.toLowerCase().trim();
+
+        // 2.1 กรองตามจังหวัด
+        if (filterProvince !== 'ทั้งหมด') {
+            currentCenters = currentCenters.filter(center => center.province === filterProvince);
+        }
+
+        // 2.2 กรองตามข้อความค้นหา (ชื่อศูนย์ดูแล หรือ จังหวัด)
+        if (lowerCaseSearch) {
+            currentCenters = currentCenters.filter(center =>
+                center.name.toLowerCase().includes(lowerCaseSearch) ||
+                (center.province && center.province.toLowerCase().includes(lowerCaseSearch))
+            );
+        }
+
+        return currentCenters;
+    }, [centers, filterProvince, searchTerm]);
+
+    // 3. ปรับการแบ่งหน้า
+    const totalPages = Math.ceil(filteredCenters.length / itemsPerPage);
+    const paginatedCenters = filteredCenters.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setFilterProvince(e.target.value);
+        setCurrentPage(1); // รีเซ็ตไปหน้าแรกเมื่อเปลี่ยนตัวกรอง
+    };
+
+    // 4. Handler สำหรับช่องค้นหา
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // รีเซ็ตไปหน้าแรกเมื่อค้นหา
+    };
+
 
     const handleDelete = async (id: number) => {
         if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')) return;
@@ -137,6 +196,7 @@ export default function ManageCenterPage() {
         } catch (error) { console.error(error); alert('เกิดข้อผิดพลาดในการบันทึก'); }
     };
 
+    // ฟังก์ชันย่อยสำหรับจัดการฟอร์ม (คงเดิม)
     const handleImageChange = (index: number, value: string) => {
         const newImages = [...formData.imageUrls];
         newImages[index] = value;
@@ -182,20 +242,60 @@ export default function ManageCenterPage() {
         }
     };
 
-    const totalPages = Math.ceil(centers.length / itemsPerPage);
-    const paginatedCenters = centers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className="p-4 md:p-8">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
                 <h1 className="text-2xl font-bold text-gray-800">จัดการข้อมูลศูนย์ดูแล</h1>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full md:w-auto justify-center md:justify-start"
                 >
                     <Plus className="w-5 h-5 mr-2" /> เพิ่มศูนย์ดูแลใหม่
                 </button>
             </div>
+
+            {/* Filter and Controls Section (ปรับปรุงเพื่อเพิ่มช่องค้นหา) */}
+            <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center mb-4 space-y-3 md:space-y-0">
+
+                {/* Search Input */}
+                <div className="relative w-full md:w-1/3 max-w-sm">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                    <input
+                        type="text"
+                        placeholder="ค้นหาชื่อศูนย์ หรือจังหวัด..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className="w-full border border-gray-300 rounded-md py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+
+                {/* Province Filter & Count */}
+                <div className="flex items-center space-x-4 w-full md:w-auto">
+                    <div className="flex items-center space-x-2">
+                        <Filter className="w-5 h-5 text-gray-500" />
+                        <label htmlFor="province-filter" className="text-sm font-medium text-gray-700 sr-only md:not-sr-only">
+                            กรองตามจังหวัด:
+                        </label>
+                        <select
+                            id="province-filter"
+                            value={filterProvince}
+                            onChange={handleFilterChange}
+                            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 max-w-[200px]"
+                        >
+                            {THAI_PROVINCES.map(prov => (
+                                <option key={prov} value={prov}>{prov}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <span className="text-sm text-gray-500">
+                        รวม: **{filteredCenters.length}** รายการ
+                    </span>
+                </div>
+            </div>
+
+            <hr className="mb-4" />
 
             {/* Table */}
             <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -215,13 +315,15 @@ export default function ManageCenterPage() {
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
                                 <tr><td colSpan={7} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
-                            ) : paginatedCenters.length === 0 ? (
+                            ) : filteredCenters.length === 0 ? (
                                 <tr><td colSpan={7} className="py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>
                             ) : (
                                 paginatedCenters.map((center: any, index) => (
                                     <tr key={center.id} className="hover:bg-gray-50 text-sm text-gray-700 transition-colors">
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                        <td className="py-3 px-4 font-semibold">{center.name}</td>
+                                        <td className="py-3 px-4 font-semibold max-w-xs overflow-hidden whitespace-nowrap text-ellipsis" title={center.name}>
+                                            {truncateText(center.name, 40)}
+                                        </td>
                                         <td className="py-3 px-4">{center.province || '-'}</td>
                                         <td className="py-3 px-4">฿{center.price?.toLocaleString() ?? '0'}</td>
                                         <td className="py-3 px-4">
@@ -236,7 +338,7 @@ export default function ManageCenterPage() {
                                         <td className="py-3 px-4 text-xs text-gray-500">
                                             {center.utmSource ? (
                                                 <span className="bg-gray-100 px-2 py-1 rounded border">
-                                                    {center.utmSource}
+                                                    {truncateText(center.utmSource, 15)}
                                                 </span>
                                             ) : '-'}
                                         </td>
@@ -278,7 +380,7 @@ export default function ManageCenterPage() {
                 )}
             </div>
 
-            {/* Modal Form */}
+            {/* Modal Form (ไม่เปลี่ยนแปลง) */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -307,7 +409,7 @@ export default function ManageCenterPage() {
                                             value={formData.province}
                                             onChange={e => setFormData({ ...formData, province: e.target.value })}
                                         >
-                                            {THAI_PROVINCES.map(prov => (
+                                            {THAI_PROVINCES.filter(p => p !== 'ทั้งหมด').map(prov => (
                                                 <option key={prov} value={prov}>{prov}</option>
                                             ))}
                                         </select>

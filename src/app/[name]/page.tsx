@@ -39,7 +39,7 @@ interface ConsultationFormData {
 }
 
 // =========================================================================================
-// SUB-COMPONENTS
+// SUB-COMPONENTS (ไม่ได้แก้ไขในส่วนนี้ แต่ใช้เพื่อความสมบูรณ์)
 // =========================================================================================
 
 const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoUrl?: string }) => {
@@ -68,7 +68,7 @@ const VerificationByMOPHCard = ({ hasGovernmentCertificate }: { hasGovernmentCer
                     <h3 className="text-lg font-bold text-gray-900 mt-0.5">ผ่านการรับรองจากกรมสนับสนุนบริการสุขภาพ (สบส.)</h3>
                 </div>
                 <div className="h-12 w-auto max-w-[120px] flex items-center justify-end">
-                    <img src="/images/สบส.png" alt="สบส. Logo" className="max-h-full object-contain" />                </div>
+                    <img src="/images/สบส.png" alt="สบส. Logo" className="max-h-full object-contain" />                </div>
             </div>
         </Link>
     );
@@ -376,20 +376,28 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                 );
 
                 if (foundCenter) {
-                    setCenter(foundCenter);
-                    const initialImage = foundCenter.imageUrls?.[0] || 'https://via.placeholder.com/800x600?text=No+Image';
-                    setActiveImage(initialImage);
-                    setFormData(prev => ({ ...prev, branch: foundCenter.name }));
+                    // ✅ การจัดการข้อมูลที่ดึงมา: ตรวจสอบและให้ค่าเริ่มต้นเป็น Array ว่าง ถ้าข้อมูลเป็น null/undefined
+                    const normalizedCenter: CareCenter = {
+                        ...foundCenter,
+                        services: Array.isArray(foundCenter.services) ? foundCenter.services : [],
+                        packages: Array.isArray(foundCenter.packages) ? foundCenter.packages : [],
+                        imageUrls: Array.isArray(foundCenter.imageUrls) ? foundCenter.imageUrls : [],
+                    };
 
-                    const others = data.filter(c => c.id !== foundCenter.id);
+                    setCenter(normalizedCenter);
+                    const initialImage = normalizedCenter.imageUrls?.[0] || 'https://via.placeholder.com/800x600?text=No+Image';
+                    setActiveImage(initialImage);
+                    setFormData(prev => ({ ...prev, branch: normalizedCenter.name }));
+
+                    const others = data.filter(c => c.id !== normalizedCenter.id);
                     setRelatedCenters(others.slice(0, 3));
 
                     gtag.event({
                         action: 'view_item',
                         category: 'Engagement',
-                        label: foundCenter.name,
-                        value: foundCenter.price,
-                        center_id: foundCenter.id
+                        label: normalizedCenter.name,
+                        value: normalizedCenter.price,
+                        center_id: normalizedCenter.id
                     });
                 } else {
                     gtag.event({ action: 'view_item_not_found', category: 'Error', label: slugName });
@@ -434,7 +442,8 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
     }
 
     const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/800x600?text=No+Image';
-    const allImages = center.imageUrls && center.imageUrls.length > 0 ? center.imageUrls : [PLACEHOLDER_IMAGE];
+    // ใช้ center.imageUrls ที่ถูก normalize แล้ว
+    const allImages = center.imageUrls.length > 0 ? center.imageUrls : [PLACEHOLDER_IMAGE];
     const galleryImages = allImages.slice(0, 5);
     const mainImage = activeImage || galleryImages[0] || PLACEHOLDER_IMAGE;
 
@@ -491,7 +500,8 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             />
                         </div>
                         <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
-                            {galleryImages.slice(1).map((url, idx) => (
+                            {/* ใช้ allImages แทน galleryImages.slice(1) เพื่อให้แน่ใจว่ามันเป็น Array ที่มีข้อมูลอยู่ */}
+                            {allImages.slice(1).map((url, idx) => (
                                 <div key={idx} className="h-full overflow-hidden">
                                     <img
                                         src={url}
@@ -515,7 +525,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     </div>
                 </div>
 
-                {/*  ผ่านการยืนยัน Strip */}
+                {/*  ผ่านการยืนยัน Strip */}
                 {isTrue(center.isPartner) && (
                     <div className="mb-10 rounded-2xl overflow-hidden shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
                         <div className="bg-gradient-to-r from-[#0E1B4F] to-blue-600 text-white p-5 md:p-6 flex flex-col md:flex-row items-center justify-between relative">
@@ -560,17 +570,19 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                             <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">สิ่งอำนวยความสะดวกและบริการ</h2>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {center.services?.map((s, i) => (
+                                {/* ✅ โค้ดที่ได้รับการแก้ไข: center.services ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
+                                {center.services.map((s, i) => (
                                     <div key={i} className="flex items-start p-3 rounded-lg bg-blue-50 text-blue-700 transition-colors">
                                         <CheckCircle2 className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
                                         <span className="text-sm font-medium">{s}</span>
                                     </div>
                                 ))}
+                                {/* ถ้า services เป็น Array ว่าง ก็จะไม่แสดง error และจะไม่มีอะไรถูก map */}
                             </div>
                         </section>
 
-                        {/* ✅ Packages: แก้ไขให้รองรับ details เป็น Array */}
-                        {isTrue(center.isPartner) && center.packages && center.packages.length > 0 && (
+                        {/* ✅ Packages: center.packages ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
+                        {isTrue(center.isPartner) && center.packages.length > 0 && (
                             <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">แพ็กเกจราคา</h2>
                                 <div className="space-y-4">
@@ -625,29 +637,6 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 </div>
                             </section>
                         )}
-                        {/* 
-                        {isTrue(center.isPartner) ? (
-                            <section className="bg-white rounded-2xl shadow-xl border border-blue-200 p-6 md:p-8 relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-green-500"></div>
-                                <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-                                    นัดเยี่ยมชมศูนย์
-                                </h2>
-                                <ConsultationForm
-                                    formData={formData}
-                                    handleInputChange={handleInputChange}
-                                    handleSubmit={handleSubmit}
-                                    submitStatus={submitStatus}
-                                />
-                            </section>
-                        ) : (
-                            <section className="bg-gray-50 rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4">สนใจศูนย์ดูแลนี้?</h2>
-                                <p className="text-gray-600 mb-6">ข้อมูลนี้เป็นข้อมูลเบื้องต้น หากคุณเป็นเจ้าของศูนย์ดูแลนี้ สามารถเข้าร่วมเป็นพาร์ทเนอร์กับเราเพื่อแสดงข้อมูลครบถ้วนและรับการจองได้ทันที</p>
-                                <Link href="/provider-signup" className="inline-flex items-center justify-center px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-                                    เข้าร่วมเป็นพาร์ทเนอร์ (ฟรี)
-                                </Link>
-                            </section>
-                        )} */}
                     </div>
 
                     {/* Right Column: Sticky Sidebar */}
@@ -658,11 +647,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                             <div className="mb-6 pb-4 border-b border-gray-100">
                                 <span className="text-gray-500 text-sm font-medium block mb-1">ราคาเริ่มต้น</span>
                                 <div className="flex items-baseline">
-                                    {/* {isTrue(center.isPartner) ? ( */}
                                     <span className="text-4xl font-extrabold text-blue-600">฿{center.price?.toLocaleString() ?? '0'}</span>
-                                    {/* ) : (
-                                        <span className="text-4xl font-extrabold text-gray-500">{center.price < 20000 ? '$' : center.price < 40000 ? '$$' : '$$$'}</span>
-                                    )} */}
                                     <span className="text-gray-500 ml-1 text-base font-semibold">/{center.type === 'daily' ? 'วัน' : 'เดือน'}</span>
                                 </div>
                                 {isTrue(center.isPartner) && (
@@ -686,7 +671,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 {/* ✅ ปุ่ม Website พร้อม UTM */}
                                 {center.website && (
                                     <a
-                                        href={createOutboundLink(center.website, 'sidebar_website_btn')}
+                                        href={createOutboundLink(center.website!, 'sidebar_website_btn')}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={() => gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name })}
