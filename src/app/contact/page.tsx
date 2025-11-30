@@ -3,8 +3,7 @@
 
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+
 
 export default function ContactPage() {
     const [formData, setFormData] = useState({

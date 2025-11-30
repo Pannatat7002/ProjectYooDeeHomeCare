@@ -2,23 +2,30 @@
 import React from 'react';
 
 export const metadata = {
-    title: 'ข้อกำหนดและเงื่อนไข | YooDee Home Care',
-    description: 'ข้อกำหนดและเงื่อนไขการใช้บริการของ YooDee Home Care - แพลตฟอร์มค้นหาศูนย์ดูแลผู้สูงอายุและผู้ป่วย',
+    title: 'ข้อกำหนดและเงื่อนไข | ThaiCareCenter',
+    description: 'ข้อกำหนดและเงื่อนไขการใช้บริการของ ThaiCareCenter - แพลตฟอร์มค้นหาศูนย์ดูแลผู้สูงอายุและผู้ป่วย',
 };
 
 export default function TermsPage() {
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header Section */}
-            <div className="bg-white border-b-2 border-gray-900">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            {/* Hero Section */}
+            <div
+                className="relative h-[300px] flex items-center justify-center bg-cover bg-center"
+                style={{
+                    backgroundImage: 'url("/images/hero-background.jpg")',
+                    backgroundPosition: 'center 40%',
+                }}
+            >
+                <div className="absolute inset-0 bg-blue-900/50"></div>
+                <div className="relative z-10 container mx-auto px-4 text-center text-white">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">
                         ข้อกำหนดและเงื่อนไข
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-blue-100">
                         Terms and Conditions
                     </p>
-                    <p className="mt-4 text-sm text-gray-500">
+                    <p className="mt-4 text-sm text-blue-200">
                         อัปเดตล่าสุด: 24 พฤศจิกายน 2568
                     </p>
                 </div>
@@ -34,7 +41,7 @@ export default function TermsPage() {
                             1. บทนำ
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            ยินดีต้อนรับสู่ YooDee Home Care แพลตฟอร์มค้นหาและเปรียบเทียบศูนย์ดูแลผู้สูงอายุและผู้ป่วย
+                            ยินดีต้อนรับสู่ ThaiCareCenter แพลตฟอร์มค้นหาและเปรียบเทียบศูนย์ดูแลผู้สูงอายุและผู้ป่วย
                             การใช้บริการของเราถือว่าคุณยอมรับข้อกำหนดและเงื่อนไขที่ระบุไว้ในเอกสารนี้
                         </p>
                         <p className="text-gray-700 leading-relaxed">
@@ -48,7 +55,7 @@ export default function TermsPage() {
                             2. คำอธิบายบริการ
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            YooDee Home Care เป็นแพลตฟอร์มที่ให้บริการ:
+                            ThaiCareCenter เป็นแพลตฟอร์มที่ให้บริการ:
                         </p>
                         <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
                             <li>ข้อมูลและรายละเอียดของศูนย์ดูแลผู้สูงอายุและผู้ป่วย</li>
@@ -58,7 +65,7 @@ export default function TermsPage() {
                             <li>ข้อมูลรีวิวและคะแนนจากผู้ใช้บริการ</li>
                         </ul>
                         <p className="text-gray-700 leading-relaxed mt-4">
-                            <strong>หมายเหตุ:</strong> YooDee Home Care เป็นเพียงแพลตฟอร์มกลางในการให้ข้อมูล
+                            <strong>หมายเหตุ:</strong> ThaiCareCenter เป็นเพียงแพลตฟอร์มกลางในการให้ข้อมูล
                             เราไม่ได้เป็นผู้ให้บริการดูแลโดยตรง และไม่รับผิดชอบต่อคุณภาพการบริการของศูนย์ดูแลแต่ละแห่ง
                         </p>
                     </section>
@@ -96,7 +103,7 @@ export default function TermsPage() {
                             4. ทรัพย์สินทางปัญญา
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            เนื้อหา ออกแบบ โลโก้ รูปภาพ และส่วนประกอบอื่นๆ ของเว็บไซต์นี้เป็นทรัพย์สินของ YooDee Home Care
+                            เนื้อหา ออกแบบ โลโก้ รูปภาพ และส่วนประกอบอื่นๆ ของเว็บไซต์นี้เป็นทรัพย์สินของ ThaiCareCenter
                             หรือผู้ให้อนุญาต และได้รับการคุ้มครองตามกฎหมายทรัพย์สินทางปัญญา
                         </p>
                         <p className="text-gray-700 leading-relaxed">
@@ -120,7 +127,7 @@ export default function TermsPage() {
                             <div>
                                 <h3 className="font-semibold text-lg mb-2 text-gray-900">5.2 บริการของบุคคลที่สาม</h3>
                                 <p className="leading-relaxed">
-                                    YooDee Home Care ไม่รับผิดชอบต่อคุณภาพ ความปลอดภัย หรือการบริการของศูนย์ดูแลที่แสดงบนแพลตฟอร์ม
+                                    ThaiCareCenter ไม่รับผิดชอบต่อคุณภาพ ความปลอดภัย หรือการบริการของศูนย์ดูแลที่แสดงบนแพลตฟอร์ม
                                     ความสัมพันธ์ทางสัญญาเกิดขึ้นระหว่างผู้ใช้และศูนย์ดูแลโดยตรง
                                 </p>
                             </div>
@@ -241,7 +248,7 @@ export default function TermsPage() {
                             เอกสารนี้อัปเดตล่าสุดเมื่อวันที่ 24 พฤศจิกายน 2568
                         </p>
                         <p className="text-sm text-gray-500 text-center mt-2">
-                            © 2025 YooDee Home Care. สงวนลิขสิทธิ์.
+                            © 2025 ThaiCareCenter. สงวนลิขสิทธิ์.
                         </p>
                     </div>
                 </div>

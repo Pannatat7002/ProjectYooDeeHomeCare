@@ -1,23 +1,30 @@
 import React from 'react';
 
 export const metadata = {
-    title: 'นโยบายความเป็นส่วนตัว | YooDee Home Care',
-    description: 'นโยบายความเป็นส่วนตัวของ YooDee Home Care - เราให้ความสำคัญกับการปกป้องข้อมูลส่วนบุคคลของคุณ',
+    title: 'นโยบายความเป็นส่วนตัว | ThaiCareCenter',
+    description: 'นโยบายความเป็นส่วนตัวของ ThaiCareCenter - เราให้ความสำคัญกับการปกป้องข้อมูลส่วนบุคคลของคุณ',
 };
 
 export default function PrivacyPage() {
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header Section */}
-            <div className="bg-white border-b-2 border-gray-900">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            {/* Hero Section */}
+            <div
+                className="relative h-[300px] flex items-center justify-center bg-cover bg-center"
+                style={{
+                    backgroundImage: 'url("/images/hero-background.jpg")',
+                    backgroundPosition: 'center 40%',
+                }}
+            >
+                <div className="absolute inset-0 bg-blue-900/50"></div>
+                <div className="relative z-10 container mx-auto px-4 text-center text-white">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">
                         นโยบายความเป็นส่วนตัว
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-blue-100">
                         Privacy Policy
                     </p>
-                    <p className="mt-4 text-sm text-gray-500">
+                    <p className="mt-4 text-sm text-blue-200">
                         อัปเดตล่าสุด: 24 พฤศจิกายน 2568
                     </p>
                 </div>
@@ -33,7 +40,7 @@ export default function PrivacyPage() {
                             1. บทนำ
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            YooDee Home Care (&quot;เรา&quot; &quot;ของเรา&quot;) ให้ความสำคัญกับความเป็นส่วนตัวของคุณ
+                            ThaiCareCenter (&quot;เรา&quot; &quot;ของเรา&quot;) ให้ความสำคัญกับความเป็นส่วนตัวของคุณ
                             นโยบายความเป็นส่วนตัวนี้อธิบายวิธีที่เราเก็บรวบรวม ใช้ เปิดเผย และปกป้องข้อมูลส่วนบุคคลของคุณ
                         </p>
                         <p className="text-gray-700 leading-relaxed">
@@ -383,7 +390,7 @@ export default function PrivacyPage() {
                                 </li>
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[120px]">ที่อยู่:</span>
-                                    <span>YooDee Home Care<br />กรุงเทพมหานคร 10XXX<br />ประเทศไทย</span>
+                                    <span>ThaiCareCenter<br />กรุงเทพมหานคร 10XXX<br />ประเทศไทย</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[120px]">เวลาทำการ:</span>
@@ -399,7 +406,7 @@ export default function PrivacyPage() {
                             13. การปฏิบัติตาม PDPA
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            YooDee Home Care ปฏิบัติตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)
+                            ThaiCareCenter ปฏิบัติตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)
                             และกฎหมายที่เกี่ยวข้องทั้งหมด
                         </p>
                         <p className="text-gray-700 leading-relaxed">
@@ -417,7 +424,7 @@ export default function PrivacyPage() {
                             เอกสารนี้อัปเดตล่าสุดเมื่อวันที่ 24 พฤศจิกายน 2568
                         </p>
                         <p className="text-sm text-gray-500 text-center mt-2">
-                            © 2025 YooDee Home Care. สงวนลิขสิทธิ์.
+                            © 2025 ThaiCareCenter. สงวนลิขสิทธิ์.
                         </p>
                         <p className="text-xs text-gray-400 text-center mt-4">
                             นโยบายนี้จัดทำขึ้นเพื่อให้สอดคล้องกับพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562

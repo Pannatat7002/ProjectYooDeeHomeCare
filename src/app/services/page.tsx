@@ -1,8 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Activity, HeartPulse, Home, Clock, CheckCircle, ArrowRight } from 'lucide-react';
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
 
 export default function ServicesPage() {
     const services = [

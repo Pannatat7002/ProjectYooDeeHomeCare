@@ -4,8 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Blog } from '../../types';
-// import Header from "../../components/Header";
-// import Footer from "../../components/Footer";
+
 import { Calendar, User, ArrowRight } from 'lucide-react';
 
 export default function BlogsPage() {
@@ -27,11 +26,16 @@ export default function BlogsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* <Header /> */}
-
             {/* Hero Section */}
-            <div className="bg-blue-900 text-white py-20 px-4">
-                <div className="container mx-auto max-w-5xl text-center">
+            <div
+                className="relative h-[300px] flex items-center justify-center bg-cover bg-center"
+                style={{
+                    backgroundImage: 'url("/images/hero-background.jpg")',
+                    backgroundPosition: 'center 40%',
+                }}
+            >
+                <div className="absolute inset-0 bg-blue-900/50"></div>
+                <div className="relative z-10 container mx-auto px-4 text-center text-white">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">บทความและสาระน่ารู้</h1>
                     <p className="text-blue-100 text-lg max-w-2xl mx-auto">
                         รวมบทความเกี่ยวกับการดูแลผู้สูงอายุ สุขภาพ และเทคนิคการเลือกศูนย์ดูแลที่ดีที่สุดสำหรับคนที่คุณรัก
@@ -99,7 +103,7 @@ export default function BlogsPage() {
                 )}
             </div>
 
-            {/* <Footer /> */}
+
         </div>
     );
 }

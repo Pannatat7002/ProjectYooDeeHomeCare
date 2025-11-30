@@ -3,6 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Custom accessible color variables */
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  /* gray-600 - better contrast than gray-400/500 */
+  --text-muted: #737373;
+  /* gray-500 - for secondary text */
+  --link-color: #2563eb;
+  /* blue-600 - better contrast than blue-400 */
+  --link-hover: #1d4ed8;
+  /* blue-700 */
+  --success-color: #16a34a;
+  /* green-600 - better contrast than green-400 */
+  --success-hover: #15803d;
+  /* green-700 */
 }
 
 @theme inline {
@@ -14,21 +29,29 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ededed;
-    --foreground: #ededed;
-  }
-
-  /* :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-  } */
+
+    /* Adjust colors for dark mode */
+    --text-primary: #ededed;
+    --text-secondary: #d4d4d4;
+    /* lighter for dark backgrounds */
+    --text-muted: #a3a3a3;
+    /* gray-400 works better on dark */
+    --link-color: #60a5fa;
+    /* blue-400 - better for dark mode */
+    --link-hover: #93c5fd;
+    /* blue-300 */
+    --success-color: #4ade80;
+    /* green-400 - better for dark mode */
+    --success-hover: #86efac;
+    /* green-300 */
+  }
 }
 
 body {
-  background: #ededed;
-  color: #171717;
-  /* background: var(--background);
-  color: var(--foreground); */
+  background: var(--background);
+  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 

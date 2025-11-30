@@ -43,8 +43,8 @@ export default function Header() {
                                 ThaiCareCenter
                             </span>
 
-                            {/* ส่วนคำอธิบายภาษาไทย */}
-                            <span className="text-xs md:text-sm text-gray-500 font-normal mt-1 group-hover:text-gray-600 transition-colors">
+                            {/* ส่วนคำอธิบายภาษาไทย - Changed from text-gray-500 to text-gray-600 for better contrast */}
+                            <span className="text-xs md:text-sm text-gray-600 font-normal mt-1 group-hover:text-gray-700 transition-colors">
                                 เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย
                             </span>
                         </div>
@@ -62,11 +62,11 @@ export default function Header() {
 
                     {/* Contact/CTA (Right) */}
                     <div className="flex items-center space-x-2 sm:space-x-4">
-                        {/* TH/EN Switcher - Hidden on mobile */}
+                        {/* TH/EN Switcher - Hidden on mobile - Changed from text-gray-400 to text-gray-500 for better contrast */}
                         <div className="hidden md:flex items-center space-x-1 text-sm font-bold">
                             <span className="text-blue-600">TH</span>
-                            <span className="text-gray-400">|</span>
-                            <span className="text-gray-400 hover:text-blue-600 cursor-pointer transition-colors">EN</span>
+                            <span className="text-gray-500">|</span>
+                            <span className="text-gray-500 hover:text-blue-600 cursor-pointer transition-colors">EN</span>
                         </div>
                         {/* CTA Button - Responsive */}
                         <Link
@@ -137,11 +137,11 @@ export default function Header() {
                             >
                                 สนใจเข้ารวม
                             </Link>
-                            {/* Language Switcher in Mobile Menu */}
+                            {/* Language Switcher in Mobile Menu - Changed from text-gray-400 to text-gray-500 for better contrast */}
                             <div className="flex items-center justify-center space-x-2 text-sm font-bold pt-4 border-t mt-4 border-gray-100">
                                 <span className="text-blue-600">TH</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="text-gray-400 hover:text-blue-600 cursor-pointer transition-colors">EN</span>
+                                <span className="text-gray-500">|</span>
+                                <span className="text-gray-500 hover:text-blue-600 cursor-pointer transition-colors">EN</span>
                             </div>
                         </nav>
                     </div>
