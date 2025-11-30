@@ -18,11 +18,11 @@ export default function ProviderSignupPage() {
                 <div
                     className="relative h-[450px] flex items-center justify-center bg-cover bg-center"
                     style={{
-                        backgroundImage: 'url("/images/hero-background.jpg")',
+                        backgroundImage: 'url("/images/bg-home.jpg")',
                         backgroundPosition: 'center 40%',
                     }}
                 >
-                    <div className="absolute inset-0 bg-blue-900/50"></div>
+                    <div className="absolute inset-0 bg-black/50"></div>
                     <div className="relative z-10 container mx-auto px-4 text-center text-white py-20">
                         <div className="inline-block mb-6 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full">
                             <span className="text-sm font-semibold">💼 ร่วมงานกับเรา</span>
@@ -251,13 +251,13 @@ export default function ProviderSignupPage() {
                             <div
                                 className="absolute inset-0 bg-cover bg-center"
                                 style={{
-                                    backgroundImage: 'url("/images/hero-background.jpg")',
+                                    backgroundImage: 'url("/images/bg-home.jpg")',
                                     backgroundPosition: 'center 40%',
                                 }}
                             ></div>
 
                             {/* 2. Overlay (อยู่ตรงกลาง) - ใช้ Gradient สีน้ำเงิน-ม่วง ที่คุณระบุ */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-indigo-900/80"></div>
+                            <div className="absolute inset-0 "></div>
 
                             {/* 3. Content (อยู่บนสุด) - มี Padding และ Text Color */}
                             <div className="relative z-10 p-10 text-white">

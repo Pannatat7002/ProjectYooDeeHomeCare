@@ -134,12 +134,12 @@ export default function HomePage() {
       <div
         className="relative pt-16 pb-20 px-4 bg-cover bg-center"
         style={{
-          backgroundImage: 'url("/images/hero-background.jpg")',
+          backgroundImage: 'url("/images/bg-home.jpg")',
           backgroundPosition: 'center 30%'
         }}
       >
         {/* Overlay สีดำจางๆ */}
-        <div className="absolute inset-0 bg-blue-900/50"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
 
         <div className="relative z-10 container max-w-5xl mx-auto text-center">
 

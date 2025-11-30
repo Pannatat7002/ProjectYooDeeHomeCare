@@ -37,11 +37,11 @@ export default function ServicesPage() {
                 <div
                     className="relative h-[450px] flex items-center justify-center bg-cover bg-center"
                     style={{
-                        backgroundImage: 'url("/images/hero-background.jpg")',
+                        backgroundImage: 'url("/images/bg-home.jpg")',
                         backgroundPosition: 'center 40%',
                     }}
                 >
-                    <div className="absolute inset-0 bg-blue-900/50"></div>
+                    <div className="absolute inset-0 bg-black/50"></div>
                     <div className="relative z-10 container mx-auto px-4 text-center text-white">
                         <h1 className="text-4xl font-bold mb-4">บริการของเรา</h1>
                         <p className="text-lg text-blue-100 max-w-2xl mx-auto">

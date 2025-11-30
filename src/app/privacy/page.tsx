@@ -12,7 +12,7 @@ export default function PrivacyPage() {
             <div
                 className="relative h-[300px] flex items-center justify-center bg-cover bg-center"
                 style={{
-                    backgroundImage: 'url("/images/hero-background.jpg")',
+                    backgroundImage: 'url("/images/bg-home.jpg")',
                     backgroundPosition: 'center 40%',
                 }}
             >

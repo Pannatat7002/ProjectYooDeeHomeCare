@@ -11,11 +11,11 @@ export default function AboutPage() {
                 <div
                     className="absolute inset-0 bg-cover bg-center z-0"
                     style={{
-                        backgroundImage: 'url("/images/hero-background.jpg")', // อย่าลืมใส่รูปจริงที่นี่
+                        backgroundImage: 'url("/images/bg-home.jpg")', // อย่าลืมใส่รูปจริงที่นี่
                         backgroundPosition: 'center 20%',
                     }}
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/80"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r bg-black/50"></div>
                 </div>
 
                 {/* Content */}
