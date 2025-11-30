@@ -1,41 +1,53 @@
 // src/app/layout.tsx
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next"; // เพิ่ม Viewport
 import { Sarabun } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { GA_TRACKING_ID } from "../lib/gtag";
 import { Analytics } from "@vercel/analytics/next";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const sarabun = Sarabun({
   weight: ['400', '500', '700'],
   subsets: ['thai', 'latin'],
   variable: '--font-sarabun',
+  display: 'swap', // แนะนำ: ช่วยเรื่อง LCP (ลด Flash of Unstyled Text)
 });
 
-// กำหนด Base URL ของเว็บไซต์
 const BASE_URL = 'https://ThaiCareCenter.com';
 
-export const metadata: Metadata = {
-  // === เพิ่ม metadataBase ที่นี่ ===
-  metadataBase: new URL(BASE_URL),
-  // ===============================
+// ** ส่วนเสริม: Viewport (แยกออกมาใน Next.js เวอร์ชันใหม่) **
+export const viewport: Viewport = {
+  themeColor: '#ffffff', // ปรับตามสีแบรนด์ของคุณ
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5, // อนุญาตให้ user zoom ได้ (Accessibility)
+};
 
-  // ** 1. SEO หลัก (Title & Description & Keywords) **
-  // ใช้ Title ที่เน้นคำค้นหาหลักและบริการสำคัญ
-  title: "ThaiCareCenter - ค้นหาศูนย์ดูแลผู้สูงอายุ/ผู้ป่วยพักฟื้น รายวัน รายเดือน",  // ใช้ Description ที่ดึงดูดใจและใส่คุณสมบัติเด่นที่ปรากฏในภาพ (การเปรียบเทียบราคา/ช่วงราคา)
-  description:
-    "ยกระดับคุณภาพชีวิตของผู้สูงอายุและผู้ป่วยพักฟื้น ด้วยการค้นหา ศูนย์ดูแลที่ได้มาตรฐานสูงสุด พร้อมเปรียบเทียบราคา รีวิว และบริการ รายวัน/รายเดือน ใกล้บ้านคุณ ให้คนที่คุณรักได้รับการดูแลที่ดีที่สุดอย่างแท้จริง",  // เพิ่ม Keywords ที่ครอบคลุมคำค้นหาที่เกี่ยวข้อง
-  keywords:
-    ["ศูนย์ดูแลผู้สูงอายุ", "บ้านพักคนชรา", "Nursing Home", "ดูแลผู้ป่วยพักฟื้น",
-      "กายภาพบำบัดผู้สูงอายุ", "ศูนย์ดูแลมาตรฐาน", "ยกระดับคุณภาพชีวิตผู้สูงอายุ",
-      "ดูแลรายวัน", "ดูแลรายเดือน", "เปรียบเทียบศูนย์ดูแล",
-      // <<< เพิ่มคำที่เน้นความสะดวก/ทำเล >>>
-      "ศูนย์ดูแลผู้สูงอายุใกล้ฉัน",
-      "ศูนย์ดูแลผู้สูงอายุใกล้บ้าน",
-      "ค้นหาสะดวก",
-      "ศูนย์ดูแลใกล้บ้านพักคนชรา"],
-  // ** 2. Robots Tag (สำหรับควบคุม Bot ของ Search Engine) **
+export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
+
+  // ** 1. SEO หลัก (ปรับปรุง Title Template) **
+  title: {
+    template: '%s | ThaiCareCenter', // หน้าลูกจะเป็น "ชื่อหน้า | ThaiCareCenter"
+    default: "ThaiCareCenter - รวมศูนย์ดูแลผู้สูงอายุและผู้ป่วยพักฟื้นในไทย", // ปรับให้ดูน่าเชื่อถือขึ้น
+  },
+  description: "ยกระดับคุณภาพชีวิตคนที่คุณรัก ค้นหาศูนย์ดูแลผู้สูงอายุ บ้านพักคนชรา และศูนย์พักฟื้นมาตรฐานสูงสุด เปรียบเทียบราคา อ่านรีวิว และค้นหาสถานที่ใกล้บ้านคุณได้ที่นี่",
+
+  keywords: [
+    "ศูนย์ดูแลผู้สูงอายุ", "บ้านพักคนชรา", "Nursing Home", "ดูแลผู้ป่วยพักฟื้น",
+    "กายภาพบำบัดผู้สูงอายุ", "ศูนย์ดูแลมาตรฐาน", "หาศูนย์ดูแลผู้สูงอายุ",
+    "ราคาศูนย์ดูแลผู้สูงอายุ", "ศูนย์ดูแลผู้สูงอายุ กรุงเทพ", "ศูนย์ดูแลผู้สูงอายุ นนทบุรี", "ดูแลผู้ป่วยติดเตียง"
+  ],
+
+  // ** 2. Canonical URL (สำคัญมากเพื่อป้องกัน Duplicate Content) **
+  alternates: {
+    canonical: './',
+  },
+
+  // ** 3. Robots **
   robots: {
     index: true,
     follow: true,
@@ -48,22 +60,37 @@ export const metadata: Metadata = {
     },
   },
 
-  // ** 3. Icons (Favicon) **
-  icons: {
-    icon: '/logo_thai_care_center_v1.png',
-    shortcut: '/logo_thai_care_center_v1.png',
-    apple: '/logo_thai_care_center_v1.png',
+  // ** 4. Verification (สำหรับ GSC / Bing) **
+  verification: {
+    google: 'นำรหัสจาก-google-search-console-มาใส่ที่นี่',
+    // other: { me: ['my-email'], },
   },
 
-  // ** 4. Open Graph (สำหรับแชร์บน Facebook, Line) **
+  // ** 5. Icons / Manifest **
+  icons: {
+    icon: [
+      { url: '/favicon_io/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon_io/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon_io/favicon.ico', sizes: 'any' }
+    ],
+    shortcut: '/favicon_io/favicon.ico',
+    apple: '/favicon_io/apple-touch-icon.png',
+    other: [
+      { rel: 'android-chrome', url: '/favicon_io/android-chrome-192x192.png', sizes: '192x192' },
+      { rel: 'android-chrome', url: '/favicon_io/android-chrome-512x512.png', sizes: '512x512' },
+    ]
+  },
+  manifest: '/favicon_io/site.webmanifest',
+
+  // ** 6. Open Graph **
   openGraph: {
-    title: "ThaiCareCenter - เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย", // Title สำหรับ Social Media
-    description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ พร้อมเปรียบเทียบราคาและรีวิว", // Description สำหรับ Social Media
+    title: "ThaiCareCenter - รวมศูนย์ดูแลผู้สูงอายุมาตรฐาน",
+    description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ พร้อมเปรียบเทียบราคาและรีวิว",
     url: BASE_URL,
     siteName: "ThaiCareCenter",
     images: [
       {
-        url: "/ThaiCareCenter.png", // Next.js จะรวม BASE_URL เข้ากับ Path นี้โดยอัตโนมัติ
+        url: "/ThaiCareCenter.png",
         width: 1200,
         height: 630,
         alt: "ThaiCareCenter: เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย",
@@ -73,27 +100,45 @@ export const metadata: Metadata = {
     type: "website",
   },
 
-  // ** 5. Twitter Card (สำหรับแชร์บน X/Twitter) **
+  // ** 7. Twitter **
   twitter: {
-    card: 'summary_large_image', // รูปแบบการ์ดแบบรูปภาพขนาดใหญ่
-    title: "ThaiCareCenter - เว็บไซต์รวบรวมศูนย์ดูแลผู้สูงอายุไทย",
+    card: 'summary_large_image',
+    title: "ThaiCareCenter - รวมศูนย์ดูแลผู้สูงอายุมาตรฐาน",
     description: "ค้นหาสถานที่ดูแลคนที่คุณรัก สะดวก ปลอดภัย มาตรฐานวิชาชีพ",
-    creator: '@ThaiCareCenter', // เปลี่ยนเป็น Twitter Handle ของ ThaiCareCenter
+    creator: '@ThaiCareCenter',
     images: ['/ThaiCareCenter.png'],
   },
 };
-
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  // ** สร้าง Schema.org (JSON-LD) **
+  // ช่วยให้ Google รู้ว่าเว็บนี้คือ "WebSite" และมีช่องค้นหา
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'ThaiCareCenter',
+    url: BASE_URL,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${BASE_URL}/search?q={search_term_string}`,
+      'query-input': 'required name=search_term_string'
+    }
+  };
+
   return (
     <html lang="th">
       <body className={`${sarabun.className} bg-gray-50 min-h-screen flex flex-col`}>
+        {/* ใส่ JSON-LD Script */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
         <Header />
         <main className="bg-white flex-grow">
           {children}
@@ -102,7 +147,6 @@ export default function RootLayout({
         <Analytics />
       </body>
 
-      {/* Google Analytics Scripts */}
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
         strategy="afterInteractive"
