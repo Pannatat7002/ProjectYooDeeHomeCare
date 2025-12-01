@@ -582,7 +582,7 @@ function ConsultationManagement() {
     return (
         <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
             <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <User className="w-6 h-6 mr-2" /> รายการผู้สนใจ/ผู้ปรึกษา
+                <User className="w-6 h-6 mr-2" /> สนใจนัดเยี่ยมชมศูนย์
             </h1>
 
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">

@@ -51,6 +51,10 @@ export interface Consultation {
     phone: string;
     email?: string;
     lineId?: string;
+    contactName?: string; // ชื่อผู้ติดต่อ
+    recipientName?: string; // ชื่อผู้รับบริการ
+    recipientAge?: number; // อายุผู้รับบริการ
+    relationshipToRecipient?: string; // ความสัมพันธ์กับผู้รับบริการ
     branch: string;
     budget: string;
     roomType: string;

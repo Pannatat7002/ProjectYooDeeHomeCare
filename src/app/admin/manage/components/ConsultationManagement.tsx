@@ -95,31 +95,47 @@ export default function ConsultationManagement() {
     return (
         <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
             <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <User className="w-6 h-6 mr-2" /> รายการผู้สนใจ/ผู้ปรึกษา
+                <User className="w-6 h-6 mr-2" /> สนใจนัดเยี่ยมชมศูนย์
             </h1>
 
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
+
+                        {/* <thead>: ส่วนหัวตาราง (เพิ่มคอลัมน์ 'ข้อมูลผู้รับบริการ') */}
                         <thead>
                             <tr className="bg-blue-600 text-white text-sm font-semibold border-b">
                                 <th className="py-4 px-4 w-12 text-center">#</th>
                                 <th className="py-4 px-4">ข้อมูลผู้ติดต่อ</th>
-                                <th className="py-4 px-4">รายละเอียด</th>
+                                <th className="py-4 px-4">ข้อมูลผู้รับบริการ</th> {/* <-- หัวข้อใหม่ */}
+                                <th className="py-4 px-4">รายละเอียดบริการ</th>
                                 <th className="py-4 px-4 max-w-xs">ข้อความ</th>
                                 <th className="py-4 px-4 w-28 text-center">สถานะ</th>
                                 <th className="py-4 px-4 w-20 text-center">ลบ</th>
                             </tr>
                         </thead>
+
+                        {/* <tbody>: ส่วนเนื้อหาตาราง (เพิ่มข้อมูลผู้รับบริการ) */}
                         <tbody className="divide-y divide-gray-100">
+
                             {isLoading ? (
-                                <tr><td colSpan={6} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                                <tr>
+                                    {/* ต้องเปลี่ยน colSpan เป็น 7 เนื่องจากเพิ่ม 1 คอลัมน์ */}
+                                    <td colSpan={7} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td>
+                                </tr>
                             ) : paginatedConsultations.length === 0 ? (
-                                <tr><td colSpan={6} className="py-8 text-center text-gray-500">ไม่พบรายการติดต่อ</td></tr>
+                                <tr>
+                                    {/* ต้องเปลี่ยน colSpan เป็น 7 เนื่องจากเพิ่ม 1 คอลัมน์ */}
+                                    <td colSpan={7} className="py-8 text-center text-gray-500">ไม่พบรายการติดต่อ</td>
+                                </tr>
                             ) : (
                                 paginatedConsultations.map((consultation: Consultation, index) => (
                                     <tr key={consultation.id} className="hover:bg-blue-50 text-sm text-gray-800 transition-colors">
+
+                                        {/* คอลัมน์ # (ลำดับที่) */}
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+
+                                        {/* คอลัมน์ ข้อมูลผู้ติดต่อ */}
                                         <td className="py-3 px-4 font-medium min-w-[200px]">
                                             <p className='font-bold'>{consultation.name}</p>
                                             <p className="text-xs text-gray-500 flex items-center"><Phone className='w-3 h-3 mr-1' /> {consultation.phone}</p>
@@ -127,14 +143,31 @@ export default function ConsultationManagement() {
                                             {consultation.lineId && (<p className="text-xs text-gray-500 flex items-center"><MessageSquare className='w-3 h-3 mr-1' /> LINE: {consultation.lineId}</p>)}
                                             <p className="text-xs text-gray-500 flex items-center mt-1"><Clock className='w-3 h-3 mr-1' /> ส่งเมื่อ: {formatDate(consultation.submittedAt)}</p>
                                         </td>
+
+                                        {/* คอลัมน์ ข้อมูลผู้รับบริการ (เพิ่มเข้ามาใหม่) */}
+                                        <td className="py-3 px-4 min-w-[180px]">
+                                            <p className="font-semibold text-gray-700">ชื่อ: {consultation.recipientName}</p>
+                                            <p className="text-xs text-gray-600">อายุ: {consultation.recipientAge}</p>
+                                            <p className="text-xs text-gray-600">ความสัมพันธ์: {consultation.relationshipToRecipient}</p>
+                                        </td>
+
+                                        {/* คอลัมน์ รายละเอียดบริการ (เปลี่ยนชื่อจาก 'รายละเอียด') */}
                                         <td className="py-3 px-4 min-w-[200px]">
                                             <p className="font-semibold text-blue-600">ศูนย์: {consultation.branch}</p>
                                             <p className="text-xs text-gray-700">งบประมาณ: {consultation.budget}</p>
                                             <p className="text-xs text-gray-700">ประเภทห้อง: {consultation.roomType}</p>
                                             <p className="text-xs text-gray-700">เวลาสะดวก: {consultation.convenientTime}</p>
                                         </td>
-                                        <td className="py-3 px-4 max-w-xs truncate text-gray-600" title={consultation.message}>{consultation.message}</td>
 
+                                        {/* คอลัมน์ ข้อความ */}
+                                        <td
+                                            className="py-3 px-4 max-w-xs truncate text-gray-600"
+                                            title={consultation.message}
+                                        >
+                                            {consultation.message}
+                                        </td>
+
+                                        {/* คอลัมน์ สถานะและการดำเนินการ */}
                                         <td className="py-3 px-4 text-center min-w-[120px]">
                                             <StatusBadge status={consultation.status} />
                                             {consultation.status.toLowerCase() === 'pending' && (
@@ -147,8 +180,12 @@ export default function ConsultationManagement() {
                                             )}
                                         </td>
 
+                                        {/* คอลัมน์ ลบ */}
                                         <td className="py-3 px-4 text-center">
-                                            <button onClick={() => handleDelete(consultation.id)} className="text-red-500 hover:text-red-700 p-2">
+                                            <button
+                                                onClick={() => handleDelete(consultation.id)}
+                                                className="text-red-500 hover:text-red-700 p-2"
+                                            >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
                                         </td>

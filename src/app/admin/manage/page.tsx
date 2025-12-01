@@ -56,7 +56,7 @@ export default function AdminManagePage() {
 
     const tabs = [
         { id: 'centers' as TabType, label: 'ศูนย์ดูแล', icon: Settings },
-        { id: 'consultations' as TabType, label: 'คำปรึกษา', icon: UserIcon },
+        { id: 'consultations' as TabType, label: 'ลูกค้าสนใจนัดเยี่ยมชมศูนย์', icon: UserIcon },
         { id: 'contacts' as TabType, label: 'ข้อความติดต่อ', icon: UserIcon },
         { id: 'blogs' as TabType, label: 'บทความ', icon: Settings },
         { id: 'ads' as TabType, label: 'โฆษณา (Ads)', icon: Settings },

@@ -24,7 +24,7 @@ const parseSheetRow = (row: any) => {
     const formatted: any = {};
 
     // รายชื่อฟิลด์ที่ควรจะเป็นตัวเลข
-    const numberFields = ['price', 'lat', 'lng', 'rating', 'id'];
+    const numberFields = ['price', 'lat', 'lng', 'rating', 'id', 'recipientAge'];
 
     Object.keys(row).forEach((key) => {
         let value = row[key];
@@ -91,7 +91,7 @@ const saveDataToSheet = async (sheetName: string, data: any[]) => {
  * ADD (Append): เพิ่มข้อมูลใหม่ต่อท้ายแถวเดิม
  * เหมาะสำหรับ: ฟอร์มกรอกข้อมูลใหม่ (Register, Contact Form)
  * 
- * ✅ แก้ไขแล้ว: ตรวจสอบ header ก่อนเพื่อป้องกัน error "No values in the header row"
+ * ✅ แก้ไขแล้ว: ตรวจสอบและอัพเดท header อัตโนมัติเมื่อมีฟิลด์ใหม่
  */
 const addDataToSheet = async (sheetName: string, newItem: any) => {
     try {
@@ -99,21 +99,39 @@ const addDataToSheet = async (sheetName: string, newItem: any) => {
 
         // ตรวจสอบว่ามี header หรือยัง
         let hasHeaders = false;
+        let existingHeaders: string[] = [];
+
         try {
             await sheet.loadHeaderRow();
             hasHeaders = sheet.headerValues && sheet.headerValues.length > 0;
+            existingHeaders = sheet.headerValues || [];
         } catch (err) {
             // ถ้า loadHeaderRow() error แสดงว่า Sheet ยังไม่มี header เลย
             console.log(`⚠️  Sheet "${sheetName}" has no headers yet`);
             hasHeaders = false;
         }
 
+        const newItemKeys = Object.keys(newItem);
+
         // ถ้ายังไม่มี header ให้สร้างจาก keys ของ newItem
         if (!hasHeaders) {
             console.log(`📝 Creating headers for sheet "${sheetName}"...`);
-            const headers = Object.keys(newItem);
-            await sheet.setHeaderRow(headers);
-            console.log(`✅ Headers created:`, headers);
+            await sheet.setHeaderRow(newItemKeys);
+            console.log(`✅ Headers created:`, newItemKeys);
+        } else {
+            // ✅ ตรวจสอบว่ามีฟิลด์ใหม่ที่ยังไม่มีใน header หรือไม่
+            const missingHeaders = newItemKeys.filter(key => !existingHeaders.includes(key));
+
+            if (missingHeaders.length > 0) {
+                console.log(`📝 Found new fields: ${missingHeaders.join(', ')}`);
+                console.log(`🔄 Updating headers for sheet "${sheetName}"...`);
+
+                // รวม headers เดิมกับ headers ใหม่
+                const updatedHeaders = [...existingHeaders, ...missingHeaders];
+                await sheet.setHeaderRow(updatedHeaders);
+
+                console.log(`✅ Headers updated:`, updatedHeaders);
+            }
         }
 
         // เพิ่มแถวใหม่ต่อท้าย

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,8 +10,8 @@ import {
     ChevronLeft
 } from 'lucide-react';
 import Link from 'next/link';
-import * as gtag from '../../lib/gtag'; // ตรวจสอบ path ให้ถูกต้อง
-import { CareCenter } from '../../types/index'; // ตรวจสอบ path ให้ถูกต้อง
+import * as gtag from '../../lib/gtag';
+import { CareCenter } from '../../types/index';
 
 // =========================================================================================
 // UTILITIES & CONSTANTS
@@ -20,27 +21,7 @@ const decodeSlug = (slug: string) => {
     return decodeURIComponent(slug).replace(/-/g, ' ');
 };
 
-// ✅ Helper function: เช็คค่าว่าเป็นจริงหรือไม่ (รองรับทั้งเลข 1 และ true)
-const isTrue = (value: number | boolean | undefined | null) => {
-    return value === 1 || value === true;
-};
-
-// Form Interface
-interface ConsultationFormData {
-    name: string;
-    phone: string;
-    lineId: string;
-    email: string;
-    roomType: string;
-    branch: string;
-    budget: string;
-    convenientTime: string;
-    message: string;
-}
-
-// =========================================================================================
-// SUB-COMPONENTS (ไม่ได้แก้ไขในส่วนนี้ แต่ใช้เพื่อความสมบูรณ์)
-// =========================================================================================
+const isTrue = (value: any) => !!value;
 
 const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoUrl?: string }) => {
     if (!brandName) return null;
@@ -156,6 +137,21 @@ const GalleryModal: React.FC<GalleryModalProps> = ({ images, initialIndex, onClo
     );
 };
 
+interface ConsultationFormData {
+    name: string;
+    phone: string;
+    lineId: string;
+    email: string;
+    recipientName: string;
+    recipientAge: string;
+    relationshipToRecipient: string;
+    roomType: string;
+    branch: string;
+    budget: string;
+    convenientTime: string;
+    message: string;
+}
+
 interface ConsultationFormProps {
     formData: ConsultationFormData;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
@@ -164,73 +160,205 @@ interface ConsultationFormProps {
 }
 
 const ConsultationForm: React.FC<ConsultationFormProps> = ({ formData, handleInputChange, handleSubmit, submitStatus }) => {
+    const [currentStep, setCurrentStep] = useState(1);
+
+    const validateStep1 = () => {
+        return formData.name.trim() !== '' && formData.phone.trim() !== '';
+    };
+
+    const handleNext = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (currentStep === 1 && !validateStep1()) {
+            alert('กรุณากรอกชื่อและเบอร์โทรศัพท์ให้ครบถ้วน');
+            return;
+        }
+        setCurrentStep(prev => Math.min(prev + 1, 3));
+    };
+
+    const handlePrev = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setCurrentStep(prev => Math.max(prev - 1, 1));
+    };
+
+    // ✅ ส่วนที่แก้ไข: แสดงหน้า Success เมื่อส่งฟอร์มสำเร็จ
+    if (submitStatus === 'success') {
+        return (
+            <div className="text-center py-12 px-4 space-y-4 animate-in fade-in duration-500">
+                <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto animate-pulse" />
+                <h3 className="text-2xl font-extrabold text-green-700">ส่งข้อมูลสำเร็จ!</h3>
+                <p className="text-gray-700 text-lg font-medium">
+                    ทางศูนย์จะติดต่อกลับเพื่อยืนยันการนัดหมาย <span className="font-bold">ภายใน 24 ชั่วโมง</span>
+                </p>
+                <p className="text-sm text-gray-500">ขอบคุณที่ให้ความสนใจบริการของเรา</p>
+            </div>
+        );
+    }
+    // -----------------------------------------------------
+
     return (
-        <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
-                    <input id="name" type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อ-นามสกุล" required />
-                </div>
-                <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
-                    <input id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุเบอร์โทรศัพท์" required />
-                </div>
-                <div>
-                    <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
-                    <input id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุ LINE ID" />
-                </div>
-                <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
-                    <input id="email" type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุอีเมล" />
-                </div>
-                <div>
-                    <label htmlFor="roomType" className="block text-sm font-medium text-gray-700 mb-1">ประเภทห้องพักที่สนใจ <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                        <select id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
-                            <option value="" disabled>เลือกประเภทห้อง</option>
-                            <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
-                            <option value="ห้องพักรวม">ห้องรวม</option>
-                            <option value="V.I.P">V.I.P</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Progress Indicator */}
+            <div className="flex items-center justify-center mb-8 relative">
+                <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-gray-200 -z-10"></div>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-4 transition-all z-10 ${currentStep >= 1 ? 'bg-blue-600 border-blue-100 text-white' : 'bg-white border-gray-200 text-gray-400'}`}>1</div>
+                <div className={`flex-1 h-1 mx-2 transition-all ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-4 transition-all z-10 ${currentStep >= 2 ? 'bg-blue-600 border-blue-100 text-white' : 'bg-white border-gray-200 text-gray-400'}`}>2</div>
+                <div className={`flex-1 h-1 mx-2 transition-all ${currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-4 transition-all z-10 ${currentStep >= 3 ? 'bg-blue-600 border-blue-100 text-white' : 'bg-white border-gray-200 text-gray-400'}`}>3</div>
+            </div>
+
+            {/* Step 1: Contact Info */}
+            {currentStep === 1 && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="text-center mb-4">
+                        <h3 className="text-lg font-bold text-gray-800">ข้อมูลผู้ติดต่อ</h3>
+                        <p className="text-sm text-gray-500">กรุณากรอกข้อมูลเพื่อใช้ในการติดต่อกลับ</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
+                            <input id="name" type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อ-นามสกุล" required />
+                        </div>
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
+                            <input id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุเบอร์โทรศัพท์" required />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
+                                <input id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุ LINE ID" />
+                            </div>
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
+                                <input id="email" type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุอีเมล" />
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">อัตราค่าบริการที่สนใจ <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                        <select id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
-                            <option value="" disabled>เลือกช่วงราคา</option>
-                            <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
-                            <option value="20,000 - 30,000">20,000 - 30,000</option>
-                            <option value="มากกว่า 30,000">มากกว่า 30,000</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+            )}
+
+            {/* Step 2: Recipient Info */}
+            {currentStep === 2 && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="text-center mb-4">
+                        <h3 className="text-lg font-bold text-gray-800">ข้อมูลผู้รับบริการ</h3>
+                        <p className="text-sm text-gray-500">ข้อมูลเบื้องต้นของผู้สูงอายุหรือผู้ป่วย</p>
+                    </div>
+                    <div>
+                        <label htmlFor="recipientName" className="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้รับบริการ (ผู้สูงอายุ)</label>
+                        <input id="recipientName" type="text" name="recipientName" value={formData.recipientName} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อผู้รับบริการ" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="recipientAge" className="block text-sm font-medium text-gray-700 mb-1">อายุ (ปี)</label>
+                            <input id="recipientAge" type="number" name="recipientAge" value={formData.recipientAge} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุอายุ" />
+                        </div>
+                        <div>
+                            <label htmlFor="relationshipToRecipient" className="block text-sm font-medium text-gray-700 mb-1">ความสัมพันธ์ <span className="text-red-500">*</span></label>
+                            <div className="relative">
+                                <select
+                                    id="relationshipToRecipient"
+                                    name="relationshipToRecipient"
+                                    value={formData.relationshipToRecipient}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none"
+                                    required // แนะนำให้กำหนดเป็น required
+                                >
+                                    <option value="" disabled>--- เลือกความสัมพันธ์ ---</option>
+                                    <option value="บุตร/ธิดา">บุตร/ธิดา</option>
+                                    <option value="คู่สมรส">คู่สมรส</option>
+                                    <option value="พี่/น้อง">พี่/น้อง</option>
+                                    <option value="ญาติ">ญาติ (อื่นๆ)</option>
+                                    <option value="เพื่อน/คนรู้จัก">เพื่อน/คนรู้จัก</option>
+                                    <option value="อื่น ๆ">อื่น ๆ</option>
+                                </select>
+                                {/* Dropdown Icon */}
+                                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <label htmlFor="convenientTime" className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลาที่สะดวกให้ติดต่อกลับ <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                        <select id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
-                            <option value="" disabled>เลือกช่วงเวลา</option>
-                            <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
-                            <option value="ช่วงบ่าย (13:00 - 17:00)">13:00 - 17:00</option>
-                            <option value="ช่วงเย็น (17:00 - 20:00)">17:00 - 20:00</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+            )}
+
+            {/* Step 3: Preferences */}
+            {currentStep === 3 && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="text-center mb-4">
+                        <h3 className="text-lg font-bold text-gray-800">รายละเอียดความสนใจ</h3>
+                        <p className="text-sm text-gray-500">เลือกบริการและช่วงเวลาที่สะดวก</p>
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="roomType" className="block text-sm font-medium text-gray-700 mb-1">ประเภทห้องพัก <span className="text-red-500">*</span></label>
+                            <div className="relative">
+                                <select id="roomType" name="roomType" value={formData.roomType} onChange={handleInputChange} required className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
+                                    <option value="" disabled>เลือกประเภทห้อง</option>
+                                    <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
+                                    <option value="ห้องพักรวม">ห้องรวม</option>
+                                    <option value="V.I.P">V.I.P</option>
+                                    <option value="ไม่ระบุ">ไม่ระบุ</option>
+                                </select>
+                                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">งบประมาณ <span className="text-red-500">*</span></label>
+                            <div className="relative">
+                                <select id="budget" name="budget" value={formData.budget} onChange={handleInputChange} required className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
+                                    <option value="" disabled>เลือกช่วงราคา</option>
+                                    <option value="ต่ำกว่า 20,000">ต่ำกว่า 20,000</option>
+                                    <option value="20,000 - 30,000">20,000 - 30,000</option>
+                                    <option value="มากกว่า 30,000">มากกว่า 30,000</option>
+                                    <option value="ไม่ระบุ">ไม่ระบุ</option>
+                                </select>
+                                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label htmlFor="convenientTime" className="block text-sm font-medium text-gray-700 mb-1">เวลาที่สะดวกให้ติดต่อกลับ <span className="text-red-500">*</span></label>
+                        <div className="relative">
+                            <select id="convenientTime" name="convenientTime" value={formData.convenientTime} onChange={handleInputChange} required className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800 appearance-none">
+                                <option value="" disabled>เลือกช่วงเวลา</option>
+                                <option value="ช่วงเช้า (9:00 - 12:00)">09:00 - 12:00</option>
+                                <option value="ช่วงบ่าย (13:00 - 17:00)">13:00 - 17:00</option>
+                                <option value="ช่วงเย็น (17:00 - 20:00)">17:00 - 20:00</option>
+                                <option value="ไม่ระบุ">ไม่ระบุ</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ข้อความเพิ่มเติม (ถ้ามี)</label>
+                        <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"></textarea>
+                    </div>
+                    <input type="hidden" name="branch" value={formData.branch} />
                 </div>
-                <input type="hidden" name="branch" value={formData.branch} />
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-6 border-t border-gray-100 mt-6">
+                {currentStep > 1 ? (
+                    <button type="button" onClick={handlePrev} className="px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-bold hover:bg-gray-50 transition-all flex items-center">
+                        <ChevronLeft className="w-4 h-4 mr-1" /> ย้อนกลับ
+                    </button>
+                ) : (
+                    <div></div>
+                )}
+
+                {currentStep < 3 ? (
+                    <button type="button" onClick={handleNext} className="px-8 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center">
+                        ถัดไป <ChevronRight className="w-4 h-4 ml-1" />
+                    </button>
+                ) : (
+                    <button type="submit" disabled={submitStatus === 'submitting'} className={`px-8 py-2.5 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-200 flex items-center ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                        {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ยืนยันการนัดหมาย'} <CheckCircle2 className="w-4 h-4 ml-2" />
+                    </button>
+                )}
             </div>
-            <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">ฝากข้อความถึง (ถ้ามี)</label>
-                <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"></textarea>
-            </div>
-            <div className="flex justify-center pt-2">
-                <button type="submit" disabled={submitStatus === 'submitting'} className={`w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-12 rounded-full shadow-lg shadow-blue-300/50 transition-all transform hover:scale-[1.01] flex items-center justify-center text-lg ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}>
-                    {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลเพื่อรับคำปรึกษาฟรี'}
-                </button>
-            </div>
-            {submitStatus === 'success' && <p className="text-center text-sm font-medium text-green-600 mt-3 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 mr-1.5" /> ส่งข้อมูลสำเร็จ!</p>}
+
             {submitStatus === 'error' && <p className="text-center text-sm font-medium text-red-600 mt-3 flex items-center justify-center"><Info className="w-4 h-4 mr-1.5" /> เกิดข้อผิดพลาด! กรุณาลองใหม่อีกครั้ง</p>}
         </form>
     );
@@ -245,15 +373,37 @@ interface ConsultationModalProps extends ConsultationFormProps {
 const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose, formData, handleInputChange, handleSubmit, submitStatus, centerName }) => {
     if (!isOpen) return null;
 
+    // ✅ ปรับ Title ตามสถานะ
+    const modalTitle = submitStatus === 'success' ?
+        'การนัดหมายสำเร็จ' :
+        `นัดเยี่ยมชมศูนย์ ${centerName}`;
+
     return (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 relative">
-                <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                    <X className="w-5 h-5" />
-                </button>
+                {/* ✅ ซ่อนปุ่ม X เมื่อแสดงหน้า Success เพื่อให้ปิดอัตโนมัติเท่านั้น หรือแสดงเพื่ออนุญาตให้ผู้ใช้ปิดเองทันที */}
+                {submitStatus !== 'success' && (
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
+
                 <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-                    นัดเยี่ยมชมศูนย์ <span className="text-blue-600">{centerName}</span>
+                    {/* ใช้ modalTitle ที่ปรับตามสถานะ */}
+                    {submitStatus === 'success' ? (
+                        <span className="text-green-600">{modalTitle}</span>
+                    ) : (
+                        <>
+                            {modalTitle.split(centerName).map((part, index) => (
+                                <span key={index}>
+                                    {part}
+                                    {index === 0 && <span className="text-blue-600">{centerName}</span>}
+                                </span>
+                            ))}
+                        </>
+                    )}
                 </h2>
+
                 <ConsultationForm
                     formData={formData}
                     handleInputChange={handleInputChange}
@@ -280,10 +430,12 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
 
     // Initial Form State
     const initialFormData: ConsultationFormData = {
-        name: '', phone: '', lineId: '', email: '', roomType: '',
-        branch: '', budget: '', convenientTime: '', message: ''
+        name: '', phone: '', lineId: '', email: '',
+        recipientName: '', recipientAge: '', relationshipToRecipient: '',
+        roomType: '', branch: '', budget: '', convenientTime: '', message: ''
     };
     const [formData, setFormData] = useState<ConsultationFormData>(initialFormData);
+    // Submit Status: idle | submitting | success | error
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
     // ✅ ฟังก์ชันสร้าง Link พร้อม UTM โดยดึงค่าจาก API
@@ -320,6 +472,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
         setFormData(prev => ({ ...prev, [name]: value }));
     }, []);
 
+    // ✅ ส่วนที่แก้ไข: จัดการ Success State และการปิด Modal อัตโนมัติ
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitStatus('submitting');
@@ -334,20 +487,31 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
 
             if (res.ok) {
                 setSubmitStatus('success');
-                alert('ส่งข้อมูลเรียบร้อยแล้ว เจ้าหน้าที่จะติดต่อกลับโดยเร็วที่สุด');
-                setFormData({ ...initialFormData, branch: center?.name || '' });
+                // ไม่ต้อง alert() และไม่ต้อง reset form ทันที
                 gtag.event({ action: 'submit_form_success', category: 'Conversion', label: center?.name || 'Unknown' });
+
+                // ✅ ตั้งเวลาปิด Modal อัตโนมัติหลังแสดงหน้า Success 3 วินาที
+                setTimeout(() => {
+                    setIsConsultationModalOpen(false); // ปิด Modal
+                    setSubmitStatus('idle'); // Reset Status
+                    // Reset Form State และเติมชื่อ Branch กลับเข้าไป
+                    setFormData({ ...initialFormData, branch: center?.name || '' });
+                }, 3000);
+
             } else {
                 setSubmitStatus('error');
-                alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+                // alert ถูกเอาออก
                 gtag.event({ action: 'submit_form_error', category: 'Error', label: center?.name || 'Unknown' });
             }
         } catch (error) {
             console.error('Error submitting form:', error);
             setSubmitStatus('error');
-            alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+            // alert ถูกเอาออก
         } finally {
-            setTimeout(() => setSubmitStatus('idle'), 2000);
+            // ตั้งเวลา reset status สำหรับกรณี error
+            if (submitStatus === 'error') {
+                setTimeout(() => setSubmitStatus('idle'), 2000);
+            }
         }
     };
 
@@ -769,7 +933,12 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
 
             <ConsultationModal
                 isOpen={isConsultationModalOpen}
-                onClose={() => setIsConsultationModalOpen(false)}
+                // ✅ เพิ่มการ Reset State เมื่อปิด Modal ด้วยปุ่ม X (ในกรณีที่ยังไม่ Success)
+                onClose={() => {
+                    setIsConsultationModalOpen(false);
+                    setSubmitStatus('idle');
+                    setFormData({ ...initialFormData, branch: center?.name || '' });
+                }}
                 formData={formData}
                 handleInputChange={handleInputChange}
                 handleSubmit={handleSubmit}

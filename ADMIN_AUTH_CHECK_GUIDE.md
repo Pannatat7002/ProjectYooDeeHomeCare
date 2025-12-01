@@ -138,7 +138,7 @@ export default function AdminPage() {
                     <nav className="flex space-x-8">
                         {[
                             { id: 'centers', label: 'ศูนย์ดูแล' },
-                            { id: 'consultations', label: 'คำปรึกษา' },
+                            { id: 'consultations', label: 'ลูกค้าสนใจนัดเยี่ยมชมศูนย์' },
                             { id: 'contacts', label: 'ข้อความติดต่อ' },
                             { id: 'blogs', label: 'บทความ' },
                         ].map((tab) => (
