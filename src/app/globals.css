@@ -64,3 +64,20 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ในไฟล์ globals.css หรือ stylesheet หลักของคุณ */
+
+.hide-scrollbar {
+  /* สำหรับ Firefox */
+  scrollbar-width: none;
+  /* สำหรับ IE and Edge */
+  -ms-overflow-style: none;
+}
+
+/* สำหรับ Chrome, Safari และ WebKit-based browsers */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  /* สำหรับ Scrollbar แนวตั้งและแนวนอน */
+  background: transparent;
+}

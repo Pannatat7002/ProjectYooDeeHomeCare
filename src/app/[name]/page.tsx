@@ -7,7 +7,9 @@ import {
     Share2, ShieldCheck, Info, DollarSign, Calendar, X,
     ChevronDown,
     ChevronRight,
-    ChevronLeft
+    ChevronLeft,
+    CheckCircle,
+    ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
 import * as gtag from '../../lib/gtag';
@@ -751,29 +753,59 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">แพ็กเกจราคา</h2>
                                 <div className="space-y-4">
                                     {center.packages.map((pkg, idx) => (
-                                        <div key={idx} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-green-300 hover:shadow-md transition-all group">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <h4 className="font-semibold text-lg text-gray-800 group-hover:text-green-700 transition-colors">{pkg.name}</h4>
-                                                    {/* แสดง Details ที่เป็น Array */}
-                                                    {pkg.details && Array.isArray(pkg.details) && pkg.details.length > 0 ? (
-                                                        <ul className="mt-2 space-y-1">
-                                                            {pkg.details.map((detail, dIdx) => (
-                                                                <li key={dIdx} className="text-sm text-gray-500 flex items-start">
-                                                                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 mt-1.5 shrink-0"></div>
-                                                                    {detail}
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ) : (
-                                                        <p className="text-sm text-gray-500">เหมาะสำหรับผู้ที่ต้องการการดูแลระดับ {idx + 1}</p>
-                                                    )}
-                                                </div>
-                                                <div className="text-right flex-shrink-0 ml-4">
-                                                    <span className="block text-2xl font-extrabold text-green-600">฿{pkg.price?.toLocaleString() ?? '0'}</span>
-                                                    <span className="text-xs text-gray-400">ต่อเดือน</span>
+                                        <div key={idx} className="bg-white border border-gray-100 rounded-2xl p-6 transition-all duration-300 transform 
+                          hover:border-green-500 hover:shadow-2xl hover:shadow-green-100/50 group flex flex-col h-full">
+
+                                            {/* 1. ส่วนหัว (ชื่อแพ็กเกจและราคา) - ปรับปรุง */}
+                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-100 mb-4">
+
+                                                {/* ชื่อแพ็กเกจ */}
+                                                <h4 className="font-extrabold text-xl text-gray-900 group-hover:text-green-700 transition-colors mb-2 sm:mb-0">
+                                                    {pkg.name}
+                                                </h4>
+
+                                                {/* ราคา (จะถูกจัดให้อยู่ด้านล่างชื่อแพ็กเกจในจอมือถือ เนื่องจาก div หลักใช้ flex-col) */}
+                                                <div className="text-left sm:text-right flex-shrink-0">
+                                                    <span className="block text-3xl font-extrabold text-green-600 tracking-tight">
+                                                        ฿{pkg.price?.toLocaleString() ?? '0'}
+                                                    </span>
+                                                    <span className="text-xs text-gray-500">/ ต่อเดือน</span>
                                                 </div>
                                             </div>
+
+                                            {/* 2. ส่วนรายละเอียด (Details) */}
+                                            <div className="flex-grow">
+                                                {pkg.details && Array.isArray(pkg.details) && pkg.details.length > 0 ? (
+                                                    <ul className="space-y-3">
+                                                        {pkg.details.map((detail, dIdx) => (
+                                                            <li key={dIdx} className="text-base text-gray-700 flex items-start">
+                                                                <CheckCircle className="w-5 h-5 mr-3 mt-0.5 text-green-500 shrink-0" />
+                                                                {detail}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                                        <p className="text-sm text-gray-500 font-medium italic">
+                                                            <span className="text-green-600 font-bold">สรุป:</span> เหมาะสำหรับผู้ที่ต้องการการดูแลระดับ {idx + 1}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* 3. ปุ่ม Call to Action (CTA) */}
+                                            {/* <div className="mt-6 pt-6 border-t border-gray-100">
+                                                <button
+                                                    className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent 
+                       text-base font-bold rounded-xl shadow-lg 
+                       text-white bg-green-500 hover:bg-green-600 transition-all 
+                       group-hover:shadow-green-300/50 active:scale-95"
+                                                // onClick={() => handleSelectPackage(pkg)} 
+                                                >
+                                                    เลือกแพ็กเกจนี้
+                                                    <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                                                </button>
+                                            </div> */}
                                         </div>
                                     ))}
                                 </div>
@@ -821,28 +853,39 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 )}
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="flex flex-col gap-3 w-full">
+                                {/* 1. ปุ่มนัดเยี่ยมชม (Primary Action) - เน้นที่สุด */}
                                 <button
                                     onClick={() => {
                                         setIsConsultationModalOpen(true);
                                         gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
                                     }}
-                                    className="w-full flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white text-base font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-300/50 active:scale-[0.99] transform"
+                                    className="group w-full flex items-center justify-center px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-base font-bold rounded-xl shadow-lg shadow-blue-200 hover:shadow-xl hover:to-blue-700 transition-all duration-300 active:scale-[0.98]"
                                 >
-                                    <Calendar className="w-5 h-5 mr-2" /> นัดเยี่ยมชมศูนย์
+                                    <Calendar className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                                    นัดเยี่ยมชมศูนย์
                                 </button>
 
-                                {/* ✅ ปุ่ม Website พร้อม UTM */}
+                                {/* 2. ปุ่มติดต่อเจ้าหน้าที่ (Secondary Action) - เน้นรองลงมา */}
+                                <a
+                                    href={`tel:${center.phone || '098-193-8856'}`} // อัปเดตเบอร์สำรองตามข้อมูลในภาพ
+                                    className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-100 text-base font-bold rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 active:scale-[0.98]"
+                                >
+                                    <Phone className="w-5 h-5 mr-2" />
+                                    ติดต่อเจ้าหน้าที่
+                                </a>
+
+                                {/* 3. ปุ่มเว็บไซต์ (Tertiary Action) - ทางเลือกเพิ่มเติม */}
                                 {center.website && (
                                     <a
-                                        href={createOutboundLink(center.website!, 'sidebar_website_btn')}
+                                        href={createOutboundLink(center.website, 'sidebar_website_btn')}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={() => gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name })}
-                                        className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-xl hover:border-blue-500 hover:text-blue-700 transition-all active:scale-[0.99] transform"
+                                        className="w-full flex items-center justify-center px-4 py-3 text-gray-500 text-sm font-medium hover:text-blue-600 transition-colors duration-200"
                                     >
-                                        <Globe className="w-5 h-5 mr-2" /> เข้าชมเว็บไซต์
-
+                                        <Globe className="w-4 h-4 mr-2" />
+                                        เข้าชมเว็บไซต์
                                     </a>
                                 )}
                             </div>
