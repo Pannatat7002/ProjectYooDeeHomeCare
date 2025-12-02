@@ -120,7 +120,6 @@ export default function Footer() {
                             <li className="pt-2 border-t border-gray-800"><Link href="/project/wellness" className="hover:text-blue-400 transition-colors">โครงการ Wellness Center</Link></li>
                             <li><Link href="/project/homecare" className="hover:text-blue-400 transition-colors">โครงการ Home Care</Link></li>
                             <li><Link href="/investment" className="hover:text-blue-400 transition-colors">การลงทุน</Link></li>
-                            <li><Link href="/login" className="hover:text-blue-400 transition-colors">ระบบหลังบ้าน</Link></li>
                         </ul>
                     </div>
 
