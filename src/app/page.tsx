@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { Search, MapPin, Star, XCircle, ChevronRight, ArrowRight } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { CareCenter, Advertisement } from '../types';
 import * as gtag from '../lib/gtag';
 
-// รายชื่อจังหวัดทั้งหมดในประเทศไทย (คงเดิม)
+// รายชื่อจังหวัดทั้งหมดในประเทศไทย
 const THAI_PROVINCES = [
   'กรุงเทพมหานคร', 'กระบี่', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร', 'ขอนแก่น',
   'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี', 'ชัยนาท', 'ชัยภูมิ', 'ชุมพร',
@@ -23,7 +23,7 @@ const THAI_PROVINCES = [
   'อำนาจเจริญ', 'อุดรธานี', 'อุตรดิตถ์', 'อุทัยธานี', 'อุบลราชธานี'
 ];
 
-// --- Sub-Component for Center Card (เพื่อความสะอาดของโค้ด) ---
+// --- Sub-Component for Center Card ---
 interface CenterCardProps {
   center: CareCenter;
 }
@@ -34,11 +34,11 @@ const CenterCard: React.FC<CenterCardProps> = ({ center }) => {
   return (
     <Link
       href={`/${createSlug(center.name)}`}
-      className="block group"
+      className="block group h-full"
       onClick={() => gtag.event({ action: 'view_item_list', category: 'Discovery', label: center.name, center_id: center.id })}
     >
       <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
-        {/* 1. Image Section (คงเดิม) */}
+        {/* Image Section */}
         <div className="relative h-56 overflow-hidden">
           <img
             src={center.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
@@ -58,7 +58,6 @@ const CenterCard: React.FC<CenterCardProps> = ({ center }) => {
               กรม สบส.
             </div>
           )}
-          {/* Partner Status Badge (คงเดิม) */}
           <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1 ${center.isPartner ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
             {center.isPartner ? (
               <><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 11.82a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" /></svg>ผ่านการยืนยัน</>
@@ -68,7 +67,7 @@ const CenterCard: React.FC<CenterCardProps> = ({ center }) => {
           </div>
         </div>
 
-        {/* 2. Content Section (คงเดิม) */}
+        {/* Content Section */}
         <div className="p-5 flex-grow flex flex-col">
           <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">{center.name}</h3>
           <p className="text-gray-500 text-sm flex items-center mb-3">
@@ -83,7 +82,7 @@ const CenterCard: React.FC<CenterCardProps> = ({ center }) => {
             <span className="text-xs text-gray-400 ml-2 font-medium">{center.rating ? center.rating.toFixed(1) : '0.0'} (รีวิว)</span>
           </div>
 
-          {/* 3. Footer Section (Price & Action) (คงเดิม) */}
+          {/* Footer Section */}
           <div className="mt-auto pt-1 border-t border-gray-50 flex items-center justify-between">
             <div>
               <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
@@ -105,11 +104,63 @@ const CenterCard: React.FC<CenterCardProps> = ({ center }) => {
     </Link>
   );
 };
+
+// --- Helper Component: Scrollable Container with Arrows & Hidden Scrollbar ---
+const ScrollableContainer = ({ children, itemWidth = 320 }: { children: React.ReactNode, itemWidth?: number }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { current } = scrollRef;
+      const scrollAmount = itemWidth; // เลื่อนทีละ 1 การ์ด
+      if (direction === 'left') {
+        current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  };
+
+  return (
+    <div className="relative group/scroll">
+      {/* Inline Style to force Hide Scrollbar */}
+      <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      {/* Left Button - Always visible, responsive sizing */}
+      <button
+        onClick={() => scroll('left')}
+        className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 md:-ml-5 z-20 w-9 h-9 md:w-11 md:h-11 bg-white shadow-md rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 border border-gray-100 transition-transform active:scale-95"
+        aria-label="Scroll Left"
+      >
+        <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+      </button>
+
+      {/* Container */}
+      <div
+        ref={scrollRef}
+        className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scroll-smooth no-scrollbar -mx-4 px-4 md:mx-0 md:px-0"
+      >
+        {children}
+      </div>
+
+      {/* Right Button - Always visible, responsive sizing */}
+      <button
+        onClick={() => scroll('right')}
+        className="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 md:-mr-5 z-20 w-9 h-9 md:w-11 md:h-11 bg-white shadow-md rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 border border-gray-100 transition-transform active:scale-95"
+        aria-label="Scroll Right"
+      >
+        <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+      </button>
+    </div>
+  );
+};
+
 // -------------------------------------------------------------------
 
-
 export default function HomePage() {
-  // --- State and Logic --- (เพิ่ม showAll)
   const [centers, setCenters] = useState<CareCenter[]>([]);
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,10 +168,8 @@ export default function HomePage() {
   const [careType, setCareType] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [province, setProvince] = useState('all');
-  // State ใหม่สำหรับควบคุมการแสดงผลทั้งหมด
   const [showAll, setShowAll] = useState(false);
 
-  // --- Fetch Data --- (คงเดิม)
   useEffect(() => {
     const startTime = performance.now();
     fetch('/api/care-centers?status=visible')
@@ -141,7 +190,6 @@ export default function HomePage() {
       .catch(err => console.error("Fetch ads error:", err));
   }, []);
 
-  // --- Advanced Filtering Logic --- (คงเดิม)
   const filteredCenters = useMemo(() => {
     let result = centers;
     if (searchTerm) {
@@ -161,22 +209,17 @@ export default function HomePage() {
     return result;
   }, [searchTerm, careType, priceRange, province, centers]);
 
-  // --- NEW: Logic สำหรับศูนย์ดูแลแนะนำ (ต้องผ่านการยืนยัน isPartner: true) ---
   const recommendedCenters = useMemo(() => {
     return filteredCenters.filter(c => c.isPartner);
   }, [filteredCenters]);
 
-  // --- Logic สำหรับการแสดงผล "ทั้งหมด" ที่มีปุ่ม "ดูเพิ่มเติม" ---
   const displayedCenters = useMemo(() => {
     if (showAll) {
       return filteredCenters;
     }
-    // แสดงแค่ 9 รายการแรก
     return filteredCenters.slice(0, 9);
   }, [filteredCenters, showAll]);
 
-
-  // --- Popular Provinces Logic --- (คงเดิม)
   const popularProvinces = useMemo(() => {
     if (centers.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -191,7 +234,6 @@ export default function HomePage() {
       .map(([prov]) => prov);
   }, [centers]);
 
-  // --- Utility Functions --- (คงเดิม)
   const handleCareTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCareType(e.target.value);
     gtag.event({ action: 'filter_care_type', category: 'Engagement', label: e.target.value });
@@ -215,10 +257,9 @@ export default function HomePage() {
   };
 
 
-  // --- Render ---
   return (
     <div className="min-h-screen bg-gray-50/50">
-      {/* 💡 Hero Section (คงเดิม) */}
+      {/* Hero Section */}
       <div
         className="relative pt-16 pb-20 px-4 bg-cover bg-center"
         style={{
@@ -237,7 +278,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Search Bar Modern Style (คงเดิม) */}
           <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-sm p-3 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20">
             <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-grow relative">
@@ -251,7 +291,6 @@ export default function HomePage() {
                   onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
                 />
               </div>
-              {/* Mobile Filters (คงเดิม) */}
               <div className="flex md:hidden gap-2">
                 <select className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm" value={province} onChange={handleProvinceChange}>
                   <option value="all">ทุกจังหวัด</option>{THAI_PROVINCES.map(prov => (<option key={prov} value={prov}>{prov}</option>))}</select>
@@ -260,7 +299,6 @@ export default function HomePage() {
                 <select className="w-1/3 px-2 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 font-medium text-sm" value={priceRange} onChange={handlePriceChange}>
                   <option value="all">ทุกราคา</option><option value="0-20000">&lt; 20k</option><option value="20001-25000">20k-25k</option><option value="25001-999999">&gt; 25k</option></select>
               </div>
-              {/* Filters Dropdown (Desktop) (คงเดิม) */}
               <div className="hidden md:flex gap-2">
                 <select className="px-4 py-3 bg-gray-50/50 border-none rounded-2xl text-gray-700 focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:bg-gray-100 transition-colors font-medium" value={province} onChange={handleProvinceChange}>
                   <option value="all">ทุกจังหวัด</option>{THAI_PROVINCES.map(prov => (<option key={prov} value={prov}>{prov}</option>))}</select>
@@ -275,7 +313,6 @@ export default function HomePage() {
               >ค้นหา</button>
             </div>
 
-            {/* Quick Select - จังหวัดยอดนิยม (คงเดิม) */}
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <span className="text-gray-500 text-sm font-medium mr-1">จังหวัดยอดนิยม:</span>
               {popularProvinces.length > 0 ? popularProvinces.map((prov) => (
@@ -299,16 +336,23 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 🌟 Ads Section (ประชาสัมพันธ์) (คงเดิม) */}
+      {/* 🌟 Ads Section (ประชาสัมพันธ์) */}
       {ads.length > 0 && (
         <div className="border-b border-gray-100 py-8">
           <div className="container max-w-6xl mx-auto px-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
               <span className="bg-blue-600 w-1.5 h-6 rounded-full mr-3"></span>ประชาสัมพันธ์
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ads.map(ad => (
-                <a key={ad.id} href={ad.linkUrl || '#'} target="_blank" rel="noreferrer" className="group block bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300">
+
+            <ScrollableContainer itemWidth={350}>
+              {ads.map((ad) => (
+                <a
+                  key={ad.id}
+                  href={ad.linkUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group relative flex-shrink-0 w-[85vw] md:w-[350px] bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 snap-center h-full"
+                >
                   <div className="aspect-[21/9] overflow-hidden relative">
                     <img
                       src={ad.imageUrl}
@@ -320,13 +364,21 @@ export default function HomePage() {
                   </div>
                   {(ad.title || ad.description) && (
                     <div className="p-4">
-                      {ad.title && <h3 className="font-bold text-gray-800 group-hover:text-blue-600 transition-colors mb-1">{ad.title}</h3>}
-                      {ad.description && <p className="text-sm text-gray-500 line-clamp-2">{ad.description}</p>}
+                      {ad.title && (
+                        <h3 className="font-bold text-gray-800 group-hover:text-blue-600 transition-colors mb-1 truncate">
+                          {ad.title}
+                        </h3>
+                      )}
+                      {ad.description && (
+                        <p className="text-sm text-gray-500 line-clamp-2">
+                          {ad.description}
+                        </p>
+                      )}
                     </div>
                   )}
                 </a>
               ))}
-            </div>
+            </ScrollableContainer>
           </div>
         </div>
       )}
@@ -339,7 +391,7 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            {/* 1. ส่วน: ศูนย์ดูแลแนะนำ (Recommended Centers - isPartner: true) */}
+            {/* 1. ส่วน: ศูนย์ดูแลแนะนำ */}
             {recommendedCenters.length > 0 && (
               <section className="mb-12">
                 <div className="flex justify-between items-end mb-6">
@@ -354,31 +406,28 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Slider / Carousel UI (ใช้ Tailwind CSS Overflow Scrolling) */}
-                <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 hide-scrollbar">
+                <ScrollableContainer itemWidth={336}>
                   {recommendedCenters.map(center => (
-                    <div key={center.id} className="flex-shrink-0 w-80 md:w-96">
+                    <div key={center.id} className="flex-shrink-0 w-80 snap-center h-auto">
                       <CenterCard center={center} />
                     </div>
                   ))}
                   {recommendedCenters.length > 3 && (
-                    <div className="flex-shrink-0 w-32 flex items-center justify-center">
+                    <div className="flex-shrink-0 w-32 flex items-center justify-center snap-center">
                       <button className="flex items-center text-blue-600 font-bold hover:text-blue-700 transition-colors whitespace-nowrap">
                         ดูทั้งหมด <ChevronRight className="w-5 h-5 ml-1" />
                       </button>
                     </div>
                   )}
-                </div>
-                <div className="text-right text-xs text-gray-400 mt-2">
-                  *เลื่อนเพื่อดูศูนย์แนะนำเพิ่มเติม
-                </div>
+                </ScrollableContainer>
+
               </section>
             )}
 
-            <div className="border-t border-gray-100 my-8"></div>
+            {/* <div className="border-t border-gray-100 my-8"></div> */}
 
 
-            {/* 2. ส่วน: ทั้งหมด (All Centers - จากการกรองทั้งหมด) */}
+            {/* 2. ส่วน: ทั้งหมด */}
             <section>
               <div className="flex justify-between items-end mb-6">
                 <div>
@@ -400,7 +449,6 @@ export default function HomePage() {
                     ))}
                   </div>
 
-                  {/* ปุ่ม "ดูเพิ่มเติม" (แสดงเมื่อมีมากกว่า 9 แห่ง และยังไม่ได้กด) */}
                   {filteredCenters.length > 9 && !showAll && (
                     <div className="text-center mt-8">
                       <button
@@ -415,13 +463,12 @@ export default function HomePage() {
                     </div>
                   )}
 
-                  {/* ปุ่ม "ย่อ" (แสดงเมื่อกดดูทั้งหมดแล้ว) */}
                   {showAll && (
                     <div className="text-center mt-8">
                       <button
                         onClick={() => {
                           setShowAll(false);
-                          scrollToResults(); // เลื่อนกลับไปด้านบน
+                          scrollToResults();
                         }}
                         className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                       >
@@ -431,7 +478,6 @@ export default function HomePage() {
                   )}
                 </>
               ) : (
-                // No Results (คงเดิม)
                 <div className="text-center py-16 bg-white rounded-xl shadow-lg border border-gray-100 mt-8">
                   <div className="text-gray-300 mb-4"><Search className="h-16 w-16 mx-auto opacity-50" /></div>
                   <h3 className="text-xl font-semibold text-gray-700">ไม่พบข้อมูลศูนย์ดูแล</h3>

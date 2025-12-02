@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import {
     Plus, FilePenLine, Trash2, ChevronLeft, ChevronRight,
-    X, Save, ImageIcon, XCircle, Megaphone, Filter, Search
+    X, Save, ImageIcon, XCircle, Megaphone, Filter, Search, RotateCcw
 } from 'lucide-react';
 import { CareCenter, Package } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
@@ -19,7 +20,7 @@ const INITIAL_FORM_STATE: any = {
 };
 
 const THAI_PROVINCES = [
-    'ทั้งหมด', // ตัวเลือกสำหรับแสดงทั้งหมด
+    'ทั้งหมด',
     'กรุงเทพมหานคร', 'กระบี่', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร', 'ขอนแก่น',
     'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี', 'ชัยนาท', 'ชัยภูมิ', 'ชุมพร',
     'เชียงราย', 'เชียงใหม่', 'ตรัง', 'ตราด', 'ตาก', 'นครนายก',
@@ -40,7 +41,6 @@ const MASTER_SERVICES = [
     'ห้องพักส่วนตัว', 'Wi-Fi', 'บริการซักรีด', 'สวนหย่อม', 'ใกล้โรงพยาบาล', 'ดูแลผู้ป่วยอัลไซเมอร์'
 ];
 
-// ตัวเลือก Medium มาตรฐาน
 const MEDIUM_OPTIONS = [
     { value: 'cpc', label: 'CPC / Paid Ads (โฆษณาเสียเงิน)' },
     { value: 'social', label: 'Social Media (โพสต์โซเชียล)' },
@@ -53,12 +53,6 @@ const MEDIUM_OPTIONS = [
     { value: 'blog', label: 'Blog / Content (บทความ)' },
 ];
 
-/**
- * ฟังก์ชันช่วยจำกัดความยาวของข้อความและเพิ่ม '...'
- * @param {string} text - ข้อความต้นฉบับ
- * @param {number} maxLength - ความยาวสูงสุดที่ต้องการ
- * @returns {string} ข้อความที่ถูกตัด
- */
 const truncateText = (text: string, maxLength: number): string => {
     if (!text) return '';
     if (text.length <= maxLength) {
@@ -66,7 +60,6 @@ const truncateText = (text: string, maxLength: number): string => {
     }
     return text.substring(0, maxLength) + '...';
 };
-
 
 export default function ManageCenterPage() {
     const [centers, setCenters] = useState<CareCenter[]>([]);
@@ -76,8 +69,13 @@ export default function ManageCenterPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+
+    // --- State สำหรับตัวกรองต่างๆ ---
+    const [searchTerm, setSearchTerm] = useState<string>('');
     const [filterProvince, setFilterProvince] = useState<string>('ทั้งหมด');
-    const [searchTerm, setSearchTerm] = useState<string>(''); // 1. State สำหรับช่องค้นหา
+    const [filterStatus, setFilterStatus] = useState<string>('all'); // กรองสถานะ
+    const [filterType, setFilterType] = useState<string>('all');   // กรองประเภท (รายวัน/เดือน)
+    const [filterPartner, setFilterPartner] = useState<string>('all'); // กรองพาร์ทเนอร์
 
     const fetchCenters = async () => {
         setIsLoading(true);
@@ -101,42 +99,62 @@ export default function ManageCenterPage() {
         fetchCenters();
     }, []);
 
-    // 2. ปรับปรุง useMemo สำหรับการกรองและการค้นหา
+    // --- Logic การกรองแบบรวมศูนย์ ---
     const filteredCenters = useMemo(() => {
         let currentCenters = centers;
         const lowerCaseSearch = searchTerm.toLowerCase().trim();
 
-        // 2.1 กรองตามจังหวัด
+        // 1. กรองตามจังหวัด
         if (filterProvince !== 'ทั้งหมด') {
             currentCenters = currentCenters.filter(center => center.province === filterProvince);
         }
 
-        // 2.2 กรองตามข้อความค้นหา (ชื่อศูนย์ดูแล หรือ จังหวัด)
+        // 2. กรองตามสถานะ (Status)
+        if (filterStatus !== 'all') {
+            currentCenters = currentCenters.filter(center => center.status === filterStatus);
+        }
+
+        // 3. กรองตามประเภท (Type)
+        if (filterType !== 'all') {
+            currentCenters = currentCenters.filter(center => {
+                // ถ้าเลือกรายเดือน ต้องเจอ monthly หรือ both
+                if (filterType === 'monthly') return center.type === 'monthly' || center.type === 'both';
+                // ถ้าเลือกรายวัน ต้องเจอ daily หรือ both
+                if (filterType === 'daily') return center.type === 'daily' || center.type === 'both';
+                return true;
+            });
+        }
+
+        // 4. กรองตามพาร์ทเนอร์ (Partner)
+        if (filterPartner !== 'all') {
+            const isPartnerBool = filterPartner === 'true';
+            currentCenters = currentCenters.filter(center => center.isPartner === isPartnerBool);
+        }
+
+        // 5. กรองตามข้อความค้นหา (Search)
         if (lowerCaseSearch) {
             currentCenters = currentCenters.filter(center =>
                 center.name.toLowerCase().includes(lowerCaseSearch) ||
-                (center.province && center.province.toLowerCase().includes(lowerCaseSearch))
+                (center.province && center.province.toLowerCase().includes(lowerCaseSearch)) ||
+                (center.utmSource && center.utmSource.toLowerCase().includes(lowerCaseSearch))
             );
         }
 
         return currentCenters;
-    }, [centers, filterProvince, searchTerm]);
+    }, [centers, filterProvince, searchTerm, filterStatus, filterType, filterPartner]);
 
-    // 3. ปรับการแบ่งหน้า
     const totalPages = Math.ceil(filteredCenters.length / itemsPerPage);
     const paginatedCenters = filteredCenters.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setFilterProvince(e.target.value);
-        setCurrentPage(1); // รีเซ็ตไปหน้าแรกเมื่อเปลี่ยนตัวกรอง
+    // --- Reset Function ---
+    const resetFilters = () => {
+        setSearchTerm('');
+        setFilterProvince('ทั้งหมด');
+        setFilterStatus('all');
+        setFilterType('all');
+        setFilterPartner('all');
+        setCurrentPage(1);
     };
-
-    // 4. Handler สำหรับช่องค้นหา
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1); // รีเซ็ตไปหน้าแรกเมื่อค้นหา
-    };
-
 
     const handleDelete = async (id: number) => {
         if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')) return;
@@ -196,7 +214,7 @@ export default function ManageCenterPage() {
         } catch (error) { console.error(error); alert('เกิดข้อผิดพลาดในการบันทึก'); }
     };
 
-    // ฟังก์ชันย่อยสำหรับจัดการฟอร์ม (คงเดิม)
+    // Helper functions for form
     const handleImageChange = (index: number, value: string) => {
         const newImages = [...formData.imageUrls];
         newImages[index] = value;
@@ -249,56 +267,100 @@ export default function ManageCenterPage() {
                 <h1 className="text-2xl font-bold text-gray-800">จัดการข้อมูลศูนย์ดูแล</h1>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full md:w-auto justify-center md:justify-start"
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full md:w-auto justify-center md:justify-start shadow-sm"
                 >
                     <Plus className="w-5 h-5 mr-2" /> เพิ่มศูนย์ดูแลใหม่
                 </button>
             </div>
 
-            {/* Filter and Controls Section (ปรับปรุงเพื่อเพิ่มช่องค้นหา) */}
-            <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center mb-4 space-y-3 md:space-y-0">
+            {/* --- Filter Bar Section --- */}
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div className="flex flex-col space-y-4">
 
-                {/* Search Input */}
-                <div className="relative w-full md:w-1/3 max-w-sm">
-                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                    <input
-                        type="text"
-                        placeholder="ค้นหาชื่อศูนย์ หรือจังหวัด..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="w-full border border-gray-300 rounded-md py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                </div>
-
-                {/* Province Filter & Count */}
-                <div className="flex items-center space-x-4 w-full md:w-auto">
-                    <div className="flex items-center space-x-2">
-                        <Filter className="w-5 h-5 text-gray-500" />
-                        <label htmlFor="province-filter" className="text-sm font-medium text-gray-700 sr-only md:not-sr-only">
-                            กรองตามจังหวัด:
-                        </label>
-                        <select
-                            id="province-filter"
-                            value={filterProvince}
-                            onChange={handleFilterChange}
-                            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 max-w-[200px]"
-                        >
-                            {THAI_PROVINCES.map(prov => (
-                                <option key={prov} value={prov}>{prov}</option>
-                            ))}
-                        </select>
+                    {/* Top Row: Search */}
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="relative flex-grow">
+                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                            <input
+                                type="text"
+                                placeholder="ค้นหาชื่อศูนย์, จังหวัด, หรือ Tracking Source..."
+                                value={searchTerm}
+                                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                                className="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                        </div>
                     </div>
 
-                    <span className="text-sm text-gray-500">
-                        รวม: **{filteredCenters.length}** รายการ
-                    </span>
+                    {/* Bottom Row: Filters */}
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center space-x-2">
+                            <Filter className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-700">ตัวกรอง:</span>
+                        </div>
+
+                        {/* Province Filter */}
+                        <select
+                            value={filterProvince}
+                            onChange={(e) => { setFilterProvince(e.target.value); setCurrentPage(1); }}
+                            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-blue-500 focus:border-blue-500 max-w-[160px]"
+                        >
+                            {THAI_PROVINCES.map(prov => (
+                                <option key={prov} value={prov}>{prov === 'ทั้งหมด' ? 'ทุกจังหวัด' : prov}</option>
+                            ))}
+                        </select>
+
+                        {/* Status Filter */}
+                        <select
+                            value={filterStatus}
+                            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+                            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="all">สถานะทั้งหมด</option>
+                            <option value="visible">เปิดแสดง (Visible)</option>
+                            <option value="hidden">ซ่อน (Hidden)</option>
+                            <option value="pending">รออนุมัติ (Pending)</option>
+                        </select>
+
+                        {/* Type Filter */}
+                        <select
+                            value={filterType}
+                            onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
+                            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="all">ประเภททั้งหมด</option>
+                            <option value="monthly">รายเดือน</option>
+                            <option value="daily">รายวัน</option>
+                        </select>
+
+                        {/* Partner Filter */}
+                        <select
+                            value={filterPartner}
+                            onChange={(e) => { setFilterPartner(e.target.value); setCurrentPage(1); }}
+                            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="all">พาร์ทเนอร์ทั้งหมด</option>
+                            <option value="true">เฉพาะพาร์ทเนอร์</option>
+                            <option value="false">ทั่วไป</option>
+                        </select>
+
+                        {/* Reset Button */}
+                        <button
+                            onClick={resetFilters}
+                            className="ml-auto md:ml-0 flex items-center px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                            title="ล้างตัวกรองทั้งหมด"
+                        >
+                            <RotateCcw className="w-3.5 h-3.5 mr-1" /> ล้างค่า
+                        </button>
+                    </div>
+
+                    <div className="text-right text-xs text-gray-500">
+                        พบข้อมูลทั้งหมด: <strong>{filteredCenters.length}</strong> รายการ
+                    </div>
                 </div>
             </div>
 
-            <hr className="mb-4" />
-
             {/* Table */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -306,30 +368,41 @@ export default function ManageCenterPage() {
                                 <th className="py-4 px-4 w-16 text-center">ลำดับ</th>
                                 <th className="py-4 px-4">ชื่อศูนย์ดูแล</th>
                                 <th className="py-4 px-4">จังหวัด</th>
+                                <th className="py-4 px-4">ประเภท</th>
                                 <th className="py-4 px-4">ราคา</th>
                                 <th className="py-4 px-4">สถานะ</th>
-                                <th className="py-4 px-4">Tracking (Source)</th>
+                                <th className="py-4 px-4">Tracking</th>
                                 <th className="py-4 px-4 text-center">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
-                                <tr><td colSpan={7} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                                <tr><td colSpan={8} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
                             ) : filteredCenters.length === 0 ? (
-                                <tr><td colSpan={7} className="py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>
+                                <tr><td colSpan={8} className="py-8 text-center text-gray-500">ไม่พบข้อมูลตามเงื่อนไขที่กำหนด</td></tr>
                             ) : (
                                 paginatedCenters.map((center: any, index) => (
                                     <tr key={center.id} className="hover:bg-gray-50 text-sm text-gray-700 transition-colors">
                                         <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                        <td className="py-3 px-4 font-semibold max-w-xs overflow-hidden whitespace-nowrap text-ellipsis" title={center.name}>
-                                            {truncateText(center.name, 40)}
+                                        <td className="py-3 px-4">
+                                            <div className="font-semibold text-gray-900 max-w-xs overflow-hidden whitespace-nowrap text-ellipsis" title={center.name}>
+                                                {truncateText(center.name, 35)}
+                                            </div>
+                                            {center.isPartner && (
+                                                <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 mt-1">
+                                                    Partner
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="py-3 px-4">{center.province || '-'}</td>
-                                        <td className="py-3 px-4">฿{center.price?.toLocaleString() ?? '0'}</td>
                                         <td className="py-3 px-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${center.status === 'visible' ? 'bg-green-100 text-green-800' :
-                                                center.status === 'hidden' ? 'bg-red-100 text-red-800' :
-                                                    'bg-yellow-100 text-yellow-800'
+                                            {center.type === 'both' ? 'ทั้งคู่' : center.type === 'daily' ? 'รายวัน' : 'รายเดือน'}
+                                        </td>
+                                        <td className="py-3 px-4 font-medium">฿{center.price?.toLocaleString() ?? '0'}</td>
+                                        <td className="py-3 px-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${center.status === 'visible' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                center.status === 'hidden' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                    'bg-yellow-50 text-yellow-700 border-yellow-200'
                                                 }`}>
                                                 {center.status === 'visible' ? 'เปิดการแสดง' :
                                                     center.status === 'hidden' ? 'ปิดการแสดง' : 'รอการอนุมัติ'}
@@ -337,17 +410,19 @@ export default function ManageCenterPage() {
                                         </td>
                                         <td className="py-3 px-4 text-xs text-gray-500">
                                             {center.utmSource ? (
-                                                <span className="bg-gray-100 px-2 py-1 rounded border">
-                                                    {truncateText(center.utmSource, 15)}
-                                                </span>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 w-fit" title={`Source: ${center.utmSource}`}>
+                                                        src: {truncateText(center.utmSource, 10)}
+                                                    </span>
+                                                </div>
                                             ) : '-'}
                                         </td>
                                         <td className="py-3 px-4 text-center space-x-2">
-                                            <button onClick={() => openModal(center)} className="text-blue-600 hover:text-blue-800">
-                                                <FilePenLine className="w-5 h-5" />
+                                            <button onClick={() => openModal(center)} className="text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 p-1.5 rounded-md">
+                                                <FilePenLine className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => handleDelete(center.id)} className="text-red-600 hover:text-red-800">
-                                                <Trash2 className="w-5 h-5" />
+                                            <button onClick={() => handleDelete(center.id)} className="text-red-600 hover:text-red-800 transition-colors bg-red-50 p-1.5 rounded-md">
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
                                         </td>
                                     </tr>
@@ -358,29 +433,29 @@ export default function ManageCenterPage() {
                 </div>
 
                 {totalPages > 1 && (
-                    <div className="flex justify-between items-center p-4 border-t text-sm text-gray-600">
+                    <div className="flex justify-between items-center p-4 border-t text-sm text-gray-600 bg-gray-50">
                         <span>หน้า {currentPage} จาก {totalPages}</span>
                         <div className="flex space-x-2">
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-1 border rounded hover:bg-gray-100 disabled:opacity-50"
+                                className="p-1.5 border rounded-md hover:bg-white disabled:opacity-50 disabled:hover:bg-transparent bg-white shadow-sm"
                             >
-                                <ChevronLeft className="w-5 h-5" />
+                                <ChevronLeft className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-1 border rounded hover:bg-gray-100 disabled:opacity-50"
+                                className="p-1.5 border rounded-md hover:bg-white disabled:opacity-50 disabled:hover:bg-transparent bg-white shadow-sm"
                             >
-                                <ChevronRight className="w-5 h-5" />
+                                <ChevronRight className="w-4 h-4" />
                             </button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Modal Form (ไม่เปลี่ยนแปลง) */}
+            {/* Modal Form */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -415,7 +490,6 @@ export default function ManageCenterPage() {
                                         </select>
                                     </div>
 
-                                    {/* ... (fields อื่นๆ เหมือนเดิม) ... */}
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
                                         <textarea required rows={2} className="w-full border rounded-md px-3 py-2"
@@ -614,7 +688,6 @@ export default function ManageCenterPage() {
                                                 onChange={e => setFormData({ ...formData, utmSource: e.target.value })} />
                                         </div>
                                         <div>
-                                            {/* เปลี่ยนเป็น Dropdown */}
                                             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">UTM Medium</label>
                                             <select
                                                 className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
