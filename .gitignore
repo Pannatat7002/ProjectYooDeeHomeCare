@@ -44,4 +44,5 @@ next-env.d.ts
 src/secrets.ts
 
 # ignore admin manage pages
-/src/app/admin/manage/
+/src/app/admin/
+/src/app/api/auth/
