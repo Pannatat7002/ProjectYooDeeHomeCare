@@ -157,11 +157,11 @@ export default function LoginPage() {
                 </form>
 
                 {/* Footer */}
-                <div className="mt-6 text-center">
+                {/* <div className="mt-6 text-center">
                     <p className="text-xs text-gray-500">
                         ระบบป้องกันด้วย JWT Authentication
                     </p>
-                </div>
+                </div> */}
             </div>
         </div>
     );
