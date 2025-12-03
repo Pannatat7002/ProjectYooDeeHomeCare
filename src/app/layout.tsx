@@ -66,11 +66,13 @@ export const metadata: Metadata = {
     // other: { me: ['my-email'], },
   },
 
-  // ** 5. Icons / Manifest **
+// ** 5. Icons / Manifest **
   icons: {
     icon: [
       { url: '/favicon_io/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon_io/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      // ✅ เพิ่มบรรทัดนี้: ให้ Google เห็นรูปใหญ่ชัดๆ ใน tag rel="icon"
+      { url: '/favicon_io/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
       { url: '/favicon_io/favicon.ico', sizes: 'any' }
     ],
     shortcut: '/favicon_io/favicon.ico',
