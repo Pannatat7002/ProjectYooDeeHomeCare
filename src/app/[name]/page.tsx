@@ -868,11 +868,11 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
 
                                 {/* 2. ปุ่มติดต่อเจ้าหน้าที่ (Secondary Action) - เน้นรองลงมา */}
                                 <a
-                                    href={`tel:${center.phone || '098-193-8856'}`} // อัปเดตเบอร์สำรองตามข้อมูลในภาพ
+                                    href={`tel:${center.phone || '095-805-7052'}`} // อัปเดตเบอร์สำรองตามข้อมูลในภาพ
                                     className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-100 text-base font-bold rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 active:scale-[0.98]"
                                 >
                                     <Phone className="w-5 h-5 mr-2" />
-                                    ติดต่อเจ้าหน้าที่
+                                    ติดต่อเจ้าหน้าที่${center.phone || '095-805-7052'}
                                 </a>
 
                                 {/* 3. ปุ่มเว็บไซต์ (Tertiary Action) - ทางเลือกเพิ่มเติม */}
