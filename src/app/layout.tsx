@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next"; // เพิ่ม Viewport
 import { Sarabun } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { GA_TRACKING_ID } from "../lib/gtag";
+import { GA_TRACKING_ID, GOOGLE_ADS_ID } from "../lib/gtag";
 import { Analytics } from "@vercel/analytics/next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -62,11 +62,11 @@ export const metadata: Metadata = {
 
   // ** 4. Verification (สำหรับ GSC / Bing) **
   verification: {
-    google: 'นำรหัสจาก-google-search-console-มาใส่ที่นี่',
+    google: 'DUBlCRLJRX8u4ADzZFTczYaqelMwGbynT02BG1tpxuI',
     // other: { me: ['my-email'], },
   },
 
-// ** 5. Icons / Manifest **
+  // ** 5. Icons / Manifest **
   icons: {
     icon: [
       { url: '/favicon_io/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -159,6 +159,7 @@ export default function RootLayout({
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', '${GA_TRACKING_ID}');
+          ${GOOGLE_ADS_ID ? `gtag('config', '${GOOGLE_ADS_ID}');` : ''}
         `}
       </Script>
     </html>
