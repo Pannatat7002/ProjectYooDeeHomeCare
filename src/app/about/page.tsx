@@ -44,8 +44,8 @@ export default function AboutPage() {
                         </div>
                         <h2 className="text-2xl font-bold text-blue-900 mb-6 uppercase tracking-wider">วิสัยทัศน์ของเรา</h2>
                         <h3 className="text-3xl md:text-4xl font-medium text-slate-800 leading-snug mb-8">
-                            "มุ่งสู่การเป็นแพลตฟอร์มศูนย์กลางอันดับหนึ่งของไทย <br className="hidden md:block" />
-                            ที่สร้างมาตรฐานการดูแลที่<span className="text-blue-600">เท่าเทียม</span> และ <span className="text-blue-600">โปร่งใส</span>"
+                            มุ่งสู่การเป็นแพลตฟอร์มศูนย์กลางอันดับหนึ่งของไทย <br className="hidden md:block" />
+                            ที่สร้างมาตรฐานการดูแลที่<span className="text-blue-600">เท่าเทียม</span> และ <span className="text-blue-600">โปร่งใส</span>
                         </h3>
                         <div className="w-24 h-1 bg-blue-200 mx-auto rounded-full"></div>
                     </div>
@@ -68,7 +68,7 @@ export default function AboutPage() {
                             </div>
                             <h3 className="text-xl font-bold text-slate-800 mb-3">เพื่อผู้ใช้บริการ</h3>
                             <p className="text-slate-600 leading-relaxed">
-                                เป็นผู้ช่วยค้นหาสถานที่ดูแลที่ "ใช่" ที่สุด ตรงตามงบประมาณและทำเลที่ตั้ง ด้วยข้อมูลที่โปร่งใส
+                                เป็นผู้ช่วยค้นหาสถานที่ดูแลที่ ใช่ ที่สุด ตรงตามงบประมาณและทำเลที่ตั้ง ด้วยข้อมูลที่โปร่งใส
                             </p>
                         </div>
 
@@ -98,7 +98,7 @@ export default function AboutPage() {
             </div>
 
             {/* 4. Core Values: จุดแข็งของเรา (แยกออกมาให้เด่น) */}
-            <div className="py-20 bg-white">
+            {/* <div className="py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl font-bold text-slate-800 mb-4">ทำไมต้อง ThaiCareCenter?</h2>
@@ -122,7 +122,7 @@ export default function AboutPage() {
                         ))}
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* 5. Founder's Note: ทำเป็น Quote สวยๆ */}
             <div className="py-20 bg-blue-900 text-white relative">
@@ -136,14 +136,14 @@ export default function AboutPage() {
                                 แนวคิดผู้ก่อตั้ง
                             </h2>
                             <blockquote className="text-xl md:text-2xl font-light leading-relaxed mb-8 italic text-blue-100">
-                                "เราเริ่มต้นจากความเชื่อที่ว่า <br />
-                                <span className="text-white font-medium">'การค้นหาที่พักพิงให้คนที่เรารัก ไม่ควรเป็นเรื่องยากหรือต้องเสี่ยงดวง'"</span>
+                                เราเริ่มต้นจากความเชื่อที่ว่า <br />
+                                <span className="text-white font-medium">การค้นหาที่พักพิงให้คนที่เรารัก ไม่ควรเป็นเรื่องยากหรือต้องเสี่ยงดวง</span>
                             </blockquote>
 
                             <div className="space-y-4 text-blue-200 font-light leading-relaxed text-lg">
                                 <p>
-                                    เราจึงมุ่งมั่นสร้าง ThaiCareCenter เพื่อเป็น 'พื้นที่กลาง' ที่รวบรวมสถานดูแลมาตรฐานให้อยู่ในที่เดียวกัน
-                                    ความตั้งใจสูงสุดคือการสร้าง 'มาตรฐานเดียว' ให้กับวงการดูแลผู้สูงอายุไทย
+                                    เราจึงมุ่งมั่นสร้าง ThaiCareCenter เพื่อเป็น พื้นที่กลาง ที่รวบรวมสถานดูแลมาตรฐานให้อยู่ในที่เดียวกัน
+                                    ความตั้งใจสูงสุดคือการสร้าง มาตรฐานเดียว ให้กับวงการดูแลผู้สูงอายุไทย
                                 </p>
                                 <p>
                                     เพื่อให้โอกาสผู้ประกอบการทุกรายที่มีหัวใจบริการ ได้นำเสนอคุณภาพอย่างเท่าเทียม

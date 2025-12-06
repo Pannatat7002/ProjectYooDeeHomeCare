@@ -1,32 +1,58 @@
 import React from 'react';
 import Link from 'next/link';
-import { Activity, HeartPulse, Home, Clock, CheckCircle, ArrowRight } from 'lucide-react';
+import { Activity, HeartPulse, Home, Clock, CheckCircle, ArrowRight, TrendingUp, Briefcase, GraduationCap, Handshake, Megaphone, LayoutDashboard, Users, BarChart3, Store, CalendarCheck, Search, MessageSquare } from 'lucide-react';
 
 export default function ServicesPage() {
-    const services = [
+    // const services = [
+    //     {
+    //         icon: <Home className="w-10 h-10 text-blue-600" />, // ลดขนาด Icon
+    //         title: "ศูนย์ดูแลผู้สูงอายุรายเดือน",
+    //         description: "บริการดูแลแบบพักค้างคืนระยะยาว เหมาะสำหรับผู้ที่ต้องการการดูแลอย่างใกล้ชิดตลอด 24 ชั่วโมง", // ทำให้ Description สั้นลงเล็กน้อย
+    //         features: ["ห้องพักสะอาด ปลอดภัย", "อาหาร 3 มื้อ + อาหารว่าง", "พยาบาลวิชาชีพดูแล"] // จำกัด Features ที่แสดงใน List
+    //     },
+    //     {
+    //         icon: <Clock className="w-10 h-10 text-blue-600" />,
+    //         title: "ศูนย์ดูแลระหว่างวัน (Day Care)",
+    //         description: "บริการดูแลแบบเช้าไปเย็นกลับ เหมาะสำหรับบุตรหลานที่ทำงาน และต้องการให้ผู้สูงอายุมีสังคมและกิจกรรมทำ",
+    //         features: ["กิจกรรมฝึกสมอง", "กายภาพบำบัดเบื้องต้น", "อาหารกลางวันและอาหารว่าง"]
+    //     },
+    //     {
+    //         icon: <HeartPulse className="w-10 h-10 text-blue-600" />,
+    //         title: "ดูแลผู้ป่วยระยะพักฟื้น",
+    //         description: "บริการดูแลผู้ป่วยหลังผ่าตัด หรือผู้ป่วยโรคหลอดเลือดสมองที่ต้องการการฟื้นฟูสมรรถภาพทางร่างกายอย่างเข้มข้น",
+    //         features: ["กายภาพบำบัดโดยผู้เชี่ยวชาญ", "ดูแลแผลกดทับ", "ติดตามอาการใกล้ชิด"]
+    //     },
+    //     {
+    //         icon: <Activity className="w-10 h-10 text-blue-600" />,
+    //         title: "บริการจัดส่งผู้ดูแลตามบ้าน",
+    //         description: "บริการส่งพนักงานดูแลผู้สูงอายุหรือผู้ป่วยไปดูแลที่บ้านของท่าน ทั้งแบบรายวันและรายเดือนเพื่อความสะดวกสบาย",
+    //         features: ["ผู้ดูแลผ่านการอบรม", "เปลี่ยนตัวผู้ดูแลได้", "มีทีมพยาบาลให้คำปรึกษา"]
+    //     }
+    // ];
+    const b2bPlatformServices = [
         {
-            icon: <Home className="w-10 h-10 text-blue-600" />, // ลดขนาด Icon
-            title: "ศูนย์ดูแลผู้สูงอายุรายเดือน",
-            description: "บริการดูแลแบบพักค้างคืนระยะยาว เหมาะสำหรับผู้ที่ต้องการการดูแลอย่างใกล้ชิดตลอด 24 ชั่วโมง", // ทำให้ Description สั้นลงเล็กน้อย
-            features: ["ห้องพักสะอาด ปลอดภัย", "อาหาร 3 มื้อ + อาหารว่าง", "พยาบาลวิชาชีพดูแล"] // จำกัด Features ที่แสดงใน List
+            icon: <Store className="w-10 h-10 text-blue-600" />,
+            title: "สร้างหน้าร้านออนไลน์ (Premium Profile)",
+            description: "เปลี่ยนจากการมีชื่อแค่ในลิสต์ เป็น 'มินิเว็บไซต์' ส่วนตัวที่สวยงาม น่าเชื่อถือ ดึงดูดลูกค้าให้อยากคลิกเข้ามาดู",
+            features: ["อัปโหลดรูปภาพและวิดีโอ 360°", "แสดงรีวิวและคะแนนจากผู้ใช้จริง", "ปุ่ม Call-to-Action (โทร/ไลน์) ที่ชัดเจน"]
         },
         {
-            icon: <Clock className="w-10 h-10 text-blue-600" />,
-            title: "ศูนย์ดูแลระหว่างวัน (Day Care)",
-            description: "บริการดูแลแบบเช้าไปเย็นกลับ เหมาะสำหรับบุตรหลานที่ทำงาน และต้องการให้ผู้สูงอายุมีสังคมและกิจกรรมทำ",
-            features: ["กิจกรรมฝึกสมอง", "กายภาพบำบัดเบื้องต้น", "อาหารกลางวันและอาหารว่าง"]
+            icon: <CalendarCheck className="w-10 h-10 text-blue-600" />,
+            title: "ระบบนัดหมายเยี่ยมชม (Smart Booking)",
+            description: "ไม่ต้องคอยตอบแชทเพื่อนัดเวลา ระบบจัดการตารางเยี่ยมชมศูนย์ให้อัตโนมัติ 24 ชม. ไม่พลาดลูกค้าแม้ตอนคุณหลับ",
+            features: ["ซิงค์ปฏิทิน Real-time ลดการจองซ้อน", "ระบบแจ้งเตือน SMS/Email ก่อนถึงวันนัด", "เจ้าของกดยืนยันหรือเลื่อนนัดได้ง่าย"]
         },
         {
-            icon: <HeartPulse className="w-10 h-10 text-blue-600" />,
-            title: "ดูแลผู้ป่วยระยะพักฟื้น",
-            description: "บริการดูแลผู้ป่วยหลังผ่าตัด หรือผู้ป่วยโรคหลอดเลือดสมองที่ต้องการการฟื้นฟูสมรรถภาพทางร่างกายอย่างเข้มข้น",
-            features: ["กายภาพบำบัดโดยผู้เชี่ยวชาญ", "ดูแลแผลกดทับ", "ติดตามอาการใกล้ชิด"]
+            icon: <Search className="w-10 h-10 text-blue-600" />,
+            title: "ดันอันดับการค้นหา (Local SEO Booster)",
+            description: "ทำให้ศูนย์ของคุณอยู่อันดับต้นๆ บน Google เมื่อมีคนค้นหาคำว่า 'ศูนย์ดูแลผู้สูงอายุ' ในพื้นที่ใกล้เคียงคุณ",
+            features: ["ปรับแต่ง Keyword เฉพาะพื้นที่", "เพิ่มโอกาสติด Google Maps", "บทความแนะนำศูนย์ฯ ลงใน Blog ของเว็บ"]
         },
         {
-            icon: <Activity className="w-10 h-10 text-blue-600" />,
-            title: "บริการจัดส่งผู้ดูแลตามบ้าน",
-            description: "บริการส่งพนักงานดูแลผู้สูงอายุหรือผู้ป่วยไปดูแลที่บ้านของท่าน ทั้งแบบรายวันและรายเดือนเพื่อความสะดวกสบาย",
-            features: ["ผู้ดูแลผ่านการอบรม", "เปลี่ยนตัวผู้ดูแลได้", "มีทีมพยาบาลให้คำปรึกษา"]
+            icon: <MessageSquare className="w-10 h-10 text-blue-600" />,
+            title: "ระบบคัดกรองลูกค้า (Lead Qualification)",
+            description: "ช่วยสแกนลูกค้าเบื้องต้น ส่งเฉพาะลูกค้าที่มี 'ความต้องการจริง' และ 'งบประมาณตรงกัน' ให้คุณ เพื่อไม่ให้เสียเวลา",
+            features: ["ฟอร์มสอบถามอาการและงบประมาณ", "Dashboard จัดการสถานะลูกค้า", "แจ้งเตือนทันทีเมื่อมี Lead ใหม่เข้า"]
         }
     ];
 
@@ -53,7 +79,7 @@ export default function ServicesPage() {
                 {/* Services Grid - ปรับให้กระชับ */}
                 <div className="py-12 container mx-auto px-4"> {/* ลด py-16 เป็น py-12 */}
                     <div className="grid md:grid-cols-2 gap-6"> {/* ลด gap-8 เป็น gap-6 */}
-                        {services.map((service, index) => (
+                        {b2bPlatformServices.map((service, index) => (
                             <div key={index} className="bg-white rounded-xl p-6 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
                                 <div className="mb-4 bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center"> {/* ลดขนาดกล่อง icon และ mb */}
                                     {service.icon}
