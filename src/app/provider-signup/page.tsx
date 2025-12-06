@@ -251,7 +251,7 @@ export default function ProviderSignupPage() {
                             <div
                                 className="absolute inset-0 bg-cover bg-center"
                                 style={{
-                                    backgroundImage: 'url("/images/bg-home.jpg")',
+                                    backgroundImage: 'url("/images/hero-background.jpg")',
                                     backgroundPosition: 'center 40%',
                                 }}
                             ></div>
