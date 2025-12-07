@@ -491,6 +491,7 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                 setSubmitStatus('success');
                 // ไม่ต้อง alert() และไม่ต้อง reset form ทันที
                 gtag.event({ action: 'submit_form_success', category: 'Conversion', label: center?.name || 'Unknown' });
+                gtag.gtagReportConversion();
 
                 // ✅ ตั้งเวลาปิด Modal อัตโนมัติหลังแสดงหน้า Success 3 วินาที
                 setTimeout(() => {

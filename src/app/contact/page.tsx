@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { gtagReportConversion } from '../../lib/gtag';
 
 
 export default function ContactPage() {
@@ -28,6 +29,8 @@ export default function ContactPage() {
             if (res.ok) {
                 alert('ขอบคุณสำหรับข้อความ เราจะติดต่อกลับโดยเร็วที่สุด');
                 setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+                // Track Conversion
+                gtagReportConversion();
             } else {
                 alert('เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้ง');
             }

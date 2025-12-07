@@ -28,3 +28,13 @@ export const event = ({ action, category, label, value, ...customParameters }: G
         });
     }
 };
+
+// Event snippet for การซื้อ conversion page
+export const gtagReportConversion = (transactionId: string = '') => {
+    if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'conversion', {
+            'send_to': `${GOOGLE_ADS_ID}/bJIsCJHmmMwbEJOWqIUD`,
+            'transaction_id': transactionId
+        });
+    }
+};
