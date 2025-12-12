@@ -32,6 +32,8 @@ export interface CareCenter {
 }
 
 export interface Blog {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    isNew: any;
     id: number;
     title: string;
     slug: string;
@@ -43,6 +45,8 @@ export interface Blog {
     updatedAt: string;
     tags: string[];
     isPublished: boolean;
+    isRecent?: boolean;
+    isFeatured?: boolean;
 }
 
 export interface Consultation {

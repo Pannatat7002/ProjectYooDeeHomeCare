@@ -56,6 +56,7 @@ export default function Header() {
                         <Link href="/about" className="text-gray-900 hover:text-blue-600 transition-colors">เกี่ยวกับเรา</Link>
                         <Link href="/services" className="text-gray-900 hover:text-blue-600 transition-colors">บริการของเรา</Link>
                         <Link href="/contact" className="text-gray-900 hover:text-blue-600 transition-colors">ติดต่อเรา</Link>
+                        <Link href="/blogs" className="text-gray-900 hover:text-blue-600 transition-colors">บทความ</Link>
                         {/* เพิ่มลิงก์ 'สมัครเป็นผู้ให้บริการ' ในเมนูหลัก (Desktop) */}
                         <Link href="/provider-signup" className="text-gray-900 hover:text-blue-600 transition-colors">สมัครเป็นผู้ให้บริการ</Link>
                     </nav>
@@ -118,6 +119,13 @@ export default function Header() {
                                 onClick={toggleMobileMenu}
                             >
                                 ติดต่อเรา
+                            </Link>
+                            <Link
+                                href="/blogs"
+                                className="text-gray-900 hover:text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-50 transition-all"
+                                onClick={toggleMobileMenu}
+                            >
+                                บทความ
                             </Link>
                             {/* แก้ไข/เพิ่มลิงก์ให้ชัดเจนและถูกต้องตามชื่อ */}
                             <Link

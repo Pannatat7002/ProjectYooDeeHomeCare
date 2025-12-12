@@ -8,7 +8,7 @@ const slugify = (text: string) => {
         .toString()
         .toLowerCase()
         .replace(/\s+/g, '-')           // Replace spaces with -
-        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+        .replace(/[^\w\-\u0E00-\u0E7F]+/g, '')       // Keep word chars, -, and Thai chars
         .replace(/\-\-+/g, '-')         // Replace multiple - with single -
         .replace(/^-+/, '')             // Trim - from start of text
         .replace(/-+$/, '');            // Trim - from end of text
@@ -18,10 +18,29 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     let blogs = await getBlogs();
 
+    // Debug logging
+    console.log(`API /blogs accessed. Total blogs found: ${blogs.length}`);
+    if (blogs.length > 0) {
+        console.log('Sample blog isPublished value:', blogs[0].isPublished, 'Type:', typeof blogs[0].isPublished);
+    }
+
     // Filter by published status if needed (e.g. ?published=true)
     const published = searchParams.get('published');
+
     if (published === 'true') {
-        blogs = blogs.filter((b: any) => b.isPublished === true);
+        const initialCount = blogs.length;
+        blogs = blogs.filter((b: any) => {
+            const val = b.isPublished;
+            // Check for various truthy representations
+            const isValid = val === true || val === 'true' || val === 'TRUE' || val === 1 || val === '1';
+
+            // Log if a blog is being filtered out (optional, for debugging mostly)
+            if (!isValid) {
+                console.log(`Blog ID ${b.id} filtered out. isPublished: ${val} (Type: ${typeof val})`);
+            }
+            return isValid;
+        });
+        console.log(`API /blogs filtered (published=true). Result count: ${blogs.length} (from ${initialCount})`);
     }
 
     // Sort by date desc

@@ -32,10 +32,29 @@ export async function PUT(
             const index = blogs.findIndex((b: any) => b.id === blogId);
 
             if (index !== -1) {
+                // Determine new slug
+                let newSlug = body.slug;
+                if (!newSlug || newSlug.trim() === '') {
+                    newSlug = blogs[index].slug;
+                }
+
+                // Check uniqueness if slug changed
+                if (newSlug !== blogs[index].slug) {
+                    let uniqueSlug = newSlug;
+                    let counter = 1;
+                    // Check against ALL OTHER blogs (excluding self)
+                    while (blogs.some((b: any) => b.id !== blogId && b.slug === uniqueSlug)) {
+                        uniqueSlug = `${newSlug}-${counter}`;
+                        counter++;
+                    }
+                    newSlug = uniqueSlug;
+                }
+
                 blogs[index] = {
                     ...blogs[index],
                     ...body,
                     id: blogId, // Ensure ID doesn't change
+                    slug: newSlug,
                     updatedAt: new Date().toISOString(),
                 };
                 await saveBlogs(blogs);
