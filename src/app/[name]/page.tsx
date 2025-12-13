@@ -730,9 +730,10 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                     <div className="lg:col-span-2 space-y-12">
                         <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                             <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">เกี่ยวกับศูนย์ดูแล</h2>
-                            <p className="text-gray-700 leading-relaxed text-base whitespace-pre-line">
-                                {center.description}
-                            </p>
+                            <div
+                                className="prose max-w-none text-gray-700 leading-relaxed text-base"
+                                dangerouslySetInnerHTML={{ __html: center.description }}
+                            />
                         </section>
                         <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                             <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">สิ่งอำนวยความสะดวกและบริการ</h2>

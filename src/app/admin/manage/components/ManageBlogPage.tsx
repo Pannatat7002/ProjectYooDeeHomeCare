@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Blog } from '@/src/types';
 import { fetchWithAuth } from '@/src/lib/auth-client';
+import RichTextEditor from '@/src/components/RichTextEditor';
 
 const INITIAL_FORM_STATE = {
     title: '',
@@ -110,8 +111,8 @@ export default function ManageBlogPage() {
     };
 
     const filteredBlogs = blogs.filter(blog =>
-        blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        blog.author.toLowerCase().includes(searchTerm.toLowerCase())
+        (blog.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (blog.author || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -171,8 +172,8 @@ export default function ManageBlogPage() {
                             ) : filteredBlogs.length === 0 ? (
                                 <tr><td colSpan={7} className="py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>
                             ) : (
-                                filteredBlogs.map((blog) => (
-                                    <tr key={blog.id} className="hover:bg-gray-50 text-sm text-gray-700 transition-colors">
+                                filteredBlogs.map((blog, index) => (
+                                    <tr key={blog.id || `blog-${index}`} className="hover:bg-gray-50 text-sm text-gray-700 transition-colors">
                                         <td className="py-3 px-4 text-center">{blog.id}</td>
                                         <td className="py-3 px-4">
                                             <div className="w-12 h-12 bg-gray-200 rounded overflow-hidden">
@@ -189,8 +190,8 @@ export default function ManageBlogPage() {
                                         <td className="py-3 px-4">{blog.author}</td>
                                         <td className="py-3 px-4">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium border ${blog.isPublished
-                                                    ? 'bg-green-50 text-green-700 border-green-200'
-                                                    : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                                ? 'bg-green-50 text-green-700 border-green-200'
+                                                : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                                                 }`}>
                                                 {blog.isPublished ? 'เผยแพร่' : 'ซ่อน'}
                                             </span>
@@ -283,12 +284,10 @@ export default function ManageBlogPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">เนื้อหาบทความ (รองรับ HTML เบื้องต้น)</label>
-                                    <textarea
-                                        required
-                                        rows={10}
-                                        className="w-full border rounded-md px-3 py-2 font-mono text-sm"
+                                    <RichTextEditor
                                         value={formData.content}
-                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                        onChange={(content) => setFormData({ ...formData, content })}
+                                        placeholder="เขียนเนื้อหาบทความที่นี่..."
                                     />
                                 </div>
 

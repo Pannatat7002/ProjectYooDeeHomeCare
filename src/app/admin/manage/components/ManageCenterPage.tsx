@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { CareCenter, Package } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
+import RichTextEditor from '@/src/components/RichTextEditor';
 
 const INITIAL_FORM_STATE: any = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
@@ -545,8 +546,11 @@ export default function ManageCenterPage() {
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">รายละเอียด/คำอธิบาย</label>
-                                        <textarea rows={5} className="w-full border rounded-md px-3 py-2"
-                                            value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                                        <RichTextEditor
+                                            value={formData.description}
+                                            onChange={(content) => setFormData({ ...formData, description: content })}
+                                            placeholder="เขียนรายละเอียดศูนย์ดูแลที่นี่..."
+                                        />
                                     </div>
                                     <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
