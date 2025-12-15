@@ -58,7 +58,7 @@ export default function Header() {
                         <Link href="/about" className="text-gray-700 hover:text-blue-600 transition-colors">เกี่ยวกับเรา</Link>
                         <Link href="/services" className="text-gray-700 hover:text-blue-600 transition-colors">บริการของเรา</Link>
                         <Link href="/contact" className="text-gray-700 hover:text-blue-600 transition-colors">ติดต่อเรา</Link>
-                        <Link href="/blogs" className="text-gray-700 hover:text-blue-600 transition-colors">บทความ</Link>
+                        {/* <Link href="/blogs" className="text-gray-700 hover:text-blue-600 transition-colors">บทความ</Link> */}
                         <Link href="/provider-signup" className="text-gray-700 hover:text-blue-600 transition-colors">สมัครเป็นผู้ให้บริการ</Link>
                     </nav>
 
@@ -100,7 +100,7 @@ export default function Header() {
                             <Link href="/about" className={mobileLinkClasses} onClick={toggleMobileMenu}>เกี่ยวกับเรา</Link>
                             <Link href="/services" className={mobileLinkClasses} onClick={toggleMobileMenu}>บริการของเรา</Link>
                             <Link href="/contact" className={mobileLinkClasses} onClick={toggleMobileMenu}>ติดต่อเรา</Link>
-                            <Link href="/blogs" className={mobileLinkClasses} onClick={toggleMobileMenu}>บทความ</Link>
+                            {/* <Link href="/blogs" className={mobileLinkClasses} onClick={toggleMobileMenu}>บทความ</Link> */}
                             <Link href="/provider-signup" className={mobileLinkClasses} onClick={toggleMobileMenu}>สมัครเป็นผู้ให้บริการ</Link>
 
                             {/* CTA Button ใน Mobile Menu - ปรับเป็น mt-3 และ py-2 */}
