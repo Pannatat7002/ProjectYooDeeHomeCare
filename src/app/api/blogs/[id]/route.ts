@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { getBlogs, saveBlogs } from '../../../../lib/db';
+import { getBlogs, updateBlog, deleteBlog } from '../../../../lib/db';
 import { requireAuth } from '../../../../lib/middleware';
 
 export async function GET(
@@ -50,15 +50,18 @@ export async function PUT(
                     newSlug = uniqueSlug;
                 }
 
-                blogs[index] = {
+                const updatedBlogData = {
                     ...blogs[index],
                     ...body,
                     id: blogId, // Ensure ID doesn't change
                     slug: newSlug,
                     updatedAt: new Date().toISOString(),
                 };
-                await saveBlogs(blogs);
-                return NextResponse.json({ success: true, data: blogs[index] });
+
+                // Use updateBlog instead of rewriting the entire sheet
+                await updateBlog(blogId, updatedBlogData);
+
+                return NextResponse.json({ success: true, data: updatedBlogData });
             } else {
                 return NextResponse.json(
                     { success: false, message: 'ไม่พบบทความนี้' },
@@ -83,12 +86,14 @@ export async function DELETE(
         try {
             const { id } = await params;
             const blogId = parseInt(id);
-            const blogs = await getBlogs();
-            const index = blogs.findIndex((b: any) => b.id === blogId);
 
-            if (index !== -1) {
-                blogs.splice(index, 1);
-                await saveBlogs(blogs);
+            // Check if blog exists first
+            const blogs = await getBlogs();
+            const exists = blogs.some((b: any) => b.id === blogId);
+
+            if (exists) {
+                // Use deleteBlog instead of rewriting the entire sheet
+                await deleteBlog(blogId);
                 return NextResponse.json({ success: true, message: 'ลบบทความสำเร็จ' });
             } else {
                 return NextResponse.json(

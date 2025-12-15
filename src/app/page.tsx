@@ -1290,122 +1290,6 @@ export default function HomePage() {
 
 
 
-            {/* 3. ส่วน: บทความแนะนำ (แสดงแยกออกมาในส่วนนี้) */}
-
-            {recommendedBlogs.length > 0 && !isSearchActive && (
-
-              <section className="mb-12 border-t border-gray-100 pt-8">
-
-                <div className="flex justify-between items-end mb-6">
-
-                  <div>
-
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-
-                      <span className="bg-green-500 w-1.5 h-6 rounded-full mr-3"></span>
-
-                      บทความแนะนำ
-
-                    </h2>
-
-                    <p className="text-gray-500 text-sm mt-1">
-
-                      สาระน่ารู้และเคล็ดลับการดูแลสุขภาพสำหรับผู้สูงอายุ
-
-                    </p>
-
-                  </div>
-
-                  <Link href="/blogs" className="text-blue-600 text-sm font-bold hover:underline flex items-center">
-
-                    ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" />
-
-                  </Link>
-
-                </div>
-
-
-
-                <ScrollableContainer itemWidth={320}>
-
-                  {recommendedBlogs.map(blog => (
-
-                    <Link
-
-                      key={blog.id}
-
-                      href={`/blogs/${(blog as any).slug}`} // ใช้ as any ชั่วคราว
-
-                      className="block group h-full flex-shrink-0 w-80 snap-center"
-
-                    >
-
-                      <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden">
-
-                        <div className="relative h-48 overflow-hidden">
-
-                          <img
-
-                            src={(blog as any).coverImage || 'https://via.placeholder.com/600x400?text=No+Image'}
-
-                            alt={(blog as any).title}
-
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-
-                            onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
-
-                          />
-
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-
-                          <div className="absolute bottom-3 left-3 right-3">
-
-                            <span className="text-white text-xs font-medium bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">
-
-                              {new Date((blog as any).createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}
-
-                            </span>
-
-                          </div>
-
-                        </div>
-
-                        <div className="p-4 flex-grow flex flex-col">
-
-                          <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-
-                            {(blog as any).title}
-
-                          </h3>
-
-                          <p className="text-gray-500 text-sm line-clamp-2 mb-3 flex-grow">
-
-                            {(blog as any).excerpt}
-
-                          </p>
-
-                          <div className="mt-auto pt-3 border-t border-gray-50 flex items-center text-blue-600 text-sm font-semibold group-hover:translate-x-1 transition-transform">
-
-                            อ่านเพิ่มเติม <ArrowRight className="w-4 h-4 ml-1" />
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                    </Link>
-
-                  ))}
-
-                </ScrollableContainer>
-
-              </section>
-
-            )}
-
-
-
 
 
             {/* 4. ส่วน: ผลลัพธ์การค้นหาทั้งหมด */}
@@ -1569,6 +1453,121 @@ export default function HomePage() {
               {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (End) 🔥🔥🔥 */}
 
             </section>
+
+
+            {/* 3. ส่วน: บทความแนะนำ (แสดงแยกออกมาในส่วนนี้) */}
+
+            {recommendedBlogs.length > 0 && !isSearchActive && (
+
+              <section className="mb-12 border-t border-gray-100 pt-8">
+
+                <div className="flex justify-between items-end mb-6">
+
+                  <div>
+
+                    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+
+                      <span className="bg-green-500 w-1.5 h-6 rounded-full mr-3"></span>
+
+                      บทความแนะนำ
+
+                    </h2>
+
+                    <p className="text-gray-500 text-sm mt-1">
+
+                      สาระน่ารู้และเคล็ดลับการดูแลสุขภาพสำหรับผู้สูงอายุ
+
+                    </p>
+
+                  </div>
+
+                  <Link href="/blogs" className="text-blue-600 text-sm font-bold hover:underline flex items-center">
+
+                    ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" />
+
+                  </Link>
+
+                </div>
+
+
+
+                <ScrollableContainer itemWidth={320}>
+
+                  {recommendedBlogs.map(blog => (
+
+                    <Link
+
+                      key={blog.id}
+
+                      href={`/blogs/${(blog as any).slug}`} // ใช้ as any ชั่วคราว
+
+                      className="block group h-full flex-shrink-0 w-80 snap-center"
+
+                    >
+
+                      <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden">
+
+                        <div className="relative h-48 overflow-hidden">
+
+                          <img
+
+                            src={(blog as any).coverImage || 'https://via.placeholder.com/600x400?text=No+Image'}
+
+                            alt={(blog as any).title}
+
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+
+                            onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
+
+                          />
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+
+                          <div className="absolute bottom-3 left-3 right-3">
+
+                            <span className="text-white text-xs font-medium bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">
+
+                              {new Date((blog as any).createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}
+
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                        <div className="p-4 flex-grow flex flex-col">
+
+                          <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+
+                            {(blog as any).title}
+
+                          </h3>
+
+                          <p className="text-gray-500 text-sm line-clamp-2 mb-3 flex-grow">
+
+                            {(blog as any).excerpt}
+
+                          </p>
+
+                          <div className="mt-auto pt-3 border-t border-gray-50 flex items-center text-blue-600 text-sm font-semibold group-hover:translate-x-1 transition-transform">
+
+                            อ่านเพิ่มเติม <ArrowRight className="w-4 h-4 ml-1" />
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </Link>
+
+                  ))}
+
+                </ScrollableContainer>
+
+              </section>
+
+            )}
 
           </>
 

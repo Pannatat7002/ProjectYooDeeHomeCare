@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { getBlogs, saveBlogs } from '../../../lib/db';
+import { getBlogs, addBlog } from '../../../lib/db';
 import { requireAuth } from '../../../lib/middleware';
 
 const slugify = (text: string) => {
@@ -77,8 +77,7 @@ export async function POST(request: NextRequest) {
                 updatedAt: new Date().toISOString(),
             };
 
-            blogs.push(newBlog);
-            await saveBlogs(blogs);
+            await addBlog(newBlog);
 
             return NextResponse.json({ success: true, data: newBlog }, { status: 201 });
         } catch (err) {

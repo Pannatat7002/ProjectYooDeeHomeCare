@@ -194,3 +194,77 @@ export const addAdmin = async (item: any) => addDataToSheet('Admins', item);
 export const getAds = async () => loadDataFromSheet('Ads');
 export const saveAds = async (data: any[]) => saveDataToSheet('Ads', data);
 export const addAd = async (item: any) => addDataToSheet('Ads', item);
+
+// --- 7. GENERIC UPDATE/DELETE (เพื่อแก้ปัญหา Row Wipe) ---
+const updateRowInSheet = async (sheetName: string, id: number | string, newData: any) => {
+    try {
+        const sheet = await getSheet(sheetName);
+        const rows = await sheet.getRows();
+        // Loose equality check for ID (string vs number)
+        // Note: row.get('id') works for google-spreadsheet v3/v4 depending on version, 
+        // but row['id'] or row.toObject().id is safer if 'id' is a header.
+        // google-spreadsheet v4 rows are indexable by header if loaded correctly.
+        const row = rows.find(r => r.get('id') == id);
+        if (!row) return false;
+
+        // Check for new headers
+        await sheet.loadHeaderRow();
+        const existingHeaders = sheet.headerValues || [];
+        const newItemKeys = Object.keys(newData);
+        const missingHeaders = newItemKeys.filter(key => !existingHeaders.includes(key));
+
+        if (missingHeaders.length > 0) {
+            console.log(`🔄 Updating headers for sheet "${sheetName}" to include: ${missingHeaders.join(', ')}`);
+            await sheet.setHeaderRow([...existingHeaders, ...missingHeaders]);
+        }
+
+        const formatted = formatRowForSheet(newData);
+
+        // Use assign if available, otherwise manual set
+        if (row.assign) {
+            row.assign(formatted);
+        } else {
+            // สมมติว่า 'row' คือ GoogleSpreadsheetRow ที่คุณค้นพบ
+            // และ 'formatted' คืออ็อบเจกต์ที่มี key เป็นชื่อคอลัมน์ (Header) และ value เป็นค่าใหม่
+            try {
+                // 1. กำหนดค่าใหม่ให้กับแถวโดยใช้ .assign()
+                // เมธอด .assign() ใช้เพื่ออัปเดตค่าหลายคอลัมน์
+                row.assign(formatted);
+
+                // 2. บันทึกการเปลี่ยนแปลงกลับไปยัง Google Sheet
+                await row.save();
+
+                // (หมายเหตุ: .save() เป็น asynchronous, ดังนั้นต้องใช้ await)
+
+            } catch (error) {
+                console.error("เกิดข้อผิดพลาดในการอัปเดตแถว:", error);
+            }
+        }
+
+        await row.save();
+        return true;
+    } catch (error) {
+        console.error(`Error updating row in ${sheetName}:`, error);
+        throw error;
+    }
+};
+
+const deleteRowInSheet = async (sheetName: string, id: number | string) => {
+    try {
+        const sheet = await getSheet(sheetName);
+        const rows = await sheet.getRows();
+        const row = rows.find(r => r.get('id') == id);
+
+        if (row) {
+            await row.delete();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error(`Error deleting row in ${sheetName}:`, error);
+        throw error;
+    }
+};
+
+export const updateBlog = async (id: number | string, data: any) => updateRowInSheet('Blogs', id, data);
+export const deleteBlog = async (id: number | string) => deleteRowInSheet('Blogs', id);
