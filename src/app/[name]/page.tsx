@@ -655,39 +655,81 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                         )}
                     </div>
 
-                    {/* Gallery Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[300px] md:h-[400px] rounded-2xl overflow-hidden relative">
-                        <div className="md:col-span-2 h-full">
-                            <img
-                                src={mainImage}
-                                alt="Main center image"
-                                className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
-                                onClick={() => setIsGalleryOpen(true)}
-                                onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                            />
+                    {/* Gallery Section */}
+                    <div className="space-y-3">
+                        {/* 1. Main Gallery Grid (Desktop: Grid 5 รูป / Mobile: แสดงรูปที่เลือกรูปเดียว) */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[300px] md:h-[450px] rounded-2xl overflow-hidden relative group shadow-sm">
+
+                            {/* รูปหลัก (ซ้ายมือบน Desktop / รูปใหญ่รูปเดียวบน Mobile) */}
+                            <div className="md:col-span-2 h-full overflow-hidden relative">
+                                <img
+                                    src={activeImage || allImages[0]}
+                                    alt="Main center view"
+                                    className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-105"
+                                    onClick={() => {
+                                        const currentIndex = allImages.indexOf(activeImage || allImages[0]);
+                                        setInitialModalIndex(currentIndex !== -1 ? currentIndex : 0);
+                                        setIsGalleryOpen(true);
+                                    }}
+                                    onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                                />
+                                {/* แสดงเลขลำดับรูปเฉพาะบนมือถือ */}
+                                <div className="md:hidden absolute bottom-3 left-3 bg-black/50 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-lg">
+                                    {allImages.indexOf(activeImage || allImages[0]) + 1} / {allImages.length}
+                                </div>
+                            </div>
+
+                            {/* รูปย่อย 4 รูป (ซ่อนบน Mobile / แสดงบน Desktop) */}
+                            <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
+                                {allImages.slice(1, 5).map((url, idx) => (
+                                    <div key={idx} className="relative h-full overflow-hidden">
+                                        <img
+                                            src={url}
+                                            alt={`Thumbnail ${idx + 1}`}
+                                            className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-110"
+                                            onClick={() => {
+                                                setInitialModalIndex(idx + 1);
+                                                setIsGalleryOpen(true);
+                                            }}
+                                            onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                                        />
+                                        {idx === 3 && allImages.length > 5 && (
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-lg font-bold pointer-events-none">
+                                                +{allImages.length - 5}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* ปุ่ม Share & ปุ่มดูรูปทั้งหมด */}
+                            <div className="absolute top-4 right-4"><ShareButton /></div>
+                            <button
+                                onClick={() => { setInitialModalIndex(0); setIsGalleryOpen(true); }}
+                                className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs font-bold shadow-md hover:bg-white transition-all border border-gray-200 flex items-center gap-2"
+                            >
+                                <Share2 className="w-3 h-3 md:w-4 md:h-4" /> ดูทั้งหมด ({allImages.length})
+                            </button>
                         </div>
-                        <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
-                            {/* ใช้ allImages แทน galleryImages.slice(1) เพื่อให้แน่ใจว่ามันเป็น Array ที่มีข้อมูลอยู่ */}
-                            {allImages.slice(1).map((url, idx) => (
-                                <div key={idx} className="h-full overflow-hidden">
+
+                        {/* 2. Thumbnail Scroller (แสดงเฉพาะบน Mobile) */}
+                        <div className="md:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+                            {allImages.map((url, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setActiveImage(url)}
+                                    className={`relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden border-2 transition-all duration-300 ${(activeImage === url || (!activeImage && idx === 0))
+                                        ? 'border-blue-600 ring-2 ring-blue-50 scale-95'
+                                        : 'border-transparent opacity-60'
+                                        }`}
+                                >
                                     <img
                                         src={url}
-                                        alt={`Gallery thumbnail ${idx + 2}`}
-                                        className="w-full h-full object-cover transition-transform duration-300 cursor-pointer hover:opacity-90"
-                                        onClick={() => { setActiveImage(url); setIsGalleryOpen(true); }}
+                                        className="w-full h-full object-cover"
                                         onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
                                     />
-                                </div>
+                                </button>
                             ))}
-                        </div>
-                        <button
-                            onClick={() => setIsGalleryOpen(true)}
-                            className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-xl text-xs font-semibold shadow-md hover:bg-white transition-all border border-gray-200"
-                        >
-                            ดูรูปทั้งหมด ({allImages.length})
-                        </button>
-                        <div className="absolute top-4 right-4 flex space-x-2">
-                            <ShareButton />
                         </div>
                     </div>
                 </div>
