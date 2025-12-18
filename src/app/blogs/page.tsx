@@ -271,9 +271,9 @@ export default function BlogsPage() {
                     </div>
 
                     {/* ส่วนลิขสิทธิ์ */}
-                    <div className='text-center text-xs text-gray-500 mt-12 pt-5 border-t border-gray-200'>
+                    {/* <div className='text-center text-xs text-gray-500 mt-12 pt-5 border-t border-gray-200'>
                         © {new Date().getFullYear()} ศูนย์กลางข้อมูลสารสนเทศ. สงวนลิขสิทธิ์.
-                    </div>
+                    </div> */}
                 </div>
             </footer>
         </div >

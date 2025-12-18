@@ -179,10 +179,8 @@ export default async function BlogDetailPage({ params }: Props) {
                     </div>
 
                     {/* Share Buttons */}
-                    <div className="mt-10 pt-6 border-t border-gray-200 text-left"> {/* ลด mt และ pt */}
-                        <h3 className="text-lg font-bold text-gray-800 mb-3">แบ่งปันบทความนี้</h3> {/* ลดขนาด font และ mb */}
-                        <ShareButtons />
-                    </div>
+                    <ShareButtons />
+
                 </div>
             </article>
 

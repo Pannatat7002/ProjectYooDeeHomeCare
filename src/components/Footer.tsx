@@ -91,6 +91,7 @@ export default function Footer() {
                             <li><Link href="/whyus" className="hover:text-blue-400 transition-colors">ทำไมเราเลือกเรา</Link></li>
                             <li><Link href="/testimonials" className="hover:text-blue-400 transition-colors">คำรับรองจากลูกค้า</Link></li>
                             <li><Link href="/articles" className="hover:text-blue-400 transition-colors">สาระน่ารู้</Link></li>
+                            <li><Link href="/blogs" className="hover:text-blue-400 transition-colors">บทความ</Link></li>
                             <li className="pt-2"><Link href="/contact" className="hover:text-blue-400 transition-colors font-semibold">ติดต่อเรา</Link></li>
                             <li><Link href="/provider-signup" className="hover:text-blue-400 transition-colors font-semibold">สมัครเป็นผู้ให้บริการ</Link></li>
                         </ul>
