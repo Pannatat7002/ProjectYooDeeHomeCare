@@ -1,5 +1,6 @@
 // src/lib/gtag.ts
-export const GA_TRACKING_ID = 'G-WB5T7TJ5PT'; // ใส่ ID ของคุณ
+// export const GA_TRACKING_ID = 'G-WB5T7TJ5PT'; // ใส่ ID ของคุณ
+export const GA_TRACKING_ID = 'G-W86E63SF8B'; // ใส่ ID ของคุณ
 export const GOOGLE_ADS_ID = 'AW-816450323'; // ใส่ Google Ads ID ของคุณที่นี่ (เช่น AW-XXXXXXXXXX)
 
 // ประกาศ Type ให้ TypeScript รู้จัก window.gtag
