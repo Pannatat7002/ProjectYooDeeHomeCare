@@ -417,6 +417,109 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose, 
     );
 };
 
+interface ContactStaffFormData {
+    name: string;
+    phone: string;
+}
+
+interface ContactStaffFormProps {
+    formData: ContactStaffFormData;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleSubmit: (e: React.FormEvent) => Promise<void>;
+    submitStatus: 'idle' | 'submitting' | 'success' | 'error';
+}
+
+const ContactStaffForm: React.FC<ContactStaffFormProps> = ({ formData, handleInputChange, handleSubmit, submitStatus }) => {
+    // ✅ ส่วนที่แก้ไข: แสดงหน้า Success เมื่อส่งฟอร์มสำเร็จ
+    if (submitStatus === 'success') {
+        return (
+            <div className="text-center py-12 px-4 space-y-4 animate-in fade-in duration-500">
+                <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto animate-pulse" />
+                <h3 className="text-2xl font-extrabold text-green-700">ส่งข้อมูลสำเร็จ!</h3>
+                <p className="text-gray-700 text-lg font-medium">
+                    เจ้าหน้าที่จะติดต่อกลับหาท่าน <span className="font-bold">โดยเร็วที่สุด</span>
+                </p>
+                <p className="text-sm text-gray-500">ขอบคุณที่ให้ความสนใจบริการของเรา</p>
+            </div>
+        );
+    }
+
+    return (
+        <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="text-center mb-4">
+                    <p className="text-sm text-gray-500">กรุณากรอกข้อมูลเพื่อให้เจ้าหน้าที่ติดต่อกลับ</p>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                    <div>
+                        <label htmlFor="contactName" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
+                        <input id="contactName" type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อ-นามสกุล" required />
+                    </div>
+                    <div>
+                        <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
+                        <input id="contactPhone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุเบอร์โทรศัพท์" required />
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex justify-end pt-6 border-t border-gray-100 mt-6">
+                <button type="submit" disabled={submitStatus === 'submitting'} className={`px-8 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                    {submitStatus === 'submitting' ? 'กำลังส่งข้อมูล...' : 'ส่งข้อมูลให้เจ้าหน้าที่'} <CheckCircle2 className="w-4 h-4 ml-2" />
+                </button>
+            </div>
+
+            {submitStatus === 'error' && <p className="text-center text-sm font-medium text-red-600 mt-3 flex items-center justify-center"><Info className="w-4 h-4 mr-1.5" /> เกิดข้อผิดพลาด! กรุณาลองใหม่อีกครั้ง</p>}
+        </form>
+    );
+};
+
+interface ContactStaffModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    formData: ContactStaffFormData;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleSubmit: (e: React.FormEvent) => Promise<void>;
+    submitStatus: 'idle' | 'submitting' | 'success' | 'error';
+    centerName: string;
+}
+
+const ContactStaffModal: React.FC<ContactStaffModalProps> = ({ isOpen, onClose, formData, handleInputChange, handleSubmit, submitStatus, centerName }) => {
+    if (!isOpen) return null;
+
+    const modalTitle = submitStatus === 'success' ?
+        'ส่งข้อมูลสำเร็จ' :
+        `ติดต่อเจ้าหน้าที่`;
+
+    return (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 md:p-8 relative">
+                {submitStatus !== 'success' && (
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
+
+                <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                    {submitStatus === 'success' ? (
+                        <span className="text-green-600">{modalTitle}</span>
+                    ) : (
+                        <>
+                            {modalTitle} <span className="text-blue-600 block text-lg mt-1">{centerName}</span>
+                        </>
+                    )}
+                </h2>
+
+                <ContactStaffForm
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    handleSubmit={handleSubmit}
+                    submitStatus={submitStatus}
+                />
+            </div>
+        </div>
+    );
+};
+
 // =========================================================================================
 // MAIN COMPONENT
 // =========================================================================================
@@ -429,6 +532,9 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
     const [relatedCenters, setRelatedCenters] = useState<CareCenter[]>([]);
     const [initialModalIndex, setInitialModalIndex] = useState(0);
     const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
+    const [isContactStaffModalOpen, setIsContactStaffModalOpen] = useState(false);
+    const [contactStaffFormData, setContactStaffFormData] = useState<ContactStaffFormData>({ name: '', phone: '' });
+    const [contactStaffSubmitStatus, setContactStaffSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
     // Initial Form State
     const initialFormData: ConsultationFormData = {
@@ -514,6 +620,55 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
             // ตั้งเวลา reset status สำหรับกรณี error
             if (submitStatus === 'error') {
                 setTimeout(() => setSubmitStatus('idle'), 2000);
+            }
+        }
+    };
+
+    const handleContactStaffInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setContactStaffFormData(prev => ({ ...prev, [name]: value }));
+    }, []);
+
+    const handleContactStaffSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setContactStaffSubmitStatus('submitting');
+        gtag.event({ action: 'start_contact_staff_form', category: 'Conversion', label: center?.name || 'Unknown' });
+
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: contactStaffFormData.name,
+                    phone: contactStaffFormData.phone,
+                    subject: `ติดต่อเจ้าหน้าที่ - ${center?.name || ''}`,
+                    message: `ลูกค้าลงชื่อให้เจ้าหน้าที่ติดต่อกลับเกี่ยวกับศูนย์: ${center?.name || ''} (เบอร์โทร: ${contactStaffFormData.phone})`,
+                    email: '-'
+                }),
+            });
+
+            if (res.ok) {
+                setContactStaffSubmitStatus('success');
+                gtag.event({ action: 'submit_contact_staff_success', category: 'Conversion', label: center?.name || 'Unknown' });
+                gtag.gtagReportConversion();
+
+                // ✅ ตั้งเวลาปิด Modal อัตโนมัติหลังแสดงหน้า Success 3 วินาที
+                setTimeout(() => {
+                    setIsContactStaffModalOpen(false);
+                    setContactStaffSubmitStatus('idle');
+                    setContactStaffFormData({ name: '', phone: '' });
+                }, 3000);
+            } else {
+                setContactStaffSubmitStatus('error');
+                gtag.event({ action: 'submit_contact_staff_error', category: 'Error', label: center?.name || 'Unknown' });
+            }
+        } catch (error) {
+            console.error('Error submitting contact staff form:', error);
+            setContactStaffSubmitStatus('error');
+            gtag.event({ action: 'submit_contact_staff_error', category: 'Error', label: center?.name || 'Unknown' });
+        } finally {
+            if (contactStaffSubmitStatus === 'error') {
+                setTimeout(() => setContactStaffSubmitStatus('idle'), 2000);
             }
         }
     };
@@ -911,14 +1066,16 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                                 </button>
 
                                 {/* 2. ปุ่มติดต่อเจ้าหน้าที่ (Secondary Action) - เน้นรองลงมา */}
-                                <a
-                                    href={`tel:${center.phone || '095-805-7052'}`} // อัปเดตเบอร์สำรองตามข้อมูลในภาพ
-                                    onClick={() => gtag.event({ action: 'click_contact_staff', category: 'Conversion', label: center.name })}
+                                <button
+                                    onClick={() => {
+                                        setIsContactStaffModalOpen(true);
+                                        gtag.event({ action: 'click_contact_staff_popup', category: 'Conversion', label: center.name });
+                                    }}
                                     className="w-full flex items-center justify-center px-4 py-3.5 bg-white text-blue-600 border-2 border-blue-100 text-base font-bold rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 active:scale-[0.98]"
                                 >
                                     <Phone className="w-5 h-5 mr-2" />
                                     ติดต่อเจ้าหน้าที่
-                                </a>
+                                </button>
 
                                 {/* 3. ปุ่มเว็บไซต์ (Tertiary Action) - ทางเลือกเพิ่มเติม */}
                                 {center.website && (
@@ -1031,6 +1188,20 @@ export default function CenterDetailPage({ params }: { params: Promise<{ name: s
                 handleInputChange={handleInputChange}
                 handleSubmit={handleSubmit}
                 submitStatus={submitStatus}
+                centerName={center.name}
+            />
+
+            <ContactStaffModal
+                isOpen={isContactStaffModalOpen}
+                onClose={() => {
+                    setIsContactStaffModalOpen(false);
+                    setContactStaffSubmitStatus('idle');
+                    setContactStaffFormData({ name: '', phone: '' });
+                }}
+                formData={contactStaffFormData}
+                handleInputChange={handleContactStaffInputChange}
+                handleSubmit={handleContactStaffSubmit}
+                submitStatus={contactStaffSubmitStatus}
                 centerName={center.name}
             />
         </div>
