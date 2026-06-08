@@ -49,9 +49,9 @@ export default function Footer() {
                                 <PhoneCall className="h-4 w-4 mr-2 text-blue-400" />
                                 <span>โทร: 095-805-7052</span>
                             </a>
-                            <a href="mailto:pannatat7002@gmail.com" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="mailto:thaicarecenter01@gmail.com" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
                                 <Mail className="h-4 w-4 mr-2 text-blue-400" />
-                                <span>อีเมล: pannatat7002@gmail.com</span>
+                                <span>อีเมล: thaicarecenter01@gmail.com</span>
                             </a>
                         </div>
 

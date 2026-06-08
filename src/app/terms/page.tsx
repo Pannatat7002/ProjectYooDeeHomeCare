@@ -224,8 +224,8 @@ export default function TermsPage() {
                             <ul className="space-y-2 text-gray-700">
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[100px]">อีเมล:</span>
-                                    <a href="mailto:Pannatat7002@gmail.com" className="text-gray-900 hover:text-gray-700 underline">
-                                        support@ThaiCareCenter.com
+                                    <a href="mailto:thaicarecenter01@gmail.com" className="text-gray-900 hover:text-gray-700 underline">
+                                        thaicarecenter01@gmail.com
                                     </a>
                                 </li>
                                 <li className="flex items-start">
