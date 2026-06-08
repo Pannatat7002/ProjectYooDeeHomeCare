@@ -55,6 +55,21 @@ const parseSheetRow = (row: any) => {
 
 // --- Main Functions ---
 
+// --- Cache Configuration ---
+interface CacheEntry {
+    data: any[];
+    timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 mins in milliseconds
+
+// Function to clear cache for a specific sheet
+const invalidateCache = (sheetName: string) => {
+    cache.delete(sheetName);
+    console.log(`[Cache] Invalidated cache for sheet: ${sheetName}`);
+};
+
 /**
  * SAVE (Overwrite): ลบข้อมูลเก่าทั้งหมด แล้วบันทึกข้อมูลใหม่ทับ
  * เหมาะสำหรับ: การแก้ไขข้อมูล (Edit) หรือลบข้อมูล (Delete)
@@ -79,6 +94,9 @@ const saveDataToSheet = async (sheetName: string, data: any[]) => {
 
         const rows = data.map(formatRowForSheet);
         await sheet.addRows(rows);
+
+        // Invalidate cache
+        invalidateCache(sheetName);
 
         return true;
     } catch (error) {
@@ -139,6 +157,9 @@ const addDataToSheet = async (sheetName: string, newItem: any) => {
         await sheet.addRow(row);
         console.log(`✅ Row added to sheet "${sheetName}"`);
 
+        // Invalidate cache
+        invalidateCache(sheetName);
+
         return true;
     } catch (error) {
         console.error(`❌ Error adding to sheet ${sheetName}:`, error);
@@ -148,6 +169,14 @@ const addDataToSheet = async (sheetName: string, newItem: any) => {
 
 const loadDataFromSheet = async (sheetName: string) => {
     try {
+        const now = Date.now();
+        const cached = cache.get(sheetName);
+        if (cached && (now - cached.timestamp < CACHE_TTL)) {
+            console.log(`[Cache] Serving ${sheetName} from cache (size: ${cached.data.length})`);
+            return cached.data;
+        }
+
+        console.log(`[Cache] Cache miss for ${sheetName}. Loading from Google Sheets API...`);
         const sheet = await getSheet(sheetName);
         const rows = await sheet.getRows();
 
@@ -155,7 +184,10 @@ const loadDataFromSheet = async (sheetName: string) => {
         const rawData = rowsToData(rows);
 
         // แปลงข้อมูลให้ Type ถูกต้อง
-        return rawData.map((item: any) => parseSheetRow(item));
+        const data = rawData.map((item: any) => parseSheetRow(item));
+        
+        cache.set(sheetName, { data, timestamp: now });
+        return data;
 
     } catch (error) {
         console.error(`Error loading from sheet ${sheetName}:`, error);
@@ -201,9 +233,6 @@ const updateRowInSheet = async (sheetName: string, id: number | string, newData:
         const sheet = await getSheet(sheetName);
         const rows = await sheet.getRows();
         // Loose equality check for ID (string vs number)
-        // Note: row.get('id') works for google-spreadsheet v3/v4 depending on version, 
-        // but row['id'] or row.toObject().id is safer if 'id' is a header.
-        // google-spreadsheet v4 rows are indexable by header if loaded correctly.
         const row = rows.find(r => r.get('id') == id);
         if (!row) return false;
 
@@ -224,24 +253,19 @@ const updateRowInSheet = async (sheetName: string, id: number | string, newData:
         if (row.assign) {
             row.assign(formatted);
         } else {
-            // สมมติว่า 'row' คือ GoogleSpreadsheetRow ที่คุณค้นพบ
-            // และ 'formatted' คืออ็อบเจกต์ที่มี key เป็นชื่อคอลัมน์ (Header) และ value เป็นค่าใหม่
             try {
-                // 1. กำหนดค่าใหม่ให้กับแถวโดยใช้ .assign()
-                // เมธอด .assign() ใช้เพื่ออัปเดตค่าหลายคอลัมน์
                 row.assign(formatted);
-
-                // 2. บันทึกการเปลี่ยนแปลงกลับไปยัง Google Sheet
                 await row.save();
-
-                // (หมายเหตุ: .save() เป็น asynchronous, ดังนั้นต้องใช้ await)
-
             } catch (error) {
                 console.error("เกิดข้อผิดพลาดในการอัปเดตแถว:", error);
             }
         }
 
         await row.save();
+        
+        // Invalidate cache
+        invalidateCache(sheetName);
+        
         return true;
     } catch (error) {
         console.error(`Error updating row in ${sheetName}:`, error);
@@ -257,6 +281,8 @@ const deleteRowInSheet = async (sheetName: string, id: number | string) => {
 
         if (row) {
             await row.delete();
+            // Invalidate cache
+            invalidateCache(sheetName);
             return true;
         }
         return false;
@@ -268,3 +294,18 @@ const deleteRowInSheet = async (sheetName: string, id: number | string) => {
 
 export const updateBlog = async (id: number | string, data: any) => updateRowInSheet('Blogs', id, data);
 export const deleteBlog = async (id: number | string) => deleteRowInSheet('Blogs', id);
+
+export const updateCareCenter = async (id: number | string, data: any) => updateRowInSheet('CareCenters', id, data);
+export const deleteCareCenter = async (id: number | string) => deleteRowInSheet('CareCenters', id);
+
+export const updateConsultation = async (id: number | string, data: any) => updateRowInSheet('Consultations', id, data);
+export const deleteConsultation = async (id: number | string) => deleteRowInSheet('Consultations', id);
+
+export const updateContact = async (id: number | string, data: any) => updateRowInSheet('Contacts', id, data);
+export const deleteContact = async (id: number | string) => deleteRowInSheet('Contacts', id);
+
+export const updateAdmin = async (id: number | string, data: any) => updateRowInSheet('Admins', id, data);
+export const deleteAdmin = async (id: number | string) => deleteRowInSheet('Admins', id);
+
+export const updateAd = async (id: number | string, data: any) => updateRowInSheet('Ads', id, data);
+export const deleteAd = async (id: number | string) => deleteRowInSheet('Ads', id);

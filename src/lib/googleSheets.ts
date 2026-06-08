@@ -3,14 +3,19 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 import { PRIVATE_KEY, SHEET_ID, CLIENT_EMAIL } from '../secrets';
 
+// ดึงค่าคอนฟิกจาก Env variables เป็นตัวเลือกแรก หากไม่มีจึงจะเลือก fallback เป็นคีย์ที่อยู่ในไฟล์ secrets.ts
+const sheetId = process.env.GOOGLE_SHEET_ID || SHEET_ID;
+const clientEmail = process.env.GOOGLE_CLIENT_EMAIL || CLIENT_EMAIL;
+const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY || PRIVATE_KEY;
+
 // 1. ตั้งค่าการยืนยันตัวตน (Authentication)
 const serviceAccountAuth = new JWT({
-    email: CLIENT_EMAIL,
-    key: PRIVATE_KEY.replace(/\\n/g, '\n'), // แก้ปัญหา \n ใน Vercel/Next.js
+    email: clientEmail,
+    key: rawPrivateKey.replace(/\\n/g, '\n'), // แก้ปัญหา \n ใน Vercel/Next.js
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-export const doc = new GoogleSpreadsheet(SHEET_ID, serviceAccountAuth);
+export const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
 
 // 2. Helper: ดึง Sheet ตามชื่อ (ถ้าไม่มีจะสร้างใหม่)
 export const getSheet = async (title: string) => {

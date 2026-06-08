@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { getCareCenters, saveCareCenters } from '../../../../lib/db';
+import { getCareCenters, updateCareCenter, deleteCareCenter } from '../../../../lib/db';
 import { requireAuth } from '../../../../lib/middleware';
 
 export async function GET(
@@ -28,13 +28,11 @@ export async function PUT(
             const { id } = await params;
             const centerId = parseInt(id);
             const body = await request.json();
-            const careCenters = await getCareCenters();
-            const index = careCenters.findIndex((c: any) => c.id === centerId);
+            
+            const success = await updateCareCenter(centerId, body);
 
-            if (index !== -1) {
-                careCenters[index] = { ...careCenters[index], ...body, id: centerId };
-                await saveCareCenters(careCenters);
-                return NextResponse.json({ success: true, data: careCenters[index] });
+            if (success) {
+                return NextResponse.json({ success: true, data: { ...body, id: centerId } });
             } else {
                 return NextResponse.json(
                     { success: false, message: 'ไม่พบศูนย์ดูแลนี้' },
@@ -59,12 +57,10 @@ export async function DELETE(
         try {
             const { id } = await params;
             const centerId = parseInt(id);
-            const careCenters = await getCareCenters();
-            const index = careCenters.findIndex((c: any) => c.id === centerId);
+            
+            const success = await deleteCareCenter(centerId);
 
-            if (index !== -1) {
-                careCenters.splice(index, 1);
-                await saveCareCenters(careCenters);
+            if (success) {
                 return NextResponse.json({ success: true, message: 'ลบศูนย์ดูแลสำเร็จ' });
             } else {
                 return NextResponse.json(

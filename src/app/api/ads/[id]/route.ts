@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { getAds, saveAds } from '../../../../lib/db';
+import { updateAd, deleteAd } from '../../../../lib/db';
 import { requireAuth } from '../../../../lib/middleware';
 
 export async function PUT(
@@ -12,14 +13,10 @@ export async function PUT(
             const adId = parseInt(id);
             const body = await request.json();
 
-            const ads = await getAds();
-            const index = ads.findIndex((a: any) => a.id === adId);
+            const success = await updateAd(adId, body);
 
-            if (index !== -1) {
-                // Update existing ad
-                ads[index] = { ...ads[index], ...body, id: adId };
-                await saveAds(ads);
-                return NextResponse.json({ success: true, data: ads[index] });
+            if (success) {
+                return NextResponse.json({ success: true, data: { ...body, id: adId } });
             } else {
                 return NextResponse.json(
                     { success: false, message: 'ไม่พบโฆษณา' },
@@ -45,12 +42,9 @@ export async function DELETE(
             const { id } = await params;
             const adId = parseInt(id);
 
-            const ads = await getAds();
-            const index = ads.findIndex((a: any) => a.id === adId);
+            const success = await deleteAd(adId);
 
-            if (index !== -1) {
-                ads.splice(index, 1);
-                await saveAds(ads);
+            if (success) {
                 return NextResponse.json({ success: true, message: 'ลบโฆษณาสำเร็จ' });
             } else {
                 return NextResponse.json(
