@@ -77,10 +77,45 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         .filter((c: any) => c.id !== normalizedCenter.id && c.status === 'visible')
         .slice(0, 3);
 
+    // 3. สร้าง Schema.org JSON-LD สำหรับให้ AI Search Engine (เช่น Perplexity, ChatGPT) อ่านข้อมูลโครงสร้าง
+    const BASE_URL = 'https://thaicarecenter.com';
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'NursingHome',
+        '@id': `${BASE_URL}/${encodeURIComponent(center.name.replace(/\s+/g, '-'))}`,
+        name: center.name,
+        description: center.description || 'ศูนย์ดูแลผู้สูงอายุและผู้ป่วยพักฟื้น',
+        image: normalizedCenter.imageUrls,
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: center.address || '',
+            addressLocality: center.province || 'กรุงเทพมหานคร',
+            addressCountry: 'TH'
+        },
+        telephone: center.phone || '',
+        priceRange: center.price ? `฿${center.price}/month` : '',
+        aggregateRating: center.rating ? {
+            '@type': 'AggregateRating',
+            ratingValue: center.rating,
+            reviewCount: 1
+        } : undefined,
+        geo: center.lat && center.lng ? {
+            '@type': 'GeoCoordinates',
+            latitude: Number(center.lat),
+            longitude: Number(center.lng)
+        } : undefined
+    };
+
     return (
-        <CenterDetailClient 
-            center={normalizedCenter} 
-            relatedCenters={relatedCenters} 
-        />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <CenterDetailClient 
+                center={normalizedCenter} 
+                relatedCenters={relatedCenters} 
+            />
+        </>
     );
 }
