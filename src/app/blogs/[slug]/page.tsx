@@ -8,8 +8,8 @@ import Link from 'next/link';
 // สมมติว่า ShareButtons เป็น Client Component
 import ShareButtons from './components/ShareButtons';
 
-// Force dynamic rendering since we rely on external data
-export const dynamic = 'force-dynamic';
+// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
+export const revalidate = 300;
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -19,7 +19,7 @@ interface Props {
 const MAIN_BLUE_HEX = '#3a639b';
 
 // --------------------------------------------------------------------------
-// 1. Data Fetching and Helpers (คงเดิม)
+// 1. Data Fetching and Helpers
 // --------------------------------------------------------------------------
 
 async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
@@ -31,6 +31,24 @@ async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
         const dbSlug = (b.slug || '').trim();
         return dbSlug === decodedSlug;
     });
+}
+
+// สร้าง path สำหรับทุกบทความที่เผยแพร่ตอน build time
+export async function generateStaticParams() {
+    try {
+        const blogs = await getBlogs();
+        return blogs
+            .filter((b: any) => {
+                const val = b.isPublished;
+                return val === true || val === 'true' || val === 'TRUE' || val === 1 || val === '1';
+            })
+            .map((b: any) => ({
+                slug: b.slug,
+            }));
+    } catch (error) {
+        console.error('Error generating static params for blogs:', error);
+        return [];
+    }
 }
 
 const calculateReadingTime = (content: string) => {

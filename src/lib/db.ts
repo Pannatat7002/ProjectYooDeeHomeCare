@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getSheet, rowsToData } from './googleSheets';
+import { unstable_cache, revalidateTag } from 'next/cache';
 
 // --- 1. Helper: Format Data FOR Google Sheets (Save) ---
 // แปลง Object/Array เป็น String เพื่อเก็บลง Cell
@@ -67,7 +68,13 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 mins in milliseconds
 // Function to clear cache for a specific sheet
 const invalidateCache = (sheetName: string) => {
     cache.delete(sheetName);
-    console.log(`[Cache] Invalidated cache for sheet: ${sheetName}`);
+    console.log(`[Cache] Invalidated memory cache for sheet: ${sheetName}`);
+    try {
+        revalidateTag(sheetName, 'max');
+        console.log(`[Cache] Invalidated Next.js tag cache: ${sheetName}`);
+    } catch (e) {
+        console.warn(`[Cache] Next.js revalidateTag failed (normal if not run in Next server runtime context):`, e);
+    }
 };
 
 /**
@@ -167,25 +174,38 @@ const addDataToSheet = async (sheetName: string, newItem: any) => {
     }
 };
 
+const fetchSheetDataCached = (sheetName: string) => {
+    return unstable_cache(
+        async () => {
+            console.log(`[Cache Miss] Loading ${sheetName} from Google Sheets API...`);
+            const sheet = await getSheet(sheetName);
+            const rows = await sheet.getRows();
+
+            // ใช้ rowsToData และ map ผ่าน parser ของเราอีกที
+            const rawData = rowsToData(rows);
+
+            // แปลงข้อมูลให้ Type ถูกต้อง
+            return rawData.map((item: any) => parseSheetRow(item));
+        },
+        ['sheet-data', sheetName],
+        { revalidate: 300, tags: [sheetName] }
+    )();
+};
+
 const loadDataFromSheet = async (sheetName: string) => {
     try {
         const now = Date.now();
+        // 1. ลองใช้ memory cache ก่อนเพื่อความเร็วระดับ microsecond
         const cached = cache.get(sheetName);
         if (cached && (now - cached.timestamp < CACHE_TTL)) {
-            console.log(`[Cache] Serving ${sheetName} from cache (size: ${cached.data.length})`);
+            console.log(`[Memory Cache] Serving ${sheetName} from memory cache (size: ${cached.data.length})`);
             return cached.data;
         }
 
-        console.log(`[Cache] Cache miss for ${sheetName}. Loading from Google Sheets API...`);
-        const sheet = await getSheet(sheetName);
-        const rows = await sheet.getRows();
-
-        // ใช้ rowsToData และ map ผ่าน parser ของเราอีกที
-        const rawData = rowsToData(rows);
-
-        // แปลงข้อมูลให้ Type ถูกต้อง
-        const data = rawData.map((item: any) => parseSheetRow(item));
+        // 2. ถ้า memory cache ไม่มี/หมดอายุ ให้ใช้ Next.js Data Cache (unstable_cache)
+        const data = await fetchSheetDataCached(sheetName);
         
+        // 3. เซ็ตค่ากลับลง memory cache เพื่อให้ request ถัดไปดึงได้ไวขึ้น
         cache.set(sheetName, { data, timestamp: now });
         return data;
 

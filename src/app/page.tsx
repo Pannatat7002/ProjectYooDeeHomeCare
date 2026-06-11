@@ -6,10 +6,12 @@ import HomePageClient from './HomePageClient';
 export const revalidate = 300; 
 
 export default async function Page() {
-    // 1. ดึงข้อมูลทั้งหมดบนฝั่ง Server (จะเรียกผ่าน cache ใน db.ts โดยตรง)
-    const allCenters = await getCareCenters();
-    const allAds = await getAds();
-    const allBlogs = await getBlogs();
+    // 1. ดึงข้อมูลทั้งหมดบนฝั่ง Server แบบคู่ขนานผ่าน Promise.all
+    const [allCenters, allAds, allBlogs] = await Promise.all([
+        getCareCenters(),
+        getAds(),
+        getBlogs()
+    ]);
 
     // 2. คัดกรองข้อมูลก่อนส่งให้ Client เพื่อลดขนาดของ JSON payload
     // กรองเอาเฉพาะศูนย์ที่มีสถานะพร้อมแสดงผล (visible)

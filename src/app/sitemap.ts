@@ -24,8 +24,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     try {
-        // 2. ดึงรายชื่อศูนย์ดูแลผู้สูงอายุทั้งหมดมาสร้างหน้าย่อย
-        const centers = await getCareCenters();
+        // 2. ดึงข้อมูลทั้งหมดบนฝั่ง Server แบบคู่ขนานผ่าน Promise.all
+        const [centers, blogs] = await Promise.all([
+            getCareCenters(),
+            getBlogs()
+        ]);
+
         const centerRoutes = centers
             .filter((center: any) => center.status === 'visible')
             .map((center: any) => ({
@@ -35,8 +39,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 priority: 0.9
             }));
 
-        // 3. ดึงรายชื่อบทความทั้งหมดมาสร้างหน้าย่อย
-        const blogs = await getBlogs();
         const blogRoutes = blogs
             .filter((blog: any) => {
                 const val = blog.isPublished;

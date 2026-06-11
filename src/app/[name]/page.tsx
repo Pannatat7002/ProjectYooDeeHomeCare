@@ -7,6 +7,21 @@ import type { Metadata } from 'next';
 // กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
 export const revalidate = 300; 
 
+// สร้าง path สำหรับทุกศูนย์ดูแลที่มีสถานะ visible ตอน build time
+export async function generateStaticParams() {
+    try {
+        const careCenters = await getCareCenters();
+        return careCenters
+            .filter((c: any) => c.status === 'visible')
+            .map((c: any) => ({
+                name: c.name.replace(/\s+/g, '-'),
+            }));
+    } catch (error) {
+        console.error('Error generating static params for care centers:', error);
+        return [];
+    }
+}
+
 // 1. สร้าง Metadata สำหรับ SEO รายหน้าแบบ Dynamic
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
     const { name } = await params;
