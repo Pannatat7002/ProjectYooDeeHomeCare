@@ -39,3 +39,18 @@ export const gtagReportConversion = (transactionId: string = '') => {
         });
     }
 };
+
+// Google Ads LINE Click Conversion Label
+export const GOOGLE_ADS_LINE_LABEL = '1pP8COnZ-LwcEJGVqutD'; 
+
+// Event snippet for LINE click conversion page
+export const gtagReportLineConversion = (transactionId: string = '') => {
+    if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'conversion', {
+            'send_to': `${GOOGLE_ADS_ID}/${GOOGLE_ADS_LINE_LABEL}`,
+            'value': 1.0,
+            'currency': 'THB',
+            'transaction_id': transactionId
+        });
+    }
+};

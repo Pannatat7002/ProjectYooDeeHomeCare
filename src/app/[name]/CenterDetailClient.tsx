@@ -1031,7 +1031,10 @@ export default function CenterDetailClient({
                                     href="https://line.me/R/ti/p/%40256zihiv"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    onClick={() => gtag.event({ action: 'click_line_contact', category: 'Conversion', label: center.name })}
+                                    onClick={() => {
+                                        gtag.event({ action: 'click_line_contact', category: 'Conversion', label: center.name });
+                                        gtag.gtagReportLineConversion();
+                                    }}
                                     className="w-full flex items-center justify-center px-4 py-3 bg-[#06C755] text-white text-base font-bold rounded-xl hover:bg-[#05b04b] transition-all duration-300 shadow-lg shadow-green-100 hover:shadow-xl active:scale-[0.98]"
                                 >
                                     <img

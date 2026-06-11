@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Facebook, PhoneCall, Mail } from 'lucide-react';
+import * as gtag from '../lib/gtag';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -58,6 +59,10 @@ export default function Footer() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center text-sm text-gray-300 hover:text-[#06C755] transition-colors"
+                                onClick={() => {
+                                    gtag.event({ action: 'click_footer_line_text', category: 'Conversion', label: 'LINE_Contact' });
+                                    gtag.gtagReportLineConversion();
+                                }}
                             >
                                 <img
                                     src="/images/LINE_APP_iOS.png"
@@ -85,6 +90,10 @@ export default function Footer() {
                                 rel="noopener noreferrer"
                                 aria-label="Line"
                                 className="w-9 h-9 flex items-center justify-center bg-gray-700 hover:bg-[#06C755] rounded-full transition-colors overflow-hidden"
+                                onClick={() => {
+                                    gtag.event({ action: 'click_footer_line_social', category: 'Conversion', label: 'LINE_Contact' });
+                                    gtag.gtagReportLineConversion();
+                                }}
                             >
                                 <img
                                     src="/images/LINE_APP_iOS.png"
@@ -153,6 +162,10 @@ export default function Footer() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 bg-[#06C755] rounded-full px-5 py-3 shadow-xl hover:bg-[#05b04b] transition-colors cursor-pointer text-white text-sm font-bold order-1 md:order-2"
+                        onClick={() => {
+                            gtag.event({ action: 'click_footer_line_cta', category: 'Conversion', label: 'LINE_Contact' });
+                            gtag.gtagReportLineConversion();
+                        }}
                     >
                         <img
                             src="/images/LINE_APP_iOS.png"

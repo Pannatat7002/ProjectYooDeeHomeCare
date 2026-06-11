@@ -77,7 +77,10 @@ export default function Header() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center px-3 py-1.5 md:py-2 bg-[#06C755] text-white text-xs md:text-sm rounded-lg font-bold hover:bg-[#05b04b] transition-colors shadow-lg shadow-green-400/20 active:scale-[0.98]"
-                            onClick={() => gtag.event({ action: 'click_header_line', category: 'Conversion', label: 'LINE_Contact' })}
+                            onClick={() => {
+                                gtag.event({ action: 'click_header_line', category: 'Conversion', label: 'LINE_Contact' });
+                                gtag.gtagReportLineConversion();
+                            }}
                         >
                             <img
                                 src="/images/LINE_APP_iOS.png"
@@ -140,6 +143,7 @@ export default function Header() {
                                 onClick={() => {
                                     toggleMobileMenu();
                                     gtag.event({ action: 'click_mobile_menu_line', category: 'Conversion', label: 'LINE_Contact' });
+                                    gtag.gtagReportLineConversion();
                                 }}
                             >
                                 <img
