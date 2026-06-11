@@ -45,13 +45,26 @@ export default function Footer() {
 
                         {/* ข้อมูลติดต่อหลัก */}
                         <div className="space-y-2 pt-4">
-                            <a href="tel:+66987654321" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="tel:095-805-7052" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
                                 <PhoneCall className="h-4 w-4 mr-2 text-blue-400" />
                                 <span>โทร: 095-805-7052</span>
                             </a>
                             <a href="mailto:thaicarecenter01@gmail.com" className="flex items-center text-sm text-gray-300 hover:text-blue-400 transition-colors">
                                 <Mail className="h-4 w-4 mr-2 text-blue-400" />
                                 <span>อีเมล: thaicarecenter01@gmail.com</span>
+                            </a>
+                            <a
+                                href="https://line.me/R/ti/p/%40256zihiv"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center text-sm text-gray-300 hover:text-[#06C755] transition-colors"
+                            >
+                                <img
+                                    src="/images/LINE_APP_iOS.png"
+                                    alt="LINE Icon"
+                                    className="h-4 w-4 mr-2 object-contain rounded-sm"
+                                />
+                                <span>LINE: Thai Care Center</span>
                             </a>
                         </div>
 
@@ -71,13 +84,13 @@ export default function Footer() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Line"
-                                className="p-2 bg-gray-700 rounded-full text-green-400 hover:bg-green-500 hover:text-white transition-colors"
+                                className="w-9 h-9 flex items-center justify-center bg-gray-700 hover:bg-[#06C755] rounded-full transition-colors overflow-hidden"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.111 6.889c.175.05.289.245.289.43v.222c0 .285-.18.537-.444.608l-2.611.696.555 1.5c.08.214-.028.455-.25.535l-2.667.926c-.222.078-.465-.03-.544-.252l-.667-1.833a.444.444 0 0 1 .43-.608l2.611-.696-.555-1.5c-.08-.214.028-.455.25-.535l2.667-.926c.222-.078.465.03.544.252l.667 1.833z" />
-                                    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
-                                    <path fill="currentColor" d="M15.444 8.889c.175.05.289.245.289.43v.222c0 .285-.18.537-.444.608l-2.611.696.555 1.5c.08.214-.028.455-.25.535l-2.667.926c-.222.078-.465-.03-.544-.252l-.667-1.833a.444.444 0 0 1 .43-.608l2.611-.696-.555-1.5c-.08-.214.028-.455.25-.535l2.667-.926c.222-.078.465.03.544.252z" />
-                                </svg>
+                                <img
+                                    src="/images/LINE_APP_iOS.png"
+                                    alt="LINE Icon"
+                                    className="w-5 h-5 object-contain rounded-sm"
+                                />
                             </a>
                         </div>
                     </div>
@@ -135,13 +148,19 @@ export default function Footer() {
                     </p>
 
                     {/* CTA Button */}
-                    <Link
-                        href="/contact"
-                        className="flex items-center space-x-2 bg-green-500 rounded-full px-5 py-3 shadow-xl hover:bg-green-600 transition-colors cursor-pointer text-white text-sm font-bold order-1 md:order-2"
+                    <a
+                        href="https://line.me/R/ti/p/%40256zihiv"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 bg-[#06C755] rounded-full px-5 py-3 shadow-xl hover:bg-[#05b04b] transition-colors cursor-pointer text-white text-sm font-bold order-1 md:order-2"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 0-9.25 13c-.1 1 .5 2 1.25 2.75L2 22l3.5-1.5c.75.75 1.75 1.25 2.75 1.25A10 10 0 0 0 22 12 10 10 0 0 0 12 2Z" /><path d="M8 12h8" /><path d="M12 8v8" /></svg>
-                        <span>ปรึกษาฟรีกับเจ้าหน้าที่</span>
-                    </Link>
+                        <img
+                            src="/images/LINE_APP_iOS.png"
+                            alt="LINE Icon"
+                            className="w-5 h-5 object-contain rounded-sm flex-shrink-0"
+                        />
+                        <span>ปรึกษาฟรีกับเจ้าหน้าที่ผ่าน LINE</span>
+                    </a>
                 </div>
             </div>
         </footer>

@@ -35,9 +35,13 @@ export default function ProviderSignupPage() {
                         </p>
                         <button
                             onClick={handleLineClick}
-                            className="inline-flex items-center px-10 py-5 bg-green-500 hover:bg-green-600 text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-green-500/50 transition-all transform hover:scale-105 hover:-translate-y-1"
+                            className="inline-flex items-center px-10 py-4 bg-[#06C755] hover:bg-[#05b04b] text-white text-lg font-bold rounded-2xl shadow-2xl hover:shadow-green-500/30 transition-all transform hover:scale-105 hover:-translate-y-1"
                         >
-                            <MessageCircle className="w-7 h-7 mr-3" />
+                            <img
+                                src="/images/LINE_APP_iOS.png"
+                                alt="LINE Icon"
+                                className="w-8 h-8 mr-3 object-contain rounded-md flex-shrink-0"
+                            />
                             Add LINE เพื่อสมัครงาน
                         </button>
                         <p className="mt-4 text-blue-200 text-sm">
@@ -315,9 +319,13 @@ export default function ProviderSignupPage() {
                             </p>
                             <button
                                 onClick={handleLineClick}
-                                className="inline-flex items-center px-12 py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-green-500/50 transition-all transform hover:scale-105 hover:-translate-y-1 mb-6"
+                                className="inline-flex items-center px-12 py-5 bg-[#06C755] hover:bg-[#05b04b] text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-green-500/30 transition-all transform hover:scale-105 hover:-translate-y-1 mb-6"
                             >
-                                <MessageCircle className="w-8 h-8 mr-3" />
+                                <img
+                                    src="/images/LINE_APP_iOS.png"
+                                    alt="LINE Icon"
+                                    className="w-9 h-9 mr-3 object-contain rounded-md flex-shrink-0"
+                                />
                                 Add LINE เพื่อสมัครงานเลย
                             </button>
 

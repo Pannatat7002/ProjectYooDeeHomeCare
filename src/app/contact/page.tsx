@@ -65,11 +65,69 @@ export default function ContactPage() {
                 </div>
 
                 <div className="container mx-auto px-4 py-16">
-                    <div className="max-w-3xl mx-auto">
+                    <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Contact Info Sidebar - spans 5 columns on lg */}
+                        <div className="lg:col-span-5 space-y-6">
+                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col h-full justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-6">ข้อมูลการติดต่อ</h3>
+                                    <p className="text-gray-600 mb-8">
+                                        ท่านสามารถติดต่อสอบถามข้อมูลเพิ่มเติม ขอรับคำปรึกษาการเลือกศูนย์ดูแล หรือแจ้งปัญหาการใช้งานผ่านช่องทางต่างๆ ของเราได้ตลอดเวลา
+                                    </p>
+                                    
+                                    <div className="space-y-6">
+                                        <div className="flex items-start">
+                                            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl mr-4">
+                                                <Phone className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-900 text-sm">เบอร์โทรศัพท์</h4>
+                                                <p className="text-gray-600 text-base mt-0.5">095-805-7052</p>
+                                            </div>
+                                        </div>
 
+                                        <div className="flex items-start">
+                                            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl mr-4">
+                                                <Mail className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-900 text-sm">อีเมล</h4>
+                                                <p className="text-gray-600 text-base mt-0.5">thaicarecenter01@gmail.com</p>
+                                            </div>
+                                        </div>
 
-                        {/* Contact Form */}
-                        <div>
+                                        <div className="flex items-start">
+                                            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl mr-4">
+                                                <Clock className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-900 text-sm">เวลาทำการ</h4>
+                                                <p className="text-gray-600 text-base mt-0.5">จันทร์ - ศุกร์ 09:00 - 18:00 น.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 pt-8 border-t border-gray-100">
+                                    <a
+                                        href="https://line.me/R/ti/p/%40256zihiv"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full flex items-center justify-center px-4 py-3 bg-[#06C755] text-white text-base font-bold rounded-xl hover:bg-[#05b04b] transition-all duration-300 shadow-lg shadow-green-100 hover:shadow-xl active:scale-[0.98]"
+                                    >
+                                        <img
+                                            src="/images/LINE_APP_iOS.png"
+                                            alt="LINE Icon"
+                                            className="w-8 h-8 mr-3 object-contain rounded-md flex-shrink-0"
+                                        />
+                                        ติดต่อผ่าน LINE
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contact Form - spans 7 columns on lg */}
+                        <div className="lg:col-span-7">
                             <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                                 <h3 className="text-2xl font-bold text-gray-900 mb-6">ส่งข้อความถึงเรา</h3>
                                 <form onSubmit={handleSubmit} className="space-y-6">

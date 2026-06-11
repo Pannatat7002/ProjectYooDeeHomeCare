@@ -1026,6 +1026,22 @@ export default function CenterDetailClient({
                                     นัดเยี่ยมชมศูนย์
                                 </button>
 
+                                {/* ปุ่มติดต่อทาง Line */}
+                                <a
+                                    href="https://line.me/R/ti/p/%40256zihiv"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => gtag.event({ action: 'click_line_contact', category: 'Conversion', label: center.name })}
+                                    className="w-full flex items-center justify-center px-4 py-3 bg-[#06C755] text-white text-base font-bold rounded-xl hover:bg-[#05b04b] transition-all duration-300 shadow-lg shadow-green-100 hover:shadow-xl active:scale-[0.98]"
+                                >
+                                    <img
+                                        src="/images/LINE_APP_iOS.png"
+                                        alt="LINE Icon"
+                                        className="w-8 h-8 mr-3 object-contain rounded-md flex-shrink-0"
+                                    />
+                                    ติดต่อผ่าน LINE
+                                </a>
+
                                 {/* 2. ปุ่มติดต่อเจ้าหน้าที่ (Secondary Action) - เน้นรองลงมา */}
                                 <button
                                     onClick={() => {
