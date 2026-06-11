@@ -445,7 +445,7 @@ export default function HomePageClient({
   useEffect(() => {
     // โหลดข้อมูลเริ่มต้นเรียบร้อยแล้วจาก Server Side Props
     // ไม่จำเป็นต้องทำการ Fetch API บน Client อีกครั้งตอนหน้าเว็บเปิดขึ้นมา
-    
+
     // ตั้งค่า Log เมื่อรันบนบราวเซอร์ เพื่อส่ง Event การเข้าชมหน้า
     gtag.event({ action: 'view_item_list', category: 'Discovery', label: 'Home Page Loaded' });
   }, []);
@@ -750,9 +750,9 @@ export default function HomePageClient({
 
           <div className="mb-8 md:mb-10 flex flex-col items-center justify-center">
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 drop-shadow-xl tracking-tight leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 drop-shadow-xl tracking-tight leading-normal">
 
-              ค้นหาสถานที่ดูแล<br className="md:hidden" />ผู้สูงอายุและผู้ป่วยพักฟื้น
+              ค้นหาสถานที่ดูแล<br className="md:hidden" /><span className="inline-block">ผู้สูงอายุ</span>และ<span className="inline-block">ผู้ป่วยพักฟื้น</span>
 
             </h1>
 
@@ -782,9 +782,9 @@ export default function HomePageClient({
 
               <div className="relative w-full">
 
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
 
-                  <Search className="h-6 w-6" />
+                  <Search className="h-5 w-5 md:h-6 md:w-6" />
 
                 </div>
 
@@ -792,7 +792,7 @@ export default function HomePageClient({
 
                   type="text"
 
-                  className="w-full pl-14 pr-14 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-lg outline-none shadow-sm"
+                  className="w-full pl-11 md:pl-14 pr-14 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
 
                   placeholder="ค้นหาชื่อศูนย์, จังหวัด, หรือบริการ..."
 

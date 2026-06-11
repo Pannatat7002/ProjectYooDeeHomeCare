@@ -1,7 +1,7 @@
 // src/app/layout.tsx
 
 import type { Metadata, Viewport } from "next"; // เพิ่ม Viewport
-import { Sarabun } from "next/font/google";
+import { Noto_Sans_Thai_Looped } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { GA_TRACKING_ID, GOOGLE_ADS_ID } from "../lib/gtag";
@@ -9,11 +9,11 @@ import { Analytics } from "@vercel/analytics/next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-const sarabun = Sarabun({
-  weight: ['400', '500', '700'],
+const notoSansThaiLooped = Noto_Sans_Thai_Looped({
+  weight: ['400', '500', '600', '700'],
   subsets: ['thai', 'latin'],
-  variable: '--font-sarabun',
-  display: 'swap', // แนะนำ: ช่วยเรื่อง LCP (ลด Flash of Unstyled Text)
+  variable: '--font-noto-sans-thai-looped',
+  display: 'swap',
 });
 
 const BASE_URL = 'https://ThaiCareCenter.com';
@@ -135,7 +135,7 @@ export default function RootLayout({
 
   return (
     <html lang="th">
-      <body className={`${sarabun.className} bg-gray-50 min-h-screen flex flex-col`}>
+      <body className={`${notoSansThaiLooped.className} bg-gray-50 min-h-screen flex flex-col`}>
         {/* ใส่ JSON-LD Script */}
         <script
           type="application/ld+json"
