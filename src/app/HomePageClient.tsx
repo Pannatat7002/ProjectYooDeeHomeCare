@@ -272,13 +272,19 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
 
             <div>
 
-              <p className="text-xs text-gray-400 mb-0.5">ราคาเริ่มต้น</p>
+              <p className="text-xs text-green-600 font-bold mb-0.5">ค้นหาและเข้าใช้งาน</p>
 
-              <p className="text-lg font-bold text-blue-600">
+              <p className="text-sm font-extrabold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg inline-block">
 
-                ฿{center.price?.toLocaleString() ?? '0'}<span className="text-xs text-gray-400 font-normal ml-1">/เดือน</span>
+                ฟรีไม่มีค่าใช้จ่าย
 
               </p>
+
+            </div>
+
+            <div className="text-right text-xs text-gray-400 font-medium">
+
+              ติดต่อตรงต้นทาง
 
             </div>
 
@@ -448,6 +454,20 @@ export default function HomePageClient({
 
     // ตั้งค่า Log เมื่อรันบนบราวเซอร์ เพื่อส่ง Event การเข้าชมหน้า
     gtag.event({ action: 'view_item_list', category: 'Discovery', label: 'Home Page Loaded' });
+
+    // ส่ง Traffic Log ไปยัง Backend API
+    fetch('/api/traffic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventType: 'page_view',
+        pagePath: '/',
+        utmSource: new URLSearchParams(window.location.search).get('utm_source') || '',
+        utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || '',
+        utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || '',
+        referrer: document.referrer || ''
+      })
+    }).catch(err => console.error('Error logging traffic:', err));
   }, []);
 
 

@@ -25,7 +25,7 @@ const parseSheetRow = (row: any) => {
     const formatted: any = {};
 
     // รายชื่อฟิลด์ที่ควรจะเป็นตัวเลข
-    const numberFields = ['price', 'lat', 'lng', 'rating', 'id', 'recipientAge'];
+    const numberFields = ['price', 'lat', 'lng', 'rating', 'id', 'recipientAge', 'centerId'];
 
     Object.keys(row).forEach((key) => {
         let value = row[key];
@@ -221,6 +221,7 @@ const loadDataFromSheet = async (sheetName: string) => {
 export const getCareCenters = async () => loadDataFromSheet('CareCenters');
 export const getConsultations = async () => loadDataFromSheet('Consultations');
 export const getContacts = async () => loadDataFromSheet('Contacts');
+export const getTrafficLogs = async () => loadDataFromSheet('Traffic');
 
 // 2. SAVE (บันทึกทับ - ใช้เมื่อแก้ไขข้อมูล)
 export const saveCareCenters = async (data: any[]) => saveDataToSheet('CareCenters', data);
@@ -231,6 +232,7 @@ export const saveContacts = async (data: any[]) => saveDataToSheet('Contacts', d
 export const addCareCenter = async (item: any) => addDataToSheet('CareCenters', item);
 export const addConsultation = async (item: any) => addDataToSheet('Consultations', item);
 export const addContact = async (item: any) => addDataToSheet('Contacts', item);
+export const addTrafficLog = async (item: any) => addDataToSheet('Traffic', item);
 
 // 4. BLOGS
 export const getBlogs = async () => loadDataFromSheet('Blogs');
