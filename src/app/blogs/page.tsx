@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { getBlogs } from '../../lib/db';
 import { Blog } from '../../types';
 import { Calendar, User, ArrowRight, BookOpen, Clock, Lightbulb, TrendingUp } from 'lucide-react';
+import BlogImage from './BlogImage';
+
 
 // กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
 export const revalidate = 300;
@@ -71,11 +73,10 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
                                     </span>
                                 </div>
                             )}
-                            <img
+                            <BlogImage
                                 src={blog.coverImage || 'https://via.placeholder.com/800x600?text=Official+Document+Cover'}
                                 alt={blog.title}
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:opacity-90"
-                                onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/800x600?text=Image+Not+Available')}
                             />
                         </div>
 
