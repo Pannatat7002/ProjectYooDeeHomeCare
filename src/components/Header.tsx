@@ -71,24 +71,6 @@ export default function Header() {
                             <span className="text-gray-500 hover:text-blue-600 cursor-pointer transition-colors">EN</span>
                         </div>
 
-                        {/* LINE Button */}
-                        <a
-                            href="https://line.me/R/ti/p/%40256zihiv"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center px-3 py-1.5 md:py-2 bg-[#06C755] text-white text-xs md:text-sm rounded-lg font-bold hover:bg-[#05b04b] transition-colors shadow-lg shadow-green-400/20 active:scale-[0.98]"
-                            onClick={() => {
-                                gtag.event({ action: 'click_header_line', category: 'Conversion', label: 'LINE_Contact' });
-                                gtag.gtagReportLineConversion();
-                            }}
-                        >
-                            <img
-                                src="/images/LINE_APP_iOS.png"
-                                alt="LINE Icon"
-                                className="w-4 h-4 md:w-5 md:h-5 mr-1.5 object-contain rounded-sm flex-shrink-0"
-                            />
-                            <span>LINE</span>
-                        </a>
 
                         {/* 3. CTA Button - ปรับขนาดและ padding ให้เล็กลง: px-3 py-2 */}
                         <Link
@@ -134,25 +116,6 @@ export default function Header() {
                                 สนใจเข้ารวม
                             </Link>
 
-                            {/* LINE Button ใน Mobile Menu */}
-                            <a
-                                href="https://line.me/R/ti/p/%40256zihiv"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-white bg-[#06C755] hover:bg-[#05b04b] py-2 px-3 mt-2 rounded-lg font-bold flex items-center justify-center transition-all shadow-md"
-                                onClick={() => {
-                                    toggleMobileMenu();
-                                    gtag.event({ action: 'click_mobile_menu_line', category: 'Conversion', label: 'LINE_Contact' });
-                                    gtag.gtagReportLineConversion();
-                                }}
-                            >
-                                <img
-                                    src="/images/LINE_APP_iOS.png"
-                                    alt="LINE Icon"
-                                    className="w-5 h-5 mr-2 object-contain rounded-sm flex-shrink-0"
-                                />
-                                ติดต่อผ่าน LINE
-                            </a>
 
                             {/* Language Switcher ใน Mobile Menu (คงเดิม) */}
                             <div className="flex items-center justify-center space-x-2 text-sm font-bold pt-3 mt-3 border-t border-gray-100">
