@@ -10,13 +10,13 @@ const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY || PRIVATE_KEY;
 
 // 1. ตั้งค่าการยืนยันตัวตน (Authentication)
 const serviceAccountAuth = new JWT({
-    email: clientEmail,
-    key: rawPrivateKey.replace(/\\n/g, '\n'), // แก้ปัญหา \n ใน Vercel/Next.js
+    email: CLIENT_EMAIL,
+    key: PRIVATE_KEY.replace(/\\n/g, '\n'),
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-export const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
-
+// export const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
+export const doc = new GoogleSpreadsheet(SHEET_ID, serviceAccountAuth);
 // 2. Helper: ดึง Sheet ตามชื่อ (ถ้าไม่มีจะสร้างใหม่)
 export const getSheet = async (title: string) => {
     try {
