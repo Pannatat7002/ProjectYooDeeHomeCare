@@ -1032,15 +1032,9 @@ export default function CenterDetailClient({
                             {/* Main Content Area */}
                             <div className="grid grid-cols-1 gap-5">
                                 {/* Info Section */}
-                                <div className="space-y-4">
-                                    {/* Standard Care Service Tag */}
-                                    {/* <div className="flex items-center text-[#2b64a0] font-extrabold text-sm bg-blue-50/80 px-3.5 py-2 rounded-xl border border-blue-100 w-fit">
-                                        <CheckCircle2 className="w-4 h-4 text-[#2b64a0] mr-2 shrink-0" />
-                                        บริการดูแลมาตรฐาน
-                                    </div> */}
-
-                                    {/* Price tag */}
-                                    {isTrue(center.isPartner) && (
+                                {isTrue(center.isPartner) && (
+                                    <div className="space-y-4">
+                                        {/* Price tag */}
                                         <div className="space-y-1">
                                             <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider">อัตราค่าบริการ</div>
                                             <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
@@ -1051,10 +1045,8 @@ export default function CenterDetailClient({
                                                 <span className="text-xs font-bold text-red-500">(ไม่รวม VAT)</span>
                                             </div>
                                         </div>
-                                    )}
 
-                                    {/* Promo Box */}
-                                    {isTrue(center.isPartner) && (
+                                        {/* Promo Box */}
                                         <div className="p-4 bg-blue-50/40 border border-blue-100 rounded-2xl space-y-3 shadow-inner">
                                             <div className="flex items-start text-gray-800 text-sm font-bold leading-normal">
                                                 <span className="text-lg mr-2 shrink-0 animate-bounce">🔥</span>
@@ -1085,17 +1077,11 @@ export default function CenterDetailClient({
                                                 </span>
                                             </a>
                                         </div>
-                                    )}
-
-                                    {/* Deadline */}
-                                    {/* <div className="flex items-center text-xs text-gray-600 font-bold bg-gray-50 px-3 py-2 rounded-xl border border-gray-150 w-fit">
-                                        <span className="text-base mr-2 shrink-0">⏰</span>
-                                        <span>สมัครภายใน <span className="font-extrabold text-[#2b64a0] underline decoration-[#2b64a0] decoration-2 underline-offset-4">{getEndDayText()}</span> เท่านั้น</span>
-                                    </div> */}
-                                </div>
+                                    </div>
+                                )}
 
                                 {/* Contact Header */}
-                                <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider border-t border-gray-100 pt-4">
+                                <div className={`text-gray-400 text-xs font-semibold uppercase tracking-wider ${isTrue(center.isPartner) ? 'border-t border-gray-100 pt-4' : ''}`}>
                                     ช่องทางการติดต่อ
                                 </div>
 
@@ -1103,47 +1089,19 @@ export default function CenterDetailClient({
                                 <div className="flex flex-col gap-3">
                                     {isTrue(center.isPartner) ? (
                                         <>
-                                            {/* Web / Website button */}
-                                            {center.website ? (
-                                                <a
-                                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    onClick={() => {
-                                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
-                                                        logTraffic('click_website');
-                                                    }}
-                                                    className="w-full flex items-center justify-between px-6 py-3.5 bg-[#2b64a0] text-white text-base font-extrabold rounded-full shadow hover:bg-[#1e4a77] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                                >
-                                                    <span>เข้าชมเว็บไซต์</span>
-                                                    <div className="bg-white rounded-full p-1.5 w-7 h-7 flex items-center justify-center shrink-0">
-                                                        <Globe className="w-4 h-4 text-[#2b64a0]" />
-                                                    </div>
-                                                </a>
-                                            ) : (
-                                                <div className="text-center p-3.5 bg-gray-50 border border-dashed rounded-full text-gray-400 text-xs font-semibold">
-                                                    ยังไม่มีข้อมูลเว็บไซต์ทางการ
-                                                </div>
-                                            )}
+                                            {/* 1. นัดเยี่ยมชมศูนย์ */}
+                                            <button
+                                                onClick={() => {
+                                                    setIsConsultationModalOpen(true);
+                                                    gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
+                                                }}
+                                                className="w-full flex items-center justify-center px-6 py-3.5 bg-blue-600 text-white text-base font-extrabold rounded-full shadow hover:bg-blue-700 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                            >
+                                                <Calendar className="w-5 h-5 mr-2" />
+                                                นัดเยี่ยมชมศูนย์
+                                            </button>
 
-                                            {/* Call button */}
-                                            {center.phone ? (
-                                                <a
-                                                    href={`tel:${center.phone}`}
-                                                    onClick={() => {
-                                                        gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
-                                                        logTraffic('click_phone');
-                                                    }}
-                                                    className="w-full flex items-center justify-between px-6 py-3.5 bg-[#2563eb] text-white text-base font-extrabold rounded-full shadow hover:bg-[#1d4ed8] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                                >
-                                                    <span>โทรหาเรา</span>
-                                                    <div className="bg-white rounded-full p-1.5 w-7 h-7 flex items-center justify-center shrink-0">
-                                                        <Phone className="w-4 h-4 text-[#2563eb] fill-current" />
-                                                    </div>
-                                                </a>
-                                            ) : null}
-
-                                            {/* LINE button */}
+                                            {/* 2. ติดต่อผ่าน LINE */}
                                             <a
                                                 href="https://line.me/R/ti/p/%40256zihiv"
                                                 target="_blank"
@@ -1153,39 +1111,51 @@ export default function CenterDetailClient({
                                                     gtag.gtagReportLineConversion();
                                                     logTraffic('click_line');
                                                 }}
-                                                className="w-full flex items-center justify-between px-6 py-3.5 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                className="w-full flex items-center justify-center px-6 py-3.5 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                             >
-                                                <span>ติดต่อทางไลน์</span>
-                                                <div className="bg-white rounded-full p-1 w-7 h-7 flex items-center justify-center shrink-0">
-                                                    <img
-                                                        src="/images/LINE_APP_iOS.png"
-                                                        alt="LINE Icon"
-                                                        className="w-4 h-4 object-contain rounded-sm"
-                                                    />
-                                                </div>
+                                                <img
+                                                    src="/images/LINE_APP_iOS.png"
+                                                    alt="LINE Icon"
+                                                    className="w-5 h-5 object-contain rounded-sm mr-2"
+                                                />
+                                                ติดต่อผ่าน LINE
                                             </a>
 
-                                            {/* Platform appointment action button */}
-                                            <div className="relative my-2 flex py-1 items-center">
-                                                <div className="flex-grow border-t border-gray-150"></div>
-                                                <span className="flex-shrink mx-3 text-[10px] text-gray-400 font-semibold uppercase tracking-wider">ติดต่อผ่านระบบ</span>
-                                                <div className="flex-grow border-t border-gray-150"></div>
-                                            </div>
+                                            {/* 3. ติดต่อเจ้าหน้าที่ */}
+                                            {center.phone ? (
+                                                <a
+                                                    href={`tel:${center.phone}`}
+                                                    onClick={() => {
+                                                        gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
+                                                        logTraffic('click_phone');
+                                                    }}
+                                                    className="w-full flex items-center justify-center px-6 py-3.5 bg-white text-blue-600 border-2 border-blue-100 text-base font-extrabold rounded-full shadow hover:border-blue-500 hover:bg-blue-50/50 transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                >
+                                                    <Phone className="w-5 h-5 mr-2 text-blue-600 fill-current" />
+                                                    ติดต่อเจ้าหน้าที่
+                                                </a>
+                                            ) : null}
 
-                                            <button
-                                                onClick={() => {
-                                                    setIsConsultationModalOpen(true);
-                                                    gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
-                                                }}
-                                                className="w-full flex items-center justify-center px-4 py-2.5 bg-white text-blue-600 border-2 border-blue-100 text-sm font-extrabold rounded-2xl hover:border-blue-500 hover:bg-blue-50/50 transition-all duration-300 active:scale-[0.98]"
-                                            >
-                                                <Calendar className="w-4 h-4 mr-2" />
-                                                นัดเยี่ยมชมผ่านระบบ
-                                            </button>
+                                            {/* 4. เข้าชมเว็บไซต์ */}
+                                            {center.website && (
+                                                <a
+                                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={() => {
+                                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
+                                                        logTraffic('click_website');
+                                                    }}
+                                                    className="w-full flex items-center justify-center px-4 py-3 text-gray-500 text-sm font-medium hover:text-blue-600 transition-colors duration-200"
+                                                >
+                                                    <Globe className="w-4 h-4 mr-2" />
+                                                    เข้าชมเว็บไซต์
+                                                </a>
+                                            )}
                                         </>
                                     ) : (
                                         <>
-                                            {/* Web / Website button */}
+                                            {/* Web / Website button (Solid blue button style with white text) */}
                                             {center.website ? (
                                                 <a
                                                     href={createOutboundLink(center.website, 'sidebar_website_btn')}
@@ -1195,12 +1165,10 @@ export default function CenterDetailClient({
                                                         gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
                                                         logTraffic('click_website');
                                                     }}
-                                                    className="w-full flex items-center justify-between px-6 py-3.5 bg-[#2b64a0] text-white text-base font-extrabold rounded-full shadow hover:bg-[#1e4a77] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                    className="w-full flex items-center justify-center px-6 py-3.5 bg-[#2b64a0] text-white text-base font-extrabold rounded-full shadow hover:bg-[#1e4a77] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                                 >
-                                                    <span>เข้าชมเว็บไซต์</span>
-                                                    <div className="bg-white rounded-full p-1.5 w-7 h-7 flex items-center justify-center shrink-0">
-                                                        <Globe className="w-4 h-4 text-[#2b64a0]" />
-                                                    </div>
+                                                    <Globe className="w-5 h-5 mr-2 text-white" />
+                                                    เข้าชมเว็บไซต์
                                                 </a>
                                             ) : (
                                                 <div className="text-center p-3.5 bg-gray-50 border border-dashed rounded-full text-gray-400 text-xs font-semibold">
@@ -1210,11 +1178,14 @@ export default function CenterDetailClient({
                                         </>
                                     )}
                                 </div>
+
                             </div>
 
-                            <div className="mt-5 pt-5 border-t border-gray-100 text-center">
-                                <p className="text-[10px] text-gray-400">ติดต่อผ่าน ThaiCareCenter ไม่มีค่าใช้จ่ายเพิ่มเติม</p>
-                            </div>
+                            {isTrue(center.isPartner) && (
+                                <div className="mt-5 pt-5 border-t border-gray-100 text-center">
+                                    <p className="text-[10px] text-gray-400">ติดต่อผ่าน ThaiCareCenter ไม่มีค่าใช้จ่ายเพิ่มเติม</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

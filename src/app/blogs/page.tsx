@@ -1,11 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
-'use client';
-
-import { useState, useEffect, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import Link from 'next/link';
-// สมมติว่าไฟล์ types.ts อยู่ในระดับบน
+// ตรวจสอบ path
+import { getBlogs } from '../../lib/db';
 import { Blog } from '../../types';
 import { Calendar, User, ArrowRight, BookOpen, Clock, Lightbulb, TrendingUp } from 'lucide-react';
+
+// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
+export const revalidate = 300;
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
@@ -15,10 +17,6 @@ const formatDate = (dateString: string) => {
         day: 'numeric'
     });
 };
-
-// กำหนดสีตามที่คุณต้องการ (#3a639b)
-const MAIN_BLUE_HEX = '#3a639b';
-const MAIN_BLUE_LIGHT = 'bg-[#3a639b]/5';
 
 // ข้อมูลสำหรับ Footer Detail (ข้อแนะนำการอ่านหนังสือ)
 const FooterDetail = {
@@ -64,7 +62,7 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
                         href={`/blogs/${blog.slug}`}
                         className="group flex flex-col h-full bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-200"
                     >
-                        {/* Card Content (ใช้โค้ดเดิม) */}
+                        {/* Card Content */}
                         <div className="relative h-48 md:h-52 overflow-hidden bg-gray-100 border-b border-gray-200">
                             {blog.isRecent && (
                                 <div className="absolute top-0 left-0 z-10 bg-[#3a639b] px-3 py-1">
@@ -93,7 +91,7 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
                             <div className="text-xs font-medium text-gray-500 space-y-2 pt-3 border-t border-gray-100 mt-auto">
                                 <div className="flex items-center">
                                     <Calendar className="w-3.5 h-3.5 mr-2 text-[#3a639b]" />
-                                    <span className='text-gray-700'>วันที่เผยแพร่: **{formatDate(blog.createdAt)}**</span>
+                                    <span className='text-gray-700'>วันที่เผยแพร่: {formatDate(blog.createdAt)}</span>
                                 </div>
                                 {blog.author && (
                                     <div className="flex items-center">
@@ -117,38 +115,35 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
     </>
 );
 
-export default function BlogsPage() {
-    const [blogs, setBlogs] = useState<Blog[]>([]);
-    const [loading, setLoading] = useState(true);
+export default async function BlogsPage() {
+    let rawBlogs: Blog[] = [];
+    try {
+        rawBlogs = await getBlogs();
+    } catch (error) {
+        console.error("Error fetching blogs on server:", error);
+    }
 
-    useEffect(() => {
-        fetch('/api/blogs?published=true')
-            .then(res => res.json())
-            .then(data => {
-                const sevenDaysAgo = new Date();
-                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-                const modifiedData = data.map((blog: Blog) => ({
-                    ...blog,
-                    isRecent: new Date(blog.createdAt) > sevenDaysAgo,
-                    // สมมติว่า 2 บทความแรกเป็นบทความแนะนำ (Featured)
-                    isFeatured: blog.id % 5 === 0 // ตัวอย่างการกำหนด featured
-                }));
+    // Filter by published status
+    const publishedBlogs = rawBlogs.filter((blog: any) => {
+        const val = blog.isPublished;
+        return val === true || val === 'true' || val === 'TRUE' || val === 1 || val === '1';
+    });
 
-                setBlogs(modifiedData);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Fetch error:", err);
-                setLoading(false);
-            });
-    }, []);
+    const blogs = publishedBlogs.map((blog: Blog) => ({
+        ...blog,
+        isRecent: new Date(blog.createdAt) > sevenDaysAgo,
+        // สมมติว่า 2 บทความแรกเป็นบทความแนะนำ (Featured)
+        isFeatured: blog.id % 5 === 0 // ตัวอย่างการกำหนด featured
+    }));
+
+    // Sort by date desc
+    blogs.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     const featuredBlogs = blogs.filter(blog => blog.isFeatured);
     const otherBlogs = blogs.filter(blog => !blog.isFeatured);
-    // ในชีวิตจริง อาจจะต้องมี logic สำหรับบทความยอดนิยม (Popular) เช่น อิงจาก view count
-
-
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -170,20 +165,7 @@ export default function BlogsPage() {
 
             {/* 2. Content Section - Grid of Official-looking Cards */}
             <div className="container mx-auto max-w-7xl px-4 py-16">
-
-                {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[1, 2, 3].map((n) => (
-                            <div key={n} className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 animate-pulse">
-                                <div className="bg-gray-100 h-40 rounded-md mb-4"></div>
-                                <div className="h-5 bg-gray-200 rounded w-4/5 mb-3"></div>
-                                <div className="h-3 bg-gray-100 rounded w-1/2 mb-6"></div>
-                                <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                                <div className="h-3 bg-gray-100 rounded w-11/12"></div>
-                            </div>
-                        ))}
-                    </div>
-                ) : blogs.length === 0 ? (
+                {blogs.length === 0 ? (
                     <div className="text-center py-16 bg-white rounded-lg shadow-inner border border-gray-300">
                         <div className="mx-auto w-14 h-14 bg-[#3a639b]/10 border border-[#3a639b]/30 rounded-full flex items-center justify-center mb-4">
                             <BookOpen className="w-7 h-7 text-[#3a639b]" />
@@ -202,8 +184,7 @@ export default function BlogsPage() {
                             icon={<Lightbulb className="w-5 h-5 mr-3 text-yellow-600" />}
                         />
 
-                        {/* 2.2 บทความยอดนิยม (Popular Articles) - แสดงเฉพาะหัวข้อ, หากมีข้อมูลก็สามารถแสดงได้ */}
-                        {/* เนื่องจากไม่มีข้อมูลยอดนิยม จึงใส่เป็นส่วนที่สองที่อาจจะว่าง หรือใช้ logic อื่น ๆ แทน */}
+                        {/* 2.2 บทความยอดนิยม (Popular Articles) - แสดงเฉพาะหัวข้อ */}
                         <h2 className="text-2xl font-bold text-gray-800 mb-8 mt-12 flex items-center border-b border-gray-200 pb-3">
                             <TrendingUp className="w-5 h-5 mr-3 text-green-600" />
                             <span className="text-[#3a639b]">บทความยอดนิยม (Trending)</span>
@@ -211,7 +192,6 @@ export default function BlogsPage() {
                         <div className="text-center py-5 bg-gray-100 rounded-lg border border-gray-200 text-gray-700 text-sm">
                             <p>ข้อมูลบทความยอดนิยมอยู่ระหว่างการประมวลผลสถิติ</p>
                         </div>
-
 
                         {/* 2.3 บทความอื่นๆ (Other Articles) */}
                         <BlogGrid
@@ -226,10 +206,8 @@ export default function BlogsPage() {
             {/* 3. Footer Detail - ข้อแนะนำการอ่านหนังสือสำหรับผู้สูงอายุ */}
             <footer className="bg-gray-50 border-t border-gray-200 mt-16">
                 <div className="container mx-auto max-w-7xl px-4 py-16">
-                    {/* กล่องคำแนะนำหลัก - ใช้สีน้ำเงินเข้ม/ทองอ่อน เพื่อความรู้สึกมั่นคงและมีคุณภาพ */}
                     <div className="bg-white p-8 md:p-12 rounded-xl shadow-2xl border border-blue-100/70">
                         <h3 className="text-3xl font-extrabold text-blue-900 mb-6 flex items-center justify-center text-center">
-                            {/* BookOpen ควรถูก import มาใช้งาน */}
                             <BookOpen className="w-8 h-8 mr-3 text-amber-500" />
                             {FooterDetail.title}
                         </h3>
@@ -238,7 +216,7 @@ export default function BlogsPage() {
                         </p>
 
                         <div className="grid lg:grid-cols-2 gap-10">
-                            {/* ส่วนที่ 1: ประโยชน์ - เน้นสีเขียว (สื่อถึงสุขภาพ/การเติบโต) */}
+                            {/* ส่วนที่ 1: ประโยชน์ */}
                             <div className="bg-green-50 p-6 rounded-lg border-l-4 border-green-500 shadow-md">
                                 <h4 className="text-xl font-bold text-green-700 mb-4 flex items-center">
                                     <span className='mr-2 text-2xl'>🌿</span> ประโยชน์อันน่าทึ่งของการอ่าน
@@ -253,7 +231,7 @@ export default function BlogsPage() {
                                 </ul>
                             </div>
 
-                            {/* ส่วนที่ 2: ข้อแนะนำในการเลือกหนังสือ - เน้นสีน้ำเงิน/ม่วง (สื่อถึงสติปัญญา/การเรียนรู้) */}
+                            {/* ส่วนที่ 2: ข้อแนะนำในการเลือกหนังสือ */}
                             <div className="bg-indigo-50 p-6 rounded-lg border-l-4 border-indigo-500 shadow-md">
                                 <h4 className="text-xl font-bold text-indigo-700 mb-4 flex items-center">
                                     <span className='mr-2 text-2xl'>💡</span> แนวทางการเลือกหนังสือที่เหมาะสม
@@ -269,13 +247,8 @@ export default function BlogsPage() {
                         </div>
 
                     </div>
-
-                    {/* ส่วนลิขสิทธิ์ */}
-                    {/* <div className='text-center text-xs text-gray-500 mt-12 pt-5 border-t border-gray-200'>
-                        © {new Date().getFullYear()} ศูนย์กลางข้อมูลสารสนเทศ. สงวนลิขสิทธิ์.
-                    </div> */}
                 </div>
             </footer>
-        </div >
+        </div>
     );
 }
