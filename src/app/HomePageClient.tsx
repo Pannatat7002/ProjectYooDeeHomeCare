@@ -267,7 +267,7 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
 
 
           {/* Footer Section */}
-
+          {/* 
           <div className="mt-auto pt-1 border-t border-gray-50 flex items-center justify-between">
 
             <div>
@@ -288,7 +288,7 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
 
             </div>
 
-          </div>
+          </div> */}
 
         </div>
 
