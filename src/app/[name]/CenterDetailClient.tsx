@@ -553,46 +553,6 @@ const ContactStaffModal: React.FC<ContactStaffModalProps> = ({ isOpen, onClose, 
     );
 };
 
-// =========================================================================================
-// ROOM TYPE CARD COMPONENT
-// =========================================================================================
-
-// Helper mock data to show when roomTypes is not configured in Google Sheets
-const MOCK_ROOM_TYPES: RoomType[] = [
-    {
-        name: 'ห้องรวม (Shared Room)',
-        status: 'เตียงว่างพร้อมดูแลทันที',
-        description: 'ผู้สูงอายุที่ชอบสังคม ไม่ชอบอยู่คนเดียว, ต้องการประหยัดค่าใช้จ่าย แต่ยังได้รับการดูแลมาตรฐานครบถ้วน',
-        facilities: ['เตียงปรับไฟฟ้าแยกม่านกั้น', 'ปุ่มเรียกพยาบาลฉุกเฉิน', 'เครื่องปรับอากาศส่วนกลาง', 'เครื่องฟอกอากาศ PM 2.5', 'ตู้เก็บของส่วนตัว'],
-        imageUrls: [
-            'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600',
-            'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=600',
-            'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=600'
-        ]
-    },
-    {
-        name: 'ห้องเดี่ยว (Private Room)',
-        status: 'เตียงว่างพร้อมบริการ',
-        description: 'ผู้ที่ต้องการความเป็นส่วนตัวสูง, ญาติเข้าเยี่ยมได้สะดวก, หรือผู้ที่ต้องการความเงียบสงบในการพักผ่อน',
-        facilities: ['เตียงปรับไฟฟ้า 3 ไก', 'ปุ่มกดฉุกเฉินข้างเตียง', 'เครื่องปรับอากาศ', 'สมาร์ททีวี', 'กล้องวงจรปิด CCTV 24 ชม.', 'วิวสวนหย่อม'],
-        imageUrls: [
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=600',
-            'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=600',
-            'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?auto=format&fit=crop&q=80&w=600'
-        ]
-    },
-    {
-        name: 'ห้องคู่ (Twin Room)',
-        status: 'มีเตียงว่าง',
-        description: 'คู่สามีภรรยา, พี่น้อง หรือเพื่อนที่ต้องการพักห้องเดียวกัน เพื่อให้อุ่นใจและดูแลกันได้ใกล้ชิด',
-        facilities: ['เตียงปรับไฟฟ้าคู่', 'ปุ่มกดฉุกเฉินแยกรายบุคคล', 'เครื่องปรับอากาศ', 'โซฟานั่งเล่นสำหรับญาติ', 'กล้องวงจรปิด', 'ห้องน้ำในตัว'],
-        imageUrls: [
-            'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=600',
-            'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=600',
-            'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&q=80&w=600'
-        ]
-    }
-];
 
 // Helper to get English sub-name
 const getRoomSubName = (name: string) => {
@@ -1107,7 +1067,7 @@ export default function CenterDetailClient({
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-2">
 
                     {/* Left Column */}
                     <div className="lg:col-span-2 space-y-12">
@@ -1133,7 +1093,7 @@ export default function CenterDetailClient({
                         </section>
 
                         {/* ✅ Room Types & Beds Section */}
-                        {((center.roomTypes && center.roomTypes.length > 0) || MOCK_ROOM_TYPES.length > 0) && (
+                        {center.roomTypes && center.roomTypes.length > 0 && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-lg shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 mb-6">
                                     <div className="flex flex-col">
@@ -1146,7 +1106,7 @@ export default function CenterDetailClient({
                                     </span>
                                 </div>
                                 <div className="space-y-6">
-                                    {(center.roomTypes && center.roomTypes.length > 0 ? center.roomTypes : MOCK_ROOM_TYPES).map((room, idx) => (
+                                    {center.roomTypes.map((room, idx) => (
                                         <RoomTypeCard key={idx} room={room} onInquire={handleInquireRoom} onOpenGallery={handleOpenGallery} />
                                     ))}
                                 </div>
@@ -1236,51 +1196,51 @@ export default function CenterDetailClient({
                     <div className="lg:col-span-1">
                         <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
                         <VerificationByMOPHCard hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)} />
-                        <div id="contact-sidebar" className="sticky top-24 bg-white rounded-none sm:rounded-3xl shadow-none sm:shadow-xl border-y border-x-0 sm:border border-gray-100 p-4 sm:p-6 -mx-4 sm:mx-0 z-10 transition-all duration-300 hover:shadow-2xl">
+                        <div id="contact-sidebar" className="sticky top-24 bg-white rounded-none sm:rounded-3xl shadow-none sm:shadow-xl border-y border-x-0 sm:border border-gray-100 p-4 sm:p-5 -mx-4 sm:mx-0 z-10 transition-all duration-300 hover:shadow-2xl">
                             {/* Main Content Area */}
-                            <div className="grid grid-cols-1 gap-5">
+                            <div className="grid grid-cols-1 gap-4">
                                 {/* Info Section */}
                                 {isTrue(center.isPartner) && (
-                                    <div className="space-y-4">
+                                    <div className="space-y-3.5">
                                         {/* Price tag */}
                                         <div className="space-y-1">
                                             <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider">อัตราค่าบริการ</div>
                                             <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
-                                                <span className="text-4xl md:text-4xl font-extrabold text-[#2b64a0] tracking-tight">
+                                                <span className="text-2xl sm:text-3xl font-extrabold text-[#2b64a0] tracking-tight">
                                                     {center.price && center.price > 0 ? `เริ่มต้น ${center.price.toLocaleString()} บ.` : 'เริ่มต้น 15,000 บ.'}
                                                 </span>
-                                                <span className="text-base font-bold text-gray-800">/เดือน</span>
+                                                <span className="text-sm font-bold text-gray-800">/เดือน</span>
                                                 <span className="text-xs font-bold text-red-500">(ไม่รวม VAT)</span>
                                             </div>
                                         </div>
 
                                         {/* Promo Box */}
-                                        <div className="p-4 bg-blue-50/50 border border-blue-200 rounded-2xl space-y-3.5 shadow-inner">
-                                            <div className="flex items-start text-gray-950 text-base font-extrabold leading-normal">
-                                                <span className="text-xl mr-2 shrink-0 animate-bounce">🔥</span>
+                                        <div className="p-3 sm:p-3.5 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2.5 shadow-inner">
+                                            <div className="flex items-start text-gray-950 text-sm sm:text-base font-bold leading-normal">
+                                                <span className="text-lg mr-2 shrink-0 animate-bounce">🔥</span>
                                                 <div>
                                                     จองสิทธิ์ <span className="text-[#2b64a0] underline decoration-wavy decoration-orange-400">"ทดลองเข้าพัก ฟรี 2 วัน"</span>
-                                                    <span className="text-red-500 text-xs block mt-1 font-bold">
+                                                    <span className="text-red-500 text-[10px] sm:text-xs block mt-0.5 font-bold">
                                                         (รับจำนวนจำกัด เพื่อการดูแลที่ทั่วถึง)
                                                     </span>
                                                 </div>
                                             </div>
 
-                                            <div className="text-sm font-extrabold text-[#2b64a0]">
+                                            <div className="text-xs sm:text-sm font-bold text-[#2b64a0]">
                                                 📞 โทรจองสิทธิ์ทดลองพักฟรีด่วน!
                                             </div>
 
                                             {/* Big Phone Number Box */}
                                             <a
                                                 href={`tel:${center.phone || '0958057052'}`}
-                                                className="flex items-center gap-2.5 px-4 py-2.5 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-fit shadow-md transition-all group"
+                                                className="flex items-center justify-center gap-2 px-3 py-2 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all group"
                                                 onClick={() => {
                                                     gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
                                                     logTraffic('click_phone');
                                                 }}
                                             >
-                                                <Phone className="w-5 h-5 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
-                                                <span className="text-xl font-extrabold text-white tracking-wider">
+                                                <Phone className="w-4 h-4 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
+                                                <span className="text-lg font-bold text-white tracking-wider">
                                                     {formatPhone(center.phone || '095-805-7052')}
                                                 </span>
                                             </a>
@@ -1289,12 +1249,12 @@ export default function CenterDetailClient({
                                 )}
 
                                 {/* Contact Header */}
-                                <div className={`text-gray-400 text-xs font-semibold uppercase tracking-wider ${isTrue(center.isPartner) ? 'border-t border-gray-100 pt-4' : ''}`}>
+                                <div className={`text-gray-400 text-xs font-semibold uppercase tracking-wider ${isTrue(center.isPartner) ? 'border-t border-gray-100 pt-3' : ''}`}>
                                     ช่องทางการติดต่อ
                                 </div>
 
                                 {/* Buttons Stack */}
-                                <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-2.5">
                                     {isTrue(center.isPartner) ? (
                                         <>
                                             {/* 1. เข้าชมเว็บไซต์ */}
@@ -1307,9 +1267,9 @@ export default function CenterDetailClient({
                                                         gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
                                                         logTraffic('click_website');
                                                     }}
-                                                    className="w-full flex items-center justify-center px-6 py-4 bg-blue-600 text-white text-lg font-black rounded-full shadow-md hover:bg-blue-700 hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                    className="w-full flex items-center justify-center px-5 py-3 bg-blue-600 text-white text-base font-extrabold rounded-full shadow hover:bg-blue-700 hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                                 >
-                                                    <Globe className="w-6 h-6 mr-2 text-white flex-shrink-0" />
+                                                    <Globe className="w-5 h-5 mr-2 text-white flex-shrink-0" />
                                                     ติดต่อศูนย์ดูแล
                                                 </a>
                                             )}
@@ -1324,12 +1284,12 @@ export default function CenterDetailClient({
                                                     gtag.gtagReportLineConversion();
                                                     logTraffic('click_line');
                                                 }}
-                                                className="w-full flex items-center justify-center px-6 py-4 bg-[#06C755] text-white text-lg font-black rounded-full shadow-md hover:bg-[#05a044] hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                className="w-full flex items-center justify-center px-5 py-3 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                             >
                                                 <img
                                                     src="/images/LINE_APP_iOS.png"
                                                     alt="LINE Icon"
-                                                    className="w-6 h-6 object-contain mr-2 flex-shrink-0 animate-pulse"
+                                                    className="w-5 h-5 object-contain mr-2 flex-shrink-0 animate-pulse"
                                                 />
                                                 ติดต่อผ่าน LINE
                                             </a>
@@ -1342,15 +1302,15 @@ export default function CenterDetailClient({
                                                         gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
                                                         logTraffic('click_phone');
                                                     }}
-                                                    className="w-full flex items-center justify-center px-6 py-4 bg-white text-blue-600 border-2 border-blue-200 text-lg font-black rounded-full shadow-md hover:border-blue-500 hover:bg-blue-50/50 transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                    className="w-full flex items-center justify-center px-5 py-3 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-full shadow hover:border-blue-500 hover:bg-blue-50/50 transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                                 >
-                                                    <Phone className="w-6 h-6 mr-2 text-blue-600 fill-current flex-shrink-0" />
+                                                    <Phone className="w-5 h-5 mr-2 text-blue-600 fill-current flex-shrink-0" />
                                                     ติดต่อเจ้าหน้าที่
                                                 </a>
                                             ) : null}
 
                                             {/* Line Separator */}
-                                            <div className="border-t border-gray-100 my-1" />
+                                            <div className="border-t border-gray-100 my-0.5" />
 
                                             {/* 4. นัดเยี่ยมชมศูนย์ */}
                                             <button
@@ -1358,9 +1318,9 @@ export default function CenterDetailClient({
                                                     setIsConsultationModalOpen(true);
                                                     gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
                                                 }}
-                                                className="w-full flex items-center justify-center px-6 py-3 bg-blue-50/50 text-blue-600 border border-blue-100 text-base font-bold rounded-full hover:bg-blue-50 hover:text-blue-700 transition-all active:scale-[0.98] group cursor-pointer"
+                                                className="w-full flex items-center justify-center px-5 py-2.5 bg-blue-50/50 text-blue-600 border border-blue-100 text-sm font-bold rounded-full hover:bg-blue-50 hover:text-blue-700 transition-all active:scale-[0.98] group cursor-pointer"
                                             >
-                                                <Calendar className="w-5 h-5 mr-2 text-blue-500 flex-shrink-0" />
+                                                <Calendar className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
                                                 นัดเยี่ยมชมศูนย์
                                             </button>
                                         </>
@@ -1376,13 +1336,13 @@ export default function CenterDetailClient({
                                                         gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
                                                         logTraffic('click_website');
                                                     }}
-                                                    className="w-full flex items-center justify-center px-6 py-4 bg-[#2b64a0] text-white text-lg font-black rounded-full shadow-md hover:bg-[#1e4a77] hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                    className="w-full flex items-center justify-center px-5 py-3 bg-[#2b64a0] text-white text-base font-extrabold rounded-full shadow hover:bg-[#1e4a77] hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                                 >
-                                                    <Globe className="w-6 h-6 mr-2 text-white flex-shrink-0" />
+                                                    <Globe className="w-5 h-5 mr-2 text-white flex-shrink-0" />
                                                     ติดต่อศูนย์ดูแล
                                                 </a>
                                             ) : (
-                                                <div className="text-center p-3.5 bg-gray-50 border border-dashed rounded-full text-gray-400 text-xs font-semibold">
+                                                <div className="text-center p-3 bg-gray-50 border border-dashed rounded-full text-gray-400 text-xs font-semibold">
                                                     ยังไม่มีข้อมูลเว็บไซต์ทางการ
                                                 </div>
                                             )}
