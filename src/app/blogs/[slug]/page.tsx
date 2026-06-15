@@ -16,7 +16,7 @@ interface Props {
 }
 
 // กำหนดสีหลักสำหรับความทางการ
-const MAIN_BLUE_HEX = '#3a639b';
+const MAIN_BLUE_HEX = '#2b64a0';
 
 // --------------------------------------------------------------------------
 // 1. Data Fetching and Helpers
@@ -119,7 +119,7 @@ export default async function BlogDetailPage({ params }: Props) {
                         {/* Back Link (กระชับ) */}
                         <Link
                             href="/blogs"
-                            className="inline-flex items-center text-gray-500 hover:text-[#3a639b] transition-colors text-sm font-medium mb-4" // ลด mb
+                            className="inline-flex items-center text-gray-500 hover:text-[#2b64a0] transition-colors text-sm font-medium mb-4" // ลด mb
                         >
                             <ArrowLeft className="w-4 h-4 mr-1.5" /> {/* ลด mr */}
                             กลับไปยังรายการบทความ
@@ -134,7 +134,7 @@ export default async function BlogDetailPage({ params }: Props) {
                         <div className="flex flex-wrap items-center gap-x-4 text-gray-600 text-xs md:text-sm font-medium"> {/* ลดขนาด font */}
                             {blog.author && (
                                 <div className="flex items-center">
-                                    <User className="w-3.5 h-3.5 mr-1 text-[#3a639b]" /> {/* ลดขนาด icon */}
+                                    <User className="w-3.5 h-3.5 mr-1 text-[#2b64a0]" /> {/* ลดขนาด icon */}
                                     <span className="font-semibold text-gray-800">{blog.author}</span>
                                 </div>
                             )}
@@ -164,8 +164,8 @@ export default async function BlogDetailPage({ params }: Props) {
 
                         {/* Excerpt / Abstract Blockquote (กระชับ) */}
                         {blog.excerpt && (
-                            <blockquote className="text-lg md:text-xl text-gray-800 leading-normal mb-8 py-4 px-0 border-l-4 border-[#3a639b] bg-transparent rounded-none italic pl-4 md:pl-5"> {/* ลดขนาด font, leading, mb และ py */}
-                                <div className='text-[#3a639b] font-bold mb-2 flex items-center'> {/* ลด mb */}
+                            <blockquote className="text-lg md:text-xl text-gray-800 leading-normal mb-8 py-4 px-0 border-l-4 border-[#2b64a0] bg-transparent rounded-none italic pl-4 md:pl-5"> {/* ลดขนาด font, leading, mb และ py */}
+                                <div className='text-[#2b64a0] font-bold mb-2 flex items-center'> {/* ลด mb */}
                                     <ClipboardCheck className="w-4 h-4 mr-1.5" /> {/* ลดขนาด icon */}
                                     สรุปย่อ (Abstract):
                                 </div>
@@ -186,12 +186,12 @@ export default async function BlogDetailPage({ params }: Props) {
                         <div
                             className={`prose prose-lg max-w-none 
                             prose-h2:text-2xl prose-h3:text-xl prose-headings:font-extrabold prose-headings:text-gray-900 
-                            prose-h2:border-b prose-h2:border-[#3a639b]/20 prose-h2:pb-1.5 prose-h2:mt-10 // ลด Spacing
+                            prose-h2:border-b prose-h2:border-[#2b64a0]/20 prose-h2:pb-1.5 prose-h2:mt-10 // ลด Spacing
                             prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-5 // ลด Leading & Margin
                             prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:leading-relaxed prose-li:my-2 // ลด Spacing ใน List
-                            prose-a:text-[#3a639b] prose-a:font-semibold hover:prose-a:text-blue-700 prose-a:border-b prose-a:border-[#3a639b]/50
+                            prose-a:text-[#2b64a0] prose-a:font-semibold hover:prose-a:text-blue-700 prose-a:border-b prose-a:border-[#2b64a0]/50
                             prose-img:rounded-lg prose-img:shadow-md prose-img:my-8 prose-img:border prose-img:border-gray-100 // ลด my
-                            prose-blockquote:border-l-4 prose-blockquote:border-[#3a639b] prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic`}
+                            prose-blockquote:border-l-4 prose-blockquote:border-[#2b64a0] prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic`}
                             dangerouslySetInnerHTML={{ __html: blog.content }}
                         />
                     </div>
@@ -214,7 +214,7 @@ export default async function BlogDetailPage({ params }: Props) {
                     {/* ปุ่ม CTA */}
                     <Link
                         href="/blogs"
-                        className="inline-flex items-center justify-center px-6 py-2.5 text-base font-bold text-white bg-[#3a639b] rounded-md hover:bg-blue-700 transition-all shadow-md shadow-[#3a639b]/40"
+                        className="inline-flex items-center justify-center px-6 py-2.5 text-base font-bold text-white bg-[#2b64a0] rounded-md hover:bg-[#1e4a77] transition-all shadow-md shadow-[#2b64a0]/40"
                     >
                         ดูรายการบทความทั้งหมด <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>

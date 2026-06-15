@@ -50,7 +50,7 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
     <>
         <h2 className="text-2xl font-bold text-gray-800 mb-8 mt-12 flex items-center border-b border-gray-200 pb-3">
             {icon}
-            <span className="text-[#3a639b]">{title}</span>
+            <span className="text-[#2b64a0]">{title}</span>
         </h2>
         {blogList.length === 0 ? (
             <div className="text-center py-10 bg-white rounded-lg border border-dashed border-gray-200 text-gray-500">
@@ -67,7 +67,7 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
                         {/* Card Content */}
                         <div className="relative h-48 md:h-52 overflow-hidden bg-gray-100 border-b border-gray-200">
                             {blog.isRecent && (
-                                <div className="absolute top-0 left-0 z-10 bg-[#3a639b] px-3 py-1">
+                                <div className="absolute top-0 left-0 z-10 bg-[#2b64a0] px-3 py-1">
                                     <span className="text-white text-xs font-semibold">
                                         ล่าสุด
                                     </span>
@@ -81,7 +81,7 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
                         </div>
 
                         <div className="flex flex-col flex-grow p-6">
-                            <h2 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 leading-snug group-hover:text-[#3a639b] transition-colors">
+                            <h2 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 leading-snug group-hover:text-[#2b64a0] transition-colors">
                                 {blog.title}
                             </h2>
 
@@ -91,19 +91,19 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
 
                             <div className="text-xs font-medium text-gray-500 space-y-2 pt-3 border-t border-gray-100 mt-auto">
                                 <div className="flex items-center">
-                                    <Calendar className="w-3.5 h-3.5 mr-2 text-[#3a639b]" />
+                                    <Calendar className="w-3.5 h-3.5 mr-2 text-[#2b64a0]" />
                                     <span className='text-gray-700'>วันที่เผยแพร่: {formatDate(blog.createdAt)}</span>
                                 </div>
                                 {blog.author && (
                                     <div className="flex items-center">
-                                        <User className="w-3.5 h-3.5 mr-2 text-[#3a639b]" />
+                                        <User className="w-3.5 h-3.5 mr-2 text-[#2b64a0]" />
                                         <span className="truncate max-w-[200px] text-gray-700">โดย: {blog.author}</span>
                                     </div>
                                 )}
                             </div>
 
                             <div className="mt-4">
-                                <span className="text-sm font-semibold text-[#3a639b] hover:text-[#3a639b]/80 transition-colors flex items-center border border-[#3a639b]/50 px-3 py-2 rounded-md justify-center bg-[#3a639b]/5">
+                                <span className="text-sm font-semibold text-[#2b64a0] hover:text-[#2b64a0]/80 transition-colors flex items-center border border-[#2b64a0]/50 px-3 py-2 rounded-md justify-center bg-[#2b64a0]/5">
                                     อ่าน/ดาวน์โหลดเอกสาร
                                     <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" />
                                 </span>
@@ -149,13 +149,13 @@ export default async function BlogsPage() {
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* 1. Official Hero Section */}
-            <div className="relative bg-white border-b-4 border-[#3a639b] shadow-md overflow-hidden">
+            <div className="relative bg-white border-b-4 border-[#2b64a0] shadow-md overflow-hidden">
                 <div className="relative container mx-auto px-4 py-16 text-center">
-                    <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wide text-[#3a639b] uppercase bg-[#3a639b]/10 border-b-2 border-[#3a639b]/50">
+                    <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wide text-[#2b64a0] uppercase bg-[#2b64a0]/10 border-b-2 border-[#2b64a0]/50">
                         ศูนย์กลางข้อมูลสารสนเทศ (Information Center)
                     </span>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight leading-snug">
-                        เอกสาร <span className="text-[#3a639b]">บทความวิชาการ</span> และข่าวสาร
+                        เอกสาร <span className="text-[#2b64a0]">บทความวิชาการ</span> และข่าวสาร
                     </h1>
                     <p className="text-gray-700 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed border-t pt-4 mt-6">
                         รวมเกร็ดความรู้เกี่ยวกับการดูแลผู้สูงอายุ สุขภาพ และเทคนิคการเลือกศูนย์ดูแลที่ดีที่สุด
@@ -168,8 +168,8 @@ export default async function BlogsPage() {
             <div className="container mx-auto max-w-7xl px-4 py-16">
                 {blogs.length === 0 ? (
                     <div className="text-center py-16 bg-white rounded-lg shadow-inner border border-gray-300">
-                        <div className="mx-auto w-14 h-14 bg-[#3a639b]/10 border border-[#3a639b]/30 rounded-full flex items-center justify-center mb-4">
-                            <BookOpen className="w-7 h-7 text-[#3a639b]" />
+                        <div className="mx-auto w-14 h-14 bg-[#2b64a0]/10 border border-[#2b64a0]/30 rounded-full flex items-center justify-center mb-4">
+                            <BookOpen className="w-7 h-7 text-[#2b64a0]" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">ไม่มีข้อมูลบทความที่เผยแพร่</h3>
                         <p className="text-gray-500">
@@ -188,7 +188,7 @@ export default async function BlogsPage() {
                         {/* 2.2 บทความยอดนิยม (Popular Articles) - แสดงเฉพาะหัวข้อ */}
                         <h2 className="text-2xl font-bold text-gray-800 mb-8 mt-12 flex items-center border-b border-gray-200 pb-3">
                             <TrendingUp className="w-5 h-5 mr-3 text-green-600" />
-                            <span className="text-[#3a639b]">บทความยอดนิยม (Trending)</span>
+                            <span className="text-[#2b64a0]">บทความยอดนิยม (Trending)</span>
                         </h2>
                         <div className="text-center py-5 bg-gray-100 rounded-lg border border-gray-200 text-gray-700 text-sm">
                             <p>ข้อมูลบทความยอดนิยมอยู่ระหว่างการประมวลผลสถิติ</p>
@@ -198,7 +198,7 @@ export default async function BlogsPage() {
                         <BlogGrid
                             blogList={otherBlogs}
                             title="บทความอื่นๆ ทั้งหมด"
-                            icon={<BookOpen className="w-5 h-5 mr-3 text-[#3a639b]" />}
+                            icon={<BookOpen className="w-5 h-5 mr-3 text-[#2b64a0]" />}
                         />
                     </>
                 )}

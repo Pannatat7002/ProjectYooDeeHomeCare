@@ -33,7 +33,7 @@ export default function Footer() {
 
                             {/* Text Content */}
                             <div className="flex flex-col">
-                                <span className="text-2xl md:text-3xl font-semibold text-[#52a9ff] dark:text-blue-400 tracking-tight leading-none">
+                                <span className="text-2xl md:text-3xl font-semibold text-[#2b64a0] dark:text-blue-400 tracking-tight leading-none">
                                     ThaiCareCenter
                                 </span>
                                 <span className="text-xs md:text-sm text-white dark:text-gray-400 font-normal mt-1 group-hover:text-gray-300 transition-colors">

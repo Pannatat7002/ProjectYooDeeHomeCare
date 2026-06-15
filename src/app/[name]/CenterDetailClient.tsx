@@ -578,15 +578,15 @@ const getRoomSubName = (name: string) => {
 const getRoomBadge = (name: string) => {
     const lower = name.toLowerCase();
     if (lower.includes('เดี่ยว')) {
-        return { text: 'ความเป็นส่วนตัว', icon: <User className="w-4 h-4 text-blue-600" /> };
+        return { text: 'ความเป็นส่วนตัว', icon: <User className="w-4 h-4 text-[#2b64a0]" /> };
     }
     if (lower.includes('รวม')) {
-        return { text: 'ราคาประหยัด', icon: <DollarSign className="w-4 h-4 text-green-600" /> };
+        return { text: 'ราคาประหยัด', icon: <DollarSign className="w-4 h-4 text-[#2b64a0]" /> };
     }
     if (lower.includes('คู่')) {
-        return { text: 'พักได้ 2 ท่าน', icon: <Users className="w-4 h-4 text-indigo-600" /> };
+        return { text: 'พักได้ 2 ท่าน', icon: <Users className="w-4 h-4 text-[#2b64a0]" /> };
     }
-    return { text: 'มาตรฐาน สบส.', icon: <ShieldCheck className="w-4 h-4 text-blue-600" /> };
+    return { text: 'มาตรฐาน สบส.', icon: <ShieldCheck className="w-4 h-4 text-[#2b64a0]" /> };
 };
 
 // Helper to get default target audience description
@@ -622,18 +622,18 @@ const RoomTypeCard = ({
         <div className="bg-white text-slate-800 rounded-none sm:rounded-lg p-4 sm:p-6 shadow-sm border-y border-slate-200 border-x-0 sm:border sm:border-slate-200 -mx-4 sm:mx-0 flex flex-col gap-6 mb-8 sm:mb-10 transition-all duration-300 hover:shadow-md hover:border-blue-200">
 
             {/* Top Row: Title & Subtitle + Badge */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
-                <div className="flex flex-col sm:flex-row sm:items-baseline gap-2">
-                    <h3 className="text-2xl md:text-3xl font-extrabold text-[#0E1B4F] font-sans tracking-tight leading-tight">
+            <div className="flex flex-row justify-between items-center gap-4 pb-4 border-b border-slate-100">
+                <div className="flex flex-row items-baseline flex-wrap gap-2">
+                    <h3 className="text-xl md:text-3xl font-extrabold text-slate-900 font-sans tracking-tight leading-tight">
                         {room.name}
                     </h3>
-                    <span className="inline-block bg-blue-50 text-blue-600 text-xs md:text-sm font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
+                    <span className="inline-block bg-blue-50 text-blue-600 text-[10px] md:text-sm font-extrabold px-2 py-0.5 md:px-2.5 md:py-1 rounded-md uppercase tracking-wider">
                         {subName}
                     </span>
                 </div>
 
                 {/* Feature Pill Badge */}
-                <div className="bg-blue-50 text-blue-800 text-sm md:text-base font-bold px-3.5 py-2 rounded-md shadow-sm flex items-center gap-1.5 border border-blue-100">
+                <div className="bg-blue-50 text-blue-800 text-xs md:text-base font-bold px-2 py-1.5 md:px-3.5 md:py-2 rounded-md shadow-sm flex items-center gap-1.5 border border-blue-100 shrink-0">
                     {badge.icon}
                     {badge.text}
                 </div>
@@ -643,7 +643,7 @@ const RoomTypeCard = ({
             <div className="flex items-start gap-2 text-sm md:text-base text-slate-700 leading-relaxed">
                 <span className="shrink-0 text-base md:text-lg">🎯</span>
                 <p>
-                    <strong className="text-[#0E1B4F] font-sans font-extrabold text-base md:text-lg">เหมาะสำหรับ:</strong> {targetDesc}
+                    <strong className="text-slate-900 font-sans font-extrabold text-base md:text-lg">เหมาะสำหรับ:</strong> {targetDesc}
                 </p>
             </div>
 

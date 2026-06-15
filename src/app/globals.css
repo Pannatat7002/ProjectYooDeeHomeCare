@@ -25,6 +25,31 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Unify brand color palette to 3-4 main colors */
+  --color-blue-50: #f2f7fc;
+  --color-blue-100: #e2eef9;
+  --color-blue-200: #cce2f4;
+  --color-blue-300: #99c4e9;
+  --color-blue-400: #66a7de;
+  --color-blue-500: #2b64a0;
+  --color-blue-600: #2b64a0;
+  --color-blue-700: #1e4a77;
+  --color-blue-800: #16375a;
+  --color-blue-900: #0f253d;
+  --color-blue-950: #0a1829;
+
+  --color-indigo-50: #f2f7fc;
+  --color-indigo-100: #e2eef9;
+  --color-indigo-200: #cce2f4;
+  --color-indigo-300: #99c4e9;
+  --color-indigo-400: #66a7de;
+  --color-indigo-500: #2b64a0;
+  --color-indigo-600: #2b64a0;
+  --color-indigo-700: #1e4a77;
+  --color-indigo-800: #16375a;
+  --color-indigo-900: #0f253d;
+  --color-indigo-950: #0a1829;
 }
 
 @media (prefers-color-scheme: dark) {
