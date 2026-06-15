@@ -38,6 +38,14 @@ const formatPhone = (phone: any) => {
     return fullStr;
 };
 
+const getTelHref = (phone: any, fallback: string = '') => {
+    const rawPhone = phone || fallback;
+    if (!rawPhone) return '#';
+    const cleanPhone = rawPhone.toString().replace(/\D/g, '');
+    const finalPhone = cleanPhone.startsWith('0') ? cleanPhone : '0' + cleanPhone;
+    return `tel:${finalPhone}`;
+};
+
 const getEndDayText = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -999,7 +1007,7 @@ export default function CenterDetailClient({
                     {/* Main Image Card */}
                     <div className="relative w-full h-[280px] sm:h-[350px] md:h-[480px] rounded-3xl overflow-hidden shadow-sm bg-slate-950 flex items-center justify-center">
                         {/* Blurred background for premium aspect-ratio filling */}
-                        <div 
+                        <div
                             className="absolute inset-0 bg-cover bg-center blur-2xl opacity-40 scale-105 pointer-events-none"
                             style={{ backgroundImage: `url(${activeImage || allImages[0]})` }}
                         />
@@ -1049,8 +1057,8 @@ export default function CenterDetailClient({
                                             setActiveImage(url);
                                         }}
                                         className={`relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border-2 transition-all duration-300 snap-center ${isActive
-                                                ? 'border-blue-500 scale-102 ring-4 ring-blue-500/20 opacity-100 shadow-md shadow-blue-500/10'
-                                                : 'border-transparent opacity-70 hover:opacity-100'
+                                            ? 'border-blue-500 scale-102 ring-4 ring-blue-500/20 opacity-100 shadow-md shadow-blue-500/10'
+                                            : 'border-transparent opacity-70 hover:opacity-100'
                                             }`}
                                     >
                                         <img
@@ -1263,7 +1271,7 @@ export default function CenterDetailClient({
 
                                             {/* Big Phone Number Box */}
                                             <a
-                                                href={`tel:${center.phone || '0958057052'}`}
+                                                href={getTelHref(center.phone, '080-102-7615')}
                                                 className="flex items-center justify-center gap-2 px-3 py-2 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all group"
                                                 onClick={() => {
                                                     gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
@@ -1272,7 +1280,7 @@ export default function CenterDetailClient({
                                             >
                                                 <Phone className="w-4 h-4 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
                                                 <span className="text-lg font-bold text-white tracking-wider">
-                                                    {formatPhone(center.phone || '095-805-7052')}
+                                                    {formatPhone(center.phone || '080-102-7615')}
                                                 </span>
                                             </a>
                                         </div>
@@ -1328,7 +1336,7 @@ export default function CenterDetailClient({
                                             {/* 3. ติดต่อเจ้าหน้าที่ */}
                                             {center.phone ? (
                                                 <a
-                                                    href={`tel:${center.phone}`}
+                                                    href={getTelHref(center.phone)}
                                                     onClick={() => {
                                                         gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
                                                         logTraffic('click_phone');

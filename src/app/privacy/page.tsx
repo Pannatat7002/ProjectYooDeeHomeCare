@@ -379,18 +379,18 @@ export default function PrivacyPage() {
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[120px]">อีเมล:</span>
                                     <a href="mailto:privacy@ThaiCareCenter.com" className="text-gray-900 hover:text-gray-700 underline font-medium">
-                                        privacy@ThaiCareCenter.com
+                                        thaicarecenter01@gmail.com
                                     </a>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[120px]">โทรศัพท์:</span>
-                                    <a href="tel:+66123456789" className="text-gray-900 hover:text-gray-700 underline font-medium">
-                                        02-XXX-XXXX
+                                    <a href="tel:+66958057052" className="text-gray-900 hover:text-gray-700 underline font-medium">
+                                        095-805-7052
                                     </a>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[120px]">ที่อยู่:</span>
-                                    <span>ThaiCareCenter<br />กรุงเทพมหานคร 10XXX<br />ประเทศไทย</span>
+                                    <span>ThaiCareCenter<br />กรุงเทพมหานคร<br />ประเทศไทย</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="font-semibold min-w-[120px]">เวลาทำการ:</span>
