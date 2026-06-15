@@ -50,7 +50,7 @@ const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoU
     if (!brandName) return null;
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between gap-4">
+        <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-200 p-4 mb-6 -mx-4 sm:mx-0 flex items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">แบรนด์/เครือบริษัท</span>
                 <h3 className="text-lg font-bold text-gray-900 mt-0.5 break-words">{brandName}</h3>
@@ -67,7 +67,7 @@ const VerificationByMOPHCard = ({ hasGovernmentCertificate }: { hasGovernmentCer
     if (!hasGovernmentCertificate) return null;
     return (
         <Link href="https://esta.hss.moph.go.th/shop_passed.php?utm_source=thaicarecenter&utm_medium=%E0%B8%B4banner&utm_campaign=esta">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between gap-4">
+            <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-200 p-4 mb-6 -mx-4 sm:mx-0 flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
                     <h3 className="text-lg font-bold text-gray-900 mt-0.5 break-words">ผ่านการรับรองจากกรมสนับสนุนบริการสุขภาพ (สบส.)</h3>
                 </div>
@@ -238,7 +238,7 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({ formData, handleInp
                         <h3 className="text-lg font-bold text-gray-800">ข้อมูลผู้ติดต่อ</h3>
                         <p className="text-sm text-gray-500">กรุณากรอกข้อมูลเพื่อใช้ในการติดต่อกลับ</p>
                     </div>
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
                             <input id="name" type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อ-นามสกุล" required />
@@ -247,15 +247,13 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({ formData, handleInp
                             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
                             <input id="phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุเบอร์โทรศัพท์" required />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
-                                <input id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุ LINE ID" />
-                            </div>
-                            <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
-                                <input id="email" type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุอีเมล" />
-                            </div>
+                        <div>
+                            <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-1">LINE ID (ถ้ามี)</label>
+                            <input id="lineId" type="text" name="lineId" value={formData.lineId} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุ LINE ID" />
+                        </div>
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">อีเมล (ถ้ามี)</label>
+                            <input id="email" type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุอีเมล" />
                         </div>
                     </div>
                 </div>
@@ -411,16 +409,16 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose, 
         `นัดเยี่ยมชมศูนย์ ${centerName}`;
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 relative">
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
+            <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-2xl max-h-[92vh] sm:max-h-[90vh] flex flex-col p-5 sm:p-8 relative">
                 {/* ✅ ซ่อนปุ่ม X เมื่อแสดงหน้า Success เพื่อให้ปิดอัตโนมัติเท่านั้น หรือแสดงเพื่ออนุญาตให้ผู้ใช้ปิดเองทันที */}
                 {submitStatus !== 'success' && (
-                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10">
                         <X className="w-5 h-5" />
                     </button>
                 )}
 
-                <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-6 shrink-0 pr-8 pl-4">
                     {/* ใช้ modalTitle ที่ปรับตามสถานะ */}
                     {submitStatus === 'success' ? (
                         <span className="text-green-600">{modalTitle}</span>
@@ -436,13 +434,15 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose, 
                     )}
                 </h2>
 
-                <ConsultationForm
-                    formData={formData}
-                    handleInputChange={handleInputChange}
-                    handleSubmit={handleSubmit}
-                    submitStatus={submitStatus}
-                    roomTypes={roomTypes}
-                />
+                <div className="overflow-y-auto flex-grow pr-1 scrollbar-hide max-h-[calc(92vh-100px)]">
+                    <ConsultationForm
+                        formData={formData}
+                        handleInputChange={handleInputChange}
+                        handleSubmit={handleSubmit}
+                        submitStatus={submitStatus}
+                        roomTypes={roomTypes}
+                    />
+                </div>
             </div>
         </div>
     );
@@ -481,7 +481,7 @@ const ContactStaffForm: React.FC<ContactStaffFormProps> = ({ formData, handleInp
                 <div className="text-center mb-4">
                     <p className="text-sm text-gray-500">กรุณากรอกข้อมูลเพื่อให้เจ้าหน้าที่ติดต่อกลับ</p>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="contactName" className="block text-sm font-medium text-gray-700 mb-1">ชื่อ - นามสกุล <span className="text-red-500">*</span></label>
                         <input id="contactName" type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุชื่อ-นามสกุล" required />
@@ -522,30 +522,32 @@ const ContactStaffModal: React.FC<ContactStaffModalProps> = ({ isOpen, onClose, 
         `ติดต่อเจ้าหน้าที่`;
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 md:p-8 relative">
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
+            <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-xl max-h-[92vh] sm:max-h-[90vh] flex flex-col p-5 sm:p-8 relative">
                 {submitStatus !== 'success' && (
-                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10">
                         <X className="w-5 h-5" />
                     </button>
                 )}
 
-                <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-6 shrink-0 pr-8 pl-4">
                     {submitStatus === 'success' ? (
                         <span className="text-green-600">{modalTitle}</span>
                     ) : (
                         <>
-                            {modalTitle} <span className="text-blue-600 block text-lg mt-1">{centerName}</span>
+                            {modalTitle} <span className="text-blue-600 block text-base sm:text-lg mt-1">{centerName}</span>
                         </>
                     )}
                 </h2>
 
-                <ContactStaffForm
-                    formData={formData}
-                    handleInputChange={handleInputChange}
-                    handleSubmit={handleSubmit}
-                    submitStatus={submitStatus}
-                />
+                <div className="overflow-y-auto flex-grow pr-1 scrollbar-hide max-h-[calc(92vh-100px)]">
+                    <ContactStaffForm
+                        formData={formData}
+                        handleInputChange={handleInputChange}
+                        handleSubmit={handleSubmit}
+                        submitStatus={submitStatus}
+                    />
+                </div>
             </div>
         </div>
     );
@@ -649,73 +651,77 @@ const RoomTypeCard = ({
     const targetDesc = room.description || getRoomDefaultDescription(room.name);
 
     return (
-        <div className="space-y-4 mb-10">
-            {/* Header Block Card */}
-            <div className="bg-white text-slate-800 rounded-lg p-5 md:p-6 shadow-sm border border-blue-100 flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-blue-200">
-                {/* Top Row: Title & Subtitle + Badge */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
-                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-2">
-                        <h3 className="text-xl md:text-2xl font-extrabold text-[#0E1B4F] font-sans tracking-tight leading-none">
-                            {room.name}
-                        </h3>
-                        <span className="inline-block bg-blue-50 text-blue-600 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-                            {subName}
-                        </span>
-                    </div>
+        <div className="bg-white text-slate-800 rounded-none sm:rounded-lg p-4 sm:p-6 shadow-sm border-y border-slate-200 border-x-0 sm:border sm:border-slate-200 -mx-4 sm:mx-0 flex flex-col gap-6 mb-8 sm:mb-10 transition-all duration-300 hover:shadow-md hover:border-blue-200">
 
-                    {/* Feature Pill Badge */}
-                    <div className="bg-blue-50 text-blue-800 text-xs md:text-sm font-bold px-3 py-1.5 rounded-md shadow-sm flex items-center gap-1.5 border border-blue-100">
-                        {badge.icon}
-                        {badge.text}
-                    </div>
+            {/* Top Row: Title & Subtitle + Badge */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-2">
+                    <h3 className="text-2xl md:text-3xl font-extrabold text-[#0E1B4F] font-sans tracking-tight leading-tight">
+                        {room.name}
+                    </h3>
+                    <span className="inline-block bg-blue-50 text-blue-600 text-xs md:text-sm font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
+                        {subName}
+                    </span>
                 </div>
 
-                {/* Middle Row: Suitability text */}
-                <div className="flex items-start gap-2 text-xs md:text-sm text-slate-600 mt-4 leading-relaxed">
-                    <span className="shrink-0">🎯</span>
-                    <p>
-                        <strong className="text-[#0E1B4F] font-sans">เหมาะสำหรับ:</strong> {targetDesc}
-                    </p>
-                </div>
-
-                {/* Bottom Row: Status and Inquiry Button */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
-                    {/* Bed Status */}
-                    <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs font-bold px-3 py-1.5 rounded-md w-fit">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-                        {room.status || 'เตียงว่างพร้อมดูแลทันที'}
-                    </div>
-
-                    {/* Inquiry Button */}
-                    <button
-                        type="button"
-                        onClick={() => onInquire(room.name)}
-                        className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs md:text-sm font-extrabold shadow-sm hover:shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 self-end"
-                    >
-                        <MessageSquare className="w-4 h-4" /> สอบถามราคาห้องนี้
-                    </button>
+                {/* Feature Pill Badge */}
+                <div className="bg-blue-50 text-blue-800 text-sm md:text-base font-bold px-3.5 py-2 rounded-md shadow-sm flex items-center gap-1.5 border border-blue-100">
+                    {badge.icon}
+                    {badge.text}
                 </div>
             </div>
 
-            {/* Images Grid Block below Card */}
+            {/* Middle Row: Suitability text */}
+            <div className="flex items-start gap-2 text-sm md:text-base text-slate-700 leading-relaxed">
+                <span className="shrink-0 text-base md:text-lg">🎯</span>
+                <p>
+                    <strong className="text-[#0E1B4F] font-sans font-extrabold text-base md:text-lg">เหมาะสำหรับ:</strong> {targetDesc}
+                </p>
+            </div>
+
+            {/* Bottom Row: Status and Inquiry Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {/* Bed Status */}
+                <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm font-extrabold px-3.5 py-2 rounded-md w-fit">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                    {room.status || 'เตียงว่างพร้อมดูแลทันที'}
+                </div>
+
+                {/* Inquiry Button */}
+                <button
+                    type="button"
+                    onClick={() => onInquire(room.name)}
+                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm md:text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 self-end"
+                >
+                    <MessageSquare className="w-5 h-5" /> สอบถามราคาห้องนี้
+                </button>
+            </div>
+
+            {/* Images Grid Block inside Card */}
             {images.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {images.map((url, idx) => (
-                        <div
-                            key={url + idx}
-                            onClick={() => onOpenGallery(images, idx)}
-                            className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-sm hover:shadow-md border border-gray-200 group/img cursor-pointer bg-gray-50"
-                        >
-                            <img
-                                src={url}
-                                alt={`${room.name} view ${idx + 1}`}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
-                                onError={(e) => {
-                                    e.currentTarget.src = 'https://via.placeholder.com/600x400?text=No+Room+Image';
-                                }}
-                            />
-                        </div>
-                    ))}
+                <div className="pt-6 border-t border-slate-100">
+                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0 md:grid md:grid-cols-3 md:gap-3">
+                        {images.map((url, idx) => (
+                            <div
+                                key={url + idx}
+                                onClick={() => onOpenGallery(images, idx)}
+                                className="w-[88%] md:w-full shrink-0 snap-center relative aspect-[4/3] rounded-lg overflow-hidden shadow-sm hover:shadow-md border border-slate-200 group/img cursor-pointer bg-slate-50"
+                            >
+                                <img
+                                    src={url}
+                                    alt={`${room.name} view ${idx + 1}`}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                                    onError={(e) => {
+                                        e.currentTarget.src = 'https://via.placeholder.com/600x400?text=No+Room+Image';
+                                    }}
+                                />
+                                {/* Mobile pagination counter */}
+                                <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded font-sans md:hidden">
+                                    {idx + 1} / {images.length}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
@@ -807,7 +813,14 @@ export default function CenterDetailClient({
 
     const handleInquireRoom = useCallback((roomName: string) => {
         setFormData(prev => ({ ...prev, roomType: roomName }));
-        setIsConsultationModalOpen(true);
+        const element = document.getElementById('contact-sidebar');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.classList.add('ring-4', 'ring-blue-500/30');
+            setTimeout(() => {
+                element.classList.remove('ring-4', 'ring-blue-500/30');
+            }, 1500);
+        }
     }, []);
 
     const handleOpenGallery = useCallback((images: string[], index: number) => {
@@ -1006,438 +1019,438 @@ export default function CenterDetailClient({
                     </div>
                 </div>
 
-                    {/* Gallery Section */}
-                    <div className="space-y-3">
-                        {/* 1. Main Gallery Grid (Desktop: Grid 5 รูป / Mobile: แสดงรูปที่เลือกรูปเดียว) */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[300px] md:h-[450px] rounded-2xl overflow-hidden relative group shadow-sm">
+                {/* Gallery Section */}
+                <div className="space-y-3">
+                    {/* 1. Main Gallery Grid (Desktop: Grid 5 รูป / Mobile: แสดงรูปที่เลือกรูปเดียว) */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[300px] md:h-[450px] rounded-none sm:rounded-2xl overflow-hidden relative group shadow-sm -mx-4 sm:mx-0">
 
-                            {/* รูปหลัก (ซ้ายมือบน Desktop / รูปใหญ่รูปเดียวบน Mobile) */}
-                            <div className="md:col-span-2 h-full overflow-hidden relative">
-                                <img
-                                    src={activeImage || allImages[0]}
-                                    alt="Main center view"
-                                    className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-105"
-                                    onClick={() => {
-                                        const currentIndex = allImages.indexOf(activeImage || allImages[0]);
-                                        handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
-                                    }}
-                                    onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                                />
-                                {/* แสดงเลขลำดับรูปเฉพาะบนมือถือ */}
-                                <div className="md:hidden absolute bottom-3 left-3 bg-black/50 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-lg">
-                                    {allImages.indexOf(activeImage || allImages[0]) + 1} / {allImages.length}
-                                </div>
-                            </div>
-
-                            {/* รูปย่อย 4 รูป (ซ่อนบน Mobile / แสดงบน Desktop) */}
-                            <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
-                                {allImages.slice(1, 5).map((url, idx) => (
-                                    <div key={idx} className="relative h-full overflow-hidden">
-                                        <img
-                                            src={url}
-                                            alt={`Thumbnail ${idx + 1}`}
-                                            className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-110"
-                                            onClick={() => {
-                                                handleOpenGallery(allImages, idx + 1);
-                                            }}
-                                            onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                                        />
-                                        {idx === 3 && allImages.length > 5 && (
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-lg font-bold pointer-events-none">
-                                                +{allImages.length - 5}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* ปุ่ม Share & ปุ่มดูรูปทั้งหมด */}
-                            <div className="absolute top-4 right-4"><ShareButton /></div>
-                            <button
-                                onClick={() => { handleOpenGallery(allImages, 0); }}
-                                className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs font-bold shadow-md hover:bg-white transition-all border border-gray-200 flex items-center gap-2"
-                            >
-                                <Share2 className="w-3 h-3 md:w-4 md:h-4" /> ดูทั้งหมด ({allImages.length})
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Official Partner Banner */}
-                    {isTrue(center.isPartner) && (
-                        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white p-6 md:p-8 shadow-lg border border-white/10 mt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            {/* Background decorations */}
-                            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl pointer-events-none"></div>
-                            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
-
-                            <div className="relative z-10 flex items-start space-x-4">
-                                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-md border border-white/10 shrink-0">
-                                    <ShieldCheck className="h-6 w-6 text-blue-300" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg md:text-xl font-bold flex items-center flex-wrap gap-2 text-white">
-                                        Official Partner
-                                        <span className="ml-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center">
-                                            <CheckCircle2 className="w-3 h-3 mr-1" /> Verified
-                                        </span>
-                                    </h3>
-                                    <p className="text-blue-100 text-sm md:text-base mt-1 font-medium">
-                                        ศูนย์นี้ผ่านการตรวจสอบมาตรฐานความปลอดภัยและบริการโดยทีมงาน ThaiCareCenter
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="relative z-10 flex items-center space-x-6 md:border-l md:border-white/20 md:pl-6">
-                                <div className="text-center md:text-right">
-                                    <p className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Status</p>
-                                    <p className="font-bold text-white">Official Partner</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-<div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-
-    {/* Left Column */}
-    <div className="lg:col-span-2 space-y-12">
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">เกี่ยวกับศูนย์ดูแล</h2>
-            <div
-                className="prose max-w-none text-gray-700 leading-relaxed text-base"
-                dangerouslySetInnerHTML={{ __html: center.description }}
-            />
-        </section>
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">สิ่งอำนวยความสะดวกและบริการ</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {/* ✅ โค้ดที่ได้รับการแก้ไข: center.services ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
-                {center.services.map((s, i) => (
-                    <div key={i} className="flex items-start p-3 rounded-lg bg-blue-50 text-blue-700 transition-colors">
-                        <CheckCircle2 className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm font-medium">{s}</span>
-                    </div>
-                ))}
-                {/* ถ้า services เป็น Array ว่าง ก็จะไม่แสดง error และจะไม่มีอะไรถูก map */}
-            </div>
-        </section>
-
-        {/* ✅ Room Types & Beds Section */}
-        {((center.roomTypes && center.roomTypes.length > 0) || MOCK_ROOM_TYPES.length > 0) && (
-            <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 mb-6">
-                    <div className="flex flex-col">
-                        <h2 className="text-xl font-bold text-gray-900">ประเภทห้องพักและสถานะเตียงว่าง</h2>
-                        <p className="text-xs text-gray-500 mt-1 font-medium">ข้อมูลความพร้อมในการให้บริการของแต่ละประเภทห้องพัก</p>
-                    </div>
-                    <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 mt-1 sm:mt-0 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
-                        อัปเดตเรียลไทม์
-                    </span>
-                </div>
-                <div className="space-y-6">
-                    {(center.roomTypes && center.roomTypes.length > 0 ? center.roomTypes : MOCK_ROOM_TYPES).map((room, idx) => (
-                        <RoomTypeCard key={idx} room={room} onInquire={handleInquireRoom} onOpenGallery={handleOpenGallery} />
-                    ))}
-                </div>
-            </section>
-        )}
-
-        {/* ✅ Packages: center.packages ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
-        {isTrue(center.isPartner) && center.packages.length > 0 && (
-            <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">รายละเอียดแผนการดูแล</h2>
-                    <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 mt-1 sm:mt-0">
-                        * ข้อมูลเบื้องต้น กรุณาสอบถามราคาอัปเดตล่าสุดกับศูนย์โดยตรง
-                    </span>
-                </div>
-                <div className="space-y-4">
-                    {center.packages.map((pkg, idx) => (
-                        <div key={idx} className="bg-white border border-gray-100 rounded-2xl p-6 transition-all duration-300 transform 
-                          hover:border-green-500 hover:shadow-2xl hover:shadow-green-100/50 group flex flex-col h-full">
-
-                            {/* 1. ส่วนหัว (ชื่อแพ็กเกจและราคา) - ปรับปรุง */}
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-100 mb-4">
-
-                                {/* ชื่อแพ็กเกจ */}
-                                <h4 className="font-extrabold text-xl text-gray-900 group-hover:text-green-700 transition-colors mb-2 sm:mb-0">
-                                    {pkg.name}
-                                </h4>
-
-                                {/* ราคา (จะถูกจัดให้อยู่ด้านล่างชื่อแพ็กเกจในจอมือถือ เนื่องจาก div หลักใช้ flex-col) */}
-                                <div className="text-left sm:text-right flex-shrink-0">
-                                    <span className="block text-3xl font-extrabold text-green-600 tracking-tight">
-                                        ฿{pkg.price?.toLocaleString() ?? '0'}
-                                    </span>
-                                    <span className="text-xs text-gray-500">/ ต่อเดือน</span>
-                                </div>
-                            </div>
-
-                            {/* 2. ส่วนรายละเอียด (Details) */}
-                            <div className="flex-grow">
-                                {pkg.details && Array.isArray(pkg.details) && pkg.details.length > 0 ? (
-                                    <ul className="space-y-3">
-                                        {pkg.details.map((detail, dIdx) => (
-                                            <li key={dIdx} className="text-base text-gray-700 flex items-start">
-                                                <CheckCircle className="w-5 h-5 mr-3 mt-0.5 text-green-500 shrink-0" />
-                                                {detail}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className="p-4 bg-gray-50 rounded-lg">
-                                        <p className="text-sm text-gray-500 font-medium italic">
-                                            <span className="text-green-600 font-bold">สรุป:</span> เหมาะสำหรับผู้ที่ต้องการการดูแลระดับ {idx + 1}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-        )}
-
-        {center.mapUrl && (
-            <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">สถานที่ตั้ง</h2>
-                <div className="rounded-xl overflow-hidden shadow-inner border h-[350px] bg-gray-100 relative">
-                    {getMapSrc(center.mapUrl) ? (
-                        <iframe
-                            src={getMapSrc(center.mapUrl)!}
-                            width="100%" height="100%" style={{ border: 0 }}
-                            allowFullScreen loading="lazy"
-                            className="filter grayscale-[10%] hover:grayscale-0 transition-all duration-500"
-                            title={`Map of ${center.name}`}
-                        />
-                    ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 flex-col">
-                            <MapPin className="w-10 h-10 mb-2 opacity-30" />
-                            <span>ไม่สามารถโหลดแผนที่ได้</span>
-                        </div>
-                    )}
-                </div>
-            </section>
-        )}
-    </div>
-
-    {/* Right Column: Sticky Sidebar */}
-    <div className="lg:col-span-1">
-        <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
-        <VerificationByMOPHCard hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)} />
-        <div className="sticky top-24 bg-white rounded-3xl shadow-xl border border-gray-100 p-6 z-10 transition-all duration-300 hover:shadow-2xl">
-            {/* Main Content Area */}
-            <div className="grid grid-cols-1 gap-5">
-                {/* Info Section */}
-                {isTrue(center.isPartner) && (
-                    <div className="space-y-4">
-                        {/* Price tag */}
-                        <div className="space-y-1">
-                            <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider">อัตราค่าบริการ</div>
-                            <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
-                                <span className="text-3xl font-extrabold text-[#2b64a0] tracking-tight">
-                                    {center.price && center.price > 0 ? `เริ่มต้น ${center.price.toLocaleString()} บ.` : 'เริ่มต้น 15,000 บ.'}
-                                </span>
-                                <span className="text-sm font-bold text-gray-800">/เดือน</span>
-                                <span className="text-xs font-bold text-red-500">(ไม่รวม VAT)</span>
-                            </div>
-                        </div>
-
-                        {/* Promo Box */}
-                        <div className="p-4 bg-blue-50/40 border border-blue-100 rounded-2xl space-y-3 shadow-inner">
-                            <div className="flex items-start text-gray-800 text-sm font-bold leading-normal">
-                                <span className="text-lg mr-2 shrink-0 animate-bounce">🔥</span>
-                                <div>
-                                    จองสิทธิ์ <span className="text-[#2b64a0]">"ทดลองเข้าพัก ฟรี 2 วัน"</span>
-                                    <span className="text-gray-500 text-xs block mt-0.5 font-semibold">
-                                        (รับจำนวนจำกัด)
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="text-xs font-extrabold text-[#2b64a0]">
-                                จองสิทธิ์ทดลองพักฟรี โทรเลย!
-                            </div>
-
-                            {/* Big Phone Number Box */}
-                            <a
-                                href={`tel:${center.phone || '0958057052'}`}
-                                className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-blue-200 w-fit shadow-sm hover:border-[#2b64a0] hover:shadow transition-all group"
+                        {/* รูปหลัก (ซ้ายมือบน Desktop / รูปใหญ่รูปเดียวบน Mobile) */}
+                        <div className="md:col-span-2 h-full overflow-hidden relative">
+                            <img
+                                src={activeImage || allImages[0]}
+                                alt="Main center view"
+                                className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-105"
                                 onClick={() => {
-                                    gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
-                                    logTraffic('click_phone');
+                                    const currentIndex = allImages.indexOf(activeImage || allImages[0]);
+                                    handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
                                 }}
-                            >
-                                <Phone className="w-5 h-5 text-[#2b64a0] group-hover:scale-110 transition-transform flex-shrink-0" />
-                                <span className="text-lg font-extrabold text-[#2b64a0] tracking-wider">
-                                    {formatPhone(center.phone || '095-805-7052')}
-                                </span>
-                            </a>
+                                onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                            />
+                            {/* แสดงเลขลำดับรูปเฉพาะบนมือถือ */}
+                            <div className="md:hidden absolute bottom-3 left-3 bg-black/50 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-lg">
+                                {allImages.indexOf(activeImage || allImages[0]) + 1} / {allImages.length}
+                            </div>
+                        </div>
+
+                        {/* รูปย่อย 4 รูป (ซ่อนบน Mobile / แสดงบน Desktop) */}
+                        <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
+                            {allImages.slice(1, 5).map((url, idx) => (
+                                <div key={idx} className="relative h-full overflow-hidden">
+                                    <img
+                                        src={url}
+                                        alt={`Thumbnail ${idx + 1}`}
+                                        className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-110"
+                                        onClick={() => {
+                                            handleOpenGallery(allImages, idx + 1);
+                                        }}
+                                        onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                                    />
+                                    {idx === 3 && allImages.length > 5 && (
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-lg font-bold pointer-events-none">
+                                            +{allImages.length - 5}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* ปุ่ม Share & ปุ่มดูรูปทั้งหมด */}
+                        <div className="absolute top-4 right-4"><ShareButton /></div>
+                        <button
+                            onClick={() => { handleOpenGallery(allImages, 0); }}
+                            className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs font-bold shadow-md hover:bg-white transition-all border border-gray-200 flex items-center gap-2"
+                        >
+                            <Share2 className="w-3 h-3 md:w-4 md:h-4" /> ดูทั้งหมด ({allImages.length})
+                        </button>
+                    </div>
+                </div>
+
+                {/* Official Partner Banner */}
+                {isTrue(center.isPartner) && (
+                    <div className="relative rounded-none sm:rounded-2xl overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white p-6 md:p-8 shadow-none sm:shadow-lg border-y border-x-0 sm:border border-white/10 mt-6 -mx-4 sm:mx-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        {/* Background decorations */}
+                        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
+
+                        <div className="relative z-10 flex items-start space-x-4">
+                            <div className="bg-white/10 p-3 rounded-xl backdrop-blur-md border border-white/10 shrink-0">
+                                <ShieldCheck className="h-6 w-6 text-blue-300" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg md:text-xl font-bold flex items-center flex-wrap gap-2 text-white">
+                                    Official Partner
+                                    <span className="ml-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center">
+                                        <CheckCircle2 className="w-3 h-3 mr-1" /> Verified
+                                    </span>
+                                </h3>
+                                <p className="text-blue-100 text-sm md:text-base mt-1 font-medium">
+                                    ศูนย์นี้ผ่านการตรวจสอบมาตรฐานความปลอดภัยและบริการโดยทีมงาน ThaiCareCenter
+                                </p>
+                            </div>
+                        </div>
+                        <div className="relative z-10 flex items-center space-x-6 md:border-l md:border-white/20 md:pl-6">
+                            <div className="text-center md:text-right">
+                                <p className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Status</p>
+                                <p className="font-bold text-white">Official Partner</p>
+                            </div>
                         </div>
                     </div>
                 )}
 
-                {/* Contact Header */}
-                <div className={`text-gray-400 text-xs font-semibold uppercase tracking-wider ${isTrue(center.isPartner) ? 'border-t border-gray-100 pt-4' : ''}`}>
-                    ช่องทางการติดต่อ
-                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-                {/* Buttons Stack */}
-                <div className="flex flex-col gap-3">
-                    {isTrue(center.isPartner) ? (
-                        <>
-                            {/* 1. เข้าชมเว็บไซต์ */}
-                            {center.website && (
-                                <a
-                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={() => {
-                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
-                                        logTraffic('click_website');
-                                    }}
-                                    className="w-full flex items-center justify-center px-6 py-3.5 bg-blue-600 text-white text-base font-extrabold rounded-full shadow hover:bg-blue-700 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                >
-                                    <Globe className="w-6 h-6 mr-2 text-white flex-shrink-0" />
-                                    ติดต่อศูนย์ดูแล
-                                </a>
-                            )}
+                    {/* Left Column */}
+                    <div className="lg:col-span-2 space-y-12">
+                        <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">เกี่ยวกับศูนย์ดูแล</h2>
+                            <div
+                                className="prose max-w-none text-gray-800 leading-relaxed text-base md:text-lg"
+                                dangerouslySetInnerHTML={{ __html: center.description }}
+                            />
+                        </section>
+                        <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">สิ่งอำนวยความสะดวกและบริการ</h2>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+                                {/* ✅ โค้ดที่ได้รับการแก้ไข: center.services ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
+                                {center.services.map((s, i) => (
+                                    <div key={i} className="flex items-start p-3.5 rounded-lg bg-blue-50 text-blue-900 transition-colors hover:bg-blue-100/70">
+                                        <CheckCircle2 className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 mt-0.5" />
+                                        <span className="text-base font-semibold leading-snug">{s}</span>
+                                    </div>
+                                ))}
+                                {/* ถ้า services เป็น Array ว่าง ก็จะไม่แสดง error และจะไม่มีอะไรถูก map */}
+                            </div>
+                        </section>
 
-                            {/* 2. ติดต่อผ่าน LINE */}
-                            <a
-                                href="https://line.me/R/ti/p/%40256zihiv"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => {
-                                    gtag.event({ action: 'click_line_button', category: 'Conversion', label: center.name });
-                                    gtag.gtagReportLineConversion();
-                                    logTraffic('click_line');
-                                }}
-                                className="w-full flex items-center justify-center px-6 py-3.5 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                            >
-                                <img
-                                    src="/images/LINE_APP_iOS.png"
-                                    alt="LINE Icon"
-                                    className="w-6 h-6 object-contain mr-2 flex-shrink-0"
-                                />
-                                ติดต่อผ่าน LINE
-                            </a>
-
-                            {/* 3. ติดต่อเจ้าหน้าที่ */}
-                            {center.phone ? (
-                                <a
-                                    href={`tel:${center.phone}`}
-                                    onClick={() => {
-                                        gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
-                                        logTraffic('click_phone');
-                                    }}
-                                    className="w-full flex items-center justify-center px-6 py-3.5 bg-white text-blue-600 border-2 border-blue-100 text-base font-extrabold rounded-full shadow hover:border-blue-500 hover:bg-blue-50/50 transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                >
-                                    <Phone className="w-6 h-6 mr-2 text-blue-600 fill-current flex-shrink-0" />
-                                    ติดต่อเจ้าหน้าที่
-                                </a>
-                            ) : null}
-
-                            {/* Line Separator */}
-                            <div className="border-t border-gray-100 my-1" />
-
-                            {/* 4. นัดเยี่ยมชมศูนย์ */}
-                            <button
-                                onClick={() => {
-                                    setIsConsultationModalOpen(true);
-                                    gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
-                                }}
-                                className="w-full flex items-center justify-center px-6 py-3 bg-blue-50/50 text-blue-600 border border-blue-100 text-base font-bold rounded-full hover:bg-blue-50 hover:text-blue-700 transition-all active:scale-[0.98] group cursor-pointer"
-                            >
-                                <Calendar className="w-5 h-5 mr-2 text-blue-500 flex-shrink-0" />
-                                นัดเยี่ยมชมศูนย์
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            {/* Web / Website button (Solid blue button style with white text) */}
-                            {center.website ? (
-                                <a
-                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={() => {
-                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
-                                        logTraffic('click_website');
-                                    }}
-                                    className="w-full flex items-center justify-center px-6 py-3.5 bg-[#2b64a0] text-white text-base font-extrabold rounded-full shadow hover:bg-[#1e4a77] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                >
-                                    <Globe className="w-6 h-6 mr-2 text-white flex-shrink-0" />
-                                    ติดต่อศูนย์ดูแล
-                                </a>
-                            ) : (
-                                <div className="text-center p-3.5 bg-gray-50 border border-dashed rounded-full text-gray-400 text-xs font-semibold">
-                                    ยังไม่มีข้อมูลเว็บไซต์ทางการ
+                        {/* ✅ Room Types & Beds Section */}
+                        {((center.roomTypes && center.roomTypes.length > 0) || MOCK_ROOM_TYPES.length > 0) && (
+                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-lg shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 mb-6">
+                                    <div className="flex flex-col">
+                                        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">ประเภทห้องพักและสถานะเตียงว่าง</h2>
+                                        <p className="text-sm text-gray-500 mt-1 font-medium">ข้อมูลความพร้อมในการให้บริการของแต่ละประเภทห้องพัก</p>
+                                    </div>
+                                    <span className="text-xs md:text-sm text-blue-600 font-extrabold bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 mt-1 sm:mt-0 flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
+                                        อัปเดตเรียลไทม์
+                                    </span>
                                 </div>
-                            )}
-                        </>
-                    )}
-                </div>
-
-            </div>
-
-            {isTrue(center.isPartner) && (
-                <div className="mt-5 pt-5 border-t border-gray-100 text-center">
-                    <p className="text-[10px] text-gray-400">ติดต่อผ่าน ThaiCareCenter ไม่มีค่าใช้จ่ายเพิ่มเติม</p>
-                </div>
-            )}
-        </div>
-    </div>
-</div>
-
-{/* Recommended Centers Section */ }
-{
-    relatedCenters.length > 0 && (
-        <div className="mt-20 border-t border-gray-200 pt-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {relatedCenters.map(rc => (
-                    <Link
-                        key={rc.id}
-                        href={`/${createSlug(rc.name)}`}
-                        className="block group"
-                        onClick={() => gtag.event({ action: 'click_related_center', category: 'Navigation', label: rc.name })}
-                    >
-                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
-                            <div className="relative h-56 overflow-hidden">
-                                <img
-                                    src={rc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
-                                    alt={rc.name}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                                <div className="absolute top-3 left-3 flex gap-2">
-                                    {rc.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
-                                    {rc.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
-                                    {rc.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
+                                <div className="space-y-6">
+                                    {(center.roomTypes && center.roomTypes.length > 0 ? center.roomTypes : MOCK_ROOM_TYPES).map((room, idx) => (
+                                        <RoomTypeCard key={idx} room={room} onInquire={handleInquireRoom} onOpenGallery={handleOpenGallery} />
+                                    ))}
                                 </div>
-                                {isTrue(rc.hasGovernmentCertificate) && (
-                                    <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
-                                        <ShieldCheck className="w-3 h-3" /> กรม สบส.
+                            </section>
+                        )}
+
+                        {/* ✅ Packages: center.packages ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
+                        {isTrue(center.isPartner) && center.packages.length > 0 && (
+                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 mb-6">
+                                    <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">รายละเอียดแผนการดูแล</h2>
+                                    <span className="text-xs md:text-sm text-amber-700 font-extrabold bg-amber-50 px-3 py-1 rounded-full border border-amber-100 mt-1 sm:mt-0">
+                                        * ข้อมูลเบื้องต้น กรุณาสอบถามราคาอัปเดตล่าสุดกับศูนย์โดยตรง
+                                    </span>
+                                </div>
+                                <div className="space-y-6">
+                                    {center.packages.map((pkg, idx) => (
+                                        <div key={idx} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 transform 
+                          hover:border-green-500 hover:shadow-xl hover:shadow-green-100/30 group flex flex-col h-full">
+
+                                            {/* 1. ส่วนหัว (ชื่อแพ็กเกจและราคา) - ปรับปรุง */}
+                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-100 mb-4">
+
+                                                {/* ชื่อแพ็กเกจ */}
+                                                <h4 className="font-extrabold text-2xl text-gray-900 group-hover:text-green-700 transition-colors mb-2 sm:mb-0">
+                                                    {pkg.name}
+                                                </h4>
+
+                                                {/* ราคา (จะถูกจัดให้อยู่ด้านล่างชื่อแพ็กเกจในจอมือถือ เนื่องจาก div หลักใช้ flex-col) */}
+                                                <div className="text-left sm:text-right flex-shrink-0">
+                                                    <span className="block text-4xl md:text-5xl font-extrabold text-green-600 tracking-tight">
+                                                        ฿{pkg.price?.toLocaleString() ?? '0'}
+                                                    </span>
+                                                    <span className="text-sm font-extrabold text-gray-500">/ ต่อเดือน</span>
+                                                </div>
+                                            </div>
+
+                                            {/* 2. ส่วนรายละเอียด (Details) */}
+                                            <div className="flex-grow">
+                                                {pkg.details && Array.isArray(pkg.details) && pkg.details.length > 0 ? (
+                                                    <ul className="space-y-4">
+                                                        {pkg.details.map((detail, dIdx) => (
+                                                            <li key={dIdx} className="text-base md:text-lg text-gray-800 font-medium flex items-start leading-relaxed">
+                                                                <CheckCircle className="w-5 h-5 mr-3 mt-1 text-green-500 shrink-0" />
+                                                                {detail}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                                        <p className="text-sm text-gray-500 font-medium italic">
+                                                            <span className="text-green-600 font-bold">สรุป:</span> เหมาะสำหรับผู้ที่ต้องการการดูแลระดับ {idx + 1}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {center.mapUrl && (
+                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">สถานที่ตั้ง</h2>
+                                <div className="rounded-xl overflow-hidden shadow-inner border h-[350px] bg-gray-100 relative">
+                                    {getMapSrc(center.mapUrl) ? (
+                                        <iframe
+                                            src={getMapSrc(center.mapUrl)!}
+                                            width="100%" height="100%" style={{ border: 0 }}
+                                            allowFullScreen loading="lazy"
+                                            className="filter grayscale-[10%] hover:grayscale-0 transition-all duration-500"
+                                            title={`Map of ${center.name}`}
+                                        />
+                                    ) : (
+                                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 flex-col">
+                                            <MapPin className="w-10 h-10 mb-2 opacity-30" />
+                                            <span>ไม่สามารถโหลดแผนที่ได้</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+                        )}
+                    </div>
+
+                    {/* Right Column: Sticky Sidebar */}
+                    <div className="lg:col-span-1">
+                        <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
+                        <VerificationByMOPHCard hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)} />
+                        <div id="contact-sidebar" className="sticky top-24 bg-white rounded-none sm:rounded-3xl shadow-none sm:shadow-xl border-y border-x-0 sm:border border-gray-100 p-4 sm:p-6 -mx-4 sm:mx-0 z-10 transition-all duration-300 hover:shadow-2xl">
+                            {/* Main Content Area */}
+                            <div className="grid grid-cols-1 gap-5">
+                                {/* Info Section */}
+                                {isTrue(center.isPartner) && (
+                                    <div className="space-y-4">
+                                        {/* Price tag */}
+                                        <div className="space-y-1">
+                                            <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider">อัตราค่าบริการ</div>
+                                            <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
+                                                <span className="text-4xl md:text-4xl font-extrabold text-[#2b64a0] tracking-tight">
+                                                    {center.price && center.price > 0 ? `เริ่มต้น ${center.price.toLocaleString()} บ.` : 'เริ่มต้น 15,000 บ.'}
+                                                </span>
+                                                <span className="text-base font-bold text-gray-800">/เดือน</span>
+                                                <span className="text-xs font-bold text-red-500">(ไม่รวม VAT)</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Promo Box */}
+                                        <div className="p-4 bg-blue-50/50 border border-blue-200 rounded-2xl space-y-3.5 shadow-inner">
+                                            <div className="flex items-start text-gray-950 text-base font-extrabold leading-normal">
+                                                <span className="text-xl mr-2 shrink-0 animate-bounce">🔥</span>
+                                                <div>
+                                                    จองสิทธิ์ <span className="text-[#2b64a0] underline decoration-wavy decoration-orange-400">"ทดลองเข้าพัก ฟรี 2 วัน"</span>
+                                                    <span className="text-red-500 text-xs block mt-1 font-bold">
+                                                        (รับจำนวนจำกัด เพื่อการดูแลที่ทั่วถึง)
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="text-sm font-extrabold text-[#2b64a0]">
+                                                📞 โทรจองสิทธิ์ทดลองพักฟรีด่วน!
+                                            </div>
+
+                                            {/* Big Phone Number Box */}
+                                            <a
+                                                href={`tel:${center.phone || '0958057052'}`}
+                                                className="flex items-center gap-2.5 px-4 py-2.5 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-fit shadow-md transition-all group"
+                                                onClick={() => {
+                                                    gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
+                                                    logTraffic('click_phone');
+                                                }}
+                                            >
+                                                <Phone className="w-5 h-5 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
+                                                <span className="text-xl font-extrabold text-white tracking-wider">
+                                                    {formatPhone(center.phone || '095-805-7052')}
+                                                </span>
+                                            </a>
+                                        </div>
                                     </div>
                                 )}
-                            </div>
-                            <div className="p-5 flex-grow flex flex-col">
-                                <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
-                                    {rc.name}
-                                </h3>
-                                <p className="text-gray-500 text-sm flex items-center mb-3">
-                                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
-                                    <span className="line-clamp-1">{rc.address}</span>
-                                </p>
-                                <div className="flex items-center mb-4">
-                                    <div className="flex text-yellow-400">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rc.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
-                                        ))}
-                                    </div>
-                                    <span className="text-xs text-gray-400 ml-2 font-medium">{rc.rating ? rc.rating.toFixed(1) : '0.0'} (รีวิว)</span>
+
+                                {/* Contact Header */}
+                                <div className={`text-gray-400 text-xs font-semibold uppercase tracking-wider ${isTrue(center.isPartner) ? 'border-t border-gray-100 pt-4' : ''}`}>
+                                    ช่องทางการติดต่อ
                                 </div>
-                                {/* <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+
+                                {/* Buttons Stack */}
+                                <div className="flex flex-col gap-3">
+                                    {isTrue(center.isPartner) ? (
+                                        <>
+                                            {/* 1. เข้าชมเว็บไซต์ */}
+                                            {center.website && (
+                                                <a
+                                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={() => {
+                                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
+                                                        logTraffic('click_website');
+                                                    }}
+                                                    className="w-full flex items-center justify-center px-6 py-4 bg-blue-600 text-white text-lg font-black rounded-full shadow-md hover:bg-blue-700 hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                >
+                                                    <Globe className="w-6 h-6 mr-2 text-white flex-shrink-0" />
+                                                    ติดต่อศูนย์ดูแล
+                                                </a>
+                                            )}
+
+                                            {/* 2. ติดต่อผ่าน LINE */}
+                                            <a
+                                                href="https://line.me/R/ti/p/%40256zihiv"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => {
+                                                    gtag.event({ action: 'click_line_button', category: 'Conversion', label: center.name });
+                                                    gtag.gtagReportLineConversion();
+                                                    logTraffic('click_line');
+                                                }}
+                                                className="w-full flex items-center justify-center px-6 py-4 bg-[#06C755] text-white text-lg font-black rounded-full shadow-md hover:bg-[#05a044] hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                            >
+                                                <img
+                                                    src="/images/LINE_APP_iOS.png"
+                                                    alt="LINE Icon"
+                                                    className="w-6 h-6 object-contain mr-2 flex-shrink-0 animate-pulse"
+                                                />
+                                                ติดต่อผ่าน LINE
+                                            </a>
+
+                                            {/* 3. ติดต่อเจ้าหน้าที่ */}
+                                            {center.phone ? (
+                                                <a
+                                                    href={`tel:${center.phone}`}
+                                                    onClick={() => {
+                                                        gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
+                                                        logTraffic('click_phone');
+                                                    }}
+                                                    className="w-full flex items-center justify-center px-6 py-4 bg-white text-blue-600 border-2 border-blue-200 text-lg font-black rounded-full shadow-md hover:border-blue-500 hover:bg-blue-50/50 transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                >
+                                                    <Phone className="w-6 h-6 mr-2 text-blue-600 fill-current flex-shrink-0" />
+                                                    ติดต่อเจ้าหน้าที่
+                                                </a>
+                                            ) : null}
+
+                                            {/* Line Separator */}
+                                            <div className="border-t border-gray-100 my-1" />
+
+                                            {/* 4. นัดเยี่ยมชมศูนย์ */}
+                                            <button
+                                                onClick={() => {
+                                                    setIsConsultationModalOpen(true);
+                                                    gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
+                                                }}
+                                                className="w-full flex items-center justify-center px-6 py-3 bg-blue-50/50 text-blue-600 border border-blue-100 text-base font-bold rounded-full hover:bg-blue-50 hover:text-blue-700 transition-all active:scale-[0.98] group cursor-pointer"
+                                            >
+                                                <Calendar className="w-5 h-5 mr-2 text-blue-500 flex-shrink-0" />
+                                                นัดเยี่ยมชมศูนย์
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* Web / Website button (Solid blue button style with white text) */}
+                                            {center.website ? (
+                                                <a
+                                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={() => {
+                                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
+                                                        logTraffic('click_website');
+                                                    }}
+                                                    className="w-full flex items-center justify-center px-6 py-4 bg-[#2b64a0] text-white text-lg font-black rounded-full shadow-md hover:bg-[#1e4a77] hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                >
+                                                    <Globe className="w-6 h-6 mr-2 text-white flex-shrink-0" />
+                                                    ติดต่อศูนย์ดูแล
+                                                </a>
+                                            ) : (
+                                                <div className="text-center p-3.5 bg-gray-50 border border-dashed rounded-full text-gray-400 text-xs font-semibold">
+                                                    ยังไม่มีข้อมูลเว็บไซต์ทางการ
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+
+                            </div>
+
+                            {isTrue(center.isPartner) && (
+                                <div className="mt-5 pt-5 border-t border-gray-100 text-center">
+                                    <p className="text-[10px] text-gray-400">ติดต่อผ่าน ThaiCareCenter ไม่มีค่าใช้จ่ายเพิ่มเติม</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recommended Centers Section */}
+                {
+                    relatedCenters.length > 0 && (
+                        <div className="mt-20 border-t border-gray-200 pt-12">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {relatedCenters.map(rc => (
+                                    <Link
+                                        key={rc.id}
+                                        href={`/${createSlug(rc.name)}`}
+                                        className="block group"
+                                        onClick={() => gtag.event({ action: 'click_related_center', category: 'Navigation', label: rc.name })}
+                                    >
+                                        <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border-y border-x-0 sm:border border-gray-100 overflow-hidden relative -mx-4 sm:mx-0">
+                                            <div className="relative h-56 overflow-hidden">
+                                                <img
+                                                    src={rc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
+                                                    alt={rc.name}
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                                                <div className="absolute top-3 left-3 flex gap-2">
+                                                    {rc.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
+                                                    {rc.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
+                                                    {rc.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
+                                                </div>
+                                                {isTrue(rc.hasGovernmentCertificate) && (
+                                                    <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
+                                                        <ShieldCheck className="w-3 h-3" /> กรม สบส.
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="p-5 flex-grow flex flex-col">
+                                                <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                                    {rc.name}
+                                                </h3>
+                                                <p className="text-gray-500 text-sm flex items-center mb-3">
+                                                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
+                                                    <span className="line-clamp-1">{rc.address}</span>
+                                                </p>
+                                                <div className="flex items-center mb-4">
+                                                    <div className="flex text-yellow-400">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rc.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
+                                                        ))}
+                                                    </div>
+                                                    <span className="text-xs text-gray-400 ml-2 font-medium">{rc.rating ? rc.rating.toFixed(1) : '0.0'} (รีวิว)</span>
+                                                </div>
+                                                {/* <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
                                                 <div>
                                                     <p className="text-xs text-green-600 font-bold mb-0.5">ค้นหาและเข้าใช้งาน</p>
                                                     <p className="text-sm font-extrabold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg inline-block">
@@ -1448,23 +1461,23 @@ export default function CenterDetailClient({
                                                     <ChevronRight className="w-4 h-4" />
                                                 </div>
                                             </div> */}
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
                             </div>
                         </div>
-                    </Link>
-                ))}
-            </div>
-        </div>
-    )
-}
+                    )
+                }
             </main >
 
-    { isGalleryOpen && (
-        <GalleryModal
-            images={currentGalleryImages.length > 0 ? currentGalleryImages : allImages}
-            initialIndex={initialModalIndex}
-            onClose={() => setIsGalleryOpen(false)}
-        />
-    )}
+            {isGalleryOpen && (
+                <GalleryModal
+                    images={currentGalleryImages.length > 0 ? currentGalleryImages : allImages}
+                    initialIndex={initialModalIndex}
+                    onClose={() => setIsGalleryOpen(false)}
+                />
+            )}
 
             <ConsultationModal
                 isOpen={isConsultationModalOpen}
