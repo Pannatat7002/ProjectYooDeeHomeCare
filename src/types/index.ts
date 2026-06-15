@@ -4,6 +4,14 @@ export interface Package {
     details: string[];
 }
 
+export interface RoomType {
+    name: string;
+    imageUrls: string[];
+    status: string;
+    description?: string;
+    facilities?: string[];
+}
+
 export interface CareCenter {
     id: number;
     name: string;
@@ -21,6 +29,7 @@ export interface CareCenter {
     description: string;
     services: string[];
     packages: Package[];
+    roomTypes?: RoomType[];
     hasGovernmentCertificate?: boolean;
     brandName?: string;
     brandLogoUrl?: string;

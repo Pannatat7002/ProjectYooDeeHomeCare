@@ -14,6 +14,7 @@ const INITIAL_FORM_STATE: any = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
     imageUrls: [''], description: '', services: [], packages: [],
+    roomTypes: [],
     hasGovernmentCertificate: false, brandName: '', brandLogoUrl: '',
     isPartner: false, province: 'กรุงเทพมหานคร', status: 'visible',
     // UTM Fields
@@ -177,6 +178,13 @@ export default function ManageCenterPage() {
                 imageUrls: center.imageUrls?.length ? center.imageUrls : [''],
                 packages: center.packages || [],
                 services: center.services || [],
+                roomTypes: Array.isArray(center.roomTypes) ? center.roomTypes.map((rt: any) => ({
+                    name: rt.name || '',
+                    status: rt.status || 'เตียงว่างพร้อมดูแลทันที',
+                    description: rt.description || '',
+                    facilities: Array.isArray(rt.facilities) ? rt.facilities : [],
+                    imageUrls: Array.isArray(rt.imageUrls) && rt.imageUrls.length > 0 ? rt.imageUrls : ['']
+                })) : [],
                 hasGovernmentCertificate: center.hasGovernmentCertificate || false,
                 brandName: center.brandName || '',
                 brandLogoUrl: center.brandLogoUrl || '',
@@ -202,7 +210,14 @@ export default function ManageCenterPage() {
             ...formData,
             imageUrls: formData.imageUrls.filter((url: string) => url.trim() !== ''),
             price: Number(formData.price),
-            rating: Number(formData.rating)
+            rating: Number(formData.rating),
+            roomTypes: Array.isArray(formData.roomTypes) ? formData.roomTypes.map((rt: any) => ({
+                name: rt.name || '',
+                status: rt.status || 'เตียงว่างพร้อมดูแลทันที',
+                description: rt.description || '',
+                facilities: Array.isArray(rt.facilities) ? rt.facilities.filter((f: string) => f.trim() !== '') : [],
+                imageUrls: Array.isArray(rt.imageUrls) ? rt.imageUrls.filter((url: string) => url.trim() !== '') : []
+            })) : []
         };
         const url = editingId ? `/api/care-centers/${editingId}` : '/api/care-centers';
         const method = editingId ? 'PUT' : 'POST';
@@ -259,6 +274,52 @@ export default function ManageCenterPage() {
         } else {
             setFormData({ ...formData, services: [...currentServices, service] });
         }
+    };
+
+    // Room type helpers
+    const handleRoomTypeChange = (index: number, field: string, value: any) => {
+        const newRoomTypes = [...formData.roomTypes];
+        newRoomTypes[index] = { ...newRoomTypes[index], [field]: value };
+        setFormData({ ...formData, roomTypes: newRoomTypes });
+    };
+
+    const addRoomType = () => {
+        setFormData({
+            ...formData,
+            roomTypes: [
+                ...formData.roomTypes,
+                { name: 'ห้องเดี่ยว', status: 'เตียงว่างพร้อมดูแลทันที', description: '', facilities: [], imageUrls: [''] }
+            ]
+        });
+    };
+
+    const removeRoomType = (index: number) => {
+        const newRoomTypes = formData.roomTypes.filter((_: any, i: number) => i !== index);
+        setFormData({ ...formData, roomTypes: newRoomTypes });
+    };
+
+    const handleRoomTypeImageChange = (roomIndex: number, imageIndex: number, value: string) => {
+        const newRoomTypes = [...formData.roomTypes];
+        const newImages = [...newRoomTypes[roomIndex].imageUrls];
+        newImages[imageIndex] = value;
+        newRoomTypes[roomIndex] = { ...newRoomTypes[roomIndex], imageUrls: newImages };
+        setFormData({ ...formData, roomTypes: newRoomTypes });
+    };
+
+    const addRoomTypeImage = (roomIndex: number) => {
+        const newRoomTypes = [...formData.roomTypes];
+        newRoomTypes[roomIndex] = {
+            ...newRoomTypes[roomIndex],
+            imageUrls: [...newRoomTypes[roomIndex].imageUrls, '']
+        };
+        setFormData({ ...formData, roomTypes: newRoomTypes });
+    };
+
+    const removeRoomTypeImage = (roomIndex: number, imageIndex: number) => {
+        const newRoomTypes = [...formData.roomTypes];
+        const newImages = newRoomTypes[roomIndex].imageUrls.filter((_: any, i: number) => i !== imageIndex);
+        newRoomTypes[roomIndex] = { ...newRoomTypes[roomIndex], imageUrls: newImages.length > 0 ? newImages : [''] };
+        setFormData({ ...formData, roomTypes: newRoomTypes });
     };
 
 
@@ -673,6 +734,164 @@ export default function ManageCenterPage() {
                                         ))}
                                         {formData.packages.length === 0 && (
                                             <p className="text-center text-gray-500 text-sm py-4 border-2 border-dashed rounded-lg">ยังไม่มีแพ็กเกจ</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Room Types */}
+                                <div className="border-t pt-4">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <div className="flex flex-col">
+                                            <label className="text-lg font-bold text-gray-800">ประเภทห้องพักและการแสดงความพร้อม</label>
+                                            <span className="text-xs text-blue-600 font-semibold mt-0.5">
+                                                * รูปแต่ละประเภทห้องควรมีขั้นต่ำ 3-6 รูป เพื่อแสดงความพร้อมของเตียงพัก
+                                            </span>
+                                        </div>
+                                        <button type="button" onClick={addRoomType} className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center">
+                                            <Plus className="w-4 h-4 mr-1" /> เพิ่มประเภทห้องพัก
+                                        </button>
+                                    </div>
+                                    <div className="space-y-6">
+                                        {formData.roomTypes && formData.roomTypes.map((room: any, rIdx: number) => {
+                                            const imgCount = room.imageUrls ? room.imageUrls.filter((url: string) => url.trim() !== '').length : 0;
+                                            return (
+                                                <div key={rIdx} className="p-4 bg-slate-50/50 rounded-xl border border-slate-200 relative space-y-4 animate-in fade-in duration-200">
+                                                    <button type="button" onClick={() => removeRoomType(rIdx)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1">
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-gray-600 mb-1 font-sans">ประเภทห้องพัก</label>
+                                                            <div className="flex gap-2">
+                                                                <select
+                                                                    className="border rounded px-2 py-1.5 text-sm w-1/2 bg-white text-gray-800"
+                                                                    value={['ห้องเดี่ยว', 'ห้องรวม', 'ห้องพิเศษ', 'ห้อง premium'].includes(room.name) ? room.name : 'custom'}
+                                                                    onChange={(e) => {
+                                                                        const val = e.target.value;
+                                                                        handleRoomTypeChange(rIdx, 'name', val === 'custom' ? '' : val);
+                                                                    }}
+                                                                >
+                                                                    <option value="ห้องเดี่ยว">ห้องเดี่ยว</option>
+                                                                    <option value="ห้องรวม">ห้องรวม</option>
+                                                                    <option value="ห้องพิเศษ">ห้องพิเศษ</option>
+                                                                    <option value="ห้อง premium">ห้อง premium</option>
+                                                                    <option value="custom">ระบุเอง...</option>
+                                                                </select>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="ระบุเอง..."
+                                                                    required
+                                                                    className="border rounded px-2 py-1.5 text-sm w-1/2 bg-white text-gray-800"
+                                                                    value={room.name}
+                                                                    onChange={(e) => handleRoomTypeChange(rIdx, 'name', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-gray-600 mb-1 font-sans">สถานะความพร้อม</label>
+                                                            <div className="flex gap-2">
+                                                                <select
+                                                                    className="border rounded px-2 py-1.5 text-sm w-1/2 bg-white text-gray-800"
+                                                                    value={['เตียงว่างพร้อมดูแลทันที', 'เตียงว่างพร้อมบริการ', 'มีเตียงว่าง', 'เต็มชั่วคราว'].includes(room.status) ? room.status : 'custom'}
+                                                                    onChange={(e) => {
+                                                                        const val = e.target.value;
+                                                                        handleRoomTypeChange(rIdx, 'status', val === 'custom' ? '' : val);
+                                                                    }}
+                                                                >
+                                                                    <option value="เตียงว่างพร้อมดูแลทันที">เตียงว่างพร้อมดูแลทันที</option>
+                                                                    <option value="เตียงว่างพร้อมบริการ">เตียงว่างพร้อมบริการ</option>
+                                                                    <option value="มีเตียงว่าง">มีเตียงว่าง</option>
+                                                                    <option value="เต็มชั่วคราว">เต็มชั่วคราว</option>
+                                                                    <option value="custom">ระบุเอง...</option>
+                                                                </select>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="ระบุเอง..."
+                                                                    required
+                                                                    className="border rounded px-2 py-1.5 text-sm w-1/2 bg-white text-gray-800"
+                                                                    value={room.status}
+                                                                    onChange={(e) => handleRoomTypeChange(rIdx, 'status', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="md:col-span-2">
+                                                            <label className="block text-xs font-bold text-gray-600 mb-1 font-sans">คำอธิบายห้องพัก</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="คำอธิบายสั้นๆ เช่น ห้องเดี่ยวขนาดใหญ่ หน้าต่างบานใหญ่ วิวสวนหย่อมสงบเงียบ"
+                                                                className="w-full border rounded px-3 py-2 text-sm bg-white text-gray-800"
+                                                                value={room.description || ''}
+                                                                onChange={(e) => handleRoomTypeChange(rIdx, 'description', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="md:col-span-2">
+                                                            <label className="block text-xs font-bold text-gray-600 mb-1 font-sans">สิ่งอำนวยความสะดวกในห้องพัก (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="เช่น เตียงปรับไฟฟ้า, ปุ่มกดฉุกเฉิน, เครื่องปรับอากาศ, กล้องวงจรปิด"
+                                                                className="w-full border rounded px-3 py-2 text-sm bg-white text-gray-800"
+                                                                value={Array.isArray(room.facilities) ? room.facilities.join(', ') : ''}
+                                                                onChange={(e) => handleRoomTypeChange(rIdx, 'facilities', e.target.value.split(',').map((s: string) => s.trim()))}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Room Type Images */}
+                                                    <div className="border-t pt-3 mt-2">
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-xs font-bold text-gray-700 font-sans">รูปภาพห้องพัก ({imgCount} รูป)</span>
+                                                                {imgCount < 3 ? (
+                                                                    <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded font-medium font-sans">
+                                                                        ⚠️ แนะนำอย่างน้อย 3 รูป (รูปปัจจุบัน: {imgCount})
+                                                                    </span>
+                                                                ) : imgCount <= 6 ? (
+                                                                    <span className="text-[10px] bg-green-50 text-green-600 border border-green-200 px-2 py-0.5 rounded font-medium font-sans">
+                                                                        ✓ จำนวนรูปเหมาะสม
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-[10px] bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded font-medium font-sans">
+                                                                        ✓ รูปเยอะจุใจ
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => addRoomTypeImage(rIdx)}
+                                                                className="text-[11px] bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200 flex items-center font-sans border border-slate-300 shadow-sm"
+                                                            >
+                                                                <Plus className="w-3 h-3 mr-0.5" /> เพิ่มช่องใส่รูป
+                                                            </button>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                            {room.imageUrls && room.imageUrls.map((url: string, iIdx: number) => (
+                                                                <div key={iIdx} className="flex gap-2 items-center">
+                                                                    <div className="w-10 h-10 bg-slate-100 rounded border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                                                        {url ? <img src={url} alt="preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/64?text=Error')} /> : <ImageIcon className="w-4 h-4 text-slate-300" />}
+                                                                    </div>
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="https://example.com/room-image.jpg"
+                                                                        className="flex-1 border rounded px-2 py-1.5 text-xs bg-white text-gray-800"
+                                                                        value={url}
+                                                                        onChange={(e) => handleRoomTypeImageChange(rIdx, iIdx, e.target.value)}
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => removeRoomTypeImage(rIdx, iIdx)}
+                                                                        className="text-red-500 hover:text-red-700 p-1"
+                                                                    >
+                                                                        <X className="w-4 h-4" />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                        {(!formData.roomTypes || formData.roomTypes.length === 0) && (
+                                            <p className="text-center text-gray-500 text-sm py-4 border-2 border-dashed rounded-lg font-sans">ยังไม่มีข้อมูลประเภทห้องพัก</p>
                                         )}
                                     </div>
                                 </div>

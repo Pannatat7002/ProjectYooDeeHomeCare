@@ -85,6 +85,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         services: Array.isArray(center.services) ? center.services : [],
         packages: Array.isArray(center.packages) ? center.packages : [],
         imageUrls: Array.isArray(center.imageUrls) ? center.imageUrls : [],
+        roomTypes: Array.isArray(center.roomTypes) ? center.roomTypes : [],
     };
 
     // ดึงศูนย์ดูแลอื่นๆ ที่ไม่ใช่ตัวเองจำนวน 3 แห่งมาแสดงในกล่อง แนะนำเพิ่มเติม
