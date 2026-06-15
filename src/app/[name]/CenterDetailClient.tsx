@@ -699,6 +699,9 @@ export default function CenterDetailClient({
     center: CareCenter;
     relatedCenters: CareCenter[];
 }) {
+    const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/800x600?text=No+Image';
+    const allImages = center?.imageUrls?.length > 0 ? center.imageUrls : [PLACEHOLDER_IMAGE];
+
     const [loading, setLoading] = useState(false);
     const [activeImage, setActiveImage] = useState<string>(center?.imageUrls?.[0] || '');
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -906,6 +909,21 @@ export default function CenterDetailClient({
         }
     }, [center, logTraffic]);
 
+    // Scroll active page thumbnail into view
+    useEffect(() => {
+        const activeIndex = allImages.indexOf(activeImage);
+        if (activeIndex !== -1) {
+            const activeThumb = document.getElementById(`page-thumb-${activeIndex}`);
+            if (activeThumb) {
+                activeThumb.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
+    }, [activeImage, allImages]);
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -931,9 +949,6 @@ export default function CenterDetailClient({
         );
     }
 
-    const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/800x600?text=No+Image';
-    // ใช้ center.imageUrls ที่ถูก normalize แล้ว
-    const allImages = center.imageUrls.length > 0 ? center.imageUrls : [PLACEHOLDER_IMAGE];
     const galleryImages = allImages.slice(0, 5);
     const mainImage = activeImage || galleryImages[0] || PLACEHOLDER_IMAGE;
 
@@ -980,58 +995,74 @@ export default function CenterDetailClient({
                 </div>
 
                 {/* Gallery Section */}
-                <div className="space-y-3">
-                    {/* 1. Main Gallery Grid (Desktop: Grid 5 รูป / Mobile: แสดงรูปที่เลือกรูปเดียว) */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[300px] md:h-[450px] rounded-none sm:rounded-2xl overflow-hidden relative group shadow-sm -mx-4 sm:mx-0">
+                <div className="space-y-4">
+                    {/* Main Image Card */}
+                    <div className="relative w-full h-[280px] sm:h-[350px] md:h-[480px] rounded-3xl overflow-hidden shadow-sm bg-slate-950 flex items-center justify-center">
+                        {/* Blurred background for premium aspect-ratio filling */}
+                        <div 
+                            className="absolute inset-0 bg-cover bg-center blur-2xl opacity-40 scale-105 pointer-events-none"
+                            style={{ backgroundImage: `url(${activeImage || allImages[0]})` }}
+                        />
+                        <img
+                            src={activeImage || allImages[0]}
+                            alt="Main center view"
+                            className="relative z-10 max-w-full max-h-full object-contain transition-all duration-500 cursor-pointer hover:scale-101"
+                            onClick={() => {
+                                const currentIndex = allImages.indexOf(activeImage || allImages[0]);
+                                handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
+                            }}
+                            onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                        />
 
-                        {/* รูปหลัก (ซ้ายมือบน Desktop / รูปใหญ่รูปเดียวบน Mobile) */}
-                        <div className="md:col-span-2 h-full overflow-hidden relative">
-                            <img
-                                src={activeImage || allImages[0]}
-                                alt="Main center view"
-                                className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-105"
-                                onClick={() => {
-                                    const currentIndex = allImages.indexOf(activeImage || allImages[0]);
-                                    handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
-                                }}
-                                onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                            />
-                            {/* แสดงเลขลำดับรูปเฉพาะบนมือถือ */}
-                            <div className="md:hidden absolute bottom-3 left-3 bg-black/50 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-lg">
-                                {allImages.indexOf(activeImage || allImages[0]) + 1} / {allImages.length}
-                            </div>
+                        {/* Share Button (Top Right) */}
+                        <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
+                            <ShareButton />
                         </div>
 
-                        {/* รูปย่อย 4 รูป (ซ่อนบน Mobile / แสดงบน Desktop) */}
-                        <div className="hidden md:grid grid-cols-2 gap-2 md:col-span-2 h-full">
-                            {allImages.slice(1, 5).map((url, idx) => (
-                                <div key={idx} className="relative h-full overflow-hidden">
-                                    <img
-                                        src={url}
-                                        alt={`Thumbnail ${idx + 1}`}
-                                        className="w-full h-full object-cover transition-transform duration-500 cursor-pointer hover:scale-110"
-                                        onClick={() => {
-                                            handleOpenGallery(allImages, idx + 1);
-                                        }}
-                                        onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-                                    />
-                                    {idx === 3 && allImages.length > 5 && (
-                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-lg font-bold pointer-events-none">
-                                            +{allImages.length - 5}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                        {/* Pagination Counter Badge (Bottom Left) */}
+                        <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm z-20">
+                            {allImages.indexOf(activeImage || allImages[0]) + 1} / {allImages.length}
                         </div>
 
-                        {/* ปุ่ม Share & ปุ่มดูรูปทั้งหมด */}
-                        <div className="absolute top-4 right-4"><ShareButton /></div>
+                        {/* View All Button (Bottom Right) */}
                         <button
-                            onClick={() => { handleOpenGallery(allImages, 0); }}
-                            className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs font-bold shadow-md hover:bg-white transition-all border border-gray-200 flex items-center gap-2"
+                            onClick={() => {
+                                const currentIndex = allImages.indexOf(activeImage || allImages[0]);
+                                handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
+                            }}
+                            className="absolute bottom-3 right-3 md:bottom-4 md:right-4 bg-white/95 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-xs md:text-sm font-bold shadow-md hover:bg-white hover:scale-105 active:scale-95 transition-all border border-gray-200/60 flex items-center gap-1.5 z-20"
                         >
-                            <Share2 className="w-3 h-3 md:w-4 md:h-4" /> ดูทั้งหมด ({allImages.length})
+                            <Share2 className="w-4 h-4 text-gray-600" /> ดูทั้งหมด ({allImages.length})
                         </button>
+                    </div>
+
+                    {/* Thumbnails Carousel (Below Main Image) */}
+                    <div className="w-full">
+                        <div className="flex gap-3 overflow-x-auto py-1.5 scrollbar-hide snap-x snap-mandatory justify-start">
+                            {allImages.map((url, idx) => {
+                                const isActive = (activeImage || allImages[0]) === url;
+                                return (
+                                    <button
+                                        key={idx}
+                                        id={`page-thumb-${idx}`}
+                                        onClick={() => {
+                                            setActiveImage(url);
+                                        }}
+                                        className={`relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border-2 transition-all duration-300 snap-center ${isActive
+                                                ? 'border-blue-500 scale-102 ring-4 ring-blue-500/20 opacity-100 shadow-md shadow-blue-500/10'
+                                                : 'border-transparent opacity-70 hover:opacity-100'
+                                            }`}
+                                    >
+                                        <img
+                                            src={url}
+                                            alt={`Thumbnail ${idx + 1}`}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
+                                        />
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
 
