@@ -234,8 +234,18 @@ export const addConsultation = async (item: any) => addDataToSheet('Consultation
 export const addContact = async (item: any) => addDataToSheet('Contacts', item);
 export const addTrafficLog = async (item: any) => addDataToSheet('Traffic', item);
 
-// 4. BLOGS
-export const getBlogs = async () => loadDataFromSheet('Blogs');
+// 4. BLOGS (ดึงตรงจาก Google Sheets ทุกครั้ง ไม่ cache)
+export const getBlogs = async () => {
+    try {
+        const sheet = await getSheet('Blogs');
+        const rows = await sheet.getRows();
+        const rawData = rowsToData(rows);
+        return rawData.map((item: any) => parseSheetRow(item));
+    } catch (error) {
+        console.error('Error loading Blogs from Google Sheets:', error);
+        return [];
+    }
+};
 export const saveBlogs = async (data: any[]) => saveDataToSheet('Blogs', data);
 export const addBlog = async (item: any) => addDataToSheet('Blogs', item);
 

@@ -8,6 +8,18 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 
 import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2 } from 'lucide-react';
 
+// Inline SVG data URI สำหรับ fallback image — ป้องกัน onError loop
+const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f3f4f6' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
+
+// Safe onError handler — set fallback เพียงครั้งเดียว ป้องกัน loop
+const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const img = e.currentTarget;
+  if (!img.dataset.fallback) {
+    img.dataset.fallback = '1';
+    img.src = FALLBACK_IMAGE;
+  }
+};
+
 import Link from 'next/link';
 
 // *** สมมติว่า types.ts ถูกกำหนดไว้แล้ว ***
@@ -144,13 +156,13 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
 
           <img
 
-            src={center.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
+            src={center.imageUrls?.[0] || FALLBACK_IMAGE}
 
             alt={center.name}
 
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
 
-            onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
+            onError={handleImageError}
 
           />
 
@@ -1078,13 +1090,13 @@ export default function HomePageClient({
 
                     <img
 
-                      src={ad.imageUrl}
+                      src={ad.imageUrl || FALLBACK_IMAGE}
 
                       alt={ad.title || 'Advertisement'}
 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
 
-                      onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x300?text=No+Image')}
+                      onError={handleImageError}
 
                     />
 
@@ -1479,13 +1491,13 @@ export default function HomePageClient({
 
                           <img
 
-                            src={(blog as any).coverImage || 'https://via.placeholder.com/600x400?text=No+Image'}
+                            src={(blog as any).coverImage || FALLBACK_IMAGE}
 
                             alt={(blog as any).title}
 
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
 
-                            onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
+                            onError={handleImageError}
 
                           />
 

@@ -18,10 +18,22 @@ export default async function Page() {
     const centers = allCenters.filter((c: any) => c.status === 'visible');
 
     // กรองเอาเฉพาะบทความที่เผยแพร่แล้ว (isPublished)
-    const blogs = allBlogs.filter((b: any) => {
+    const publishedBlogs = allBlogs.filter((b: any) => {
         const val = b.isPublished;
         return val === true || val === 'true' || val === 'TRUE' || val === 1 || val === '1';
     });
+
+    // ✅ ส่งเฉพาะ field ที่จำเป็นสำหรับ blog card — ไม่ส่ง content (HTML ยาวๆ)
+    // ลด JSON payload ลงอย่างมาก ทำให้หน้าแรกโหลดเร็วขึ้น
+    const blogs = publishedBlogs.map((b: any) => ({
+        id: b.id,
+        title: b.title,
+        slug: b.slug,
+        excerpt: b.excerpt || '',
+        coverImage: b.coverImage || '',
+        createdAt: b.createdAt,
+        isFeatured: b.isFeatured || false,
+    }));
 
     // 3. ส่งข้อมูลตั้งต้นผ่าน Props ไปให้ Client Component ทำงานต่อ
     return (
@@ -31,4 +43,4 @@ export default async function Page() {
             initialBlogs={blogs} 
         />
     );
-}
+}
