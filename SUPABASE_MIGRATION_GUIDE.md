@@ -38,13 +38,13 @@
 
 ```env
 # URL ของโปรเจกต์ (Project URL)
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
+CONFIG_NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
 
 # Anon Public Key (anon key)
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+CONFIG_NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # Service Role Secret (service_role key) *ต้องเก็บเป็นความลับ ใช้ใน Backend API
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+CONFIG_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # Secret สำหรับ Sign JWT Token
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-min-32-chars

@@ -246,5 +246,5 @@ CREATE POLICY "Public Insert contacts" ON public.contacts FOR INSERT WITH CHECK 
 CREATE POLICY "Public Insert provider_signups" ON public.provider_signups FOR INSERT WITH CHECK (true);
 CREATE POLICY "Public Insert traffic" ON public.traffic FOR INSERT WITH CHECK (true);
 
--- Backend API Routes ใช้ SUPABASE_SERVICE_ROLE_KEY ซึ่งจะ bypass RLS อัตโนมัติอยู่แล้ว
+-- Backend API Routes ใช้ CONFIG_SUPABASE_SERVICE_ROLE_KEY ซึ่งจะ bypass RLS อัตโนมัติอยู่แล้ว
 -- จึงสามารถ SELECT, INSERT, UPDATE, DELETE ได้อย่างสมบูรณ์แบบและปลอดภัย

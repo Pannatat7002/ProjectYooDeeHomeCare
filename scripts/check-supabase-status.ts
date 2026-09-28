@@ -31,7 +31,7 @@ async function checkSupabase() {
     const { supabaseAdmin, isSupabaseConfigured } = await import('../src/lib/supabase');
     console.log('Checking Supabase connection...');
     console.log('Configured:', isSupabaseConfigured());
-    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('Supabase URL:', process.env.CONFIG_NEXT_PUBLIC_SUPABASE_URL);
 
     const tables = [
         'care_centers',

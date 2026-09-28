@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
         try {
             if (!isSupabaseConfigured()) {
                 return NextResponse.json(
-                    { success: false, message: 'Supabase ยังไม่ได้ตั้งค่าใน .env.local (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)' },
+                    { success: false, message: 'Supabase ยังไม่ได้ตั้งค่าใน .env.local (CONFIG_NEXT_PUBLIC_SUPABASE_URL, CONFIG_SUPABASE_SERVICE_ROLE_KEY)' },
                     { status: 500 }
                 );
             }
