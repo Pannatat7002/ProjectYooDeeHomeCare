@@ -1,10 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
 import { ReactNode } from 'react';
 import Link from 'next/link';
 // ตรวจสอบ path
 import { getBlogs } from '../../lib/db';
 import { Blog } from '../../types';
-import { Calendar, User, ArrowRight, BookOpen, Clock, Lightbulb, TrendingUp } from 'lucide-react';
+import { Calendar, User, ArrowRight, BookOpen, Lightbulb, TrendingUp } from 'lucide-react';
 import BlogImage from './BlogImage';
 
 
@@ -128,9 +127,9 @@ export default async function BlogsPage() {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     // Filter by published status
-    const publishedBlogs = rawBlogs.filter((blog: any) => {
+    const publishedBlogs = rawBlogs.filter((blog: Blog) => {
         const val = blog.isPublished;
-        return val === true || val === 'true' || val === 'TRUE' || val === 1 || val === '1';
+        return val === true || (val as unknown) === 'true' || (val as unknown) === 'TRUE' || (val as unknown) === 1 || (val as unknown) === '1';
     });
 
     const blogs = publishedBlogs.map((blog: Blog) => ({
@@ -141,7 +140,7 @@ export default async function BlogsPage() {
     }));
 
     // Sort by date desc
-    blogs.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    blogs.sort((a: Blog, b: Blog) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     const featuredBlogs = blogs.filter(blog => blog.isFeatured);
     const otherBlogs = blogs.filter(blog => !blog.isFeatured);

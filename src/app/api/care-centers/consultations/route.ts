@@ -1,14 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getConsultations, addConsultation } from '../../../../lib/db';
+import { requireAuth } from '../../../../lib/middleware';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
-    const consultations = await getConsultations();
-    return NextResponse.json({
-        success: true,
-        count: consultations.length,
-        data: consultations,
+export async function GET(request: NextRequest) {
+    return requireAuth(request, async () => {
+        try {
+            const consultations = await getConsultations();
+            return NextResponse.json({
+                success: true,
+                count: consultations.length,
+                data: consultations,
+            });
+        } catch (error) {
+            console.error('Error fetching consultations:', error);
+            return NextResponse.json(
+                { success: false, message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' },
+                { status: 500 }
+            );
+        }
     });
 }
 

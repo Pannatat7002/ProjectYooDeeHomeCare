@@ -1,10 +1,10 @@
-﻿/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Shield, User as UserIcon, Settings } from 'lucide-react';
-import { getAdmin, isAuthenticated, logout, AdminData } from '../../../lib/auth-client';
+import { Shield, User as UserIcon, Settings } from 'lucide-react';
+import { getAdmin, isAuthenticated, AdminData } from '../../../lib/auth-client';
 
 // Import components
 import ManageAdminPage from './components/ManageAdminPage';
@@ -36,12 +36,6 @@ export default function AdminManagePage() {
 
         setIsAuthChecking(false);
     }, [router]);
-
-    const handleLogout = () => {
-        if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
-            logout();
-        }
-    };
 
     if (isAuthChecking) {
         return (

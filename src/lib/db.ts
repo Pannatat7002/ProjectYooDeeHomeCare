@@ -130,7 +130,7 @@ const addDataToSheet = async (sheetName: string, newItem: any) => {
             await sheet.loadHeaderRow();
             hasHeaders = sheet.headerValues && sheet.headerValues.length > 0;
             existingHeaders = sheet.headerValues || [];
-        } catch (err) {
+        } catch {
             // ถ้า loadHeaderRow() error แสดงว่า Sheet ยังไม่มี header เลย
             console.log(`⚠️  Sheet "${sheetName}" has no headers yet`);
             hasHeaders = false;
@@ -234,18 +234,8 @@ export const addConsultation = async (item: any) => addDataToSheet('Consultation
 export const addContact = async (item: any) => addDataToSheet('Contacts', item);
 export const addTrafficLog = async (item: any) => addDataToSheet('Traffic', item);
 
-// 4. BLOGS (ดึงตรงจาก Google Sheets ทุกครั้ง ไม่ cache)
-export const getBlogs = async () => {
-    try {
-        const sheet = await getSheet('Blogs');
-        const rows = await sheet.getRows();
-        const rawData = rowsToData(rows);
-        return rawData.map((item: any) => parseSheetRow(item));
-    } catch (error) {
-        console.error('Error loading Blogs from Google Sheets:', error);
-        return [];
-    }
-};
+// 4. BLOGS (ดึงผ่าน loadDataFromSheet พร้อม Cache 5 นาที และ Invalidate เมื่อมีการแก้ไข)
+export const getBlogs = async () => loadDataFromSheet('Blogs');
 export const saveBlogs = async (data: any[]) => saveDataToSheet('Blogs', data);
 export const addBlog = async (item: any) => addDataToSheet('Blogs', item);
 
@@ -281,16 +271,13 @@ const updateRowInSheet = async (sheetName: string, id: number | string, newData:
 
         const formatted = formatRowForSheet(newData);
 
-        // Use assign if available, otherwise manual set
-        if (row.assign) {
+        // Safe assign
+        if (typeof row.assign === 'function') {
             row.assign(formatted);
+        } else if (typeof row.set === 'function') {
+            Object.keys(formatted).forEach(key => row.set(key, formatted[key]));
         } else {
-            try {
-                row.assign(formatted);
-                await row.save();
-            } catch (error) {
-                console.error("เกิดข้อผิดพลาดในการอัปเดตแถว:", error);
-            }
+            Object.assign(row, formatted);
         }
 
         await row.save();

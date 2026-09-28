@@ -10,7 +10,7 @@ export async function GET(
     const { id } = await params;
     const centerId = parseInt(id);
     const careCenters = await getCareCenters();
-    const center = careCenters.find((c: any) => c.id === centerId);
+    const center = careCenters.find((c: any) => c.id === centerId || String(c.id) === id);
 
     if (center) {
         return NextResponse.json(center);

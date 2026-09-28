@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { Phone, Mail, Clock, Send } from 'lucide-react';
 import { gtagReportConversion } from '../../lib/gtag';
 
 

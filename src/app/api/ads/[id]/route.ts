@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { updateAd, deleteAd } from '../../../../lib/db';
 import { requireAuth } from '../../../../lib/middleware';

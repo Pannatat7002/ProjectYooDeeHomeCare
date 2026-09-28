@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/immutability */
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
@@ -17,7 +16,7 @@ const parseUrlParams = (url: string) => {
             utmMedium: urlObj.searchParams.get('utm_medium') || '',
             utmCampaign: urlObj.searchParams.get('utm_campaign') || '',
         };
-    } catch (e) {
+    } catch {
         return {
             baseUrl: url,
             utmSource: '',
@@ -70,7 +69,7 @@ export default function ManageAdsPage() {
                 if (newUrl !== formData.linkUrl) {
                     setFormData(prev => ({ ...prev, linkUrl: newUrl }));
                 }
-            } catch (e) {
+            } catch {
                 // Invalid URL, do nothing or keep as is
             }
         }

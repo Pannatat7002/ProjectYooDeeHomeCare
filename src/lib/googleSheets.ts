@@ -10,20 +10,41 @@ const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY || PRIVATE_KEY;
 
 // 1. ตั้งค่าการยืนยันตัวตน (Authentication)
 const serviceAccountAuth = new JWT({
-    email: CLIENT_EMAIL,
-    key: PRIVATE_KEY.replace(/\\n/g, '\n'),
+    email: clientEmail,
+    key: (rawPrivateKey || '').replace(/\\n/g, '\n'),
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-// export const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
-export const doc = new GoogleSpreadsheet(SHEET_ID, serviceAccountAuth);
+export const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
+
+// Cache info promise to prevent multiple parallel loadInfo calls
+let docLoaded = false;
+let docLoadingPromise: Promise<void> | null = null;
+
+const ensureDocLoaded = async () => {
+    if (docLoaded && doc.sheetsByTitle) return;
+    if (docLoadingPromise) return docLoadingPromise;
+    docLoadingPromise = (async () => {
+        await doc.loadInfo();
+        docLoaded = true;
+    })().finally(() => {
+        docLoadingPromise = null;
+    });
+    return docLoadingPromise;
+};
+
 // 2. Helper: ดึง Sheet ตามชื่อ (ถ้าไม่มีจะสร้างใหม่)
 export const getSheet = async (title: string) => {
     try {
-        await doc.loadInfo(); // โหลดข้อมูล Spreadsheet
+        await ensureDocLoaded();
         let sheet = doc.sheetsByTitle[title];
         if (!sheet) {
-            sheet = await doc.addSheet({ title });
+            // ถ้าไม่พบ อาจเป็นเพราะมีชีทใหม่ ให้ลอง loadInfo ใหม่รอบเดียว
+            await doc.loadInfo();
+            sheet = doc.sheetsByTitle[title];
+            if (!sheet) {
+                sheet = await doc.addSheet({ title });
+            }
         }
         return sheet;
     } catch (error) {

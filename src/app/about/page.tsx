@@ -1,6 +1,5 @@
-import React from 'react';
 import Link from 'next/link';
-import { Heart, Shield, Users, Clock, ArrowRight, Target, Globe, Handshake, Quote } from 'lucide-react';
+import { Users, ArrowRight, Target, Globe, Handshake, Quote } from 'lucide-react';
 
 export default function AboutPage() {
     return (

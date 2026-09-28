@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -15,14 +16,12 @@ import {
 } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Building2, Globe, Phone, MessageSquare, Eye, MousePointerClick, Calendar, ExternalLink } from 'lucide-react';
-import { CareCenter } from '@/src/types';
 import { fetchWithAuth } from '../../../lib/auth-client';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
 
 export default function DashboardPage() {
-    const [centers, setCenters] = useState<CareCenter[]>([]);
     const [trafficLogs, setTrafficLogs] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -34,16 +33,11 @@ export default function DashboardPage() {
     });
 
     useEffect(() => {
-        setIsLoading(true);
         Promise.all([
             fetch('/api/care-centers').then((res: any) => res.json()),
             fetchWithAuth('/api/traffic').then((res: any) => res.json())
         ])
         .then(([centersData, trafficRes]) => {
-            if (Array.isArray(centersData)) {
-                setCenters(centersData);
-            }
-            
             const logs = trafficRes.success && Array.isArray(trafficRes.data) ? trafficRes.data : [];
             setTrafficLogs(logs);
             

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Trash2, Phone, Mail, User, Clock, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
+import { fetchWithAuth } from '../../../lib/auth-client';
 
 // กำหนด Type สำหรับข้อมูล Consultation ตาม Response จริง
 interface Consultation {
@@ -34,7 +35,7 @@ export default function ConsultationManagement() {
     const fetchConsultations = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch(API_URL, { cache: 'no-store' });
+            const res = await fetchWithAuth(API_URL);
             if (!res.ok) throw new Error('Failed to fetch consultations');
 
             const result: { data: Consultation[] } = await res.json();
@@ -59,16 +60,14 @@ export default function ConsultationManagement() {
     const handleDelete = async (id: number) => {
         if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการติดต่อนี้?')) return;
         try {
-            const res = await fetch(`${API_URL}/${id}`, {
+            const res = await fetchWithAuth(`${API_URL}/${id}`, {
                 method: 'DELETE',
             });
-            // สมมติว่าลบสำเร็จ (API ควรตอบกลับด้วย status 200/204)
             if (res.ok) {
                 alert('ลบรายการสำเร็จ');
                 fetchConsultations(); // โหลดข้อมูลใหม่
             } else {
-                // API อาจไม่รองรับ method DELETE จึงแจ้งเตือนตามความเป็นจริง
-                alert('ลบรายการไม่สำเร็จ (อาจต้องมีการตั้งค่า API DELETE เพิ่มเติม)');
+                alert('ลบรายการไม่สำเร็จ');
             }
         } catch (error) {
             console.error('Delete error:', error);
@@ -81,11 +80,9 @@ export default function ConsultationManagement() {
         const payload = { status: newStatus };
 
         try {
-            const res = await fetch(`${API_URL}/${consultation.id}`, {
+            const res = await fetchWithAuth(`${API_URL}/${consultation.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
-                cache: 'no-store'
             });
 
             if (res.ok) {

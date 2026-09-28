@@ -155,15 +155,12 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
         <div className="relative h-56 overflow-hidden">
 
           <img
-
             src={center.imageUrls?.[0] || FALLBACK_IMAGE}
-
             alt={center.name}
-
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-
             onError={handleImageError}
-
           />
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
@@ -426,13 +423,9 @@ export default function HomePageClient({
   initialBlogs: Blog[];
 }) {
 
-  const [centers, setCenters] = useState<CareCenter[]>(initialCenters);
-
-  const [ads, setAds] = useState<Advertisement[]>(initialAds);
-
-  const [blogs, setBlogs] = useState<Blog[]>(initialBlogs);
-
-  const [loading, setLoading] = useState(false);
+  const centers = initialCenters;
+  const ads = initialAds;
+  const blogs = initialBlogs;
 
 
 
@@ -1089,15 +1082,12 @@ export default function HomePageClient({
                   <div className="aspect-[21/9] overflow-hidden relative">
 
                     <img
-
                       src={ad.imageUrl || FALLBACK_IMAGE}
-
                       alt={ad.title || 'Advertisement'}
-
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-
                       onError={handleImageError}
-
                     />
 
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
@@ -1165,20 +1155,6 @@ export default function HomePageClient({
 
 
       <div id="results-section" className="container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
-
-        {loading ? (
-
-          <div className="flex flex-col items-center justify-center py-16">
-
-            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-
-            <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
-
-          </div>
-
-        ) : (
-
-          <>
 
             {/* 1. ส่วน: ศูนย์ดูแลแนะนำ (ซ่อนเมื่อมีการค้นหา) */}
 
@@ -1490,15 +1466,12 @@ export default function HomePageClient({
                         <div className="relative h-48 overflow-hidden">
 
                           <img
-
                             src={(blog as any).coverImage || FALLBACK_IMAGE}
-
                             alt={(blog as any).title}
-
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-
                             onError={handleImageError}
-
                           />
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
@@ -1548,10 +1521,6 @@ export default function HomePageClient({
               </section>
 
             )}
-
-          </>
-
-        )}
 
       </div>
 

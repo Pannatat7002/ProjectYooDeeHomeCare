@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getAdmins, saveAdmins } from '../../../../lib/db';
+import { getAdmins, updateAdmin } from '../../../../lib/db';
 import { createToken } from '../../../../lib/auth';
 import { Admin, AdminLoginRequest, AdminLoginResponse } from '../../../../types';
 
@@ -52,8 +52,9 @@ export async function POST(request: NextRequest) {
         }
 
         // อัปเดต lastLogin
-        admin.lastLogin = new Date().toISOString();
-        await saveAdmins(admins);
+        const lastLogin = new Date().toISOString();
+        admin.lastLogin = lastLogin;
+        await updateAdmin(admin.id, { lastLogin });
 
         // สร้าง JWT token
         const token = await createToken({
@@ -63,7 +64,8 @@ export async function POST(request: NextRequest) {
         });
 
         // ส่งข้อมูล admin กลับไป (ไม่รวม password)
-        const { password: _pwd, ...adminWithoutPassword } = admin;
+        const adminWithoutPassword = { ...admin } as Partial<Admin>;
+        delete adminWithoutPassword.password;
 
         return NextResponse.json({
             success: true,

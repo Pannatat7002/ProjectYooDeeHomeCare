@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getAdmins, saveAdmins } from '../../../../lib/db';
+import { getAdmins, addAdmin } from '../../../../lib/db';
 import { requireAuth, requireSuperAdmin } from '../../../../lib/middleware';
 import { Admin } from '../../../../types';
 
@@ -14,7 +14,11 @@ export async function GET(request: NextRequest) {
             const admins: Admin[] = await getAdmins();
 
             // ไม่ส่ง password กลับไป
-            const adminsWithoutPassword = admins.map(({ password: _pwd, ...admin }) => admin);
+            const adminsWithoutPassword = admins.map((admin) => {
+                const safeAdmin = { ...admin } as Partial<Admin>;
+                delete safeAdmin.password;
+                return safeAdmin;
+            });
 
             return NextResponse.json({
                 success: true,
@@ -77,11 +81,11 @@ export async function POST(request: NextRequest) {
                 createdAt: new Date().toISOString(),
             };
 
-            admins.push(newAdmin);
-            await saveAdmins(admins);
+            await addAdmin(newAdmin);
 
             // ส่งข้อมูลกลับไป (ไม่รวม password)
-            const { password: _pwd, ...adminWithoutPassword } = newAdmin;
+            const adminWithoutPassword = { ...newAdmin } as Partial<Admin>;
+            delete adminWithoutPassword.password;
 
             return NextResponse.json({
                 success: true,

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
     MapPin, Star, Phone, Globe, CheckCircle2, ArrowLeft,
     Share2, ShieldCheck, Info, DollarSign, Calendar, X,
@@ -9,7 +9,6 @@ import {
     ChevronRight,
     ChevronLeft,
     CheckCircle,
-    ArrowRight,
     User,
     Users,
     MessageSquare
@@ -21,10 +20,6 @@ import { CareCenter, RoomType } from '../../types/index';
 // =========================================================================================
 // UTILITIES & CONSTANTS
 // =========================================================================================
-
-const decodeSlug = (slug: string) => {
-    return decodeURIComponent(slug).replace(/-/g, ' ');
-};
 
 const isTrue = (value: any) => !!value;
 
@@ -44,14 +39,6 @@ const getTelHref = (phone: any, fallback: string = '') => {
     const cleanPhone = rawPhone.toString().replace(/\D/g, '');
     const finalPhone = cleanPhone.startsWith('0') ? cleanPhone : '0' + cleanPhone;
     return `tel:${finalPhone}`;
-};
-
-const getEndDayText = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    return `${lastDay} นี้`;
 };
 
 const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoUrl?: string }) => {
@@ -708,9 +695,11 @@ export default function CenterDetailClient({
     relatedCenters: CareCenter[];
 }) {
     const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/800x600?text=No+Image';
-    const allImages = center?.imageUrls?.length > 0 ? center.imageUrls : [PLACEHOLDER_IMAGE];
+    const allImages = useMemo(
+        () => (center?.imageUrls?.length > 0 ? center.imageUrls : [PLACEHOLDER_IMAGE]),
+        [center?.imageUrls]
+    );
 
-    const [loading, setLoading] = useState(false);
     const [activeImage, setActiveImage] = useState<string>(center?.imageUrls?.[0] || '');
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [initialModalIndex, setInitialModalIndex] = useState(0);
@@ -766,7 +755,7 @@ export default function CenterDetailClient({
             targetUrl.searchParams.set('utm_content', content);
 
             return targetUrl.toString();
-        } catch (e) {
+        } catch {
             return url;
         }
     };
@@ -932,17 +921,6 @@ export default function CenterDetailClient({
         }
     }, [activeImage, allImages]);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                    <p className="text-gray-500 text-sm animate-pulse">กำลังโหลดข้อมูล...</p>
-                </div>
-            </div>
-        );
-    }
-
     if (!center) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center">
@@ -1009,14 +987,14 @@ export default function CenterDetailClient({
                         {/* Blurred background for premium aspect-ratio filling */}
                         <div
                             className="absolute inset-0 bg-cover bg-center blur-2xl opacity-40 scale-105 pointer-events-none"
-                            style={{ backgroundImage: `url(${activeImage || allImages[0]})` }}
+                            style={{ backgroundImage: `url(${mainImage})` }}
                         />
                         <img
-                            src={activeImage || allImages[0]}
+                            src={mainImage}
                             alt="Main center view"
                             className="relative z-10 max-w-full max-h-full object-contain transition-all duration-500 cursor-pointer hover:scale-101"
                             onClick={() => {
-                                const currentIndex = allImages.indexOf(activeImage || allImages[0]);
+                                const currentIndex = allImages.indexOf(mainImage);
                                 handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
                             }}
                             onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
@@ -1258,7 +1236,7 @@ export default function CenterDetailClient({
                                             <div className="flex items-start text-gray-950 text-sm sm:text-base font-bold leading-normal">
                                                 <span className="text-lg mr-2 shrink-0 animate-bounce">🔥</span>
                                                 <div>
-                                                    จองสิทธิ์ <span className="text-[#2b64a0] underline decoration-wavy decoration-orange-400">"ทดลองเข้าพัก ฟรี 2 วัน"</span>
+                                                    จองสิทธิ์ <span className="text-[#2b64a0] underline decoration-wavy decoration-orange-400">&ldquo;ทดลองเข้าพัก ฟรี 2 วัน&rdquo;</span>
                                                     <span className="text-red-500 text-[10px] sm:text-xs block mt-0.5 font-bold">
                                                         (รับจำนวนจำกัด เพื่อการดูแลที่ทั่วถึง)
                                                     </span>

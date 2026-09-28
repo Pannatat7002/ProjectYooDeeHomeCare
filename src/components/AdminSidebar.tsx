@@ -9,8 +9,7 @@ import {
     Database,
     LogOut,
     MessageSquare,
-    ShieldCheck,
-    User
+    ShieldCheck
 } from 'lucide-react';
 
 // กำหนด Type ของข้อมูล Admin ตาม JSON ที่ให้มา

@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { Heart, Users, TrendingUp, Shield, CheckCircle, MessageCircle, Phone, Mail, Clock, Award, Briefcase, GraduationCap } from 'lucide-react';
+import { Heart, Users, TrendingUp, Shield, CheckCircle, Phone, Mail, Clock, Award, Briefcase, GraduationCap } from 'lucide-react';
 
 export default function ProviderSignupPage() {
     // LINE Official Account URL - แก้ไขเป็น LINE ID ของคุณ

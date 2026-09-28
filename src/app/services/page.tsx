@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Activity, HeartPulse, Home, Clock, CheckCircle, ArrowRight, TrendingUp, Briefcase, GraduationCap, Handshake, Megaphone, LayoutDashboard, Users, BarChart3, Store, CalendarCheck, Search, MessageSquare } from 'lucide-react';
+import { CheckCircle, ArrowRight, Store, CalendarCheck, Search, MessageSquare } from 'lucide-react';
 
 export default function ServicesPage() {
     // const services = [

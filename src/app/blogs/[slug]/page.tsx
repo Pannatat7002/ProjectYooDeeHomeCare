@@ -15,19 +15,15 @@ interface Props {
     params: Promise<{ slug: string }>;
 }
 
-// กำหนดสีหลักสำหรับความทางการ
-const MAIN_BLUE_HEX = '#2b64a0';
-
 // --------------------------------------------------------------------------
 // 1. Data Fetching and Helpers
 // --------------------------------------------------------------------------
 
 async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
-    const blogs = await getBlogs();
+    const blogs: Blog[] = await getBlogs();
     const decodedSlug = decodeURIComponent(slug).trim();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return blogs.find((b: any) => {
+    return blogs.find((b: Blog) => {
         const dbSlug = (b.slug || '').trim();
         return dbSlug === decodedSlug;
     });
@@ -36,13 +32,13 @@ async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
 // สร้าง path สำหรับทุกบทความที่เผยแพร่ตอน build time
 export async function generateStaticParams() {
     try {
-        const blogs = await getBlogs();
+        const blogs: Blog[] = await getBlogs();
         return blogs
-            .filter((b: any) => {
+            .filter((b: Blog) => {
                 const val = b.isPublished;
-                return val === true || val === 'true' || val === 'TRUE' || val === 1 || val === '1';
+                return val === true || (val as unknown) === 'true' || (val as unknown) === 'TRUE' || (val as unknown) === 1 || (val as unknown) === '1';
             })
-            .map((b: any) => ({
+            .map((b: Blog) => ({
                 slug: b.slug,
             }));
     } catch (error) {

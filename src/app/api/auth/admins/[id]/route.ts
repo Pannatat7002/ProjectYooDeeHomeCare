@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getAdmins, saveAdmins } from '../../../../../lib/db';
+import { getAdmins, updateAdmin, deleteAdmin } from '../../../../../lib/db';
 import { requireSuperAdmin } from '../../../../../lib/middleware';
 import { Admin } from '../../../../../types/index';
 
@@ -41,21 +41,24 @@ export async function PUT(
             }
 
             // อัปเดตข้อมูล
-            if (username) admins[adminIndex].username = username;
-            if (email) admins[adminIndex].email = email;
-            if (fullName) admins[adminIndex].fullName = fullName;
-            if (role) admins[adminIndex].role = role;
-            if (typeof isActive === 'boolean') admins[adminIndex].isActive = isActive;
+            const updates: Partial<Admin> = {};
+            if (username) updates.username = username;
+            if (email) updates.email = email;
+            if (fullName) updates.fullName = fullName;
+            if (role) updates.role = role;
+            if (typeof isActive === 'boolean') updates.isActive = isActive;
 
             // ถ้ามีการเปลี่ยนรหัสผ่าน
             if (password) {
-                admins[adminIndex].password = await bcrypt.hash(password, 10);
+                updates.password = await bcrypt.hash(password, 10);
             }
 
-            await saveAdmins(admins);
+            await updateAdmin(id, updates);
 
             // ส่งข้อมูลกลับไป (ไม่รวม password)
-            const { password: _pwd, ...adminWithoutPassword } = admins[adminIndex];
+            const updatedAdmin = { ...admins[adminIndex], ...updates };
+            const adminWithoutPassword = { ...updatedAdmin } as Partial<Admin>;
+            delete adminWithoutPassword.password;
 
             return NextResponse.json({
                 success: true,
@@ -105,9 +108,7 @@ export async function DELETE(
                 );
             }
 
-            // ลบ Admin
-            admins.splice(adminIndex, 1);
-            await saveAdmins(admins);
+            await deleteAdmin(id);
 
             return NextResponse.json({
                 success: true,
