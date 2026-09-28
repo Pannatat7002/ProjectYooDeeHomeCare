@@ -134,7 +134,7 @@ export default function ManageAdsPage() {
         e.preventDefault();
 
         if (!formData.imageUrl) {
-            alert('กรุณาระบุ URL รูปภาพ');
+            alert('กรุณาอัปโหลดรูปภาพโฆษณา');
             return;
         }
 
@@ -360,39 +360,56 @@ export default function ManageAdsPage() {
                                             </div>
 
                                             <div>
-                                                <div className="flex justify-between items-center mb-1.5">
-                                                    <label className="block text-sm font-medium text-gray-700">URL รูปภาพ <span className="text-red-500">*</span></label>
-                                                    <ImageUploadButton
-                                                        folder="ads"
-                                                        label="อัปโหลดรูปภาพ"
-                                                        onUploadSuccess={(url) => handleInputChange('imageUrl', url)}
-                                                    />
-                                                </div>
-                                                <input
-                                                    type="url"
-                                                    required
-                                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                                    placeholder="https://example.com/image.jpg หรือคลิกปุ่มอัปโหลด"
-                                                    value={formData.imageUrl || ''}
-                                                    onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                                                />
+                                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                                    รูปภาพโฆษณา <span className="text-red-500">*</span>
+                                                </label>
+                                                {formData.imageUrl ? (
+                                                    <div className="relative w-full h-48 bg-gray-50 rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center p-2 group">
+                                                        <img
+                                                            src={formData.imageUrl}
+                                                            alt="Preview"
+                                                            className="h-full w-full object-contain rounded-lg"
+                                                            onError={(e) => {
+                                                                e.currentTarget.src = '';
+                                                                e.currentTarget.parentElement?.classList.add('bg-gray-100');
+                                                                e.currentTarget.alt = 'ไม่สามารถโหลดรูปภาพได้';
+                                                            }}
+                                                        />
+                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-xs">
+                                                            <ImageUploadButton
+                                                                folder="ads"
+                                                                label="เปลี่ยนรูปภาพ"
+                                                                className="bg-white/95 hover:bg-white text-gray-800 border-white/50 shadow-md font-medium text-xs px-3 py-1.5"
+                                                                onUploadSuccess={(url) => handleInputChange('imageUrl', url)}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleInputChange('imageUrl', '')}
+                                                                className="px-3 py-1.5 text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-md flex items-center gap-1.5"
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                                <span>ลบรูป</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors bg-gray-50/50 flex flex-col items-center justify-center gap-2">
+                                                        <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                            <ImageIcon className="w-6 h-6" />
+                                                        </div>
+                                                        <div className="text-sm font-medium text-gray-700">ยังไม่มีรูปภาพโฆษณา</div>
+                                                        <p className="text-xs text-gray-500">อัปโหลดไฟล์รูปภาพ (JPG, PNG, WEBP ขนาดไม่เกิน 10MB)</p>
+                                                        <div className="mt-1">
+                                                            <ImageUploadButton
+                                                                folder="ads"
+                                                                label="เลือกไฟล์และอัปโหลดรูปภาพ"
+                                                                className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm px-4 py-2 text-xs"
+                                                                onUploadSuccess={(url) => handleInputChange('imageUrl', url)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-
-                                            {/* Image Preview */}
-                                            {formData.imageUrl && (
-                                                <div className="relative w-full h-40 bg-gray-100 rounded-lg overflow-hidden border border-dashed border-gray-300 flex items-center justify-center">
-                                                    <img
-                                                        src={formData.imageUrl}
-                                                        alt="Preview"
-                                                        className="h-full w-full object-contain"
-                                                        onError={(e) => {
-                                                            e.currentTarget.src = '';
-                                                            e.currentTarget.parentElement?.classList.add('bg-gray-50');
-                                                            e.currentTarget.alt = 'ไม่สามารถโหลดรูปภาพได้';
-                                                        }}
-                                                    />
-                                                </div>
-                                            )}
 
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1.5">รายละเอียด</label>

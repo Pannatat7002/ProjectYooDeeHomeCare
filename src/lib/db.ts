@@ -73,17 +73,29 @@ const loadDataFromTable = async (tableName: string) => {
             return [];
         }
 
-        const { data, error } = await supabaseAdmin
-            .from(tableName)
-            .select('*')
-            .order('id', { ascending: true });
+        let allData: any[] = [];
+        let from = 0;
+        const PAGE_SIZE = 1000;
 
-        if (error) {
-            console.error(`[Supabase Error] Error fetching from ${tableName}:`, error);
-            return [];
+        while (true) {
+            const { data, error } = await supabaseAdmin
+                .from(tableName)
+                .select('*')
+                .order('id', { ascending: true })
+                .range(from, from + PAGE_SIZE - 1);
+
+            if (error) {
+                console.error(`[Supabase Error] Error fetching from ${tableName}:`, error);
+                break;
+            }
+
+            if (!data || data.length === 0) break;
+            allData = allData.concat(data);
+            if (data.length < PAGE_SIZE) break;
+            from += PAGE_SIZE;
         }
 
-        return (data || []).map(parseRow);
+        return allData.map(parseRow);
     } catch (error) {
         console.error(`[DB Error] Failed to load data from table ${tableName}:`, error);
         return [];
@@ -97,9 +109,19 @@ const insertDataToTable = async (tableName: string, newItem: any) => {
         }
 
         const dbItem = toSnakeCase(newItem);
-        // If id is empty or null, let Postgres generate identity automatically
+        // If id is empty or null, compute next sequential ID to avoid postgres sequence collision
         if (dbItem.id === undefined || dbItem.id === null || dbItem.id === '') {
-            delete dbItem.id;
+            try {
+                const { data: maxRow } = await supabaseAdmin
+                    .from(tableName)
+                    .select('id')
+                    .order('id', { ascending: false })
+                    .limit(1);
+                const nextId = (maxRow && maxRow[0]?.id ? Number(maxRow[0].id) : 0) + 1;
+                dbItem.id = nextId;
+            } catch {
+                delete dbItem.id;
+            }
         }
 
         const { data, error } = await supabaseAdmin

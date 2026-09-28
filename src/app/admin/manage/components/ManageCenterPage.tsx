@@ -14,7 +14,7 @@ import ImageUploadButton from '@/src/components/ImageUploadButton';
 const INITIAL_FORM_STATE: any = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
-    imageUrls: [''], description: '', services: [], packages: [],
+    imageUrls: [], description: '', services: [], packages: [],
     roomTypes: [],
     hasGovernmentCertificate: false, brandName: '', brandLogoUrl: '',
     isPartner: false, province: 'กรุงเทพมหานคร', status: 'visible',
@@ -88,7 +88,7 @@ export default function ManageCenterPage() {
             const data = await res.json();
             const normalizedData = data.map((center: CareCenter) => ({
                 ...center,
-                imageUrls: Array.isArray(center.imageUrls) && center.imageUrls.length > 0 ? center.imageUrls : [''],
+                imageUrls: Array.isArray(center.imageUrls) ? center.imageUrls.filter((u: string) => u && u.trim() !== '') : [],
             }));
             setCenters(normalizedData.sort((a: CareCenter, b: CareCenter) => b.id - a.id));
         } catch (error) {
@@ -176,7 +176,7 @@ export default function ManageCenterPage() {
             setEditingId(center.id);
             setFormData({
                 ...center,
-                imageUrls: center.imageUrls?.length ? center.imageUrls : [''],
+                imageUrls: Array.isArray(center.imageUrls) ? center.imageUrls.filter((u: string) => u && u.trim() !== '') : [],
                 packages: center.packages || [],
                 services: center.services || [],
                 roomTypes: Array.isArray(center.roomTypes) ? center.roomTypes.map((rt: any) => ({
@@ -184,7 +184,7 @@ export default function ManageCenterPage() {
                     status: rt.status || 'เตียงว่างพร้อมดูแลทันที',
                     description: rt.description || '',
                     facilities: Array.isArray(rt.facilities) ? rt.facilities : [],
-                    imageUrls: Array.isArray(rt.imageUrls) && rt.imageUrls.length > 0 ? rt.imageUrls : ['']
+                    imageUrls: Array.isArray(rt.imageUrls) ? rt.imageUrls.filter((u: string) => u && u.trim() !== '') : []
                 })) : [],
                 hasGovernmentCertificate: center.hasGovernmentCertificate || false,
                 brandName: center.brandName || '',
@@ -289,7 +289,7 @@ export default function ManageCenterPage() {
             ...formData,
             roomTypes: [
                 ...formData.roomTypes,
-                { name: 'ห้องเดี่ยว', status: 'เตียงว่างพร้อมดูแลทันที', description: '', facilities: [], imageUrls: [''] }
+                { name: 'ห้องเดี่ยว', status: 'เตียงว่างพร้อมดูแลทันที', description: '', facilities: [], imageUrls: [] }
             ]
         });
     };
@@ -318,8 +318,8 @@ export default function ManageCenterPage() {
 
     const removeRoomTypeImage = (roomIndex: number, imageIndex: number) => {
         const newRoomTypes = [...formData.roomTypes];
-        const newImages = newRoomTypes[roomIndex].imageUrls.filter((_: any, i: number) => i !== imageIndex);
-        newRoomTypes[roomIndex] = { ...newRoomTypes[roomIndex], imageUrls: newImages.length > 0 ? newImages : [''] };
+        const newImages = (newRoomTypes[roomIndex].imageUrls || []).filter((_: any, i: number) => i !== imageIndex);
+        newRoomTypes[roomIndex] = { ...newRoomTypes[roomIndex], imageUrls: newImages };
         setFormData({ ...formData, roomTypes: newRoomTypes });
     };
 
@@ -647,67 +647,135 @@ export default function ManageCenterPage() {
                                             value={formData.brandName || ''} onChange={e => setFormData({ ...formData, brandName: e.target.value })} />
                                     </div>
                                     <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <label className="block text-sm font-medium text-gray-700">โลโก้แบรนด์ (URL)</label>
-                                            <ImageUploadButton
-                                                folder="centers/logos"
-                                                label="อัปโหลดโลโก้"
-                                                onUploadSuccess={(url) => setFormData((prev: any) => ({ ...prev, brandLogoUrl: url }))}
-                                            />
-                                        </div>
-                                        <input type="text" className="w-full border rounded-md px-3 py-2 text-sm"
-                                            placeholder="https://... หรือคลิกอัปโหลดโลโก้"
-                                            value={formData.brandLogoUrl || ''} onChange={e => setFormData({ ...formData, brandLogoUrl: e.target.value })} />
+                                        <label className="block text-sm font-medium text-gray-700 mb-1.5">โลโก้แบรนด์</label>
+                                        {formData.brandLogoUrl ? (
+                                            <div className="flex items-center gap-3 p-2.5 bg-gray-50 border border-gray-200 rounded-lg">
+                                                <div className="w-14 h-14 bg-white rounded-md border overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-xs">
+                                                    <img src={formData.brandLogoUrl} alt="Logo preview" className="w-full h-full object-contain" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-xs text-green-600 font-medium">✓ อัปโหลดโลโก้แล้ว</div>
+                                                    <div className="text-[11px] text-gray-400 truncate font-mono">{formData.brandLogoUrl}</div>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    <ImageUploadButton
+                                                        folder="centers/logos"
+                                                        label="เปลี่ยนโลโก้"
+                                                        className="bg-white hover:bg-gray-100 text-gray-700 border-gray-300 text-xs px-2.5 py-1"
+                                                        onUploadSuccess={(url) => setFormData((prev: any) => ({ ...prev, brandLogoUrl: url }))}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData((prev: any) => ({ ...prev, brandLogoUrl: '' }))}
+                                                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                                                        title="ลบโลโก้"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-9 h-9 rounded-md bg-gray-100 border text-gray-400 flex items-center justify-center">
+                                                        <ImageIcon className="w-4 h-4" />
+                                                    </div>
+                                                    <span className="text-xs text-gray-500">ยังไม่มีโลโก้ (อัปโหลดรูปภาพ)</span>
+                                                </div>
+                                                <ImageUploadButton
+                                                    folder="centers/logos"
+                                                    label="อัปโหลดโลโก้"
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-xs text-xs px-3 py-1.5"
+                                                    onUploadSuccess={(url) => setFormData((prev: any) => ({ ...prev, brandLogoUrl: url }))}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Images Management */}
                                 <div className="border-t pt-4">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <label className="text-sm font-bold text-gray-700">รูปภาพศูนย์ดูแล</label>
-                                        <div className="flex gap-2">
-                                            <ImageUploadButton
-                                                folder="centers/photos"
-                                                label="อัปโหลดรูปภาพ"
-                                                onUploadSuccess={(url) => {
-                                                    setFormData((prev: any) => {
-                                                        const current = prev.imageUrls || [];
-                                                        const emptyIdx = current.findIndex((u: string) => !u.trim());
-                                                        if (emptyIdx !== -1) {
-                                                            const updated = [...current];
-                                                            updated[emptyIdx] = url;
-                                                            return { ...prev, imageUrls: updated };
-                                                        }
-                                                        return { ...prev, imageUrls: [...current, url] };
-                                                    });
-                                                }}
-                                            />
-                                            <button type="button" onClick={addImageField} className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 border border-slate-200 flex items-center">
-                                                <Plus className="w-3 h-3 mr-1" /> เพิ่มช่อง URL
-                                            </button>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <div>
+                                            <label className="text-sm font-bold text-gray-700">รูปภาพศูนย์ดูแล</label>
+                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                อัปโหลดรูปภาพบรรยากาศ สิ่งอำนวยความสะดวก หรือบริเวณรอบศูนย์ (อัปโหลดไฟล์เท่านั้น)
+                                            </p>
                                         </div>
+                                        <ImageUploadButton
+                                            folder="centers/photos"
+                                            label="อัปโหลดรูปภาพเพิ่ม"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-xs text-xs px-3 py-1.5"
+                                            onUploadSuccess={(url) => {
+                                                setFormData((prev: any) => ({
+                                                    ...prev,
+                                                    imageUrls: [...(prev.imageUrls || []).filter(Boolean), url]
+                                                }));
+                                            }}
+                                        />
                                     </div>
-                                    <div className="space-y-3">
-                                        {formData.imageUrls.map((url: string, idx: number) => (
-                                            <div key={idx} className="flex gap-2 items-center">
-                                                <div className="w-14 h-14 bg-gray-100 rounded border overflow-hidden shrink-0 flex items-center justify-center">
-                                                    {url ? <img src={url} alt="preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/64?text=Error')} /> : <ImageIcon className="text-gray-300" />}
+
+                                    {formData.imageUrls && formData.imageUrls.filter(Boolean).length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {formData.imageUrls.filter(Boolean).map((url: string, idx: number) => (
+                                                <div key={idx} className="relative bg-white border border-gray-200 rounded-xl overflow-hidden group shadow-xs">
+                                                    <div className="relative h-36 bg-gray-100 flex items-center justify-center overflow-hidden">
+                                                        <img
+                                                            src={url}
+                                                            alt={`Photo ${idx + 1}`}
+                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                                            onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/300x150?text=Error')}
+                                                        />
+                                                        <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium px-2 py-0.5 rounded-full">
+                                                            {idx === 0 ? 'รูปหลัก' : `#${idx + 1}`}
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-2.5 flex items-center justify-between bg-white border-t border-gray-100">
+                                                        <div className="text-[11px] text-gray-400 truncate max-w-[120px] font-mono">
+                                                            {url}
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <ImageUploadButton
+                                                                folder="centers/photos"
+                                                                label="เปลี่ยนรูป"
+                                                                className="bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200 text-[11px] px-2 py-1"
+                                                                onUploadSuccess={(uploadedUrl) => handleImageChange(idx, uploadedUrl)}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeImageField(idx)}
+                                                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                                                title="ลบรูปภาพ"
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <input type="text" placeholder="https://example.com/image.jpg หรือคลิกปุ่มอัปโหลด"
-                                                    className="flex-1 border rounded-md px-3 py-2 text-sm"
-                                                    value={url} onChange={(e) => handleImageChange(idx, e.target.value)}
-                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50/50 flex flex-col items-center justify-center gap-2">
+                                            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                <ImageIcon className="w-6 h-6" />
+                                            </div>
+                                            <div className="text-sm font-medium text-gray-700">ยังไม่มีรูปภาพศูนย์ดูแล</div>
+                                            <p className="text-xs text-gray-500">คลิกปุ่มด้านล่างเพื่อเลือกไฟล์รูปภาพและอัปโหลดเข้าสู่ระบบ</p>
+                                            <div className="mt-2">
                                                 <ImageUploadButton
                                                     folder="centers/photos"
-                                                    label="อัปโหลด"
-                                                    onUploadSuccess={(uploadedUrl) => handleImageChange(idx, uploadedUrl)}
+                                                    label="เลือกไฟล์และอัปโหลดรูปภาพ"
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm px-4 py-2 text-xs"
+                                                    onUploadSuccess={(url) => {
+                                                        setFormData((prev: any) => ({
+                                                            ...prev,
+                                                            imageUrls: [...(prev.imageUrls || []).filter(Boolean), url]
+                                                        }));
+                                                    }}
                                                 />
-                                                <button type="button" onClick={() => removeImageField(idx)} className="text-red-500 hover:text-red-700 p-2">
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Services */}
@@ -868,15 +936,17 @@ export default function ManageCenterPage() {
                                                     </div>
 
                                                     {/* Room Type Images */}
-                                                    <div className="border-t pt-3 mt-2">
+                                                    <div className="border-t border-slate-200 pt-3 mt-2.5">
                                                         <div className="flex justify-between items-center mb-2">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-xs font-bold text-gray-700 font-sans">รูปภาพห้องพัก ({imgCount} รูป)</span>
-                                                                {imgCount < 3 ? (
+                                                                <span className="text-xs font-bold text-gray-700 font-sans">
+                                                                    รูปภาพห้องพัก ({imgCount} รูป)
+                                                                </span>
+                                                                {imgCount === 0 ? (
                                                                     <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded font-medium font-sans">
-                                                                        ⚠️ แนะนำอย่างน้อย 3 รูป (รูปปัจจุบัน: {imgCount})
+                                                                        ยังไม่มีรูปภาพ
                                                                     </span>
-                                                                ) : imgCount <= 6 ? (
+                                                                ) : imgCount < 3 ? (
                                                                     <span className="text-[10px] bg-green-50 text-green-600 border border-green-200 px-2 py-0.5 rounded font-medium font-sans">
                                                                         ✓ จำนวนรูปเหมาะสม
                                                                     </span>
@@ -886,58 +956,54 @@ export default function ManageCenterPage() {
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <div className="flex gap-1.5 items-center">
-                                                                <ImageUploadButton
-                                                                    folder="centers/rooms"
-                                                                    label="อัปโหลดรูปห้อง"
-                                                                    onUploadSuccess={(uploadedUrl) => {
-                                                                        const currentImgs = room.imageUrls || [];
-                                                                        const emptyIdx = currentImgs.findIndex((u: string) => !u.trim());
-                                                                        if (emptyIdx !== -1) {
-                                                                            handleRoomTypeImageChange(rIdx, emptyIdx, uploadedUrl);
-                                                                        } else {
-                                                                            handleRoomTypeChange(rIdx, 'imageUrls', [...currentImgs, uploadedUrl]);
-                                                                        }
-                                                                    }}
-                                                                />
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => addRoomTypeImage(rIdx)}
-                                                                    className="text-[11px] bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200 flex items-center font-sans border border-slate-300 shadow-sm"
-                                                                >
-                                                                    <Plus className="w-3 h-3 mr-0.5" /> เพิ่มช่องใส่รูป
-                                                                </button>
-                                                            </div>
+                                                            <ImageUploadButton
+                                                                folder="centers/rooms"
+                                                                label="อัปโหลดรูปห้อง"
+                                                                className="bg-slate-800 hover:bg-slate-900 text-white border-slate-800 text-[11px] px-2.5 py-1"
+                                                                onUploadSuccess={(uploadedUrl) => {
+                                                                    const currentImgs = (room.imageUrls || []).filter(Boolean);
+                                                                    handleRoomTypeChange(rIdx, 'imageUrls', [...currentImgs, uploadedUrl]);
+                                                                }}
+                                                            />
                                                         </div>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                                            {room.imageUrls && room.imageUrls.map((url: string, iIdx: number) => (
-                                                                <div key={iIdx} className="flex gap-2 items-center">
-                                                                    <div className="w-10 h-10 bg-slate-100 rounded border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                                                                        {url ? <img src={url} alt="preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/64?text=Error')} /> : <ImageIcon className="w-4 h-4 text-slate-300" />}
+
+                                                        {room.imageUrls && room.imageUrls.filter(Boolean).length > 0 ? (
+                                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                                {room.imageUrls.filter(Boolean).map((url: string, iIdx: number) => (
+                                                                    <div key={iIdx} className="relative bg-white rounded-lg border border-slate-200 overflow-hidden group shadow-xs">
+                                                                        <div className="h-24 bg-slate-100 flex items-center justify-center overflow-hidden">
+                                                                            <img
+                                                                                src={url}
+                                                                                alt={`Room photo ${iIdx + 1}`}
+                                                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                                                                onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150?text=Error')}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="p-1.5 flex items-center justify-between bg-white border-t border-slate-100">
+                                                                            <ImageUploadButton
+                                                                                folder="centers/rooms"
+                                                                                label="เปลี่ยนรูป"
+                                                                                className="p-1 px-2 text-[10px] bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                                                                                onUploadSuccess={(uploadedUrl) => handleRoomTypeImageChange(rIdx, iIdx, uploadedUrl)}
+                                                                            />
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => removeRoomTypeImage(rIdx, iIdx)}
+                                                                                className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                                                                                title="ลบรูปนี้"
+                                                                            >
+                                                                                <X className="w-3.5 h-3.5" />
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
-                                                                    <input
-                                                                        type="text"
-                                                                        placeholder="https://example.com/room-image.jpg หรืออัปโหลด"
-                                                                        className="flex-1 border rounded px-2 py-1.5 text-xs bg-white text-gray-800"
-                                                                        value={url}
-                                                                        onChange={(e) => handleRoomTypeImageChange(rIdx, iIdx, e.target.value)}
-                                                                    />
-                                                                    <ImageUploadButton
-                                                                        folder="centers/rooms"
-                                                                        label="อัปโหลด"
-                                                                        className="p-1 px-2 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300"
-                                                                        onUploadSuccess={(uploadedUrl) => handleRoomTypeImageChange(rIdx, iIdx, uploadedUrl)}
-                                                                    />
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => removeRoomTypeImage(rIdx, iIdx)}
-                                                                        className="text-red-500 hover:text-red-700 p-1"
-                                                                    >
-                                                                        <X className="w-4 h-4" />
-                                                                    </button>
-                                                                </div>
-                                                            ))}
-                                                        </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="border border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50/50 text-xs text-slate-500 flex items-center justify-center gap-2">
+                                                                <ImageIcon className="w-4 h-4 text-slate-400" />
+                                                                <span>ยังไม่มีรูปภาพห้องพัก คลิก &quot;อัปโหลดรูปห้อง&quot; เพื่อเพิ่มรูปภาพ</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             );

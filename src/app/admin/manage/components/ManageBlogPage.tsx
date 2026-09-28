@@ -294,32 +294,61 @@ export default function ManageBlogPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="md:col-span-2">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <label className="block text-sm font-medium text-gray-700">รูปปก</label>
-                                            <ImageUploadButton
-                                                folder="blogs"
-                                                label="อัปโหลดรูปภาพ"
-                                                onUploadSuccess={(url) => setFormData(prev => ({ ...prev, coverImage: url }))}
-                                            />
-                                        </div>
-                                        <div className="flex gap-4 items-start">
-                                            <div className="w-24 h-24 bg-gray-100 rounded border overflow-hidden shrink-0 flex items-center justify-center">
-                                                {formData.coverImage ? (
-                                                    <img src={formData.coverImage} alt="preview" className="w-full h-full object-cover"
-                                                        onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/96?text=Error')}
+                                        <label className="block text-sm font-medium text-gray-700 mb-1.5">รูปภาพหน้าปกบทความ</label>
+                                        {formData.coverImage ? (
+                                            <div className="flex flex-col sm:flex-row gap-4 items-start p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                                                <div className="w-40 h-28 bg-gray-100 rounded-lg border overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                                                    <img
+                                                        src={formData.coverImage}
+                                                        alt="preview"
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/160x112?text=Error')}
                                                     />
-                                                ) : (
-                                                    <ImageIcon className="text-gray-300 w-8 h-8" />
-                                                )}
+                                                </div>
+                                                <div className="flex-1 flex flex-col justify-between self-stretch py-1">
+                                                    <div>
+                                                        <div className="text-xs text-gray-500 font-mono break-all line-clamp-2">
+                                                            {formData.coverImage}
+                                                        </div>
+                                                        <div className="text-xs text-green-600 font-medium mt-1">
+                                                            ✓ อัปโหลดรูปภาพแล้ว
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2 mt-3">
+                                                        <ImageUploadButton
+                                                            folder="blogs"
+                                                            label="เปลี่ยนรูปภาพ"
+                                                            className="bg-white hover:bg-gray-100 text-gray-700 border-gray-300 text-xs px-3 py-1.5"
+                                                            onUploadSuccess={(url) => setFormData(prev => ({ ...prev, coverImage: url }))}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setFormData(prev => ({ ...prev, coverImage: '' }))}
+                                                            className="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors flex items-center gap-1"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            <span>ลบรูป</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <input
-                                                type="text"
-                                                className="flex-1 border rounded-md px-3 py-2"
-                                                placeholder="https://example.com/image.jpg หรือคลิกปุ่มอัปโหลดด้านบน"
-                                                value={formData.coverImage}
-                                                onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
-                                            />
-                                        </div>
+                                        ) : (
+                                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center bg-gray-50/50 flex flex-col items-center justify-center gap-2">
+                                                <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                    <ImageIcon className="text-blue-500 w-5 h-5" />
+                                                </div>
+                                                <div className="text-xs font-medium text-gray-700">ยังไม่ได้ใส่รูปภาพหน้าปก</div>
+                                                <p className="text-[11px] text-gray-500">อัปโหลดไฟล์รูปภาพ (JPG, PNG, WEBP ขนาดไม่เกิน 10MB)</p>
+                                                <div className="mt-1">
+                                                    <ImageUploadButton
+                                                        folder="blogs"
+                                                        label="เลือกไฟล์และอัปโหลดรูปปก"
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm px-3.5 py-1.5 text-xs"
+                                                        onUploadSuccess={(url) => setFormData(prev => ({ ...prev, coverImage: url }))}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div>

@@ -415,31 +415,35 @@ const ScrollableContainer = ({ children, itemWidth = 320 }: { children: React.Re
 
 export default function HomePageClient({
   initialCenters = [],
+  initialPartnerCenters = [],
+  totalCentersCount = 0,
+  popularProvinces: serverPopularProvinces = [],
   initialAds = [],
   initialBlogs = [],
 }: {
-  initialCenters: CareCenter[];
-  initialAds: Advertisement[];
-  initialBlogs: Blog[];
+  initialCenters?: CareCenter[];
+  initialPartnerCenters?: CareCenter[];
+  totalCentersCount?: number;
+  popularProvinces?: string[];
+  initialAds?: Advertisement[];
+  initialBlogs?: Blog[];
 }) {
+  const [centers, setCenters] = useState<CareCenter[]>(initialCenters);
+  const [partnerCenters] = useState<CareCenter[]>(initialPartnerCenters);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(initialCenters.length < totalCentersCount);
+  const [totalCount, setTotalCount] = useState<number>(totalCentersCount || initialCenters.length);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [isFiltering, setIsFiltering] = useState<boolean>(false);
 
-  const centers = initialCenters;
   const ads = initialAds;
   const blogs = initialBlogs;
 
-
-
   // Search & Filter State
-
   const [searchTerm, setSearchTerm] = useState('');
-
   const [careType, setCareType] = useState('all');
-
   const [priceRange, setPriceRange] = useState('all');
-
   const [province, setProvince] = useState('all');
-
-  const [showAll, setShowAll] = useState(false);
 
 
 
@@ -591,143 +595,121 @@ export default function HomePageClient({
 
   const isSearchActive = searchTerm !== '' || careType !== 'all' || priceRange !== 'all' || province !== 'all' || sortByDistance;
 
-
-
-  const filteredCenters = useMemo(() => {
-
-    let result = [...centers];
-
-
-
-    // 1. กรองตามเงื่อนไขปกติ
-
-    if (searchTerm) {
-
-      const lower = searchTerm.toLowerCase();
-
-      result = result.filter(c => c.name.toLowerCase().includes(lower) || c.address.toLowerCase().includes(lower));
-
+  // Progressive API fetch
+  const fetchCenters = async (pageToFetch: number, isNewFilter: boolean = false) => {
+    if (isNewFilter) {
+      setIsFiltering(true);
+    } else {
+      setIsLoadingMore(true);
     }
 
-    if (careType !== 'all') {
+    try {
+      const params = new URLSearchParams();
+      params.set('page', pageToFetch.toString());
+      params.set('limit', '12');
+      params.set('status', 'visible');
 
-      result = result.filter(c => c.type === careType || c.type === 'both');
-
-    }
-
-    if (priceRange !== 'all') {
-
-      const [min, max] = priceRange.split('-').map(Number);
-
-      // ✅ แก้ไข: ตรวจสอบ c.price ก่อนใช้
-
-      result = result.filter(c => c.price !== undefined && c.price >= min && c.price <= max);
-
-    }
-
-    if (province !== 'all') {
-
-      result = result.filter(c => c.province === province);
-
-    }
-
-
-
-    // 2. เรียงลำดับตามระยะทาง (ถ้ามี Location)
-
-    if (sortByDistance && userLocation) {
-
-      result.sort((a, b) => {
-
-        // ✅ แก้ไข: จัดการศูนย์ที่ไม่มีพิกัด (ควรไปอยู่ท้ายสุด)
-
-        if (!a.lat || !a.lng) return 1;
-
-        if (!b.lat || !b.lng) return -1;
-
-
-
-        const distA = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, a.lat, a.lng);
-
-        const distB = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, b.lat, b.lng);
-
-
-
-        return distA - distB;
-
-      });
-
-    }
-
-
-
-    return result;
-
-  }, [searchTerm, careType, priceRange, province, centers, sortByDistance, userLocation]);
-
-
-
-  const recommendedCenters = useMemo(() => {
-
-    // ใช้ partner filter
-
-    return filteredCenters.filter(c => c.isPartner);
-
-  }, [filteredCenters]);
-
-
-
-  const recommendedBlogs = useMemo(() => {
-
-    const featured = blogs.filter(b => (b as any).isFeatured); // ใช้ as any ชั่วคราวหากยังไม่ได้กำหนด isFeatured ใน Blog type
-
-    if (featured.length > 0) return featured;
-
-    return blogs.slice(0, 5);
-
-  }, [blogs]);
-
-
-
-  const displayedCenters = useMemo(() => {
-
-    if (showAll) {
-
-      return filteredCenters;
-
-    }
-
-    return filteredCenters.slice(0, 9);
-
-  }, [filteredCenters, showAll]);
-
-
-
-  const popularProvinces = useMemo(() => {
-
-    if (centers.length === 0) return [];
-
-    const counts: Record<string, number> = {};
-
-    centers.forEach(c => {
-
-      if (c.province) {
-
-        counts[c.province] = (counts[c.province] || 0) + 1;
-
+      if (searchTerm.trim()) {
+        params.set('search', searchTerm.trim());
+      }
+      if (province !== 'all') {
+        params.set('province', province);
+      }
+      if (careType !== 'all') {
+        params.set('type', careType);
+      }
+      if (priceRange !== 'all') {
+        params.set('priceRange', priceRange);
+      }
+      if (sortByDistance && userLocation) {
+        params.set('sortByDistance', 'true');
+        params.set('lat', userLocation.lat.toString());
+        params.set('lng', userLocation.lng.toString());
       }
 
+      const res = await fetch(`/api/care-centers?${params.toString()}`);
+      if (res.ok) {
+        const json = await res.json();
+        const newItems: CareCenter[] = json.data || (Array.isArray(json) ? json : []);
+        const newTotal: number = typeof json.total === 'number' ? json.total : newItems.length;
+        const newHasMore: boolean = typeof json.hasMore === 'boolean' ? json.hasMore : false;
+
+        if (isNewFilter) {
+          setCenters(newItems);
+          setPage(1);
+        } else {
+          setCenters(prev => {
+            const existingIds = new Set(prev.map(c => c.id));
+            const uniqueNew = newItems.filter((c: CareCenter) => !existingIds.has(c.id));
+            return [...prev, ...uniqueNew];
+          });
+          setPage(pageToFetch);
+        }
+
+        setTotalCount(newTotal);
+        setHasMore(newHasMore);
+      }
+    } catch (err) {
+      console.error('Error fetching care centers:', err);
+    } finally {
+      setIsLoadingMore(false);
+      setIsFiltering(false);
+    }
+  };
+
+  // ดึงข้อมูลเมื่อผู้ใช้เปลี่ยน Filter หรือ Search
+  const isFirstMount = useRef(true);
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      fetchCenters(1, true);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, province, careType, priceRange, sortByDistance, userLocation]);
+
+  const handleLoadMore = () => {
+    if (isLoadingMore || !hasMore) return;
+    gtag.event({ action: 'load_more_centers', category: 'Engagement', label: `Page ${page + 1}` });
+    fetchCenters(page + 1, false);
+  };
+
+  const recommendedCenters = useMemo(() => {
+    let list = partnerCenters.length > 0 ? partnerCenters : centers.filter(c => c.isPartner);
+    if (province !== 'all') {
+      list = list.filter(c => c.province === province);
+    }
+    if (careType !== 'all') {
+      list = list.filter(c => c.type === careType || c.type === 'both');
+    }
+    return list;
+  }, [partnerCenters, centers, province, careType]);
+
+  const recommendedBlogs = useMemo(() => {
+    const featured = blogs.filter(b => (b as any).isFeatured);
+    if (featured.length > 0) return featured;
+    return blogs.slice(0, 5);
+  }, [blogs]);
+
+  const popularProvinces = useMemo(() => {
+    if (serverPopularProvinces && serverPopularProvinces.length > 0) {
+      return serverPopularProvinces;
+    }
+    const counts: Record<string, number> = {};
+    centers.forEach(c => {
+      if (c.province) {
+        counts[c.province] = (counts[c.province] || 0) + 1;
+      }
     });
-
     return Object.entries(counts)
-
       .sort((a, b) => b[1] - a[1])
-
       .slice(0, 5)
-
       .map(([prov]) => prov);
-
-  }, [centers]);
+  }, [serverPopularProvinces, centers]);
 
 
 
@@ -1263,150 +1245,75 @@ export default function HomePageClient({
                   </h2>
 
                   <p className="text-gray-500 text-sm mt-1">
-
                     {isSearchActive
-
-                      ? `พบข้อมูลจำนวน ${filteredCenters.length} แห่ง ตามเงื่อนไขที่คุณเลือก`
-
-                      : `รวบรวมศูนย์ดูแลคุณภาพกว่า ${centers.length} แห่งทั่วประเทศ`
-
+                      ? `พบข้อมูลจำนวน ${totalCount} แห่ง ตามเงื่อนไขที่คุณเลือก (แสดงแล้ว ${centers.length} แห่ง)`
+                      : `รวบรวมศูนย์ดูแลคุณภาพกว่า ${totalCount} แห่งทั่วประเทศ (แสดงแล้ว ${centers.length} แห่ง)`
                     }
-
                   </p>
-
                 </div>
-
               </div>
 
-
-
-              {/* Grid View */}
-
-              {filteredCenters.length > 0 ? (
-
+              {/* สถานะกำลังค้นหาข้อมูล */}
+              {isFiltering ? (
+                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+                  <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
+                  <p className="text-gray-600 font-medium text-base">กำลังค้นหาศูนย์ดูแล...</p>
+                </div>
+              ) : centers.length > 0 ? (
                 <>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    {displayedCenters.map(center => (
-
+                    {centers.map(center => (
                       <CenterCard key={center.id} center={center} userLocation={userLocation} />
-
                     ))}
-
                   </div>
 
-
-
-                  {filteredCenters.length > 9 && !showAll && (
-
-                    <div className="text-center mt-8">
-
+                  {/* ปุ่มทยอยโหลดเพิ่มเติมจาก API (Load More) */}
+                  {hasMore && (
+                    <div className="text-center mt-10">
                       <button
-
-                        onClick={() => {
-
-                          setShowAll(true);
-
-                          gtag.event({ action: 'load_more_centers', category: 'Engagement' });
-
-                        }}
-
-                        className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        className="inline-flex items-center px-8 py-3.5 border border-transparent text-base font-semibold rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-75 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                       >
-
-                        ดูศูนย์ดูแลเพิ่มเติมอีก {filteredCenters.length - 9} แห่ง <ArrowRight className="w-5 h-5 ml-2" />
-
+                        {isLoadingMore ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            กำลังทยอยโหลดศูนย์ดูแลเพิ่มเติม...
+                          </>
+                        ) : (
+                          <>
+                            ดูศูนย์ดูแลเพิ่มเติม (เหลืออีก {Math.max(0, totalCount - centers.length)} แห่ง)
+                            <ArrowRight className="w-5 h-5 ml-2" />
+                          </>
+                        )}
                       </button>
-
+                      <p className="text-xs text-gray-400 mt-2 font-medium">
+                        กำลังแสดง {centers.length} จากทั้งหมด {totalCount} แห่ง (ทยอยดึงข้อมูลจาก API ครั้งละ 12 แห่ง)
+                      </p>
                     </div>
-
                   )}
 
-
-
-                  {showAll && (
-
-                    <div className="text-center mt-8">
-
-                      <button
-
-                        onClick={() => {
-
-                          setShowAll(false);
-
-                          scrollToResults();
-
-                        }}
-
-                        className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-
-                      >
-
-                        ย่อการแสดงผล
-
-                      </button>
-
+                  {!hasMore && centers.length > 0 && (
+                    <div className="text-center mt-10">
+                      <div className="inline-flex items-center px-5 py-2 rounded-full text-sm font-medium text-gray-500 bg-gray-100 border border-gray-200">
+                        ✓ แสดงศูนย์ดูแลทั้งหมดครบถ้วนแล้ว ({centers.length} แห่ง)
+                      </div>
                     </div>
-
                   )}
-
-
-
-                  {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (Start) 🔥🔥🔥 */}
-
-                  {/*
-
-                  {recommendedBlogs.length > 0 && !isSearchActive && (
-
-                    <section className="mb-12 border-t border-gray-100 pt-8">
-
-                      ... (โค้ด Blog ซ้ำซ้อน) ...
-
-                    </section>
-
-                  )}
-
-                  */}
-
-                  {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (End) 🔥🔥🔥 */}
-
                 </>
-
               ) : (
-
                 <div className="text-center py-16 bg-white rounded-xl shadow-lg border border-gray-100 mt-8">
-
                   <div className="text-gray-300 mb-4"><Search className="h-16 w-16 mx-auto opacity-50" /></div>
-
                   <h3 className="text-xl font-semibold text-gray-700">ไม่พบข้อมูลศูนย์ดูแล</h3>
-
-                  <p className="text-gray-500 mt-2">ไม่มีผลลัพธ์สำหรับเงื่อนไขนี้ <br />ลองปรับเปลี่ยนเงื่อนไขการค้นหา หรือปิดโหมดใกล้ฉัน</p>
-
+                  <p className="text-gray-500 mt-2 mb-4">ไม่มีผลลัพธ์สำหรับเงื่อนไขนี้ <br />ลองปรับเปลี่ยนเงื่อนไขการค้นหา หรือปิดโหมดใกล้ฉัน</p>
+                  <button
+                    onClick={handleClearFilters}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                  >
+                    <XCircle className="w-4 h-4 mr-1.5 text-red-500" /> ล้างค่าการค้นหา
+                  </button>
                 </div>
-
               )}
-
-
-
-              {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (Start) 🔥🔥🔥 */}
-
-              {/*
-
-              {recommendedBlogs.length > 0 && !isSearchActive && (
-
-                <section className="mb-12 border-t border-gray-100 pt-8">
-
-                  ... (โค้ด Blog ซ้ำซ้อน) ...
-
-                </section>
-
-              )}
-
-              */}
-
-              {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (End) 🔥🔥🔥 */}
 
             </section>
 
