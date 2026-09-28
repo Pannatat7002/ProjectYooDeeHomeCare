@@ -68,13 +68,33 @@ export default function ContactPage() {
                     <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
                         {/* Contact Info Sidebar - spans 5 columns on lg */}
                         <div className="lg:col-span-5 space-y-6">
-                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col h-full justify-between">
+                            {/* Care Advisor Mascot Card */}
+                            <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-3xl p-6 text-white shadow-xl overflow-hidden relative border border-blue-700/50">
+                                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4 shadow-lg border border-white/20">
+                                    <img
+                                        src="/images/mascot/contact-care-advisor.jpg"
+                                        alt="พี่แคร์ ThaiCareCenter Care Advisor"
+                                        className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-500"
+                                    />
+                                    {/* <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl text-center">
+                                        <p className="text-xs text-white font-medium">พี่แคร์ • ThaiCareCenter Care Advisor</p>
+                                    </div> */}
+                                </div>
+                                <h4 className="font-bold text-lg text-white mb-1">
+                                    ปรึกษาพี่แคร์ได้ทุกเรื่องศูนย์ดูแล
+                                </h4>
+                                <p className="text-xs text-blue-200 leading-relaxed font-light">
+                                    ยินดีรับฟังและช่วยคัดกรองศูนย์ดูแลที่เหมาะสมกับอาการและงบประมาณของคุณอย่างจริงใจและเป็นกลางที่สุดครับ
+                                </p>
+                            </div>
+
+                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-6">ข้อมูลการติดต่อ</h3>
                                     <p className="text-gray-600 mb-8">
                                         ท่านสามารถติดต่อสอบถามข้อมูลเพิ่มเติม ขอรับคำปรึกษาการเลือกศูนย์ดูแล หรือแจ้งปัญหาการใช้งานผ่านช่องทางต่างๆ ของเราได้ตลอดเวลา
                                     </p>
-                                    
+
                                     <div className="space-y-6">
                                         <div className="flex items-start">
                                             <div className="p-3 bg-blue-50 text-blue-600 rounded-xl mr-4">

@@ -8,6 +8,7 @@ import { GA_TRACKING_ID, GOOGLE_ADS_ID } from "../lib/gtag";
 import { Analytics } from "@vercel/analytics/next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import MascotAssistant from "../components/MascotAssistant";
 
 const notoSansThaiLooped = Noto_Sans_Thai_Looped({
   weight: ['400', '500', '600', '700'],
@@ -146,6 +147,7 @@ export default function RootLayout({
         <main className="bg-white flex-grow">
           {children}
         </main>
+        <MascotAssistant />
         <Footer />
         <Analytics />
       </body>

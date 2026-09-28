@@ -103,6 +103,29 @@ export default function ProviderSignupPage() {
                             </div>
                         </div>
 
+                        {/* Team Welcome Banner */}
+                        <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-16 border-4 border-white group">
+                            <div className="relative h-[300px] md:h-[400px] w-full">
+                                <img
+                                    src="/images/mascot/partner-welcome.jpg"
+                                    alt="ThaiCareCenter Professional Excellence & Trust - Care Team"
+                                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/30 to-transparent"></div>
+                                <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-10 text-white">
+                                    <span className="inline-block px-3 py-1 rounded-full bg-blue-500/30 border border-blue-400/40 text-blue-200 text-xs font-semibold backdrop-blur-sm mb-3">
+                                        Professional Excellence & Trust
+                                    </span>
+                                    <h3 className="text-2xl md:text-3xl font-extrabold mb-2">
+                                        ยินดีต้อนรับสู่ครอบครัว ThaiCareCenter
+                                    </h3>
+                                    <p className="text-blue-100 text-sm md:text-base max-w-2xl font-light">
+                                        ร่วมสร้างมาตรฐานการดูแลผู้สูงอายุไทยไปด้วยกัน พร้อมทีม Care Advisor และบุคลากรทางการแพทย์ที่คอยสนับสนุนคุณในทุกก้าว
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Requirements Section */}
                         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-10 mb-16 border-2 border-blue-100">
                             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">

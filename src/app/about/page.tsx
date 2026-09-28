@@ -96,6 +96,95 @@ export default function AboutPage() {
                 </div>
             </div>
 
+            {/* 4. Care Advisor Showcase Section: นำเสนอพี่แคร์และทีมที่ปรึกษา */}
+            <div className="py-20 bg-white">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                        {/* Image Showcase */}
+                        <div className="lg:col-span-6 relative">
+                            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+                                <img
+                                    src="/images/mascot/about-care-team.jpg"
+                                    alt="ThaiCareCenter Care Advisor and Senior Care"
+                                    className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-white/40">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                            <Users className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-900 text-sm">พี่แคร์ & ทีม Care Advisor</h4>
+                                            <p className="text-xs text-gray-500">ที่ปรึกษาประจำครอบครัว พร้อมดูแลและเคียงข้างคุณ</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="lg:col-span-6 space-y-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-semibold">
+                                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                                มาสคอตและทีมที่ปรึกษาของเรา
+                            </div>
+
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-snug">
+                                มากกว่าแค่ระบบค้นหา <br />
+                                เรามี <span className="text-blue-600">Care Advisor</span> คอยเคียงข้าง
+                            </h2>
+
+                            <p className="text-slate-600 text-base leading-relaxed">
+                                การตัดสินใจเลือกบ้านพักหรือศูนย์ดูแลสำหรับพ่อแม่และคนที่เรารัก เป็นเรื่องละเอียดอ่อนที่สุดของทุกครอบครัว ThaiCareCenter จึงออกแบบและสร้างทีม <span className="font-semibold text-slate-800">Care Advisor (นำโดยพี่แคร์)</span> ขึ้นมาเพื่อเป็นเพื่อนคู่คิดที่รับฟังทุกความกังวล
+                            </p>
+
+                            <div className="space-y-3.5 pt-2">
+                                <div className="flex items-start gap-3">
+                                    <div className="p-1 rounded-full bg-green-100 text-green-600 mt-1 flex-shrink-0">
+                                        <Handshake className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-800 text-sm">คัดกรองศูนย์ดูแลอย่างเป็นกลาง</h4>
+                                        <p className="text-xs text-slate-500 mt-0.5">เลือกสถานที่ที่เหมาะสมกับอาการ งบประมาณ และทำเลที่สะดวกกับครอบครัว</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    <div className="p-1 rounded-full bg-blue-100 text-blue-600 mt-1 flex-shrink-0">
+                                        <Target className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-800 text-sm">ประสานงานนัดหมายเข้าชมสถานที่</h4>
+                                        <p className="text-xs text-slate-500 mt-0.5">อำนวยความสะดวกในการติดต่อและนัดพบกับทีมพยาบาลของศูนย์ดูแลโดยตรง</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    <div className="p-1 rounded-full bg-orange-100 text-orange-600 mt-1 flex-shrink-0">
+                                        <Users className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-800 text-sm">บริการฟรี ไม่มีค่าใช้จ่ายใดๆ</h4>
+                                        <p className="text-xs text-slate-500 mt-0.5">ให้คำปรึกษาด้วยความจริงใจ เพื่อประโยชน์สูงสุดของผู้สูงอายุ</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <Link
+                                    href="/contact"
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all"
+                                >
+                                    <span>ปรึกษาทีม Care Advisor วันนี้</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* 4. Core Values: จุดแข็งของเรา (แยกออกมาให้เด่น) */}
             {/* <div className="py-20 bg-white">
                 <div className="container mx-auto px-4">

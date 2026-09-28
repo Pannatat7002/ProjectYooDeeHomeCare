@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 
-import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2 } from 'lucide-react';
+import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2 } from 'lucide-react';
 
 // Inline SVG data URI สำหรับ fallback image — ป้องกัน onError loop
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f3f4f6' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -1138,73 +1138,73 @@ export default function HomePageClient({
 
       <div id="results-section" className="container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
 
-            {/* 1. ส่วน: ศูนย์ดูแลแนะนำ (ซ่อนเมื่อมีการค้นหา) */}
+        {/* 1. ส่วน: ศูนย์ดูแลแนะนำ (ซ่อนเมื่อมีการค้นหา) */}
 
-            {recommendedCenters.length > 0 && !isSearchActive && (
+        {recommendedCenters.length > 0 && !isSearchActive && (
 
-              <section className="mb-12">
+          <section className="mb-12">
 
-                <div className="flex justify-between items-end mb-6">
+            <div className="flex justify-between items-end mb-6">
 
-                  <div>
+              <div>
 
-                    <h2 className="text-2xl font-bold text-blue-600 flex items-center">
+                <h2 className="text-2xl font-bold text-blue-600 flex items-center">
 
-                      <Star className="w-6 h-6 mr-2 text-yellow-400 fill-yellow-400" />
+                  <Star className="w-6 h-6 mr-2 text-yellow-400 fill-yellow-400" />
 
-                      ศูนย์ดูแลแนะนำ
+                  ศูนย์ดูแลแนะนำ
 
-                    </h2>
+                </h2>
 
-                    <p className="text-gray-500 text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1">
 
-                      ศูนย์ที่ผ่านการยืนยันและได้รับการคัดเลือก <span className="text-blue-600 font-semibold">({recommendedCenters.length} แห่ง)</span>
+                  ศูนย์ที่ผ่านการยืนยันและได้รับการคัดเลือก <span className="text-blue-600 font-semibold">({recommendedCenters.length} แห่ง)</span>
 
-                    </p>
+                </p>
 
-                  </div>
+              </div>
+
+            </div>
+
+
+
+            <ScrollableContainer itemWidth={336}>
+
+              {recommendedCenters.map(center => (
+
+                <div key={center.id} className="flex-shrink-0 w-80 snap-center h-auto">
+
+                  <CenterCard center={center} userLocation={userLocation} />
 
                 </div>
 
+              ))}
 
+              {recommendedCenters.length > 3 && (
 
-                <ScrollableContainer itemWidth={336}>
+                <div className="flex-shrink-0 w-32 flex items-center justify-center snap-center">
 
-                  {recommendedCenters.map(center => (
+                  <button
 
-                    <div key={center.id} className="flex-shrink-0 w-80 snap-center h-auto">
+                    // ✅ แก้ไข: เพิ่ม onClick ให้ไปที่หน้าทั้งหมดหรือค้นหาด้วยเงื่อนไขที่กำหนด
 
-                      <CenterCard center={center} userLocation={userLocation} />
+                    onClick={() => { /* ตรรกะสำหรับการดูทั้งหมด */ }}
 
-                    </div>
+                    className="flex items-center text-blue-600 font-bold hover:text-blue-700 transition-colors whitespace-nowrap"
 
-                  ))}
+                  >
 
-                  {recommendedCenters.length > 3 && (
+                    ดูทั้งหมด <ChevronRight className="w-5 h-5 ml-1" />
 
-                    <div className="flex-shrink-0 w-32 flex items-center justify-center snap-center">
+                  </button>
 
-                      <button
+                </div>
 
-                        // ✅ แก้ไข: เพิ่ม onClick ให้ไปที่หน้าทั้งหมดหรือค้นหาด้วยเงื่อนไขที่กำหนด
+              )}
 
-                        onClick={() => { /* ตรรกะสำหรับการดูทั้งหมด */ }}
+              {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (Start) 🔥🔥🔥 */}
 
-                        className="flex items-center text-blue-600 font-bold hover:text-blue-700 transition-colors whitespace-nowrap"
-
-                      >
-
-                        ดูทั้งหมด <ChevronRight className="w-5 h-5 ml-1" />
-
-                      </button>
-
-                    </div>
-
-                  )}
-
-                  {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (Start) 🔥🔥🔥 */}
-
-                  {/*
+              {/*
 
                   {recommendedBlogs.length > 0 && !isSearchActive && (
 
@@ -1218,216 +1218,311 @@ export default function HomePageClient({
 
                   */}
 
-                  {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (End) 🔥🔥🔥 */}
+              {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (End) 🔥🔥🔥 */}
 
-                </ScrollableContainer>
+            </ScrollableContainer>
 
-              </section>
+          </section>
 
-            )}
-
-
+        )}
 
 
 
-            {/* 4. ส่วน: ผลลัพธ์การค้นหาทั้งหมด */}
 
-            <section>
 
-              <div className="flex justify-between items-end mb-6">
+        {/* 4. ส่วน: ผลลัพธ์การค้นหาทั้งหมด */}
 
-                <div>
+        <section>
 
-                  <h2 className="text-2xl font-bold text-gray-800">
+          <div className="flex justify-between items-end mb-6">
 
-                    {isSearchActive ? 'ผลลัพธ์จากการค้นหา' : 'ศูนย์ดูแลทั้งหมด'}
+            <div>
 
-                  </h2>
+              <h2 className="text-2xl font-bold text-gray-800">
 
-                  <p className="text-gray-500 text-sm mt-1">
-                    {isSearchActive
-                      ? `พบข้อมูลจำนวน ${totalCount} แห่ง ตามเงื่อนไขที่คุณเลือก (แสดงแล้ว ${centers.length} แห่ง)`
-                      : `รวบรวมศูนย์ดูแลคุณภาพกว่า ${totalCount} แห่งทั่วประเทศ (แสดงแล้ว ${centers.length} แห่ง)`
-                    }
-                  </p>
-                </div>
+                {isSearchActive ? 'ผลลัพธ์จากการค้นหา' : 'ศูนย์ดูแลทั้งหมด'}
+
+              </h2>
+
+              <p className="text-gray-500 text-sm mt-1">
+                {isSearchActive
+                  ? `พบข้อมูลจำนวน ${totalCount} แห่ง ตามเงื่อนไขที่คุณเลือก (แสดงแล้ว ${centers.length} แห่ง)`
+                  : `รวบรวมศูนย์ดูแลคุณภาพกว่า ${totalCount} แห่งทั่วประเทศ (แสดงแล้ว ${centers.length} แห่ง)`
+                }
+              </p>
+            </div>
+          </div>
+
+          {/* สถานะกำลังค้นหาข้อมูล */}
+          {isFiltering ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+              <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
+              <p className="text-gray-600 font-medium text-base">กำลังค้นหาศูนย์ดูแล...</p>
+            </div>
+          ) : centers.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {centers.map(center => (
+                  <CenterCard key={center.id} center={center} userLocation={userLocation} />
+                ))}
               </div>
 
-              {/* สถานะกำลังค้นหาข้อมูล */}
-              {isFiltering ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
-                  <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
-                  <p className="text-gray-600 font-medium text-base">กำลังค้นหาศูนย์ดูแล...</p>
-                </div>
-              ) : centers.length > 0 ? (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {centers.map(center => (
-                      <CenterCard key={center.id} center={center} userLocation={userLocation} />
-                    ))}
-                  </div>
-
-                  {/* ปุ่มทยอยโหลดเพิ่มเติมจาก API (Load More) */}
-                  {hasMore && (
-                    <div className="text-center mt-10">
-                      <button
-                        onClick={handleLoadMore}
-                        disabled={isLoadingMore}
-                        className="inline-flex items-center px-8 py-3.5 border border-transparent text-base font-semibold rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-75 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-                      >
-                        {isLoadingMore ? (
-                          <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            กำลังทยอยโหลดศูนย์ดูแลเพิ่มเติม...
-                          </>
-                        ) : (
-                          <>
-                            ดูศูนย์ดูแลเพิ่มเติม (เหลืออีก {Math.max(0, totalCount - centers.length)} แห่ง)
-                            <ArrowRight className="w-5 h-5 ml-2" />
-                          </>
-                        )}
-                      </button>
-                      <p className="text-xs text-gray-400 mt-2 font-medium">
-                        กำลังแสดง {centers.length} จากทั้งหมด {totalCount} แห่ง (ทยอยดึงข้อมูลจาก API ครั้งละ 12 แห่ง)
-                      </p>
-                    </div>
-                  )}
-
-                  {!hasMore && centers.length > 0 && (
-                    <div className="text-center mt-10">
-                      <div className="inline-flex items-center px-5 py-2 rounded-full text-sm font-medium text-gray-500 bg-gray-100 border border-gray-200">
-                        ✓ แสดงศูนย์ดูแลทั้งหมดครบถ้วนแล้ว ({centers.length} แห่ง)
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-16 bg-white rounded-xl shadow-lg border border-gray-100 mt-8">
-                  <div className="text-gray-300 mb-4"><Search className="h-16 w-16 mx-auto opacity-50" /></div>
-                  <h3 className="text-xl font-semibold text-gray-700">ไม่พบข้อมูลศูนย์ดูแล</h3>
-                  <p className="text-gray-500 mt-2 mb-4">ไม่มีผลลัพธ์สำหรับเงื่อนไขนี้ <br />ลองปรับเปลี่ยนเงื่อนไขการค้นหา หรือปิดโหมดใกล้ฉัน</p>
+              {/* ปุ่มทยอยโหลดเพิ่มเติมจาก API (Load More) */}
+              {hasMore && (
+                <div className="text-center mt-10">
                   <button
-                    onClick={handleClearFilters}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="inline-flex items-center px-8 py-3.5 border border-transparent text-base font-semibold rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-75 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                   >
-                    <XCircle className="w-4 h-4 mr-1.5 text-red-500" /> ล้างค่าการค้นหา
+                    {isLoadingMore ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        กำลังทยอยโหลดศูนย์ดูแลเพิ่มเติม...
+                      </>
+                    ) : (
+                      <>
+                        ดูศูนย์ดูแลเพิ่มเติม (เหลืออีก {Math.max(0, totalCount - centers.length)} แห่ง)
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
                   </button>
+                  <p className="text-xs text-gray-400 mt-2 font-medium">
+                    กำลังแสดง {centers.length} จากทั้งหมด {totalCount} แห่ง (ทยอยดึงข้อมูลจาก API ครั้งละ 12 แห่ง)
+                  </p>
                 </div>
               )}
 
-            </section>
-
-
-            {/* 3. ส่วน: บทความแนะนำ (แสดงแยกออกมาในส่วนนี้) */}
-
-            {recommendedBlogs.length > 0 && !isSearchActive && (
-
-              <section className="mb-12 border-t border-gray-100 pt-8">
-
-                <div className="flex justify-between items-end mb-6">
-
-                  <div>
-
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-
-                      <span className="bg-green-500 w-1.5 h-6 rounded-full mr-3"></span>
-
-                      บทความแนะนำ
-
-                    </h2>
-
-                    <p className="text-gray-500 text-sm mt-1">
-
-                      สาระน่ารู้และเคล็ดลับการดูแลสุขภาพสำหรับผู้สูงอายุ
-
-                    </p>
-
+              {!hasMore && centers.length > 0 && (
+                <div className="text-center mt-10">
+                  <div className="inline-flex items-center px-5 py-2 rounded-full text-sm font-medium text-gray-500 bg-gray-100 border border-gray-200">
+                    ✓ แสดงศูนย์ดูแลทั้งหมดครบถ้วนแล้ว ({centers.length} แห่ง)
                   </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12 px-4 bg-white rounded-3xl shadow-lg border border-blue-50 mt-8 max-w-2xl mx-auto">
+              <div className="relative w-36 h-52 mx-auto mb-3">
+                <img
+                  src="/images/mascot/mascot-welcoming.png"
+                  alt="ThaiCareCenter Care Advisor Mascot"
+                  className="w-full h-full object-contain filter drop-shadow-md"
+                />
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full mb-3 border border-blue-100">
+                💡 พี่แคร์ยินดีช่วยเหลือครับ
+              </div>
+              <h3 className="text-xl font-bold text-gray-800">ไม่พบศูนย์ดูแลตามเงื่อนไขที่เลือก</h3>
+              <p className="text-gray-500 text-sm mt-2 mb-6 max-w-md mx-auto leading-relaxed">
+                ไม่ต้องกังวลนะครับ! หากยังหาศูนย์ที่ถูกใจไม่เจอ คุณสามารถล้างค่าการค้นหา หรือให้ทีม Care Advisor ช่วยคัดกรองศูนย์ที่เหมาะสมกับอาการและงบประมาณของคุณได้ฟรี
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-all"
+                >
+                  <XCircle className="w-4 h-4 mr-1.5 text-red-500" /> ล้างค่าการค้นหา
+                </button>
+                <a
+                  href="tel:095-805-7052"
+                  className="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
+                >
+                  <Phone className="w-4 h-4 mr-2" /> โทรปรึกษาพี่แคร์ฟรี
+                </a>
+              </div>
+            </div>
+          )}
 
-                  <Link href="/blogs" className="text-blue-600 text-sm font-bold hover:underline flex items-center">
+        </section>
 
-                    ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" />
+        {/* Banner: ปรึกษา Care Advisor ฟรี */}
+        <section className="my-14">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-950 text-white shadow-2xl border border-blue-700/50">
+            {/* Background decorative circles */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/20 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
 
-                  </Link>
-
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-8 md:p-12">
+              <div className="lg:col-span-7 space-y-5">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/30 border border-blue-400/40 text-blue-200 text-xs font-semibold backdrop-blur-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  บริการฟรี ไม่มีค่าใช้จ่ายแอบแฝง
                 </div>
 
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug">
+                  ยังไม่แน่ใจว่าจะเลือกศูนย์ดูแลที่ไหนดี?
+                </h2>
+
+                <p className="text-blue-100 text-sm md:text-base leading-relaxed font-light">
+                  ให้ทีม <span className="font-semibold text-white">Care Advisor</span> ผู้เชี่ยวชาญของ ThaiCareCenter ช่วยคัดกรองศูนย์ดูแลที่ได้มาตรฐาน ปลอดภัย ตรงตามงบประมาณและทำเลที่คุณสะดวกที่สุด
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm text-blue-100">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>แนะนำศูนย์ตรงงบประมาณ</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>ประสานงานนัดหมายเข้าชม</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>ตรวจสอบมาตรฐานและรีวิว</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>พร้อมดูแลและให้คำแนะนำฟรี</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-4">
+                  <a
+                    href="tel:095-805-7052"
+                    className="inline-flex items-center justify-center px-6 py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-lg hover:shadow-blue-500/30 transition-all transform hover:-translate-y-0.5"
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    โทรปรึกษา: 095-805-7052
+                  </a>
+                  <a
+                    href="https://line.me/R/ti/p/%40256zihiv"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center px-6 py-3.5 bg-[#06C755] hover:bg-[#05b04b] text-white rounded-2xl font-bold text-sm shadow-lg hover:shadow-green-500/30 transition-all transform hover:-translate-y-0.5"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    คุยผ่าน LINE ทันที
+                  </a>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 flex justify-center items-center">
+                <div className="relative w-full max-w-sm aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 transform hover:scale-[1.02] transition-transform duration-300">
+                  <img
+                    src="/images/mascot/home-advisor-banner.jpg"
+                    alt="ThaiCareCenter Care Advisor"
+                    className="w-full h-full object-cover object-top"
+                    onError={handleImageError}
+                  />
+                  {/* <div className="absolute bottom-3 left-3 right-3 bg-black/60 backdrop-blur-md px-3 py-2 rounded-xl text-center">
+                        <p className="text-xs text-white font-medium">พี่แคร์ • ThaiCareCenter Care Advisor</p>
+                      </div> */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. ส่วน: บทความแนะนำ (แสดงแยกออกมาในส่วนนี้) */}
+        {recommendedBlogs.length > 0 && !isSearchActive && (
+
+          <section className="mb-12 border-t border-gray-100 pt-8">
+
+            <div className="flex justify-between items-end mb-6">
+
+              <div>
+
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+
+                  <span className="bg-green-500 w-1.5 h-6 rounded-full mr-3"></span>
+
+                  บทความแนะนำ
+
+                </h2>
+
+                <p className="text-gray-500 text-sm mt-1">
+
+                  สาระน่ารู้และเคล็ดลับการดูแลสุขภาพสำหรับผู้สูงอายุ
+
+                </p>
+
+              </div>
+
+              <Link href="/blogs" className="text-blue-600 text-sm font-bold hover:underline flex items-center">
+
+                ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" />
+
+              </Link>
+
+            </div>
 
 
-                <ScrollableContainer itemWidth={320}>
 
-                  {recommendedBlogs.map(blog => (
+            <ScrollableContainer itemWidth={320}>
 
-                    <Link
+              {recommendedBlogs.map(blog => (
 
-                      key={blog.id}
+                <Link
 
-                      href={`/blogs/${(blog as any).slug}`} // ใช้ as any ชั่วคราว
+                  key={blog.id}
 
-                      className="block group h-full flex-shrink-0 w-80 snap-center"
+                  href={`/blogs/${(blog as any).slug}`} // ใช้ as any ชั่วคราว
 
-                    >
+                  className="block group h-full flex-shrink-0 w-80 snap-center"
 
-                      <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden">
+                >
 
-                        <div className="relative h-48 overflow-hidden">
+                  <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden">
 
-                          <img
-                            src={(blog as any).coverImage || FALLBACK_IMAGE}
-                            alt={(blog as any).title}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            onError={handleImageError}
-                          />
+                    <div className="relative h-48 overflow-hidden">
 
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                      <img
+                        src={(blog as any).coverImage || FALLBACK_IMAGE}
+                        alt={(blog as any).title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        onError={handleImageError}
+                      />
 
-                          <div className="absolute bottom-3 left-3 right-3">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
 
-                            <span className="text-white text-xs font-medium bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">
+                      <div className="absolute bottom-3 left-3 right-3">
 
-                              {new Date((blog as any).createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        <span className="text-white text-xs font-medium bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">
 
-                            </span>
+                          {new Date((blog as any).createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}
 
-                          </div>
-
-                        </div>
-
-                        <div className="p-4 flex-grow flex flex-col">
-
-                          <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-
-                            {(blog as any).title}
-
-                          </h3>
-
-                          <p className="text-gray-500 text-sm line-clamp-2 mb-3 flex-grow">
-
-                            {(blog as any).excerpt}
-
-                          </p>
-
-                          <div className="mt-auto pt-3 border-t border-gray-50 flex items-center text-blue-600 text-sm font-semibold group-hover:translate-x-1 transition-transform">
-
-                            อ่านเพิ่มเติม <ArrowRight className="w-4 h-4 ml-1" />
-
-                          </div>
-
-                        </div>
+                        </span>
 
                       </div>
 
-                    </Link>
+                    </div>
 
-                  ))}
+                    <div className="p-4 flex-grow flex flex-col">
 
-                </ScrollableContainer>
+                      <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
 
-              </section>
+                        {(blog as any).title}
 
-            )}
+                      </h3>
+
+                      <p className="text-gray-500 text-sm line-clamp-2 mb-3 flex-grow">
+
+                        {(blog as any).excerpt}
+
+                      </p>
+
+                      <div className="mt-auto pt-3 border-t border-gray-50 flex items-center text-blue-600 text-sm font-semibold group-hover:translate-x-1 transition-transform">
+
+                        อ่านเพิ่มเติม <ArrowRight className="w-4 h-4 ml-1" />
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </Link>
+
+              ))}
+
+            </ScrollableContainer>
+
+          </section>
+
+        )}
 
       </div>
 
