@@ -27,6 +27,13 @@ try {
     console.warn('Could not read .env.local:', e);
 }
 
+interface CareCenterStatusRow {
+    id: number;
+    name: string;
+    status: string | null;
+    utm_source: string | null;
+}
+
 async function updateStatusByUtm() {
     console.log('===========================================================');
     console.log('🔄 Updating care_centers status: No utm_source -> "hidden"');
@@ -39,7 +46,7 @@ async function updateStatusByUtm() {
 
     // 1. Fetch care centers with pagination
     console.log('Fetching all care centers...');
-    let allCenters: any[] = [];
+    let allCenters: CareCenterStatusRow[] = [];
     let from = 0;
     const PAGE_SIZE = 1000;
 
@@ -55,7 +62,7 @@ async function updateStatusByUtm() {
             break;
         }
         if (!data || data.length === 0) break;
-        allCenters = allCenters.concat(data);
+        allCenters = allCenters.concat(data as unknown as CareCenterStatusRow[]);
         if (data.length < PAGE_SIZE) break;
         from += PAGE_SIZE;
     }
@@ -63,7 +70,7 @@ async function updateStatusByUtm() {
     console.log(`Total care centers found: ${allCenters.length}`);
 
     // 2. Identify centers without utm_source that need status = 'hidden'
-    const toUpdateHidden: any[] = [];
+    const toUpdateHidden: CareCenterStatusRow[] = [];
     let alreadyHidden = 0;
     let hasUtmCount = 0;
 
