@@ -7,6 +7,7 @@ import {
 import { Blog } from '@/src/types';
 import { fetchWithAuth } from '@/src/lib/auth-client';
 import RichTextEditor from '@/src/components/RichTextEditor';
+import ImageUploadButton from '@/src/components/ImageUploadButton';
 
 const INITIAL_FORM_STATE = {
     title: '',
@@ -293,7 +294,14 @@ export default function ManageBlogPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">รูปปก (URL)</label>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <label className="block text-sm font-medium text-gray-700">รูปปก</label>
+                                            <ImageUploadButton
+                                                folder="blogs"
+                                                label="อัปโหลดรูปภาพ"
+                                                onUploadSuccess={(url) => setFormData(prev => ({ ...prev, coverImage: url }))}
+                                            />
+                                        </div>
                                         <div className="flex gap-4 items-start">
                                             <div className="w-24 h-24 bg-gray-100 rounded border overflow-hidden shrink-0 flex items-center justify-center">
                                                 {formData.coverImage ? (
@@ -307,7 +315,7 @@ export default function ManageBlogPage() {
                                             <input
                                                 type="text"
                                                 className="flex-1 border rounded-md px-3 py-2"
-                                                placeholder="https://example.com/image.jpg"
+                                                placeholder="https://example.com/image.jpg หรือคลิกปุ่มอัปโหลดด้านบน"
                                                 value={formData.coverImage}
                                                 onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
                                             />

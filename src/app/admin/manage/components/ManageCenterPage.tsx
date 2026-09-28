@@ -9,6 +9,7 @@ import {
 import { CareCenter, Package } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
 import RichTextEditor from '@/src/components/RichTextEditor';
+import ImageUploadButton from '@/src/components/ImageUploadButton';
 
 const INITIAL_FORM_STATE: any = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
@@ -646,9 +647,16 @@ export default function ManageCenterPage() {
                                             value={formData.brandName || ''} onChange={e => setFormData({ ...formData, brandName: e.target.value })} />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">โลโก้แบรนด์ (URL)</label>
-                                        <input type="text" className="w-full border rounded-md px-3 py-2"
-                                            placeholder="https://..."
+                                        <div className="flex justify-between items-center mb-1">
+                                            <label className="block text-sm font-medium text-gray-700">โลโก้แบรนด์ (URL)</label>
+                                            <ImageUploadButton
+                                                folder="centers/logos"
+                                                label="อัปโหลดโลโก้"
+                                                onUploadSuccess={(url) => setFormData((prev: any) => ({ ...prev, brandLogoUrl: url }))}
+                                            />
+                                        </div>
+                                        <input type="text" className="w-full border rounded-md px-3 py-2 text-sm"
+                                            placeholder="https://... หรือคลิกอัปโหลดโลโก้"
                                             value={formData.brandLogoUrl || ''} onChange={e => setFormData({ ...formData, brandLogoUrl: e.target.value })} />
                                     </div>
                                 </div>
@@ -656,20 +664,43 @@ export default function ManageCenterPage() {
                                 {/* Images Management */}
                                 <div className="border-t pt-4">
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="text-sm font-bold text-gray-700">รูปภาพ (URL)</label>
-                                        <button type="button" onClick={addImageField} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 flex items-center">
-                                            <Plus className="w-3 h-3 mr-1" /> เพิ่มรูป
-                                        </button>
+                                        <label className="text-sm font-bold text-gray-700">รูปภาพศูนย์ดูแล</label>
+                                        <div className="flex gap-2">
+                                            <ImageUploadButton
+                                                folder="centers/photos"
+                                                label="อัปโหลดรูปภาพ"
+                                                onUploadSuccess={(url) => {
+                                                    setFormData((prev: any) => {
+                                                        const current = prev.imageUrls || [];
+                                                        const emptyIdx = current.findIndex((u: string) => !u.trim());
+                                                        if (emptyIdx !== -1) {
+                                                            const updated = [...current];
+                                                            updated[emptyIdx] = url;
+                                                            return { ...prev, imageUrls: updated };
+                                                        }
+                                                        return { ...prev, imageUrls: [...current, url] };
+                                                    });
+                                                }}
+                                            />
+                                            <button type="button" onClick={addImageField} className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 border border-slate-200 flex items-center">
+                                                <Plus className="w-3 h-3 mr-1" /> เพิ่มช่อง URL
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="space-y-3">
                                         {formData.imageUrls.map((url: string, idx: number) => (
-                                            <div key={idx} className="flex gap-3 items-start">
-                                                <div className="w-16 h-16 bg-gray-100 rounded border overflow-hidden shrink-0 flex items-center justify-center">
+                                            <div key={idx} className="flex gap-2 items-center">
+                                                <div className="w-14 h-14 bg-gray-100 rounded border overflow-hidden shrink-0 flex items-center justify-center">
                                                     {url ? <img src={url} alt="preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/64?text=Error')} /> : <ImageIcon className="text-gray-300" />}
                                                 </div>
-                                                <input type="text" placeholder="https://example.com/image.jpg"
+                                                <input type="text" placeholder="https://example.com/image.jpg หรือคลิกปุ่มอัปโหลด"
                                                     className="flex-1 border rounded-md px-3 py-2 text-sm"
                                                     value={url} onChange={(e) => handleImageChange(idx, e.target.value)}
+                                                />
+                                                <ImageUploadButton
+                                                    folder="centers/photos"
+                                                    label="อัปโหลด"
+                                                    onUploadSuccess={(uploadedUrl) => handleImageChange(idx, uploadedUrl)}
                                                 />
                                                 <button type="button" onClick={() => removeImageField(idx)} className="text-red-500 hover:text-red-700 p-2">
                                                     <Trash2 className="w-5 h-5" />
@@ -855,13 +886,28 @@ export default function ManageCenterPage() {
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => addRoomTypeImage(rIdx)}
-                                                                className="text-[11px] bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200 flex items-center font-sans border border-slate-300 shadow-sm"
-                                                            >
-                                                                <Plus className="w-3 h-3 mr-0.5" /> เพิ่มช่องใส่รูป
-                                                            </button>
+                                                            <div className="flex gap-1.5 items-center">
+                                                                <ImageUploadButton
+                                                                    folder="centers/rooms"
+                                                                    label="อัปโหลดรูปห้อง"
+                                                                    onUploadSuccess={(uploadedUrl) => {
+                                                                        const currentImgs = room.imageUrls || [];
+                                                                        const emptyIdx = currentImgs.findIndex((u: string) => !u.trim());
+                                                                        if (emptyIdx !== -1) {
+                                                                            handleRoomTypeImageChange(rIdx, emptyIdx, uploadedUrl);
+                                                                        } else {
+                                                                            handleRoomTypeChange(rIdx, 'imageUrls', [...currentImgs, uploadedUrl]);
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => addRoomTypeImage(rIdx)}
+                                                                    className="text-[11px] bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200 flex items-center font-sans border border-slate-300 shadow-sm"
+                                                                >
+                                                                    <Plus className="w-3 h-3 mr-0.5" /> เพิ่มช่องใส่รูป
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                             {room.imageUrls && room.imageUrls.map((url: string, iIdx: number) => (
@@ -871,10 +917,16 @@ export default function ManageCenterPage() {
                                                                     </div>
                                                                     <input
                                                                         type="text"
-                                                                        placeholder="https://example.com/room-image.jpg"
+                                                                        placeholder="https://example.com/room-image.jpg หรืออัปโหลด"
                                                                         className="flex-1 border rounded px-2 py-1.5 text-xs bg-white text-gray-800"
                                                                         value={url}
                                                                         onChange={(e) => handleRoomTypeImageChange(rIdx, iIdx, e.target.value)}
+                                                                    />
+                                                                    <ImageUploadButton
+                                                                        folder="centers/rooms"
+                                                                        label="อัปโหลด"
+                                                                        className="p-1 px-2 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300"
+                                                                        onUploadSuccess={(uploadedUrl) => handleRoomTypeImageChange(rIdx, iIdx, uploadedUrl)}
                                                                     />
                                                                     <button
                                                                         type="button"

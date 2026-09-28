@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, X, Save, Link as LinkIcon, Image as ImageIcon, Copy, ExternalLink } from 'lucide-react';
 import { Advertisement } from '../../../../types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
+import ImageUploadButton from '@/src/components/ImageUploadButton';
 
 // Helper function to extract UTM params from a URL
 const parseUrlParams = (url: string) => {
@@ -359,12 +360,19 @@ export default function ManageAdsPage() {
                                             </div>
 
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1.5">URL รูปภาพ <span className="text-red-500">*</span></label>
+                                                <div className="flex justify-between items-center mb-1.5">
+                                                    <label className="block text-sm font-medium text-gray-700">URL รูปภาพ <span className="text-red-500">*</span></label>
+                                                    <ImageUploadButton
+                                                        folder="ads"
+                                                        label="อัปโหลดรูปภาพ"
+                                                        onUploadSuccess={(url) => handleInputChange('imageUrl', url)}
+                                                    />
+                                                </div>
                                                 <input
                                                     type="url"
                                                     required
                                                     className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                                    placeholder="https://example.com/image.jpg"
+                                                    placeholder="https://example.com/image.jpg หรือคลิกปุ่มอัปโหลด"
                                                     value={formData.imageUrl || ''}
                                                     onChange={(e) => handleInputChange('imageUrl', e.target.value)}
                                                 />

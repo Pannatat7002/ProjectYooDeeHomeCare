@@ -23,10 +23,12 @@ export async function POST(request: NextRequest) {
         // ดึงข้อมูล Admin ทั้งหมด
         const admins: Admin[] = await getAdmins();
 
-        // ค้นหา Admin ที่ตรงกับ username
-        const admin = admins.find((a) => a.username === username);
+        // ค้นหา Admin ที่ตรงกับ username (ตัดช่องว่างและไม่สนตัวพิมพ์ใหญ่เล็ก)
+        const trimmedUsername = username.trim().toLowerCase();
+        const admin = admins.find((a) => a.username.trim().toLowerCase() === trimmedUsername);
 
         if (!admin) {
+            console.warn(`[Login Failed] Admin user '${username}' not found. Available admins count: ${admins.length}`);
             return NextResponse.json(
                 { success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' } as AdminLoginResponse,
                 { status: 401 }

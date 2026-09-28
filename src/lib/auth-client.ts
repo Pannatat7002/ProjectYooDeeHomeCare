@@ -82,11 +82,29 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}): Pro
         throw new Error('No authentication token found');
     }
 
-    const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
+    const headers: Record<string, string> = {
         'Authorization': `Bearer ${token}`,
     };
+
+    // If body is not FormData, default to application/json
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    // Merge custom headers if any
+    if (options.headers) {
+        if (options.headers instanceof Headers) {
+            options.headers.forEach((value, key) => {
+                headers[key] = value;
+            });
+        } else if (Array.isArray(options.headers)) {
+            options.headers.forEach(([key, value]) => {
+                headers[key] = value;
+            });
+        } else {
+            Object.assign(headers, options.headers);
+        }
+    }
 
     const response = await fetch(url, { ...options, headers });
 

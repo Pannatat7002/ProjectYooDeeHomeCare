@@ -1,330 +1,291 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getSheet, rowsToData } from './googleSheets';
-import { unstable_cache, revalidateTag } from 'next/cache';
+import { supabaseAdmin, isSupabaseConfigured } from './supabase';
+import { revalidateTag } from 'next/cache';
 
-// --- 1. Helper: Format Data FOR Google Sheets (Save) ---
-// แปลง Object/Array เป็น String เพื่อเก็บลง Cell
-const formatRowForSheet = (item: any) => {
-    const row: any = {};
-    for (const key in item) {
-        const value = item[key];
-        if (value === null || value === undefined) {
-            row[key] = ''; // เก็บเป็นค่าว่างแทน null
-        } else if (typeof value === 'object') {
-            row[key] = JSON.stringify(value); // แปลง array/object เป็น string
-        } else {
-            row[key] = value;
-        }
+// --- 1. Helper: Convert camelCase (frontend/app) to snake_case (PostgreSQL DB) ---
+export const toSnakeCase = (obj: any): any => {
+    if (obj === null || obj === undefined || typeof obj !== 'object' || Array.isArray(obj)) {
+        return obj;
     }
-    return row;
-};
-
-// --- 2. Helper: Parse Data FROM Google Sheets (Load) ---
-// แปลง String จาก Sheet กลับเป็น Data Type ที่ถูกต้อง (Number, Object, Array)
-const parseSheetRow = (row: any) => {
-    const formatted: any = {};
-
-    // รายชื่อฟิลด์ที่ควรจะเป็นตัวเลข
-    const numberFields = ['price', 'lat', 'lng', 'rating', 'id', 'recipientAge', 'centerId'];
-
-    Object.keys(row).forEach((key) => {
-        let value = row[key];
-
-        // 1. ลองแปลง JSON String กลับเป็น Object/Array
-        if (typeof value === 'string' && (value.startsWith('{') || value.startsWith('['))) {
-            try {
-                value = JSON.parse(value);
-            } catch {
-                // ถ้า parse ไม่ได้ ก็ให้เป็น string เหมือนเดิม
+    const result: any = {};
+    const numericFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipient_age', 'center_id', 'recipientAge', 'centerId'];
+    for (const key of Object.keys(obj)) {
+        const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        let val = obj[key];
+        if (numericFields.includes(key) || numericFields.includes(snakeKey)) {
+            if (val === '' || val === undefined) {
+                val = null;
+            } else if (val !== null && !isNaN(Number(val))) {
+                val = Number(val);
             }
         }
-
-        // 2. แปลง String เป็น Number (ถ้าอยู่ในรายการ numberFields)
-        if (numberFields.includes(key) && value !== '' && !isNaN(Number(value))) {
-            value = Number(value);
-        }
-
-        // 3. จัดการ Boolean
-        if (value === 'TRUE' || value === 'true') value = true;
-        if (value === 'FALSE' || value === 'false') value = false;
-
-        formatted[key] = value;
-    });
-
-    return formatted;
+        result[snakeKey] = val;
+    }
+    return result;
 };
 
-// --- Main Functions ---
+// --- 2. Helper: Convert snake_case (PostgreSQL DB) to camelCase (frontend/app) ---
+export const toCamelCase = (obj: any): any => {
+    if (obj === null || obj === undefined || typeof obj !== 'object' || Array.isArray(obj)) {
+        return obj;
+    }
+    const result: any = {};
+    for (const key of Object.keys(obj)) {
+        const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+        result[camelKey] = obj[key];
+    }
+    return result;
+};
 
-// --- Cache Configuration ---
-interface CacheEntry {
-    data: any[];
-    timestamp: number;
-}
+// --- 3. Helper: Parse row from Supabase to match application Types ---
+const parseRow = (row: any) => {
+    if (!row) return row;
+    const item = toCamelCase(row);
 
-const cache = new Map<string, CacheEntry>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 mins in milliseconds
+    // Number conversion check
+    const numberFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipientAge', 'centerId'];
+    for (const field of numberFields) {
+        if (item[field] !== undefined && item[field] !== null && item[field] !== '') {
+            const num = Number(item[field]);
+            if (!isNaN(num)) item[field] = num;
+        }
+    }
 
-// Function to clear cache for a specific sheet
-const invalidateCache = (sheetName: string) => {
-    cache.delete(sheetName);
-    console.log(`[Cache] Invalidated memory cache for sheet: ${sheetName}`);
+    return item;
+};
+
+// --- Cache Invalidation ---
+const invalidateCache = (tableName: string) => {
     try {
-        revalidateTag(sheetName, 'max');
-        console.log(`[Cache] Invalidated Next.js tag cache: ${sheetName}`);
-    } catch (e) {
-        console.warn(`[Cache] Next.js revalidateTag failed (normal if not run in Next server runtime context):`, e);
+        revalidateTag(tableName, 'max');
+        console.log(`[Cache] Invalidated Next.js tag cache for: ${tableName}`);
+    } catch {
+        // Ignored outside of Next.js server request context
     }
 };
 
-/**
- * SAVE (Overwrite): ลบข้อมูลเก่าทั้งหมด แล้วบันทึกข้อมูลใหม่ทับ
- * เหมาะสำหรับ: การแก้ไขข้อมูล (Edit) หรือลบข้อมูล (Delete)
- */
-const saveDataToSheet = async (sheetName: string, data: any[]) => {
+// --- Generic CRUD Operations for Supabase ---
+
+const loadDataFromTable = async (tableName: string) => {
     try {
-        const sheet = await getSheet(sheetName);
-
-        // ถ้าเป็นการ Save ครั้งแรก หรือมีการเปลี่ยน Header
-        if (data.length > 0) {
-            // Collect ALL unique keys from ALL items, not just the first one
-            const allKeys = new Set<string>();
-            data.forEach(item => {
-                Object.keys(item).forEach(key => allKeys.add(key));
-            });
-            const headers = Array.from(allKeys);
-            await sheet.setHeaderRow(headers);
+        if (!isSupabaseConfigured()) {
+            console.warn(`[Supabase] Warning: Supabase is not configured yet. Returning empty array for table: ${tableName}`);
+            return [];
         }
 
-        // Warning: การ Clear และ Add ใหม่ทั้งหมด
-        await sheet.clearRows();
+        const { data, error } = await supabaseAdmin
+            .from(tableName)
+            .select('*')
+            .order('id', { ascending: true });
 
-        const rows = data.map(formatRowForSheet);
-        await sheet.addRows(rows);
+        if (error) {
+            console.error(`[Supabase Error] Error fetching from ${tableName}:`, error);
+            return [];
+        }
 
-        // Invalidate cache
-        invalidateCache(sheetName);
-
-        return true;
+        return (data || []).map(parseRow);
     } catch (error) {
-        console.error(`Error saving to sheet ${sheetName}:`, error);
-        throw error;
-    }
-};
-
-/**
- * ADD (Append): เพิ่มข้อมูลใหม่ต่อท้ายแถวเดิม
- * เหมาะสำหรับ: ฟอร์มกรอกข้อมูลใหม่ (Register, Contact Form)
- * 
- * ✅ แก้ไขแล้ว: ตรวจสอบและอัพเดท header อัตโนมัติเมื่อมีฟิลด์ใหม่
- */
-const addDataToSheet = async (sheetName: string, newItem: any) => {
-    try {
-        const sheet = await getSheet(sheetName);
-
-        // ตรวจสอบว่ามี header หรือยัง
-        let hasHeaders = false;
-        let existingHeaders: string[] = [];
-
-        try {
-            await sheet.loadHeaderRow();
-            hasHeaders = sheet.headerValues && sheet.headerValues.length > 0;
-            existingHeaders = sheet.headerValues || [];
-        } catch {
-            // ถ้า loadHeaderRow() error แสดงว่า Sheet ยังไม่มี header เลย
-            console.log(`⚠️  Sheet "${sheetName}" has no headers yet`);
-            hasHeaders = false;
-        }
-
-        const newItemKeys = Object.keys(newItem);
-
-        // ถ้ายังไม่มี header ให้สร้างจาก keys ของ newItem
-        if (!hasHeaders) {
-            console.log(`📝 Creating headers for sheet "${sheetName}"...`);
-            await sheet.setHeaderRow(newItemKeys);
-            console.log(`✅ Headers created:`, newItemKeys);
-        } else {
-            // ✅ ตรวจสอบว่ามีฟิลด์ใหม่ที่ยังไม่มีใน header หรือไม่
-            const missingHeaders = newItemKeys.filter(key => !existingHeaders.includes(key));
-
-            if (missingHeaders.length > 0) {
-                console.log(`📝 Found new fields: ${missingHeaders.join(', ')}`);
-                console.log(`🔄 Updating headers for sheet "${sheetName}"...`);
-
-                // รวม headers เดิมกับ headers ใหม่
-                const updatedHeaders = [...existingHeaders, ...missingHeaders];
-                await sheet.setHeaderRow(updatedHeaders);
-
-                console.log(`✅ Headers updated:`, updatedHeaders);
-            }
-        }
-
-        // เพิ่มแถวใหม่ต่อท้าย
-        const row = formatRowForSheet(newItem);
-        await sheet.addRow(row);
-        console.log(`✅ Row added to sheet "${sheetName}"`);
-
-        // Invalidate cache
-        invalidateCache(sheetName);
-
-        return true;
-    } catch (error) {
-        console.error(`❌ Error adding to sheet ${sheetName}:`, error);
-        throw error;
-    }
-};
-
-const fetchSheetDataCached = (sheetName: string) => {
-    return unstable_cache(
-        async () => {
-            console.log(`[Cache Miss] Loading ${sheetName} from Google Sheets API...`);
-            const sheet = await getSheet(sheetName);
-            const rows = await sheet.getRows();
-
-            // ใช้ rowsToData และ map ผ่าน parser ของเราอีกที
-            const rawData = rowsToData(rows);
-
-            // แปลงข้อมูลให้ Type ถูกต้อง
-            return rawData.map((item: any) => parseSheetRow(item));
-        },
-        ['sheet-data', sheetName],
-        { revalidate: 300, tags: [sheetName] }
-    )();
-};
-
-const loadDataFromSheet = async (sheetName: string) => {
-    try {
-        const now = Date.now();
-        // 1. ลองใช้ memory cache ก่อนเพื่อความเร็วระดับ microsecond
-        const cached = cache.get(sheetName);
-        if (cached && (now - cached.timestamp < CACHE_TTL)) {
-            console.log(`[Memory Cache] Serving ${sheetName} from memory cache (size: ${cached.data.length})`);
-            return cached.data;
-        }
-
-        // 2. ถ้า memory cache ไม่มี/หมดอายุ ให้ใช้ Next.js Data Cache (unstable_cache)
-        const data = await fetchSheetDataCached(sheetName);
-        
-        // 3. เซ็ตค่ากลับลง memory cache เพื่อให้ request ถัดไปดึงได้ไวขึ้น
-        cache.set(sheetName, { data, timestamp: now });
-        return data;
-
-    } catch (error) {
-        console.error(`Error loading from sheet ${sheetName}:`, error);
+        console.error(`[DB Error] Failed to load data from table ${tableName}:`, error);
         return [];
     }
 };
 
-// --- Exports ---
-
-// 1. GET (ดึงข้อมูล)
-export const getCareCenters = async () => loadDataFromSheet('CareCenters');
-export const getConsultations = async () => loadDataFromSheet('Consultations');
-export const getContacts = async () => loadDataFromSheet('Contacts');
-export const getTrafficLogs = async () => loadDataFromSheet('Traffic');
-
-// 2. SAVE (บันทึกทับ - ใช้เมื่อแก้ไขข้อมูล)
-export const saveCareCenters = async (data: any[]) => saveDataToSheet('CareCenters', data);
-export const saveConsultations = async (data: any[]) => saveDataToSheet('Consultations', data);
-export const saveContacts = async (data: any[]) => saveDataToSheet('Contacts', data);
-
-// 3. ADD (เพิ่มใหม่ - ✅ ใช้ตัวนี้กับฟอร์ม Submit)
-export const addCareCenter = async (item: any) => addDataToSheet('CareCenters', item);
-export const addConsultation = async (item: any) => addDataToSheet('Consultations', item);
-export const addContact = async (item: any) => addDataToSheet('Contacts', item);
-export const addTrafficLog = async (item: any) => addDataToSheet('Traffic', item);
-
-// 4. BLOGS (ดึงผ่าน loadDataFromSheet พร้อม Cache 5 นาที และ Invalidate เมื่อมีการแก้ไข)
-export const getBlogs = async () => loadDataFromSheet('Blogs');
-export const saveBlogs = async (data: any[]) => saveDataToSheet('Blogs', data);
-export const addBlog = async (item: any) => addDataToSheet('Blogs', item);
-
-// 5. ADMINS
-export const getAdmins = async () => loadDataFromSheet('Admins');
-export const saveAdmins = async (data: any[]) => saveDataToSheet('Admins', data);
-export const addAdmin = async (item: any) => addDataToSheet('Admins', item);
-
-// 6. ADS (โฆษณา)
-export const getAds = async () => loadDataFromSheet('Ads');
-export const saveAds = async (data: any[]) => saveDataToSheet('Ads', data);
-export const addAd = async (item: any) => addDataToSheet('Ads', item);
-
-// --- 7. GENERIC UPDATE/DELETE (เพื่อแก้ปัญหา Row Wipe) ---
-const updateRowInSheet = async (sheetName: string, id: number | string, newData: any) => {
+const insertDataToTable = async (tableName: string, newItem: any) => {
     try {
-        const sheet = await getSheet(sheetName);
-        const rows = await sheet.getRows();
-        // Loose equality check for ID (string vs number)
-        const row = rows.find(r => r.get('id') == id);
-        if (!row) return false;
-
-        // Check for new headers
-        await sheet.loadHeaderRow();
-        const existingHeaders = sheet.headerValues || [];
-        const newItemKeys = Object.keys(newData);
-        const missingHeaders = newItemKeys.filter(key => !existingHeaders.includes(key));
-
-        if (missingHeaders.length > 0) {
-            console.log(`🔄 Updating headers for sheet "${sheetName}" to include: ${missingHeaders.join(', ')}`);
-            await sheet.setHeaderRow([...existingHeaders, ...missingHeaders]);
+        if (!isSupabaseConfigured()) {
+            throw new Error('Supabase is not configured yet. Please check .env.local');
         }
 
-        const formatted = formatRowForSheet(newData);
-
-        // Safe assign
-        if (typeof row.assign === 'function') {
-            row.assign(formatted);
-        } else if (typeof row.set === 'function') {
-            Object.keys(formatted).forEach(key => row.set(key, formatted[key]));
-        } else {
-            Object.assign(row, formatted);
+        const dbItem = toSnakeCase(newItem);
+        // If id is empty or null, let Postgres generate identity automatically
+        if (dbItem.id === undefined || dbItem.id === null || dbItem.id === '') {
+            delete dbItem.id;
         }
 
-        await row.save();
-        
-        // Invalidate cache
-        invalidateCache(sheetName);
-        
+        const { data, error } = await supabaseAdmin
+            .from(tableName)
+            .insert([dbItem])
+            .select();
+
+        if (error) {
+            console.error(`[Supabase Error] Error inserting into ${tableName}:`, error);
+            throw error;
+        }
+
+        invalidateCache(tableName);
+        return data && data.length > 0 ? parseRow(data[0]) : true;
+    } catch (error) {
+        console.error(`[DB Error] Failed to insert into ${tableName}:`, error);
+        throw error;
+    }
+};
+
+const updateDataInTable = async (tableName: string, id: number | string, updatedData: any) => {
+    try {
+        if (!isSupabaseConfigured()) {
+            throw new Error('Supabase is not configured yet. Please check .env.local');
+        }
+
+        const dbItem = toSnakeCase(updatedData);
+        delete dbItem.id; // Do not overwrite primary key
+
+        const { error } = await supabaseAdmin
+            .from(tableName)
+            .update(dbItem)
+            .eq('id', id);
+
+        if (error) {
+            console.error(`[Supabase Error] Error updating row in ${tableName}:`, error);
+            throw error;
+        }
+
+        invalidateCache(tableName);
         return true;
     } catch (error) {
-        console.error(`Error updating row in ${sheetName}:`, error);
+        console.error(`[DB Error] Failed to update row in ${tableName}:`, error);
         throw error;
     }
 };
 
-const deleteRowInSheet = async (sheetName: string, id: number | string) => {
+const deleteDataFromTable = async (tableName: string, id: number | string) => {
     try {
-        const sheet = await getSheet(sheetName);
-        const rows = await sheet.getRows();
-        const row = rows.find(r => r.get('id') == id);
-
-        if (row) {
-            await row.delete();
-            // Invalidate cache
-            invalidateCache(sheetName);
-            return true;
+        if (!isSupabaseConfigured()) {
+            throw new Error('Supabase is not configured yet. Please check .env.local');
         }
-        return false;
+
+        const { error } = await supabaseAdmin
+            .from(tableName)
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error(`[Supabase Error] Error deleting row from ${tableName}:`, error);
+            throw error;
+        }
+
+        invalidateCache(tableName);
+        return true;
     } catch (error) {
-        console.error(`Error deleting row in ${sheetName}:`, error);
+        console.error(`[DB Error] Failed to delete row from ${tableName}:`, error);
         throw error;
     }
 };
 
-export const updateBlog = async (id: number | string, data: any) => updateRowInSheet('Blogs', id, data);
-export const deleteBlog = async (id: number | string) => deleteRowInSheet('Blogs', id);
+const saveDataToTable = async (tableName: string, items: any[]) => {
+    try {
+        if (!isSupabaseConfigured()) {
+            throw new Error('Supabase is not configured yet. Please check .env.local');
+        }
 
-export const updateCareCenter = async (id: number | string, data: any) => updateRowInSheet('CareCenters', id, data);
-export const deleteCareCenter = async (id: number | string) => deleteRowInSheet('CareCenters', id);
+        // 1. Get existing records to delete removed ones
+        const { data: existing, error: selectError } = await supabaseAdmin
+            .from(tableName)
+            .select('id');
 
-export const updateConsultation = async (id: number | string, data: any) => updateRowInSheet('Consultations', id, data);
-export const deleteConsultation = async (id: number | string) => deleteRowInSheet('Consultations', id);
+        if (selectError) {
+            console.error(`[Supabase Error] Error selecting IDs from ${tableName}:`, selectError);
+            throw selectError;
+        }
 
-export const updateContact = async (id: number | string, data: any) => updateRowInSheet('Contacts', id, data);
-export const deleteContact = async (id: number | string) => deleteRowInSheet('Contacts', id);
+        const existingIds = (existing || []).map((row: any) => row.id);
+        const newIds = items.map((item: any) => item.id).filter(id => id !== undefined && id !== null);
 
-export const updateAdmin = async (id: number | string, data: any) => updateRowInSheet('Admins', id, data);
-export const deleteAdmin = async (id: number | string) => deleteRowInSheet('Admins', id);
+        const idsToDelete = existingIds.filter((id: any) => !newIds.includes(id));
+        if (idsToDelete.length > 0) {
+            await supabaseAdmin.from(tableName).delete().in('id', idsToDelete);
+        }
 
-export const updateAd = async (id: number | string, data: any) => updateRowInSheet('Ads', id, data);
-export const deleteAd = async (id: number | string) => deleteRowInSheet('Ads', id);
+        // 2. Upsert items
+        if (items.length > 0) {
+            const dbItems = items.map(toSnakeCase);
+            const { error: upsertError } = await supabaseAdmin
+                .from(tableName)
+                .upsert(dbItems);
+
+            if (upsertError) {
+                console.error(`[Supabase Error] Error upserting into ${tableName}:`, upsertError);
+                throw upsertError;
+            }
+        }
+
+        invalidateCache(tableName);
+        return true;
+    } catch (error) {
+        console.error(`[DB Error] Failed to save data to ${tableName}:`, error);
+        throw error;
+    }
+};
+
+// ==============================================================================
+// --- Application Model Exports ---
+// ==============================================================================
+
+// 1. CARE CENTERS
+export const getCareCenters = async () => loadDataFromTable('care_centers');
+export const saveCareCenters = async (data: any[]) => saveDataToTable('care_centers', data);
+export const addCareCenter = async (item: any) => insertDataToTable('care_centers', item);
+export const updateCareCenter = async (id: number | string, data: any) => updateDataInTable('care_centers', id, data);
+export const deleteCareCenter = async (id: number | string) => deleteDataFromTable('care_centers', id);
+
+// 2. CONSULTATIONS
+export const getConsultations = async () => loadDataFromTable('consultations');
+export const saveConsultations = async (data: any[]) => saveDataToTable('consultations', data);
+export const addConsultation = async (item: any) => insertDataToTable('consultations', item);
+export const updateConsultation = async (id: number | string, data: any) => updateDataInTable('consultations', id, data);
+export const deleteConsultation = async (id: number | string) => deleteDataFromTable('consultations', id);
+
+// 3. CONTACTS
+export const getContacts = async () => loadDataFromTable('contacts');
+export const saveContacts = async (data: any[]) => saveDataToTable('contacts', data);
+export const addContact = async (item: any) => insertDataToTable('contacts', item);
+export const updateContact = async (id: number | string, data: any) => updateDataInTable('contacts', id, data);
+export const deleteContact = async (id: number | string) => deleteDataFromTable('contacts', id);
+
+// 4. BLOGS
+export const getBlogs = async () => loadDataFromTable('blogs');
+export const saveBlogs = async (data: any[]) => saveDataToTable('blogs', data);
+export const addBlog = async (item: any) => insertDataToTable('blogs', item);
+export const updateBlog = async (id: number | string, data: any) => updateDataInTable('blogs', id, data);
+export const deleteBlog = async (id: number | string) => deleteDataFromTable('blogs', id);
+
+// 5. ADMINS (Always fetch directly for realtime auth without cache delay)
+export const getAdmins = async () => {
+    try {
+        if (!isSupabaseConfigured()) return [];
+        const { data, error } = await supabaseAdmin
+            .from('admins')
+            .select('*')
+            .order('id', { ascending: true });
+
+        if (error) {
+            console.error('[Supabase Error] Error fetching admins:', error);
+            return [];
+        }
+        return (data || []).map(parseRow);
+    } catch (e) {
+        console.error('[DB Error] Failed to load admins:', e);
+        return [];
+    }
+};
+export const saveAdmins = async (data: any[]) => saveDataToTable('admins', data);
+export const addAdmin = async (item: any) => insertDataToTable('admins', item);
+export const updateAdmin = async (id: number | string, data: any) => updateDataInTable('admins', id, data);
+export const deleteAdmin = async (id: number | string) => deleteDataFromTable('admins', id);
+
+// 6. ADS
+export const getAds = async () => loadDataFromTable('ads');
+export const saveAds = async (data: any[]) => saveDataToTable('ads', data);
+export const addAd = async (item: any) => insertDataToTable('ads', item);
+export const updateAd = async (id: number | string, data: any) => updateDataInTable('ads', id, data);
+export const deleteAd = async (id: number | string) => deleteDataFromTable('ads', id);
+
+// 7. TRAFFIC LOGS
+export const getTrafficLogs = async () => loadDataFromTable('traffic');
+export const addTrafficLog = async (item: any) => insertDataToTable('traffic', item);
+
+// 8. PROVIDER SIGNUPS
+export const appendProviderSignup = async (data: any) => {
+    await insertDataToTable('provider_signups', data);
+    return { success: true };
+};
+export const getProviderSignups = async () => loadDataFromTable('provider_signups');
