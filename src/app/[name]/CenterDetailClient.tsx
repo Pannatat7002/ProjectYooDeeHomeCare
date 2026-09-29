@@ -17,6 +17,8 @@ import {
 import Link from 'next/link';
 import * as gtag from '../../lib/gtag';
 import { CareCenter, RoomType } from '../../types/index';
+import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
+import { getVerifiedLead, saveVerifiedLead } from '../../lib/leadSession';
 
 // =========================================================================================
 // UTILITIES & CONSTANTS
@@ -709,6 +711,45 @@ export default function CenterDetailClient({
     const [isContactStaffModalOpen, setIsContactStaffModalOpen] = useState(false);
     const [contactStaffFormData, setContactStaffFormData] = useState<ContactStaffFormData>({ name: '', phone: '' });
 
+    // Lead Capture Friction Modal State
+    const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+    const [leadModalConfig, setLeadModalConfig] = useState<{
+        actionType: LeadActionType;
+        destinationUrl?: string;
+        onProceed?: () => void;
+    }>({ actionType: 'navigation' });
+
+    const handleGatedAction = useCallback((
+        actionType: LeadActionType,
+        destinationUrl?: string,
+        onProceed?: () => void
+    ) => {
+        const verified = getVerifiedLead();
+        if (verified && verified.phone) {
+            // Already verified in 30 days! Seamlessly proceed
+            if (onProceed) {
+                onProceed();
+            } else if (destinationUrl) {
+                if (destinationUrl.startsWith('tel:')) {
+                    window.location.href = destinationUrl;
+                } else {
+                    window.open(destinationUrl, '_blank', 'noopener,noreferrer');
+                }
+            }
+            return;
+        }
+
+        // Not verified yet: open Consultation-themed Lead Capture Modal
+        setLeadModalConfig({ actionType, destinationUrl, onProceed });
+        setIsLeadModalOpen(true);
+    }, []);
+
+    const handleLeadSuccess = useCallback(() => {
+        if (leadModalConfig.onProceed) {
+            leadModalConfig.onProceed();
+        }
+    }, [leadModalConfig]);
+
     const logTraffic = useCallback((eventType: string) => {
         if (!center) return;
         fetch('/api/traffic', {
@@ -805,7 +846,14 @@ export default function CenterDetailClient({
 
             if (res.ok) {
                 setSubmitStatus('success');
-                // ไม่ต้อง alert() และไม่ต้อง reset form ทันที
+                if (formData.phone) {
+                    saveVerifiedLead({
+                        phone: formData.phone,
+                        name: formData.name,
+                        budget: formData.budget,
+                        timeframe: formData.convenientTime,
+                    });
+                }
                 gtag.event({ action: 'submit_form_success', category: 'Conversion', label: center?.name || 'Unknown' });
                 gtag.gtagReportConversion();
 
@@ -1211,7 +1259,13 @@ export default function CenterDetailClient({
                                         href={googleMapsDirectionsUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            const verified = getVerifiedLead();
+                                            if (!verified || !verified.phone) {
+                                                e.preventDefault();
+                                                handleGatedAction('navigation', googleMapsDirectionsUrl);
+                                                return;
+                                            }
                                             gtag.event({ action: 'click_map_section_direction', category: 'Engagement', label: center.name });
                                             logTraffic('click_map');
                                         }}
@@ -1284,7 +1338,16 @@ export default function CenterDetailClient({
                                             <a
                                                 href={getTelHref(center.phone, '080-102-7615')}
                                                 className="flex items-center justify-center gap-2 px-3 py-2 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all group"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    const telUrl = getTelHref(center.phone, '080-102-7615');
+                                                    const verified = getVerifiedLead();
+                                                    if (!verified || !verified.phone) {
+                                                        e.preventDefault();
+                                                        handleGatedAction('call', undefined, () => {
+                                                            window.location.href = telUrl;
+                                                        });
+                                                        return;
+                                                    }
                                                     gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
                                                     logTraffic('click_phone');
                                                 }}
@@ -1329,7 +1392,14 @@ export default function CenterDetailClient({
                                                 href="https://line.me/R/ti/p/%40256zihiv"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    const lineUrl = "https://line.me/R/ti/p/%40256zihiv";
+                                                    const verified = getVerifiedLead();
+                                                    if (!verified || !verified.phone) {
+                                                        e.preventDefault();
+                                                        handleGatedAction('line', lineUrl);
+                                                        return;
+                                                    }
                                                     gtag.event({ action: 'click_line_button', category: 'Conversion', label: center.name });
                                                     gtag.gtagReportLineConversion();
                                                     logTraffic('click_line');
@@ -1348,7 +1418,16 @@ export default function CenterDetailClient({
                                             {center.phone ? (
                                                 <a
                                                     href={getTelHref(center.phone)}
-                                                    onClick={() => {
+                                                    onClick={(e) => {
+                                                        const telUrl = getTelHref(center.phone);
+                                                        const verified = getVerifiedLead();
+                                                        if (!verified || !verified.phone) {
+                                                            e.preventDefault();
+                                                            handleGatedAction('call', undefined, () => {
+                                                                window.location.href = telUrl;
+                                                            });
+                                                            return;
+                                                        }
                                                         gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
                                                         logTraffic('click_phone');
                                                     }}
@@ -1367,7 +1446,13 @@ export default function CenterDetailClient({
                                                 href={googleMapsDirectionsUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    const verified = getVerifiedLead();
+                                                    if (!verified || !verified.phone) {
+                                                        e.preventDefault();
+                                                        handleGatedAction('navigation', googleMapsDirectionsUrl);
+                                                        return;
+                                                    }
                                                     gtag.event({ action: 'click_sidebar_map_navigation', category: 'Engagement', label: center.name });
                                                     logTraffic('click_map');
                                                 }}
@@ -1380,6 +1465,13 @@ export default function CenterDetailClient({
                                             {/* 5. นัดเยี่ยมชมศูนย์ */}
                                             <button
                                                 onClick={() => {
+                                                    const verified = getVerifiedLead();
+                                                    if (!verified || !verified.phone) {
+                                                        handleGatedAction('consultation', undefined, () => {
+                                                            setIsConsultationModalOpen(true);
+                                                        });
+                                                        return;
+                                                    }
                                                     setIsConsultationModalOpen(true);
                                                     gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
                                                 }}
@@ -1417,7 +1509,13 @@ export default function CenterDetailClient({
                                                 href={googleMapsDirectionsUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    const verified = getVerifiedLead();
+                                                    if (!verified || !verified.phone) {
+                                                        e.preventDefault();
+                                                        handleGatedAction('navigation', googleMapsDirectionsUrl);
+                                                        return;
+                                                    }
                                                     gtag.event({ action: 'click_sidebar_map_navigation', category: 'Engagement', label: center.name });
                                                     logTraffic('click_map');
                                                 }}
@@ -1547,6 +1645,17 @@ export default function CenterDetailClient({
                 handleSubmit={handleContactStaffSubmit}
                 submitStatus={contactStaffSubmitStatus}
                 centerName={center.name}
+            />
+
+            {/* Lead Capture Friction Modal (Consultation Theme, No OTP) */}
+            <LeadCaptureModal
+                isOpen={isLeadModalOpen}
+                onClose={() => setIsLeadModalOpen(false)}
+                onSuccess={handleLeadSuccess}
+                centerName={center.name}
+                centerPhone={center.phone}
+                actionType={leadModalConfig.actionType}
+                destinationUrl={leadModalConfig.destinationUrl}
             />
         </div >
     );

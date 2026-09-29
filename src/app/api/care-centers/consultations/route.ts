@@ -32,31 +32,33 @@ export async function POST(request: Request) {
             recipientName, recipientAge, relationshipToRecipient
         } = body;
 
-        // Validate required fields
-        if (!name || !phone || !roomType || !branch || !budget || !convenientTime) {
+        // Validate required fields: phone is essential
+        if (!phone || typeof phone !== 'string' || phone.trim().length < 9) {
             return NextResponse.json(
-                { success: false, message: 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน' },
+                { success: false, message: 'กรุณาระบุหมายเลขโทรศัพท์ให้ถูกต้อง' },
                 { status: 400 }
             );
         }
 
-        // Create new consultation object
+        const cleanPhone = phone.trim().replace(/[^\d]/g, '');
+
+        // Create new consultation object with intelligent defaults
         const newConsultation = {
             id: Date.now(),
-            name,
-            contactName: name, // Map name to contactName for backward compatibility
-            phone,
+            name: name?.trim() || 'ผู้สนใจบริการ',
+            contactName: name?.trim() || 'ผู้สนใจบริการ',
+            phone: cleanPhone,
             lineId: lineId || '',
             email: email || '',
             recipientName: recipientName || '',
             recipientAge: recipientAge ? Number(recipientAge) : undefined,
             relationshipToRecipient: relationshipToRecipient || '',
-            roomType,
-            branch,
-            budget,
-            convenientTime,
+            roomType: roomType || 'ยังไม่ระบุห้องพัก',
+            branch: branch || 'ศูนย์ทั่วไป',
+            budget: budget || 'ยังไม่ระบุ',
+            convenientTime: convenientTime || 'ด่วนภายใน 7 วัน',
             message: message || '',
-            status: 'pending',
+            status: 'verified',
             submittedAt: new Date().toISOString(),
         };
 
