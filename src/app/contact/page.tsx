@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Phone, Mail, Clock, Send } from 'lucide-react';
 import { gtagReportConversion } from '../../lib/gtag';
 
@@ -224,6 +225,24 @@ export default function ContactPage() {
                                             placeholder="รายละเอียดที่ต้องการสอบถาม..."
                                             required
                                         ></textarea>
+                                    </div>
+
+                                    {/* PDPA Consent Checkbox */}
+                                    <div className="pt-1">
+                                        <label className="flex items-start gap-2.5 cursor-pointer text-xs text-gray-600 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                                            <input
+                                                type="checkbox"
+                                                required
+                                                defaultChecked
+                                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mt-0.5 shrink-0"
+                                            />
+                                            <span>
+                                                ยินยอมให้ ThaiCareCenter บันทึกข้อมูลและติดต่อกลับตาม{' '}
+                                                <Link href="/privacy" target="_blank" className="text-blue-600 underline font-medium hover:text-blue-800">
+                                                    นโยบายความเป็นส่วนตัว (PDPA)
+                                                </Link>
+                                            </span>
+                                        </label>
                                     </div>
 
                                     <button

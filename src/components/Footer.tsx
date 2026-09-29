@@ -156,6 +156,17 @@ export default function Footer() {
                         ©{currentYear} **ThaiCareCenter**. All rights reserved.
                         <Link href="/privacy" className="text-blue-400 hover:text-blue-500 ml-3">| นโยบายความเป็นส่วนตัว</Link>
                         <Link href="/terms" className="text-blue-400 hover:text-blue-500 ml-3">| ข้อกำหนดและเงื่อนไข</Link>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (typeof window !== 'undefined') {
+                                    window.dispatchEvent(new Event('tcc_open_cookie_consent'));
+                                }
+                            }}
+                            className="text-blue-400 hover:text-blue-500 ml-3 underline cursor-pointer inline-block"
+                        >
+                            | ตั้งค่าคุกกี้
+                        </button>
                     </p>
 
                     {/* CTA Button */}

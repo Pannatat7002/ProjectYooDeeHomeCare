@@ -280,28 +280,39 @@ export default function PrivacyPage() {
                     {/* Cookies */}
                     <section className="mb-10">
                         <h2 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
-                            7. คุกกี้และเทคโนโลยีติดตาม
+                            7. คุกกี้และเทคโนโลยีติดตาม (Cookies & Tracking Technologies)
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            เราใช้คุกกี้และเทคโนโลยีคล้ายกันเพื่อปรับปรุงประสบการณ์การใช้งาน ประเภทของคุกกี้ที่เราใช้:
+                            เราใช้คุกกี้และเทคโนโลยีจัดเก็บข้อมูลในเบราว์เซอร์เพื่อปรับปรุงประสบการณ์การใช้งาน โดยแบ่งประเภทคุกกี้ออกเป็นดังนี้:
                         </p>
-                        <div className="space-y-3 text-gray-700">
-                            <div className="border-l-4 border-gray-400 pl-4">
-                                <h3 className="font-semibold">คุกกี้ที่จำเป็น</h3>
-                                <p className="text-sm">จำเป็นสำหรับการทำงานพื้นฐานของเว็บไซต์</p>
+                        <div className="space-y-4 text-gray-700">
+                            <div className="border-l-4 border-blue-500 pl-4 bg-blue-50/40 p-3 rounded-r-lg">
+                                <h3 className="font-semibold text-gray-900">1. คุกกี้ที่จำเป็นอย่างยิ่ง (Strictly Necessary Cookies)</h3>
+                                <p className="text-sm mt-1">จำเป็นสำหรับการทำงานพื้นฐานและการรักษาความปลอดภัยของเว็บไซต์ ไม่สามารถปิดการใช้งานได้</p>
                             </div>
-                            <div className="border-l-4 border-gray-400 pl-4">
-                                <h3 className="font-semibold">คุกกี้การวิเคราะห์</h3>
-                                <p className="text-sm">ช่วยเราเข้าใจวิธีที่ผู้ใช้โต้ตอบกับเว็บไซต์</p>
+                            <div className="border-l-4 border-indigo-500 pl-4 bg-indigo-50/40 p-3 rounded-r-lg">
+                                <h3 className="font-semibold text-gray-900">2. คุกกี้จดจำเซสชันการยืนยันตัวตนและการติดต่อ (Lead Session Cookie: <code>tcc_verified_lead</code>)</h3>
+                                <p className="text-sm mt-1">
+                                    เมื่อผู้ใช้ให้ความยินยอม (Consent) และกรอกข้อมูลคัดกรองเบื้องต้น เช่น งบประมาณ ความเร่งด่วน และหมายเลขโทรศัพท์ติดต่อ ระบบจะจัดเก็บคุกกี้และ LocalStorage เพื่ออำนวยความสะดวกในการใช้งาน
+                                </p>
+                                <ul className="text-xs text-gray-600 mt-2 list-disc list-inside space-y-1">
+                                    <li><strong>วัตถุประสงค์:</strong> อนุญาตให้ผู้ใช้เปิดแผนที่นำทางสู่ศูนย์ (Google Maps), ติดต่อผ่าน LINE, โทรหาเจ้าหน้าที่ หรือส่งคำขอนัดเยี่ยมชมศูนย์อื่นๆ ได้ทันทีโดยไม่ต้องกรอกข้อมูลซ้ำ (Seamless Bypass)</li>
+                                    <li><strong>อายุการจัดเก็บ:</strong> 30 วัน นับจากวันที่ให้ความยินยอม หรือจนกว่าท่านจะล้างคุกกี้ในเบราว์เซอร์</li>
+                                </ul>
                             </div>
-                            <div className="border-l-4 border-gray-400 pl-4">
-                                <h3 className="font-semibold">คุกกี้การตลาด</h3>
-                                <p className="text-sm">ใช้เพื่อแสดงโฆษณาที่เกี่ยวข้องกับคุณ</p>
+                            <div className="border-l-4 border-amber-500 pl-4 bg-amber-50/40 p-3 rounded-r-lg">
+                                <h3 className="font-semibold text-gray-900">3. คุกกี้เพื่อการวิเคราะห์และวัดผล (Analytics Cookies)</h3>
+                                <p className="text-sm mt-1">
+                                    เช่น Google Analytics เพื่อวิเคราะห์สถิติผู้เข้าชม พฤติกรรมการคลิก และปรับปรุงประสิทธิภาพของแพลตฟอร์ม
+                                </p>
+                            </div>
+                            <div className="border-l-4 border-emerald-500 pl-4 bg-emerald-50/40 p-3 rounded-r-lg">
+                                <h3 className="font-semibold text-gray-900">4. คุกกี้การบันทึกความยินยอม (Cookie Consent: <code>tcc_cookie_consent</code>)</h3>
+                                <p className="text-sm mt-1">จดจำการตั้งค่าการยินยอมรับคุกกี้ของท่านบนเว็บไซต์เป็นเวลา 1 ปี เพื่อไม่ให้แสดงแบนเนอร์รบกวนในครั้งถัดไป</p>
                             </div>
                         </div>
                         <p className="text-gray-700 leading-relaxed mt-4">
-                            คุณสามารถจัดการการตั้งค่าคุกกี้ผ่านเบราว์เซอร์ของคุณ
-                            แต่การปิดคุกกี้บางประเภทอาจส่งผลต่อการทำงานของเว็บไซต์
+                            ท่านสามารถจัดการการตั้งค่าคุกกี้ผ่านแบนเนอร์แจ้งเตือนคุกกี้บนเว็บไซต์ หรือผ่านการตั้งค่าในเบราว์เซอร์ของท่านได้ตลอดเวลา
                         </p>
                     </section>
 
@@ -311,14 +322,13 @@ export default function PrivacyPage() {
                             8. การเก็บรักษาข้อมูล
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            เราจะเก็บข้อมูลส่วนบุคคลของคุณเท่าที่จำเป็นเพื่อวัตถุประสงค์ที่ระบุไว้ในนโยบายนี้
-                            หรือตามที่กฎหมายกำหนด
+                            เราจะเก็บข้อมูลส่วนบุคคลของท่านเท่าที่จำเป็นตามวัตถุประสงค์ที่ระบุไว้ในนโยบายนี้ หรือตามที่กฎหมายกำหนด:
                         </p>
                         <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                            <li>ข้อมูลบัญชี: เก็บไว้ตลอดระยะเวลาที่บัญชียังใช้งานอยู่</li>
-                            <li>ข้อมูลการทำธุรกรรม: เก็บไว้อย่างน้อย 5 ปีตามกฎหมายภาษี</li>
-                            <li>ข้อมูลการตลาด: เก็บไว้จนกว่าคุณจะถอนความยินยอม</li>
-                            <li>ข้อมูลการใช้งาน: โดยทั่วไปเก็บไว้ 2 ปี</li>
+                            <li><strong>ข้อมูลเซสชันในเบราว์เซอร์ (Lead Session):</strong> เก็บไว้ 30 วันในคุกกี้และ LocalStorage บนเครื่องของท่าน</li>
+                            <li><strong>ข้อมูลการติดต่อและคำขอนัดหมายเยี่ยมชม:</strong> จัดเก็บในฐานข้อมูลที่ปลอดภัยเพื่อการประสานงานกับศูนย์ดูแลจนกว่าจะเสร็จสิ้นการบริการ หรือจนกว่าจะมีการขอลบข้อมูล</li>
+                            <li><strong>ข้อมูลการตลาดและการแจ้งเตือน:</strong> เก็บไว้จนกว่าท่านจะแจ้งขอยกเลิกหรือถอนความยินยอม</li>
+                            <li><strong>ข้อมูลการใช้งานและสถิติ:</strong> โดยทั่วไปเก็บไว้ในรูปแบบนิรนาม (Anonymized) 2 ปี</li>
                         </ul>
                     </section>
 

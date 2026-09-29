@@ -9,6 +9,7 @@ import { Analytics } from "@vercel/analytics/next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import MascotAssistant from "../components/MascotAssistant";
+import CookieConsentBanner from "../components/CookieConsentBanner";
 
 const notoSansThaiLooped = Noto_Sans_Thai_Looped({
   weight: ['400', '500', '600', '700'],
@@ -148,6 +149,7 @@ export default function RootLayout({
           {children}
         </main>
         <MascotAssistant />
+        <CookieConsentBanner />
         <Footer />
         <Analytics />
       </body>

@@ -363,6 +363,24 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({ formData, handleInp
                         <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="รายละเอียดเพิ่มเติม เช่น อาการของผู้ป่วย"></textarea>
                     </div>
                     <input type="hidden" name="branch" value={formData.branch} />
+
+                    {/* PDPA Consent Checkbox */}
+                    <div className="pt-2">
+                        <label className="flex items-start gap-2.5 cursor-pointer text-xs text-gray-600 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                            <input
+                                type="checkbox"
+                                required
+                                defaultChecked
+                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mt-0.5 shrink-0"
+                            />
+                            <span>
+                                ยินยอมให้ ThaiCareCenter บันทึกข้อมูลและประสานงานกับศูนย์ดูแลตาม{' '}
+                                <Link href="/privacy" target="_blank" className="text-blue-600 underline font-medium hover:text-blue-800">
+                                    นโยบายความเป็นส่วนตัว (PDPA)
+                                </Link>
+                            </span>
+                        </label>
+                    </div>
                 </div>
             )}
 
@@ -488,6 +506,24 @@ const ContactStaffForm: React.FC<ContactStaffFormProps> = ({ formData, handleInp
                         <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700 mb-1">หมายเลขโทรศัพท์ <span className="text-red-500">*</span></label>
                         <input id="contactPhone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all bg-gray-50 text-gray-800" placeholder="ระบุเบอร์โทรศัพท์" required />
                     </div>
+                </div>
+
+                {/* PDPA Consent Checkbox */}
+                <div className="pt-2">
+                    <label className="flex items-start gap-2.5 cursor-pointer text-xs text-gray-600 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                        <input
+                            type="checkbox"
+                            required
+                            defaultChecked
+                            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mt-0.5 shrink-0"
+                        />
+                        <span>
+                            ยินยอมให้ ThaiCareCenter บันทึกข้อมูลและประสานงานกับศูนย์ดูแลตาม{' '}
+                            <Link href="/privacy" target="_blank" className="text-blue-600 underline font-medium hover:text-blue-800">
+                                นโยบายความเป็นส่วนตัว (PDPA)
+                            </Link>
+                        </span>
+                    </label>
                 </div>
             </div>
 
