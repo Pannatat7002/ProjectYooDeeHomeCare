@@ -11,7 +11,8 @@ import {
     CheckCircle,
     User,
     Users,
-    MessageSquare
+    MessageSquare,
+    Navigation
 } from 'lucide-react';
 import Link from 'next/link';
 import * as gtag from '../../lib/gtag';
@@ -938,6 +939,14 @@ export default function CenterDetailClient({
     const galleryImages = allImages.slice(0, 5);
     const mainImage = activeImage || galleryImages[0] || PLACEHOLDER_IMAGE;
 
+    const hasValidCoordinates = Boolean(center.lat && center.lng && Number(center.lat) !== 0 && Number(center.lng) !== 0);
+    const googleMapsDirectionsUrl = hasValidCoordinates
+        ? `https://www.google.com/maps/dir/?api=1&destination=${center.lat},${center.lng}`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(center.name + ' ' + (center.address || ''))}`;
+    const googleMapsEmbedUrl = hasValidCoordinates
+        ? `https://maps.google.com/maps?q=${center.lat},${center.lng}&hl=th&z=16&output=embed`
+        : (center.mapUrl ? getMapSrc(center.mapUrl) : null);
+
     return (
         <div className="min-h-screen bg-gray-50/50 pb-24 md:pb-12">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -1186,16 +1195,40 @@ export default function CenterDetailClient({
                             </section>
                         )}
 
-                        {center.mapUrl && (
+                        {(hasValidCoordinates || center.mapUrl) && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
-                                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">สถานที่ตั้ง</h2>
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b pb-3">
+                                    <div>
+                                        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">สถานที่ตั้ง</h2>
+                                        {center.address && (
+                                            <p className="text-xs sm:text-sm text-gray-500 mt-1 flex items-start gap-1.5">
+                                                <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                                                <span>{center.address}</span>
+                                            </p>
+                                        )}
+                                    </div>
+                                    <a
+                                        href={googleMapsDirectionsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => {
+                                            gtag.event({ action: 'click_map_section_direction', category: 'Engagement', label: center.name });
+                                            logTraffic('click_map');
+                                        }}
+                                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] shrink-0 self-start sm:self-auto cursor-pointer"
+                                    >
+                                        <Navigation className="w-4 h-4" />
+                                        นำทาง (Google Maps)
+                                    </a>
+                                </div>
                                 <div className="rounded-xl overflow-hidden shadow-inner border h-[350px] bg-gray-100 relative">
-                                    {getMapSrc(center.mapUrl) ? (
+                                    {googleMapsEmbedUrl ? (
                                         <iframe
-                                            src={getMapSrc(center.mapUrl)!}
+                                            src={googleMapsEmbedUrl}
                                             width="100%" height="100%" style={{ border: 0 }}
                                             allowFullScreen loading="lazy"
-                                            className="filter grayscale-[10%] hover:grayscale-0 transition-all duration-500"
+                                            referrerPolicy="no-referrer-when-downgrade"
+                                            className="filter grayscale-[5%] hover:grayscale-0 transition-all duration-500"
                                             title={`Map of ${center.name}`}
                                         />
                                     ) : (
@@ -1329,7 +1362,22 @@ export default function CenterDetailClient({
                                             {/* Line Separator */}
                                             <div className="border-t border-gray-100 my-0.5" />
 
-                                            {/* 4. นัดเยี่ยมชมศูนย์ */}
+                                            {/* 4. เปิดแผนที่ / นำทาง */}
+                                            <a
+                                                href={googleMapsDirectionsUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => {
+                                                    gtag.event({ action: 'click_sidebar_map_navigation', category: 'Engagement', label: center.name });
+                                                    logTraffic('click_map');
+                                                }}
+                                                className="w-full flex items-center justify-center px-5 py-2.5 bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 text-sm font-bold rounded-full transition-all active:scale-[0.98] group cursor-pointer shadow-xs"
+                                            >
+                                                <Navigation className="w-4 h-4 mr-2 text-blue-600 flex-shrink-0 group-hover:rotate-45 transition-transform" />
+                                                เปิดแผนที่ / นำทาง
+                                            </a>
+
+                                            {/* 5. นัดเยี่ยมชมศูนย์ */}
                                             <button
                                                 onClick={() => {
                                                     setIsConsultationModalOpen(true);
@@ -1363,6 +1411,21 @@ export default function CenterDetailClient({
                                                     ยังไม่มีข้อมูลเว็บไซต์ทางการ
                                                 </div>
                                             )}
+
+                                            {/* เปิดแผนที่ / นำทาง (สำหรับศูนย์ทั่วไป) */}
+                                            <a
+                                                href={googleMapsDirectionsUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => {
+                                                    gtag.event({ action: 'click_sidebar_map_navigation', category: 'Engagement', label: center.name });
+                                                    logTraffic('click_map');
+                                                }}
+                                                className="w-full flex items-center justify-center px-5 py-3 bg-white text-slate-800 border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/40 text-base font-extrabold rounded-full shadow-sm hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                            >
+                                                <Navigation className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 group-hover:rotate-45 transition-transform" />
+                                                เปิดแผนที่ / นำทาง
+                                            </a>
                                         </>
                                     )}
                                 </div>

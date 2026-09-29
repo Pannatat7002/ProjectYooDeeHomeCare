@@ -10,6 +10,7 @@ import { CareCenter, Package } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
 import RichTextEditor from '@/src/components/RichTextEditor';
 import ImageUploadButton from '@/src/components/ImageUploadButton';
+import GoogleMapLocationPicker from '@/src/components/GoogleMapLocationPicker';
 
 const INITIAL_FORM_STATE: any = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
@@ -79,6 +80,37 @@ export default function ManageCenterPage() {
     const [filterStatus, setFilterStatus] = useState<string>('all'); // กรองสถานะ
     const [filterType, setFilterType] = useState<string>('all');   // กรองประเภท (รายวัน/เดือน)
     const [filterPartner, setFilterPartner] = useState<string>('all'); // กรองพาร์ทเนอร์
+
+    // Google Maps API Key Banner State
+    const [mapsApiKey, setMapsApiKey] = useState<string>('');
+    const [showApiKeySetting, setShowApiKeySetting] = useState(false);
+    const [customKeyInput, setCustomKeyInput] = useState('');
+    const [isKeyBannerDismissed, setIsKeyBannerDismissed] = useState(false);
+
+    useEffect(() => {
+        const envKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+        const savedKey = typeof window !== 'undefined' ? localStorage.getItem('google_maps_api_key') : null;
+        setMapsApiKey(envKey || savedKey || '');
+        if (typeof window !== 'undefined' && sessionStorage.getItem('dismiss_maps_banner')) {
+            setIsKeyBannerDismissed(true);
+        }
+    }, []);
+
+    const handleSaveMapsKey = () => {
+        if (!customKeyInput.trim()) return;
+        localStorage.setItem('google_maps_api_key', customKeyInput.trim());
+        setMapsApiKey(customKeyInput.trim());
+        setShowApiKeySetting(false);
+        window.dispatchEvent(new Event('storage'));
+        alert('บันทึก Google Maps API Key สำเร็จ');
+    };
+
+    const handleDismissBanner = () => {
+        setIsKeyBannerDismissed(true);
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('dismiss_maps_banner', 'true');
+        }
+    };
 
     const fetchCenters = async () => {
         setIsLoading(true);
@@ -192,6 +224,8 @@ export default function ManageCenterPage() {
                 isPartner: center.isPartner || false,
                 province: center.province || 'กรุงเทพมหานคร',
                 status: center.status || 'visible',
+                lat: (center.lat !== undefined && center.lat !== null && !isNaN(Number(center.lat))) ? Number(center.lat) : 13.7563,
+                lng: (center.lng !== undefined && center.lng !== null && !isNaN(Number(center.lng))) ? Number(center.lng) : 100.5018,
                 utmSource: center.utmSource || '',
                 utmMedium: center.utmMedium || '',
                 utmCampaign: center.utmCampaign || ''
@@ -209,6 +243,8 @@ export default function ManageCenterPage() {
         e.preventDefault();
         const payload = {
             ...formData,
+            lat: (formData.lat !== undefined && formData.lat !== null && !isNaN(Number(formData.lat))) ? Number(formData.lat) : 13.7563,
+            lng: (formData.lng !== undefined && formData.lng !== null && !isNaN(Number(formData.lng))) ? Number(formData.lng) : 100.5018,
             imageUrls: formData.imageUrls.filter((url: string) => url.trim() !== ''),
             price: Number(formData.price),
             rating: Number(formData.rating),
@@ -326,6 +362,63 @@ export default function ManageCenterPage() {
 
     return (
         <div className="p-4 md:p-8">
+            {/* Top Alert Banner for Google Maps API Key (Optional) */}
+            {!mapsApiKey && !isKeyBannerDismissed && (
+                <div className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 text-xs shadow-xs text-amber-900 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="flex items-start gap-2.5">
+                        <span className="text-base">🗺️</span>
+                        <div>
+                            <span className="font-bold text-amber-950 text-sm">การตั้งค่า Google Maps API (ตัวเลือกเสริม):</span>
+                            <p className="text-amber-800 mt-0.5">
+                                ขณะนี้ระบบใช้แผนที่ Google Maps มาตรฐานพร้อมระบบค้นหาพิกัด หากต้องการเปิดใช้งานฟังก์ชัน Places Autocomplete และลากหมุดขยับตำแหน่งเต็มรูปแบบ สามารถใส่ Google Maps API Key ได้ครับ
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                        {showApiKeySetting ? (
+                            <div className="flex items-center gap-1.5">
+                                <input
+                                    type="text"
+                                    placeholder="วาง AIzaSy..."
+                                    value={customKeyInput}
+                                    onChange={(e) => setCustomKeyInput(e.target.value)}
+                                    className="bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-gray-800 outline-none w-52 focus:ring-1 focus:ring-amber-500"
+                                />
+                                <button
+                                    onClick={handleSaveMapsKey}
+                                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium text-xs shadow-xs"
+                                >
+                                    บันทึก
+                                </button>
+                                <button
+                                    onClick={() => setShowApiKeySetting(false)}
+                                    className="p-1.5 text-gray-400 hover:text-gray-600"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => setShowApiKeySetting(true)}
+                                    className="px-3 py-1.5 bg-white border border-amber-300 hover:bg-amber-50 text-amber-900 rounded-lg font-medium text-xs transition-colors shadow-xs"
+                                >
+                                    🔑 ตั้งค่า API Key
+                                </button>
+                                <button
+                                    onClick={handleDismissBanner}
+                                    className="p-1.5 text-amber-500 hover:text-amber-800 hover:bg-amber-100/50 rounded-lg transition-colors"
+                                    title="ซ่อนการแจ้งเตือนนี้"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
                 <h1 className="text-2xl font-bold text-gray-800">จัดการข้อมูลศูนย์ดูแล</h1>
                 <button
@@ -558,6 +651,23 @@ export default function ManageCenterPage() {
                                         <textarea required rows={2} className="w-full border rounded-md px-3 py-2"
                                             value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
                                     </div>
+
+                                    {/* Google Maps Location & Pin Picker */}
+                                    <div className="md:col-span-2">
+                                        <GoogleMapLocationPicker
+                                            lat={Number(formData.lat) || 13.7563}
+                                            lng={Number(formData.lng) || 100.5018}
+                                            currentAddress={formData.address}
+                                            onChange={(newLat, newLng, newAddress) => {
+                                                setFormData((prev: any) => ({
+                                                    ...prev,
+                                                    lat: newLat,
+                                                    lng: newLng,
+                                                    ...(newAddress && !prev.address ? { address: newAddress } : {})
+                                                }));
+                                            }}
+                                        />
+                                    </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
                                         <input required type="text" className="w-full border rounded-md px-3 py-2"
@@ -600,12 +710,7 @@ export default function ManageCenterPage() {
                                             <option value="pending">รอการอนุมัติ</option>
                                         </select>
                                     </div>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Google Maps Embed Code (Iframe)</label>
-                                        <input type="text" className="w-full border rounded-md px-3 py-2"
-                                            placeholder='<iframe src="..."></iframe>'
-                                            value={formData.mapUrl || ''} onChange={e => setFormData({ ...formData, mapUrl: e.target.value })} />
-                                    </div>
+
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">รายละเอียด/คำอธิบาย</label>
                                         <RichTextEditor
