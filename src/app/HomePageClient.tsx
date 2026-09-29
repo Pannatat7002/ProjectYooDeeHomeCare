@@ -107,15 +107,18 @@ const THAI_PROVINCES = [
 
 // --- Sub-Component for Blog Card Image with Next/Image and Smooth Fade-in ---
 const BlogCardImage = ({ src, alt }: { src?: string; alt: string }) => {
-  const [imgSrc, setImgSrc] = useState(src || FALLBACK_IMAGE);
+  const [prevSrc, setPrevSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    setImgSrc(src || FALLBACK_IMAGE);
+  if (src !== prevSrc) {
+    setPrevSrc(src);
+    setHasError(false);
     setIsLoading(true);
-  }, [src]);
+  }
 
-  const isDataUri = typeof imgSrc === 'string' && imgSrc.startsWith('data:');
+  const effectiveSrc = hasError || !src ? FALLBACK_IMAGE : src;
+  const isDataUri = typeof effectiveSrc === 'string' && effectiveSrc.startsWith('data:');
 
   return (
     <div className="relative w-full h-full bg-gray-100 overflow-hidden">
@@ -123,7 +126,8 @@ const BlogCardImage = ({ src, alt }: { src?: string; alt: string }) => {
         <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />
       )}
       <Image
-        src={imgSrc}
+        key={src}
+        src={effectiveSrc}
         alt={alt || 'ภาพประกอบบทความ'}
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
@@ -132,7 +136,7 @@ const BlogCardImage = ({ src, alt }: { src?: string; alt: string }) => {
           }`}
         onLoad={() => setIsLoading(false)}
         onError={() => {
-          setImgSrc(FALLBACK_IMAGE);
+          setHasError(true);
           setIsLoading(false);
         }}
       />
@@ -1347,7 +1351,7 @@ export default function HomePageClient({
                 />
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full mb-3 border border-blue-100">
-                💡 พี่แคร์ยินดีช่วยเหลือครับ
+                💡 ทีมที่ปรึกษายินดีช่วยเหลือครับ
               </div>
               <h3 className="text-xl font-bold text-gray-800">ไม่พบศูนย์ดูแลตามเงื่อนไขที่เลือก</h3>
               <p className="text-gray-500 text-sm mt-2 mb-6 max-w-md mx-auto leading-relaxed">
@@ -1364,7 +1368,7 @@ export default function HomePageClient({
                   href="tel:095-805-7052"
                   className="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
                 >
-                  <Phone className="w-4 h-4 mr-2" /> โทรปรึกษาพี่แคร์ฟรี
+                  <Phone className="w-4 h-4 mr-2" /> โทรปรึกษาฟรี
                 </a>
               </div>
             </div>
@@ -1442,7 +1446,7 @@ export default function HomePageClient({
                     onError={handleImageError}
                   />
                   {/* <div className="absolute bottom-3 left-3 right-3 bg-black/60 backdrop-blur-md px-3 py-2 rounded-xl text-center">
-                        <p className="text-xs text-white font-medium">พี่แคร์ • ThaiCareCenter Care Advisor</p>
+                        <p className="text-xs text-white font-medium">ทีมที่ปรึกษา • ThaiCareCenter Care Advisor</p>
                       </div> */}
                 </div>
               </div>

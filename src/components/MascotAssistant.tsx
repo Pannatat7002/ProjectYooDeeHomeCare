@@ -54,7 +54,7 @@ export default function MascotAssistant() {
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                     ออนไลน์ พร้อมให้คำปรึกษา
                                 </div>
-                                <h3 className="font-bold text-base text-white mt-1">พี่แคร์ (Care Advisor)</h3>
+                                <h3 className="font-bold text-base text-white mt-1">ที่ปรึกษา (Care Advisor)</h3>
                                 <p className="text-xs text-blue-100 font-light">ที่ปรึกษาการเลือกศูนย์ดูแลผู้สูงอายุ</p>
                             </div>
                         </div>
@@ -64,7 +64,7 @@ export default function MascotAssistant() {
                     <div className="p-4 space-y-3">
                         <div className="bg-blue-50/70 p-3 rounded-2xl border border-blue-100/60 text-xs text-gray-700 leading-relaxed">
                             <p className="font-medium text-blue-900 mb-0.5">ยินดีต้อนรับครับ! 👋</p>
-                            กำลังมองหาศูนย์ดูแลที่เหมาะกับอาการ งบประมาณ หรือทำเลที่ต้องการอยู่ใช่ไหมครับ? สอบถามผมได้เลยครับ ฟรี!
+                            กำลังมองหาศูนย์ดูแลที่เหมาะกับอาการ งบประมาณ หรือทำเลที่ต้องการอยู่ใช่ไหมครับ? ปรึกษาทีมงานได้เลยครับ ฟรี!
                         </div>
 
                         {/* Quick Contact Buttons */}
@@ -134,7 +134,7 @@ export default function MascotAssistant() {
                 {/* Speech Bubble Reminder (can be dismissed) */}
                 {!isOpen && !hasDismissedBadge && (
                     <div className="hidden sm:flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-blue-100 text-xs font-medium text-gray-800 animate-bounce duration-1000">
-                        <span className="text-blue-600 font-bold">ปรึกษาพี่แคร์ฟรี!</span>
+                        <span className="text-blue-600 font-bold">ปรึกษาฟรี!</span>
                         <span className="text-gray-400">|</span>
                         <span className="text-gray-500">ช่วยเลือกศูนย์ดูแล</span>
                         <button

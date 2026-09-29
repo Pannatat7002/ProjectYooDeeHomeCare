@@ -73,15 +73,15 @@ export default function ContactPage() {
                                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4 shadow-lg border border-white/20">
                                     <img
                                         src="/images/mascot/contact-care-advisor.jpg"
-                                        alt="พี่แคร์ ThaiCareCenter Care Advisor"
+                                        alt="ThaiCareCenter Care Advisor"
                                         className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-500"
                                     />
                                     {/* <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl text-center">
-                                        <p className="text-xs text-white font-medium">พี่แคร์ • ThaiCareCenter Care Advisor</p>
+                                        <p className="text-xs text-white font-medium">ทีมที่ปรึกษา • ThaiCareCenter Care Advisor</p>
                                     </div> */}
                                 </div>
                                 <h4 className="font-bold text-lg text-white mb-1">
-                                    ปรึกษาพี่แคร์ได้ทุกเรื่องศูนย์ดูแล
+                                    ปรึกษาทีมงานได้ทุกเรื่องศูนย์ดูแล
                                 </h4>
                                 <p className="text-xs text-blue-200 leading-relaxed font-light">
                                     ยินดีรับฟังและช่วยคัดกรองศูนย์ดูแลที่เหมาะสมกับอาการและงบประมาณของคุณอย่างจริงใจและเป็นกลางที่สุดครับ

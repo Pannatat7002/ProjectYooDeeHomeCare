@@ -19,9 +19,9 @@ export default function AboutPage() {
 
                 {/* Content */}
                 <div className="relative z-10 container mx-auto px-4 text-center">
-                    <span className="inline-block py-1 px-3 rounded-full bg-blue-500/30 border border-blue-400/30 text-blue-100 text-sm font-medium mb-4 backdrop-blur-sm">
+                    {/* <span className="inline-block py-1 px-3 rounded-full bg-blue-500/30 border border-blue-400/30 text-blue-100 text-sm font-medium mb-4 backdrop-blur-sm">
                         ThaiCareCenter
-                    </span>
+                    </span> */}
                     <h1 className="text-4xl md:text-4xl font-bold mb-6 text-white tracking-tight">
                         เราคือเพื่อนคู่คิด เพื่อคนที่คุณรัก
                     </h1>
@@ -96,7 +96,7 @@ export default function AboutPage() {
                 </div>
             </div>
 
-            {/* 4. Care Advisor Showcase Section: นำเสนอพี่แคร์และทีมที่ปรึกษา */}
+            {/* 4. Care Advisor Showcase Section: นำเสนอทีมที่ปรึกษา */}
             <div className="py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -115,7 +115,7 @@ export default function AboutPage() {
                                             <Users className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-gray-900 text-sm">พี่แคร์ & ทีม Care Advisor</h4>
+                                            <h4 className="font-bold text-gray-900 text-sm">ทีม Care Advisor</h4>
                                             <p className="text-xs text-gray-500">ที่ปรึกษาประจำครอบครัว พร้อมดูแลและเคียงข้างคุณ</p>
                                         </div>
                                     </div>
@@ -127,7 +127,7 @@ export default function AboutPage() {
                         <div className="lg:col-span-6 space-y-6">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-semibold">
                                 <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                                มาสคอตและทีมที่ปรึกษาของเรา
+                                ทีมที่ปรึกษาของเรา
                             </div>
 
                             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-snug">
@@ -136,7 +136,7 @@ export default function AboutPage() {
                             </h2>
 
                             <p className="text-slate-600 text-base leading-relaxed">
-                                การตัดสินใจเลือกบ้านพักหรือศูนย์ดูแลสำหรับพ่อแม่และคนที่เรารัก เป็นเรื่องละเอียดอ่อนที่สุดของทุกครอบครัว ThaiCareCenter จึงออกแบบและสร้างทีม <span className="font-semibold text-slate-800">Care Advisor (นำโดยพี่แคร์)</span> ขึ้นมาเพื่อเป็นเพื่อนคู่คิดที่รับฟังทุกความกังวล
+                                การตัดสินใจเลือกบ้านพักหรือศูนย์ดูแลสำหรับพ่อแม่และคนที่เรารัก เป็นเรื่องละเอียดอ่อนที่สุดของทุกครอบครัว ThaiCareCenter จึงออกแบบและสร้างทีม <span className="font-semibold text-slate-800">ที่ปรึกษา (Care Advisor)</span> ขึ้นมาเพื่อเป็นเพื่อนคู่คิดที่รับฟังทุกความกังวล
                             </p>
 
                             <div className="space-y-3.5 pt-2">
