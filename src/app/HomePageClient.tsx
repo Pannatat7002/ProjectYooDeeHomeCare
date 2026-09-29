@@ -21,6 +21,7 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 };
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 // *** สมมติว่า types.ts ถูกกำหนดไว้แล้ว ***
 
@@ -103,6 +104,41 @@ const THAI_PROVINCES = [
 ];
 
 
+
+// --- Sub-Component for Blog Card Image with Next/Image and Smooth Fade-in ---
+const BlogCardImage = ({ src, alt }: { src?: string; alt: string }) => {
+  const [imgSrc, setImgSrc] = useState(src || FALLBACK_IMAGE);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setImgSrc(src || FALLBACK_IMAGE);
+    setIsLoading(true);
+  }, [src]);
+
+  const isDataUri = typeof imgSrc === 'string' && imgSrc.startsWith('data:');
+
+  return (
+    <div className="relative w-full h-full bg-gray-100 overflow-hidden">
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />
+      )}
+      <Image
+        src={imgSrc}
+        alt={alt || 'ภาพประกอบบทความ'}
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+        unoptimized={isDataUri}
+        className={`object-cover transition-all duration-500 group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'
+          }`}
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setImgSrc(FALLBACK_IMAGE);
+          setIsLoading(false);
+        }}
+      />
+    </div>
+  );
+};
 
 // --- Sub-Component for Center Card ---
 
@@ -1296,7 +1332,7 @@ export default function HomePageClient({
               {!hasMore && centers.length > 0 && (
                 <div className="text-center mt-10">
                   <div className="inline-flex items-center px-5 py-2 rounded-full text-sm font-medium text-gray-500 bg-gray-100 border border-gray-200">
-                    ✓ แสดงศูนย์ดูแลทั้งหมดครบถ้วนแล้ว ({centers.length} แห่ง)
+                    ✓ แสดงศูนย์ดูแลทั้งหมด ({centers.length} แห่ง)
                   </div>
                 </div>
               )}
@@ -1467,16 +1503,12 @@ export default function HomePageClient({
 
                     <div className="relative h-48 overflow-hidden">
 
-                      <img
-                        src={(blog as any).coverImage || FALLBACK_IMAGE}
+                      <BlogCardImage
+                        src={(blog as any).coverImage}
                         alt={(blog as any).title}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        onError={handleImageError}
                       />
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none"></div>
 
                       <div className="absolute bottom-3 left-3 right-3">
 

@@ -50,12 +50,12 @@ export async function POST(request: NextRequest) {
             const arrayBuffer = await file.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
 
-            // Upload to Supabase Storage
+            // Upload to Supabase Storage with 1-year immutable cache control (unique timestamp filename)
             const { error: uploadError } = await supabaseAdmin.storage
                 .from(BUCKET_NAME)
                 .upload(filePath, buffer, {
                     contentType: file.type,
-                    cacheControl: '3600',
+                    cacheControl: '31536000, public, immutable',
                     upsert: false,
                 });
 
