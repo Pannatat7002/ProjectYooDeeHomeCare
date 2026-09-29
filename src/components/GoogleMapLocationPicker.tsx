@@ -61,7 +61,7 @@ export default function GoogleMapLocationPicker({
     // Check API Key
     useEffect(() => {
         const checkKey = () => {
-            const envKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+            const envKey = process.env.CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
             const savedKey = typeof window !== 'undefined' ? localStorage.getItem('google_maps_api_key') : null;
             const effectiveKey = envKey || savedKey || '';
             setApiKey(effectiveKey);
