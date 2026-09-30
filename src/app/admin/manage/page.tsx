@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Building2, CalendarCheck, MessageSquare, FileText, Megaphone, Shield } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getAdmin, isAuthenticated, AdminData } from '../../../lib/auth-client';
 
 // Import components
@@ -16,11 +15,50 @@ import ContactMessageManagement from './components/ContactMessageManagement';
 
 type TabType = 'centers' | 'consultations' | 'contacts' | 'blogs' | 'admins' | 'ads';
 
-export default function AdminManagePage() {
+const TAB_DESCRIPTIONS: Record<TabType, { title: string; subtitle: string }> = {
+    centers: {
+        title: 'จัดการข้อมูลศูนย์ดูแลผู้สูงอายุ',
+        subtitle: 'เพิ่ม แก้ไข รายชื่อศูนย์ บริการ ราคา และข้อมูลติดต่อทั้งหมดในระบบ',
+    },
+    consultations: {
+        title: 'จัดการคำขอนัดเยี่ยมชมศูนย์ (Leads)',
+        subtitle: 'ติดตามรายชื่อผู้สนใจจองคิวนัดหมาย หรือขอคำปรึกษาพร้อมสถานะการติดต่อ',
+    },
+    contacts: {
+        title: 'ข้อความติดต่อจากผู้ใช้งาน',
+        subtitle: 'กล่องข้อความสอบถามทั่วไป ข้อเสนอแนะ หรือคำขอความช่วยเหลือจากหน้าเว็บ',
+    },
+    blogs: {
+        title: 'จัดการบทความและสาระความรู้',
+        subtitle: 'เขียนและเผยแพร่บทความเกี่ยวกับการดูแลผู้สูงอายุเพื่อสร้างความน่าเชื่อถือและ SEO',
+    },
+    ads: {
+        title: 'จัดการแบนเนอร์และสื่อโฆษณา',
+        subtitle: 'จัดการตำแหน่งป้ายโฆษณา แบนเนอร์พาร์ทเนอร์ และสถิติการแสดงผล',
+    },
+    admins: {
+        title: 'จัดการสิทธิ์ผู้ดูแลระบบ',
+        subtitle: 'กำหนดบัญชีผู้ดูแล เพิ่ม/ระงับสิทธิ์การเข้าถึงข้อมูลระบบ (เฉพาะ Super Admin)',
+    },
+};
+
+function AdminManageContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [isAuthChecking, setIsAuthChecking] = useState(true);
     const [currentAdmin, setCurrentAdmin] = useState<AdminData | null>(null);
-    const [activeTab, setActiveTab] = useState<TabType>('centers');
+
+    const initialTab = (searchParams.get('tab') as TabType) || 'centers';
+    const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+
+    // Sync state when URL query parameter changes
+    useEffect(() => {
+        const tabFromUrl = searchParams.get('tab') as TabType;
+        const validTabs: TabType[] = ['centers', 'consultations', 'contacts', 'blogs', 'ads', 'admins'];
+        if (tabFromUrl && validTabs.includes(tabFromUrl) && tabFromUrl !== activeTab) {
+            setActiveTab(tabFromUrl);
+        }
+    }, [searchParams, activeTab]);
 
     // ตรวจสอบ authentication
     useEffect(() => {
@@ -42,60 +80,24 @@ export default function AdminManagePage() {
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                    <p className="text-sm text-gray-500">กำลังตรวจสอบสิทธิ์...</p>
+                    <p className="text-sm text-slate-500 font-medium">กำลังตรวจสอบสิทธิ์...</p>
                 </div>
             </div>
         );
     }
 
-    const tabs = [
-        { id: 'centers' as TabType, label: 'ศูนย์ดูแล', icon: Building2 },
-        { id: 'consultations' as TabType, label: 'นัดเยี่ยมชมศูนย์', icon: CalendarCheck },
-        { id: 'contacts' as TabType, label: 'ข้อความติดต่อ', icon: MessageSquare },
-        { id: 'blogs' as TabType, label: 'บทความ', icon: FileText },
-        { id: 'ads' as TabType, label: 'โฆษณา (Ads)', icon: Megaphone },
-        ...(currentAdmin?.role === 'super_admin'
-            ? [{ id: 'admins' as TabType, label: 'ผู้ดูแลระบบ', icon: Shield }]
-            : []
-        ),
-    ];
+    const currentMeta = TAB_DESCRIPTIONS[activeTab] || TAB_DESCRIPTIONS.centers;
 
     return (
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
             {/* Page Header */}
-            <div>
+            <div className="border-b border-slate-200/80 pb-5">
                 <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
-                    จัดการข้อมูลระบบ (Management)
+                    {currentMeta.title}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                    ระบบจัดการข้อมูลศูนย์ดูแลผู้สูงอายุ, คำขอนัดหมายเยี่ยมชม, ข้อความติดต่อ, บทความ และสื่อโฆษณา
+                    {currentMeta.subtitle}
                 </p>
-            </div>
-
-            {/* Navigation Tabs */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-1.5 overflow-x-auto scrollbar-hide">
-                <nav className="flex space-x-1 min-w-max" aria-label="Tabs">
-                    {tabs.map((tab) => {
-                        const Icon = tab.icon;
-                        const isActive = activeTab === tab.id;
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`
-                                    flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap
-                                    ${isActive
-                                        ? 'bg-blue-600 text-white shadow-sm'
-                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                                    }
-                                `}
-                            >
-                                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                                <span>{tab.label}</span>
-                            </button>
-                        );
-                    })}
-                </nav>
             </div>
 
             {/* Content Body */}
@@ -108,5 +110,22 @@ export default function AdminManagePage() {
                 {activeTab === 'admins' && currentAdmin?.role === 'super_admin' && <ManageAdminPage />}
             </div>
         </div>
+    );
+}
+
+export default function AdminManagePage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                        <p className="text-sm text-slate-500 font-medium">กำลังโหลดโมดูลการจัดการ...</p>
+                    </div>
+                </div>
+            }
+        >
+            <AdminManageContent />
+        </Suspense>
     );
 }

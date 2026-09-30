@@ -1,19 +1,23 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react'; // เพิ่ม hooks
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
     LayoutDashboard,
-    Database,
-    LogOut,
+    Activity,
+    CalendarCheck,
     MessageSquare,
+    Building2,
+    FileText,
+    Megaphone,
+    Shield,
     ShieldCheck,
+    LogOut,
     X
 } from 'lucide-react';
 
-// กำหนด Type ของข้อมูล Admin ตาม JSON ที่ให้มา
 interface AdminProfile {
     id: number;
     username: string;
@@ -30,14 +34,14 @@ interface AdminSidebarProps {
     onClose?: () => void;
 }
 
-export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
+function AdminSidebarInner({ isOpen = false, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const currentTab = searchParams.get('tab') || 'centers';
 
-    // State สำหรับเก็บข้อมูล Admin
     const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
 
-    // useEffect เพื่อดึงข้อมูลจาก localStorage หลัง Component โหลดเสร็จ (Client-side only)
     useEffect(() => {
         const storedAdmin = localStorage.getItem('admin');
         if (storedAdmin) {
@@ -57,10 +61,19 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
         router.push('/login');
     };
 
-    const isActive = (path: string) =>
-        pathname === path
-            ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
-            : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600';
+    const isLinkActive = (path: string, tabId?: string) => {
+        if (tabId) {
+            return pathname === '/admin/manage' && currentTab === tabId;
+        }
+        return pathname === path;
+    };
+
+    const linkClasses = (active: boolean) =>
+        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium ${
+            active
+                ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        }`;
 
     return (
         <aside
@@ -68,15 +81,15 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
                 isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             }`}
         >
-            {/* 1. Header Logo & Close button */}
-            <div className="p-6 pb-5 flex items-center justify-between border-b border-slate-100">
+            {/* 1. Header Logo & Mobile Close */}
+            <div className="p-6 pb-5 flex items-center justify-between border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-200">
+                    <div className="p-2 bg-blue-600 rounded-lg text-white shadow-md shadow-blue-200">
                         <ShieldCheck size={22} />
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold text-slate-800 tracking-tight">Admin Panel</h1>
-                        <p className="text-xs text-slate-400 font-medium">System Manager</p>
+                        <h1 className="text-lg font-bold text-slate-800 tracking-tight leading-none">Admin Panel</h1>
+                        <p className="text-[11px] text-slate-400 font-medium mt-1">ThaiCareCenter System</p>
                     </div>
                 </div>
 
@@ -89,55 +102,128 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
                 </button>
             </div>
 
-            {/* 2. Menu Navigation */}
-            <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
-                <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Menu
-                </p>
+            {/* 2. Categorized Navigation */}
+            <nav className="flex-1 px-4 py-4 space-y-5 overflow-y-auto">
+                {/* หมวด 1: แผงควบคุม (Overview) */}
+                <div>
+                    <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        แผงควบคุม (Overview)
+                    </p>
+                    <div className="space-y-1">
+                        <Link
+                            href="/admin/dashboard"
+                            onClick={onClose}
+                            className={linkClasses(isLinkActive('/admin/dashboard'))}
+                        >
+                            <LayoutDashboard className="w-4 h-4 shrink-0" />
+                            <span>แดชบอร์ด</span>
+                        </Link>
 
-                <Link
-                    href="/admin/dashboard"
-                    onClick={onClose}
-                    className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/dashboard')}`}
-                >
-                    <LayoutDashboard className="w-5 h-5 mr-3" />
-                    Dashboard
-                </Link>
+                        <Link
+                            href="/admin/traffic"
+                            onClick={onClose}
+                            className={linkClasses(isLinkActive('/admin/traffic'))}
+                        >
+                            <Activity className="w-4 h-4 shrink-0" />
+                            <span>วิเคราะห์ Traffic</span>
+                        </Link>
+                    </div>
+                </div>
 
-                <Link
-                    href="/admin/manage"
-                    onClick={onClose}
-                    className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/manage')}`}
-                >
-                    <Database className="w-5 h-5 mr-3" />
-                    จัดการข้อมูล
-                </Link>
+                {/* หมวด 2: ลูกค้า & การนัดหมาย (Leads & CRM) */}
+                <div>
+                    <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        ลูกค้า & การนัดหมาย
+                    </p>
+                    <div className="space-y-1">
+                        <Link
+                            href="/admin/manage?tab=consultations"
+                            onClick={onClose}
+                            className={linkClasses(isLinkActive('/admin/manage', 'consultations'))}
+                        >
+                            <CalendarCheck className="w-4 h-4 shrink-0" />
+                            <span>นัดเยี่ยมชมศูนย์</span>
+                        </Link>
 
-                <Link
-                    href="/admin/consultation"
-                    onClick={onClose}
-                    className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/consultation')}`}
-                >
-                    <MessageSquare className="w-5 h-5 mr-3" />
-                    หน้าปรึกษา
-                </Link>
+                        <Link
+                            href="/admin/manage?tab=contacts"
+                            onClick={onClose}
+                            className={linkClasses(isLinkActive('/admin/manage', 'contacts'))}
+                        >
+                            <MessageSquare className="w-4 h-4 shrink-0" />
+                            <span>ข้อความติดต่อ</span>
+                        </Link>
+                    </div>
+                </div>
+
+                {/* หมวด 3: ข้อมูล & คอนเทนต์ (Directory & Content) */}
+                <div>
+                    <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        ข้อมูล & คอนเทนต์
+                    </p>
+                    <div className="space-y-1">
+                        <Link
+                            href="/admin/manage?tab=centers"
+                            onClick={onClose}
+                            className={linkClasses(isLinkActive('/admin/manage', 'centers'))}
+                        >
+                            <Building2 className="w-4 h-4 shrink-0" />
+                            <span>ศูนย์ดูแลผู้สูงอายุ</span>
+                        </Link>
+
+                        <Link
+                            href="/admin/manage?tab=blogs"
+                            onClick={onClose}
+                            className={linkClasses(isLinkActive('/admin/manage', 'blogs'))}
+                        >
+                            <FileText className="w-4 h-4 shrink-0" />
+                            <span>บทความความรู้</span>
+                        </Link>
+
+                        <Link
+                            href="/admin/manage?tab=ads"
+                            onClick={onClose}
+                            className={linkClasses(isLinkActive('/admin/manage', 'ads'))}
+                        >
+                            <Megaphone className="w-4 h-4 shrink-0" />
+                            <span>สื่อโฆษณา (Ads)</span>
+                        </Link>
+                    </div>
+                </div>
+
+                {/* หมวด 4: ระบบ (Settings - เฉพาะ Super Admin) */}
+                {adminProfile?.role === 'super_admin' && (
+                    <div>
+                        <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                            ระบบ (Settings)
+                        </p>
+                        <div className="space-y-1">
+                            <Link
+                                href="/admin/manage?tab=admins"
+                                onClick={onClose}
+                                className={linkClasses(isLinkActive('/admin/manage', 'admins'))}
+                            >
+                                <Shield className="w-4 h-4 shrink-0" />
+                                <span>ผู้ดูแลระบบ</span>
+                            </Link>
+                        </div>
+                    </div>
+                )}
             </nav>
 
             {/* 3. User Profile & Logout Section */}
-            <div className="p-4 border-t border-slate-100 bg-white">
-                {/* ส่วนแสดงข้อมูล User (จะแสดงเมื่อโหลดข้อมูลเสร็จแล้ว) */}
+            <div className="p-4 border-t border-slate-100 bg-white shrink-0">
                 {adminProfile && (
-                    <div className="flex items-center gap-3 mb-4 px-2">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600 font-bold text-lg">
-                            {/* ดึงตัวอักษรแรกของ Username มาทำเป็น Avatar */}
+                    <div className="flex items-center gap-3 mb-3 px-2">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600 font-bold text-sm shrink-0">
                             {adminProfile.username.charAt(0).toUpperCase()}
                         </div>
-                        <div className="overflow-hidden">
-                            <p className="text-sm font-bold text-slate-700 truncate">
+                        <div className="overflow-hidden min-w-0">
+                            <p className="text-xs font-bold text-slate-800 truncate">
                                 {adminProfile.fullName || adminProfile.username}
                             </p>
-                            <p className="text-xs text-slate-500 truncate font-medium">
-                                {adminProfile.email}
+                            <p className="text-[11px] text-slate-400 truncate">
+                                {adminProfile.role === 'super_admin' ? 'Super Admin' : 'Admin'}
                             </p>
                         </div>
                     </div>
@@ -145,12 +231,20 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
 
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors duration-200 group"
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-semibold transition-colors duration-200"
                 >
-                    <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    <span className="text-sm font-medium">ออกจากระบบ</span>
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>ออกจากระบบ</span>
                 </button>
             </div>
         </aside>
+    );
+}
+
+export default function AdminSidebar(props: AdminSidebarProps) {
+    return (
+        <Suspense fallback={<aside className="w-72 bg-white h-screen fixed left-0 top-0 z-40 border-r border-slate-100 shadow-xl" />}>
+            <AdminSidebarInner {...props} />
+        </Suspense>
     );
 }

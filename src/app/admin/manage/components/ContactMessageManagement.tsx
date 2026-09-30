@@ -1,11 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
-    Mail, Phone, Clock, Trash2, ChevronLeft, ChevronRight
+    Mail, Phone, Clock, Trash2, ChevronLeft, ChevronRight,
+    Search, SlidersHorizontal, RefreshCw, X, ChevronDown, CheckCircle2,
+    Eye, MessageSquare
 } from 'lucide-react';
 import { ContactMessage } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
+
+type ColumnKey = 'index' | 'sender' | 'subject' | 'message' | 'status' | 'actions';
+
+interface ColumnConfig {
+    key: ColumnKey;
+    label: string;
+    canHide: boolean;
+}
+
+const ALL_COLUMNS: ColumnConfig[] = [
+    { key: 'index', label: '#', canHide: false },
+    { key: 'sender', label: 'ผู้ส่ง / ช่องทางติดต่อ', canHide: false },
+    { key: 'subject', label: 'หัวข้อข้อความ', canHide: true },
+    { key: 'message', label: 'เนื้อหาข้อความ', canHide: true },
+    { key: 'status', label: 'สถานะ', canHide: false },
+    { key: 'actions', label: 'จัดการ', canHide: false },
+];
 
 export default function ContactMessageManagement() {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -13,6 +32,80 @@ export default function ContactMessageManagement() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const API_URL = '/api/contact';
+
+    // --- Table Customization States ---
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied'>('all');
+    const [isWrapText, setIsWrapText] = useState(true);
+    const [isCompact, setIsCompact] = useState(false);
+    const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
+    const [visibleColumns, setVisibleColumns] = useState<Record<ColumnKey, boolean>>({
+        index: true,
+        sender: true,
+        subject: true,
+        message: true,
+        status: true,
+        actions: true,
+    });
+
+    const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+
+    // โหลดการตั้งค่าจาก localStorage
+    useEffect(() => {
+        const savedCols = localStorage.getItem('contact_table_cols');
+        if (savedCols) {
+            try {
+                setVisibleColumns(prev => ({ ...prev, ...JSON.parse(savedCols) }));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        const savedWrap = localStorage.getItem('contact_table_wrap');
+        if (savedWrap !== null) {
+            setIsWrapText(savedWrap === 'true');
+        }
+        const savedCompact = localStorage.getItem('contact_table_compact');
+        if (savedCompact !== null) {
+            setIsCompact(savedCompact === 'true');
+        }
+    }, []);
+
+    const toggleColumn = (key: ColumnKey) => {
+        setVisibleColumns(prev => {
+            const next = { ...prev, [key]: !prev[key] };
+            localStorage.setItem('contact_table_cols', JSON.stringify(next));
+            return next;
+        });
+    };
+
+    const toggleWrap = () => {
+        setIsWrapText(prev => {
+            const next = !prev;
+            localStorage.setItem('contact_table_wrap', String(next));
+            return next;
+        });
+    };
+
+    const toggleCompact = () => {
+        setIsCompact(prev => {
+            const next = !prev;
+            localStorage.setItem('contact_table_compact', String(next));
+            return next;
+        });
+    };
+
+    const resetColumns = () => {
+        const defaultCols: Record<ColumnKey, boolean> = {
+            index: true,
+            sender: true,
+            subject: true,
+            message: true,
+            status: true,
+            actions: true,
+        };
+        setVisibleColumns(defaultCols);
+        localStorage.setItem('contact_table_cols', JSON.stringify(defaultCols));
+    };
 
     const fetchMessages = async () => {
         setIsLoading(true);
@@ -24,7 +117,6 @@ export default function ContactMessageManagement() {
             setMessages(result.data.sort((a, b) => b.id - a.id));
         } catch (error) {
             console.error('Fetch error:', error);
-            // alert('ไม่สามารถโหลดข้อมูลข้อความได้');
         } finally {
             setIsLoading(false);
         }
@@ -39,141 +131,478 @@ export default function ContactMessageManagement() {
         try {
             const res = await fetchWithAuth(`${API_URL}/${id}`, { method: 'DELETE' });
             if (res.ok) {
-                alert('ลบข้อความสำเร็จ');
                 fetchMessages();
+                if (selectedMessage?.id === id) {
+                    setSelectedMessage(null);
+                }
             } else {
                 alert('ลบข้อความไม่สำเร็จ');
             }
-        } catch (error) { console.error('Delete error:', error); alert('เกิดข้อผิดพลาดในการลบ'); }
+        } catch (error) {
+            console.error('Delete error:', error);
+            alert('เกิดข้อผิดพลาดในการลบ');
+        }
     };
 
     const handleUpdateStatus = async (message: ContactMessage, newStatus: string) => {
         try {
             const res = await fetchWithAuth(`${API_URL}/${message.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({ status: newStatus }),
             });
 
             if (res.ok) {
                 fetchMessages();
+                if (selectedMessage?.id === message.id) {
+                    setSelectedMessage({ ...selectedMessage, status: newStatus });
+                }
             } else {
                 alert('อัปเดตสถานะไม่สำเร็จ');
             }
-        } catch (error) { console.error('Update status error:', error); alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ'); }
+        } catch (error) {
+            console.error('Update status error:', error);
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
     };
 
-    const totalPages = Math.ceil(messages.length / itemsPerPage);
-    const paginatedMessages = messages.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const filteredMessages = useMemo(() => {
+        return messages.filter(item => {
+            const matchSearch =
+                searchQuery === '' ||
+                (item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (item.phone && item.phone.includes(searchQuery)) ||
+                (item.subject && item.subject.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (item.message && item.message.toLowerCase().includes(searchQuery.toLowerCase()));
+
+            const matchStatus =
+                statusFilter === 'all' || item.status?.toLowerCase() === statusFilter;
+
+            return matchSearch && matchStatus;
+        });
+    }, [messages, searchQuery, statusFilter]);
+
+    const totalPages = Math.ceil(filteredMessages.length / itemsPerPage) || 1;
+    const paginatedMessages = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredMessages.slice(start, start + itemsPerPage);
+    }, [filteredMessages, currentPage, itemsPerPage]);
 
     const formatDate = (dateString: string) => {
         try {
             return new Date(dateString).toLocaleDateString('th-TH', {
-                year: 'numeric', month: 'short', day: 'numeric',
-                hour: '2-digit', minute: '2-digit'
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
             });
-        } catch { return dateString; }
+        } catch {
+            return dateString;
+        }
     };
 
     const StatusBadge = ({ status }: { status: string }) => {
-        let text = status;
-        let color = 'bg-gray-100 text-gray-700';
-        switch (status.toLowerCase()) {
-            case 'new': text = 'ใหม่'; color = 'bg-blue-100 text-blue-700'; break;
-            case 'read': text = 'อ่านแล้ว'; color = 'bg-green-100 text-green-700'; break;
-            case 'replied': text = 'ตอบกลับแล้ว'; color = 'bg-purple-100 text-purple-700'; break;
+        const s = (status || '').toLowerCase();
+        if (s === 'read') {
+            return (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
+                    <CheckCircle2 className="w-3 h-3 text-slate-500" />
+                    อ่านแล้ว
+                </span>
+            );
+        }
+        if (s === 'replied') {
+            return (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/80 whitespace-nowrap">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    ตอบกลับแล้ว
+                </span>
+            );
         }
         return (
-            <span className={`text-xs font-medium px-3 py-1 rounded-full ${color}`}>
-                {text}
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80 whitespace-nowrap">
+                <Mail className="w-3 h-3 text-blue-600" />
+                ข้อความใหม่
             </span>
         );
     };
 
-    return (
-        <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <Mail className="w-6 h-6 mr-2" /> ข้อความจากผู้ติดต่อ (Contact Us)
-            </h1>
+    const activeColCount = Object.values(visibleColumns).filter(Boolean).length;
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    return (
+        <div className="space-y-4">
+            {/* 1. Custom Table Controls Toolbar */}
+            <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+                {/* Search & Filter */}
+                <div className="flex flex-1 flex-wrap items-center gap-2">
+                    <div className="relative flex-1 min-w-[200px] max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="ค้นหาชื่อ, เบอร์โทร, อีเมล, หัวข้อ..."
+                            value={searchQuery}
+                            onChange={e => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+                        {(['all', 'new', 'read', 'replied'] as const).map(st => (
+                            <button
+                                key={st}
+                                onClick={() => {
+                                    setStatusFilter(st);
+                                    setCurrentPage(1);
+                                }}
+                                className={`px-2.5 py-1 rounded-lg transition-all ${
+                                    statusFilter === st
+                                        ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                                        : 'text-slate-500 hover:text-slate-800'
+                                }`}
+                            >
+                                {st === 'all' && 'ทั้งหมด'}
+                                {st === 'new' && 'ใหม่'}
+                                {st === 'read' && 'อ่านแล้ว'}
+                                {st === 'replied' && 'ตอบกลับแล้ว'}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Table Customization Actions */}
+                <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                    <button
+                        onClick={toggleWrap}
+                        title={isWrapText ? 'กำลังตัดคำขึ้นบรรทัดใหม่ (คลิกเพื่อย่อบรรทัดเดียว)' : 'กำลังย่อบรรทัดเดียว (คลิกเพื่อตัดคำขึ้นบรรทัดใหม่)'}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-xl border flex items-center gap-1.5 transition-all ${
+                            isWrapText
+                                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                    >
+                        <span>{isWrapText ? 'ตัดคำขึ้นบรรทัดใหม่' : 'ย่อบรรทัดเดียว'}</span>
+                    </button>
+
+                    <button
+                        onClick={toggleCompact}
+                        title="ปรับความกระชับของแถวในตาราง"
+                        className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                            isCompact
+                                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                    >
+                        {isCompact ? 'ตารางกะทัดรัด' : 'ตารางสบายตา'}
+                    </button>
+
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsColumnMenuOpen(prev => !prev)}
+                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 shadow-xs transition-all"
+                        >
+                            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+                            <span>คอลัมน์ ({activeColCount})</span>
+                            <ChevronDown className="w-3 h-3 text-slate-400" />
+                        </button>
+
+                        {isColumnMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 z-30 space-y-2 text-xs">
+                                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <span className="font-bold text-slate-800">เลือกคอลัมน์ที่แสดง</span>
+                                    <button
+                                        onClick={resetColumns}
+                                        className="text-[11px] text-blue-600 hover:underline"
+                                    >
+                                        รีเซ็ต
+                                    </button>
+                                </div>
+                                <div className="space-y-1">
+                                    {ALL_COLUMNS.map(col => (
+                                        <label
+                                            key={col.key}
+                                            className={`flex items-center justify-between px-2 py-1.5 rounded-lg select-none ${
+                                                col.canHide
+                                                    ? 'cursor-pointer hover:bg-slate-50'
+                                                    : 'opacity-50 cursor-not-allowed'
+                                            }`}
+                                        >
+                                            <span className="text-slate-700 font-medium">{col.label}</span>
+                                            <input
+                                                type="checkbox"
+                                                disabled={!col.canHide}
+                                                checked={visibleColumns[col.key]}
+                                                onChange={() => toggleColumn(col.key)}
+                                                className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                            />
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={fetchMessages}
+                        title="รีเฟรชข้อมูล"
+                        className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition-all"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                    </button>
+                </div>
+            </div>
+
+            {/* 2. Main Data Table */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-purple-600 text-white text-sm font-semibold border-b">
-                                <th className="py-4 px-4 w-12 text-center">#</th>
-                                <th className="py-4 px-4">ผู้ส่ง</th>
-                                <th className="py-4 px-4">หัวข้อ</th>
-                                <th className="py-4 px-4">ข้อความ</th>
-                                <th className="py-4 px-4 w-28 text-center">สถานะ</th>
-                                <th className="py-4 px-4 w-20 text-center">ลบ</th>
+                            <tr className="bg-slate-50/80 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                {visibleColumns.index && (
+                                    <th className="py-3 px-3 w-12 text-center whitespace-nowrap">#</th>
+                                )}
+                                {visibleColumns.sender && (
+                                    <th className="py-3 px-4 min-w-[200px] whitespace-nowrap">ผู้ส่ง / ติดต่อ</th>
+                                )}
+                                {visibleColumns.subject && (
+                                    <th className="py-3 px-4 min-w-[160px] whitespace-nowrap">หัวข้อ</th>
+                                )}
+                                {visibleColumns.message && (
+                                    <th className="py-3 px-4 min-w-[200px] max-w-xs">
+                                        เนื้อหาข้อความ
+                                    </th>
+                                )}
+                                {visibleColumns.status && (
+                                    <th className="py-3 px-4 w-28 text-center whitespace-nowrap">สถานะ</th>
+                                )}
+                                {visibleColumns.actions && (
+                                    <th className="py-3 px-4 w-28 text-center whitespace-nowrap">จัดการ</th>
+                                )}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+
+                        <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
                             {isLoading ? (
-                                <tr><td colSpan={6} className="py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                                <tr>
+                                    <td colSpan={activeColCount} className="py-12 text-center text-slate-400">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                                        กำลังโหลดข้อความ...
+                                    </td>
+                                </tr>
                             ) : paginatedMessages.length === 0 ? (
-                                <tr><td colSpan={6} className="py-8 text-center text-gray-500">ไม่พบข้อความ</td></tr>
+                                <tr>
+                                    <td colSpan={activeColCount} className="py-12 text-center text-slate-400">
+                                        ไม่พบข้อความที่ตรงกับเงื่อนไข
+                                    </td>
+                                </tr>
                             ) : (
-                                paginatedMessages.map((message, index) => (
-                                    <tr key={message.id} className="hover:bg-purple-50 text-sm text-gray-800 transition-colors">
-                                        <td className="py-3 px-4 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                        <td className="py-3 px-4 font-medium min-w-[150px]">
-                                            <p className='font-bold'>{message.name}</p>
-                                            <p className="text-xs text-gray-500 flex items-center"><Mail className='w-3 h-3 mr-1' /> {message.email}</p>
-                                            <p className="text-xs text-gray-500 flex items-center"><Phone className='w-3 h-3 mr-1' /> {message.phone}</p>
-                                            <p className="text-xs text-gray-500 flex items-center mt-1"><Clock className='w-3 h-3 mr-1' /> ส่งเมื่อ: {formatDate(message.submittedAt)}</p>
-                                        </td>
-                                        <td className="py-3 px-4 font-semibold text-purple-700 min-w-[150px]">
-                                            {message.subject}
-                                        </td>
-                                        <td className="py-3 px-4 max-w-xs truncate text-gray-600" title={message.message}>{message.message}</td>
-
-                                        <td className="py-3 px-4 text-center min-w-[120px]">
-                                            <StatusBadge status={message.status} />
-                                            {message.status.toLowerCase() === 'new' && (
-                                                <button
-                                                    onClick={() => handleUpdateStatus(message, 'read')}
-                                                    className="mt-2 text-xs text-blue-600 hover:text-blue-800 underline block"
-                                                >
-                                                    ทำเครื่องหมายว่าอ่านแล้ว
-                                                </button>
+                                paginatedMessages.map((msg, index) => {
+                                    const rowPad = isCompact ? 'py-2 px-3' : 'py-3.5 px-4';
+                                    return (
+                                        <tr
+                                            key={msg.id}
+                                            className="hover:bg-blue-50/40 transition-colors group cursor-pointer"
+                                            onClick={() => setSelectedMessage(msg)}
+                                        >
+                                            {visibleColumns.index && (
+                                                <td className={`${rowPad} text-center font-mono text-xs text-slate-400 whitespace-nowrap`}>
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
+                                                </td>
                                             )}
-                                        </td>
 
-                                        <td className="py-3 px-4 text-center">
-                                            <button onClick={() => handleDelete(message.id)} className="text-red-500 hover:text-red-700 p-2">
-                                                <Trash2 className="w-5 h-5" />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
+                                            {visibleColumns.sender && (
+                                                <td className={`${rowPad}`}>
+                                                    <p className="font-bold text-slate-800">{msg.name}</p>
+                                                    {msg.email && (
+                                                        <p className="text-xs text-slate-600 flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+                                                            <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                                                            <span>{msg.email}</span>
+                                                        </p>
+                                                    )}
+                                                    {msg.phone && (
+                                                        <p className="text-xs text-slate-500 flex items-center gap-1.5 whitespace-nowrap mt-0.5">
+                                                            <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                                                            <span className="font-mono">{msg.phone}</span>
+                                                        </p>
+                                                    )}
+                                                    <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-1 whitespace-nowrap">
+                                                        <Clock className="w-3 h-3 shrink-0" />
+                                                        <span>{formatDate(msg.submittedAt)}</span>
+                                                    </p>
+                                                </td>
+                                            )}
+
+                                            {visibleColumns.subject && (
+                                                <td className={`${rowPad}`}>
+                                                    <p className={`font-semibold text-slate-800 ${isWrapText ? 'break-words' : 'truncate max-w-[160px]'}`}>
+                                                        {msg.subject || 'ไม่มีหัวข้อ'}
+                                                    </p>
+                                                </td>
+                                            )}
+
+                                            {visibleColumns.message && (
+                                                <td className={`${rowPad}`}>
+                                                    <p
+                                                        title={msg.message}
+                                                        className={`text-slate-600 text-xs ${
+                                                            isWrapText
+                                                                ? 'break-words whitespace-normal max-w-xs leading-relaxed'
+                                                                : 'truncate max-w-[240px]'
+                                                        }`}
+                                                    >
+                                                        {msg.message}
+                                                    </p>
+                                                </td>
+                                            )}
+
+                                            {visibleColumns.status && (
+                                                <td className={`${rowPad} text-center whitespace-nowrap`} onClick={e => e.stopPropagation()}>
+                                                    <StatusBadge status={msg.status} />
+                                                    <div className="mt-1.5">
+                                                        {msg.status?.toLowerCase() === 'new' && (
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(msg, 'read')}
+                                                                className="text-[11px] text-blue-600 hover:text-blue-800 font-medium hover:underline block mx-auto"
+                                                            >
+                                                                ทำเป็นอ่านแล้ว
+                                                            </button>
+                                                        )}
+                                                        {msg.status?.toLowerCase() === 'read' && (
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(msg, 'replied')}
+                                                                className="text-[11px] text-emerald-600 hover:text-emerald-800 font-medium hover:underline block mx-auto"
+                                                            >
+                                                                ทำเป็นตอบแล้ว
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            )}
+
+                                            {visibleColumns.actions && (
+                                                <td className={`${rowPad} text-center whitespace-nowrap`} onClick={e => e.stopPropagation()}>
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <button
+                                                            onClick={() => setSelectedMessage(msg)}
+                                                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="ดูข้อความฉบับเต็ม"
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(msg.id)}
+                                                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                                            title="ลบข้อความ"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
                 </div>
 
-                {totalPages > 1 && (
-                    <div className="flex justify-between items-center p-4 border-t text-sm text-gray-600 bg-gray-50">
-                        <span>แสดง {paginatedMessages.length} รายการ จาก {messages.length} รายการ | หน้า {currentPage} จาก {totalPages}</span>
-                        <div className="flex space-x-2">
+                {/* Footer */}
+                <div className="flex flex-col sm:flex-row items-center justify-between p-3.5 sm:p-4 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-600 gap-2">
+                    <div>
+                        แสดง <span className="font-semibold text-slate-800">{paginatedMessages.length}</span> จากทั้งหมด{' '}
+                        <span className="font-semibold text-slate-800">{filteredMessages.length}</span> ข้อความ
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-slate-500">
+                            หน้า {currentPage} / {totalPages}
+                        </span>
+                        <div className="flex space-x-1">
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-2 border rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors"
+                                className="p-1.5 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
                             >
-                                <ChevronLeft className="w-5 h-5 text-blue-600" />
+                                <ChevronLeft className="w-4 h-4 text-slate-700" />
                             </button>
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-2 border rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors"
+                                className="p-1.5 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
                             >
-                                <ChevronRight className="w-5 h-5 text-blue-600" />
+                                <ChevronRight className="w-4 h-4 text-slate-700" />
                             </button>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
+
+            {/* 3. Detail Modal */}
+            {selectedMessage && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+                    <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+                        <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 className="text-base font-bold text-slate-800">
+                                    {selectedMessage.subject || 'ข้อความติดต่อ'}
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    ส่งเมื่อ {formatDate(selectedMessage.submittedAt)}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setSelectedMessage(null)}
+                                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3 text-xs sm:text-sm">
+                            <div className="bg-slate-50 p-3.5 rounded-xl space-y-1">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">ข้อมูลผู้ส่ง</p>
+                                <p className="font-bold text-slate-800 text-sm">{selectedMessage.name}</p>
+                                {selectedMessage.email && <p className="text-slate-600">อีเมล: {selectedMessage.email}</p>}
+                                {selectedMessage.phone && <p className="text-slate-600 font-mono">โทร: {selectedMessage.phone}</p>}
+                            </div>
+
+                            <div className="p-3.5 bg-slate-50 rounded-xl space-y-1">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">เนื้อหาข้อความ</p>
+                                <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{selectedMessage.message}</p>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-slate-500">สถานะ:</span>
+                                    <StatusBadge status={selectedMessage.status} />
+                                </div>
+                                <div className="flex gap-2">
+                                    {selectedMessage.status?.toLowerCase() === 'new' && (
+                                        <button
+                                            onClick={() => handleUpdateStatus(selectedMessage, 'read')}
+                                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-xs"
+                                        >
+                                            ทำเป็นอ่านแล้ว
+                                        </button>
+                                    )}
+                                    {selectedMessage.status?.toLowerCase() === 'read' && (
+                                        <button
+                                            onClick={() => handleUpdateStatus(selectedMessage, 'replied')}
+                                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xs"
+                                        >
+                                            ทำเป็นตอบแล้ว
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
