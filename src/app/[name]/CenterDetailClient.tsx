@@ -12,7 +12,8 @@ import {
     User,
     Users,
     MessageSquare,
-    Navigation
+    Navigation,
+    Eye
 } from 'lucide-react';
 import Link from 'next/link';
 import * as gtag from '../../lib/gtag';
@@ -34,6 +35,39 @@ const formatPhone = (phone: any) => {
         return `${fullStr.slice(0, 3)}-${fullStr.slice(3, 6)}-${fullStr.slice(6)}`;
     }
     return fullStr;
+};
+
+const maskPhone = (phone: any, fallback: string = '') => {
+    const raw = phone || fallback;
+    if (!raw) return '08x-xxx-xxxx';
+    const str = raw.toString().trim().replace(/\D/g, '');
+    const fullStr = str.startsWith('0') ? str : '0' + str;
+    if (fullStr.length === 10) {
+        return `${fullStr.slice(0, 3)}-xxx-${fullStr.slice(-4)}`;
+    }
+    if (fullStr.length === 9) {
+        return `${fullStr.slice(0, 2)}-xxx-${fullStr.slice(-4)}`;
+    }
+    return fullStr.length > 6 ? `${fullStr.slice(0, 3)}-xxx-${fullStr.slice(-3)}` : '08x-xxx-xxxx';
+};
+
+const sanitizeAboutDescription = (rawHtml?: string, centerName?: string, province?: string): string => {
+    let text = rawHtml || '';
+    if (!text) {
+        return `<p><strong>${centerName || 'ศูนย์ดูแล'}</strong> เป็นสถานดูแลผู้สูงอายุและผู้มีภาวะพึ่งพิง ตั้งอยู่ในพื้นที่ ${province ? 'จังหวัด' + province : 'ประเทศไทย'} ให้บริการดูแลสุขภาพ ฟื้นฟูสมรรถภาพ และการบริบาลตลอด 24 ชั่วโมง โดยทีมงานบริบาลผู้มีความพร้อม เพื่อให้ผู้สูงอายุและผู้รับการดูแลมีคุณภาพชีวิตที่ดี ปลอดภัย และมีความสุขในบรรยากาศที่อบอุ่น</p>`;
+    }
+    // 1. ลบประโยคติดต่อสอบถามเบอร์โทร เช่น "หรือโทรติดต่อสอบถามรายละเอียดได้ที่ 08x-xxx-xxxx" หรือ "หรือโทร. ..."
+    text = text.replace(/(\s*หรือ\s*)?โทร(ติดต่อ)?(สอบถาม)?(รายละเอียด)?(ได้ที่)?\s*[:\s]*[\d\s\-,\./]+/gi, '');
+    // 2. ลบ "โทร : 08x...", "Tel: ...", "เบอร์โทร : ...", "ติดต่อ : 08x..."
+    text = text.replace(/(โทร(\.|ศัพท์|เบอร์)?|Tel(\.|ephone)?|ติดต่อ)[\s:]*[\d\s\-,\./]{8,}/gi, '');
+    // 3. ลบ pattern เบอร์โทรศัพท์ไทยโดดๆ (0x-xxxx-xxxx หรือ 0xxxxxxxxx หรือ 02-xxx-xxxx)
+    text = text.replace(/(?:\+?66|0)[2-9](?:[\s\-]?[0-9]){7,8}/g, '');
+    // 4. ลบ comma, dash หรือ punctuation ท้ายวรรค
+    text = text.replace(/[\s,\-–—]+(?=<\/p>)/gi, '');
+    // 5. ลบ tag p ว่างเปล่า
+    text = text.replace(/<p>\s*<\/p>/gi, '').trim();
+
+    return text || `<p><strong>${centerName || 'ศูนย์ดูแล'}</strong> เป็นสถานดูแลผู้สูงอายุและผู้มีภาวะพึ่งพิง ให้บริการดูแลสุขภาพ ฟื้นฟูสมรรถภาพ และการบริบาลตลอด 24 ชั่วโมง ในบรรยากาศที่อบอุ่นและปลอดภัย</p>`;
 };
 
 const getTelHref = (phone: any, fallback: string = '') => {
@@ -739,6 +773,12 @@ export default function CenterDetailClient({
         [center?.imageUrls]
     );
 
+    // ทำความสะอาดข้อความเกี่ยวกับศูนย์ดูแล: ต้องไม่แสดงเบอร์มือถือ/ช่องทางโทรใดๆ ในส่วนนี้เด็ดขาด
+    const cleanAboutHtml = useMemo(
+        () => sanitizeAboutDescription(center?.description, center?.name, center?.province),
+        [center?.description, center?.name, center?.province]
+    );
+
     const [activeImage, setActiveImage] = useState<string>(center?.imageUrls?.[0] || '');
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [initialModalIndex, setInitialModalIndex] = useState(0);
@@ -749,11 +789,43 @@ export default function CenterDetailClient({
 
     // Lead Capture Friction Modal State
     const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+    const [isInfoUnlocked, setIsInfoUnlocked] = useState(false);
     const [leadModalConfig, setLeadModalConfig] = useState<{
         actionType: LeadActionType;
         destinationUrl?: string;
         onProceed?: () => void;
     }>({ actionType: 'navigation' });
+
+    // ตรวจสอบว่าศูนย์นี้เคยถูกปลดล็อกใน Session ของผู้ใช้หรือไม่
+    useEffect(() => {
+        if (!center?.id) return;
+        try {
+            const unlockedStr = sessionStorage.getItem('tcc_unlocked_centers');
+            if (unlockedStr) {
+                const list = JSON.parse(unlockedStr);
+                if (Array.isArray(list) && list.includes(center.id)) {
+                    setIsInfoUnlocked(true);
+                }
+            }
+        } catch {
+            // ignore
+        }
+    }, [center?.id]);
+
+    const unlockThisCenter = useCallback(() => {
+        setIsInfoUnlocked(true);
+        if (!center?.id) return;
+        try {
+            const unlockedStr = sessionStorage.getItem('tcc_unlocked_centers');
+            const list = unlockedStr ? JSON.parse(unlockedStr) : [];
+            if (Array.isArray(list) && !list.includes(center.id)) {
+                list.push(center.id);
+                sessionStorage.setItem('tcc_unlocked_centers', JSON.stringify(list));
+            }
+        } catch {
+            // ignore
+        }
+    }, [center?.id]);
 
     const handleGatedAction = useCallback((
         actionType: LeadActionType,
@@ -762,7 +834,41 @@ export default function CenterDetailClient({
     ) => {
         const verified = getVerifiedLead();
         if (verified && verified.phone) {
-            // Already verified in 30 days! Seamlessly proceed
+            // 🎯 กรณีผู้ใช้เคยยืนยันเบอร์แล้ว: ปลดล็อกศูนย์นี้ทันที
+            unlockThisCenter();
+
+            // 🎯 บันทึก Lead สำหรับศูนย์นี้ให้อัตโนมัติทันทีใน Background!
+            const actionTextMap: Record<string, string> = {
+                navigation: 'เปิดแผนที่นำทาง',
+                call: 'โทรติดต่อเจ้าหน้าที่',
+                line: 'ติดต่อผ่าน LINE',
+                consultation: 'นัดหมายเยี่ยมชม',
+                view_info: 'กดดูข้อมูลเกี่ยวกับศูนย์',
+                contact: 'ติดต่อศูนย์ดูแล'
+            };
+            const actionLabel = actionTextMap[actionType] || actionType;
+
+            fetch('/api/care-centers/consultations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: verified.name || 'ผู้สนใจบริการ (เคยยืนยันเบอร์แล้ว)',
+                    phone: verified.phone,
+                    branch: center.name,
+                    budget: verified.budget || 'ยังไม่ระบุ',
+                    convenientTime: verified.timeframe || 'ด่วนภายใน 7 วัน',
+                    message: `[Returning User] ติดตามความสนใจ: ${actionLabel} ที่ศูนย์ "${center.name}" (${center.province || ''}) | งบ: ${verified.budget || '-'}`,
+                    roomType: 'ยังไม่ระบุห้องพัก'
+                })
+            }).catch(() => {});
+
+            gtag.event({
+                action: `returning_lead_${actionType}`,
+                category: 'Engagement',
+                label: `${center.name} | ${verified.phone}`
+            });
+
+            // ดำเนินการต่อทันที (เปิดเว็บ/โทรออก/เปิดแผนที่) ไร้รอยต่อ
             if (onProceed) {
                 onProceed();
             } else if (destinationUrl) {
@@ -775,19 +881,21 @@ export default function CenterDetailClient({
             return;
         }
 
-        // Not verified yet: open Consultation-themed Lead Capture Modal
+        // ยังไม่เคยยืนยันเบอร์: เปิด Lead Capture Modal เพื่อเก็บข้อมูลครั้งแรก
         setLeadModalConfig({ actionType, destinationUrl, onProceed });
         setIsLeadModalOpen(true);
-    }, []);
+    }, [center, unlockThisCenter]);
 
     const handleLeadSuccess = useCallback(() => {
+        unlockThisCenter();
         if (leadModalConfig.onProceed) {
             leadModalConfig.onProceed();
         }
-    }, [leadModalConfig]);
+    }, [leadModalConfig, unlockThisCenter]);
 
     const logTraffic = useCallback((eventType: string) => {
         if (!center) return;
+        const verified = getVerifiedLead();
         fetch('/api/traffic', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -799,7 +907,8 @@ export default function CenterDetailClient({
                 utmSource: new URLSearchParams(window.location.search).get('utm_source') || '',
                 utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || '',
                 utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || '',
-                referrer: document.referrer || ''
+                referrer: typeof document !== 'undefined' ? (document.referrer || '') : '',
+                userPhone: verified?.phone || ''
             })
         }).catch(err => console.error('Error logging traffic:', err));
     }, [center]);
@@ -816,7 +925,7 @@ export default function CenterDetailClient({
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
     // ✅ ฟังก์ชันสร้าง Link พร้อม UTM โดยดึงค่าจาก API
-    const createOutboundLink = (url: string, content: string = 'detail_page_sidebar') => {
+    const createOutboundLink = (url?: string | null, content: string = 'detail_page_sidebar') => {
         if (!url) return '#';
         try {
             const targetUrl = new URL(url);
@@ -1045,7 +1154,7 @@ export default function CenterDetailClient({
                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-snug">{center.name}</h1>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4">
                         <p className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1 text-gray-400" /> {center.address}
+                            <MapPin className="h-4 w-4 mr-1 text-gray-400 shrink-0" /> {isTrue(center.isPartner) ? center.address : (center.province ? `จังหวัด${center.province}` : 'ประเทศไทย')}
                         </p>
                         <div className="flex items-center">
                             <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
@@ -1183,24 +1292,62 @@ export default function CenterDetailClient({
                     <div className="lg:col-span-2 space-y-12">
                         <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
                             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">เกี่ยวกับศูนย์ดูแล</h2>
-                            <div
-                                className="prose max-w-none text-gray-800 leading-relaxed text-base md:text-lg"
-                                dangerouslySetInnerHTML={{ __html: center.description }}
-                            />
-                        </section>
-                        <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
-                            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">สิ่งอำนวยความสะดวกและบริการ</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-                                {/* ✅ โค้ดที่ได้รับการแก้ไข: center.services ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
-                                {center.services.map((s, i) => (
-                                    <div key={i} className="flex items-start p-3.5 rounded-lg bg-blue-50 text-blue-900 transition-colors hover:bg-blue-100/70">
-                                        <CheckCircle2 className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 mt-0.5" />
-                                        <span className="text-base font-semibold leading-snug">{s}</span>
+                            {isTrue(center.isPartner) || isInfoUnlocked ? (
+                                <div
+                                    className="prose max-w-none text-gray-800 leading-relaxed text-base md:text-lg animate-in fade-in duration-300"
+                                    dangerouslySetInnerHTML={{
+                                        __html: cleanAboutHtml
+                                    }}
+                                />
+                            ) : (
+                                <div className="relative overflow-hidden rounded-xl border border-gray-100 bg-gray-50/40 p-6 min-h-[180px]">
+                                    {/* Blurred preview background */}
+                                    <div
+                                        className="prose max-w-none text-gray-800 leading-relaxed text-base md:text-lg filter blur-[5px] select-none opacity-30 pointer-events-none"
+                                        dangerouslySetInnerHTML={{
+                                            __html: cleanAboutHtml
+                                        }}
+                                    />
+                                    {/* Shadow Overlay & Unlock Button */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/85 to-transparent flex flex-col items-center justify-center p-6 text-center z-10">
+                                        {/* <div className="p-3 bg-blue-50 text-blue-600 rounded-full mb-2.5 shadow-sm border border-blue-100">
+                                            <Info className="w-5 h-5" />
+                                        </div> */}
+                                        <h4 className="text-base sm:text-lg font-extrabold text-gray-900 mb-1">
+                                            ข้อมูลและรายละเอียดศูนย์ดูแล
+                                        </h4>
+                                        <p className="text-xs sm:text-sm text-gray-500 mb-4 max-w-md">
+                                            กดเพื่อดูข้อมูลการดูแล บริการ และรายละเอียดของศูนย์นี้
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                handleGatedAction('view_info', undefined, () => {
+                                                    setIsInfoUnlocked(true);
+                                                });
+                                            }}
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                            กดเพื่อดูข้อมูล
+                                        </button>
                                     </div>
-                                ))}
-                                {/* ถ้า services เป็น Array ว่าง ก็จะไม่แสดง error และจะไม่มีอะไรถูก map */}
-                            </div>
+                                </div>
+                            )}
                         </section>
+                        {isTrue(center.isPartner) && center.services && center.services.length > 0 && (
+                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">สิ่งอำนวยความสะดวกและบริการ</h2>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+                                    {center.services.map((s, i) => (
+                                        <div key={i} className="flex items-start p-3.5 rounded-lg bg-blue-50 text-blue-900 transition-colors hover:bg-blue-100/70">
+                                            <CheckCircle2 className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 mt-0.5" />
+                                            <span className="text-base font-semibold leading-snug">{s}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
 
                         {/* ✅ Room Types & Beds Section */}
                         {center.roomTypes && center.roomTypes.length > 0 && (
@@ -1284,7 +1431,7 @@ export default function CenterDetailClient({
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b pb-3">
                                     <div>
                                         <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">สถานที่ตั้ง</h2>
-                                        {center.address && (
+                                        {isTrue(center.isPartner) && center.address && (
                                             <p className="text-xs sm:text-sm text-gray-500 mt-1 flex items-start gap-1.5">
                                                 <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                                                 <span>{center.address}</span>
@@ -1296,12 +1443,8 @@ export default function CenterDetailClient({
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={(e) => {
-                                            const verified = getVerifiedLead();
-                                            if (!verified || !verified.phone) {
-                                                e.preventDefault();
-                                                handleGatedAction('navigation', googleMapsDirectionsUrl);
-                                                return;
-                                            }
+                                            e.preventDefault();
+                                            handleGatedAction('navigation', googleMapsDirectionsUrl);
                                             gtag.event({ action: 'click_map_section_direction', category: 'Engagement', label: center.name });
                                             logTraffic('click_map');
                                         }}
@@ -1313,14 +1456,34 @@ export default function CenterDetailClient({
                                 </div>
                                 <div className="rounded-xl overflow-hidden shadow-inner border h-[350px] bg-gray-100 relative">
                                     {googleMapsEmbedUrl ? (
-                                        <iframe
-                                            src={googleMapsEmbedUrl}
-                                            width="100%" height="100%" style={{ border: 0 }}
-                                            allowFullScreen loading="lazy"
-                                            referrerPolicy="no-referrer-when-downgrade"
-                                            className="filter grayscale-[5%] hover:grayscale-0 transition-all duration-500"
-                                            title={`Map of ${center.name}`}
-                                        />
+                                        <>
+                                            <iframe
+                                                src={googleMapsEmbedUrl}
+                                                width="100%" height="100%" style={{ border: 0 }}
+                                                allowFullScreen loading="lazy"
+                                                referrerPolicy="no-referrer-when-downgrade"
+                                                className={`w-full h-full transition-all duration-500 ${!isTrue(center.isPartner) && !isInfoUnlocked ? 'filter blur-[4px] pointer-events-none opacity-60' : 'filter grayscale-[5%] hover:grayscale-0'}`}
+                                                title={`Map of ${center.name}`}
+                                            />
+                                            {!isTrue(center.isPartner) && !isInfoUnlocked && (
+                                                <div
+                                                    onClick={() => {
+                                                        handleGatedAction('navigation', googleMapsDirectionsUrl);
+                                                    }}
+                                                    className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center cursor-pointer z-10 group"
+                                                >
+                                                    <div className="bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-3 group-hover:scale-105 transition-all">
+                                                        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shadow-xs">
+                                                            <Navigation className="w-5 h-5" />
+                                                        </div>
+                                                        <div className="text-left">
+                                                            <div className="text-sm sm:text-base font-extrabold text-gray-900">กดเพื่อเปิดแผนที่และเส้นทาง</div>
+                                                            <div className="text-xs text-gray-500">คลิกเพื่อดูพิกัดและนำทางสู่ศูนย์ดูแล</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center text-gray-400 flex-col">
                                             <MapPin className="w-10 h-10 mb-2 opacity-30" />
@@ -1371,28 +1534,45 @@ export default function CenterDetailClient({
                                             </div>
 
                                             {/* Big Phone Number Box */}
-                                            <a
-                                                href={getTelHref(center.phone, '080-102-7615')}
-                                                className="flex items-center justify-center gap-2 px-3 py-2 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all group"
-                                                onClick={(e) => {
-                                                    const telUrl = getTelHref(center.phone, '080-102-7615');
-                                                    const verified = getVerifiedLead();
-                                                    if (!verified || !verified.phone) {
+                                            {isInfoUnlocked ? (
+                                                <a
+                                                    href={getTelHref(center.phone, '080-102-7615')}
+                                                    className="flex items-center justify-center gap-2 px-3 py-2 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all group"
+                                                    onClick={(e) => {
+                                                        const telUrl = getTelHref(center.phone, '080-102-7615');
                                                         e.preventDefault();
                                                         handleGatedAction('call', undefined, () => {
                                                             window.location.href = telUrl;
                                                         });
-                                                        return;
-                                                    }
-                                                    gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
-                                                    logTraffic('click_phone');
-                                                }}
-                                            >
-                                                <Phone className="w-4 h-4 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
-                                                <span className="text-lg font-bold text-white tracking-wider">
-                                                    {formatPhone(center.phone || '080-102-7615')}
-                                                </span>
-                                            </a>
+                                                        gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
+                                                        logTraffic('click_phone');
+                                                    }}
+                                                >
+                                                    <Phone className="w-4 h-4 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
+                                                    <span className="text-lg font-bold text-white tracking-wider">
+                                                        {formatPhone(center.phone || '080-102-7615')}
+                                                    </span>
+                                                </a>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const telUrl = getTelHref(center.phone, '080-102-7615');
+                                                        handleGatedAction('call', undefined, () => {
+                                                            setIsInfoUnlocked(true);
+                                                            window.location.href = telUrl;
+                                                        });
+                                                        gtag.event({ action: 'click_show_phone', category: 'Conversion', label: center.name });
+                                                        logTraffic('click_phone');
+                                                    }}
+                                                    className="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all cursor-pointer group"
+                                                >
+                                                    <Phone className="w-4 h-4 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
+                                                    <span className="text-sm font-bold text-white tracking-wide">
+                                                        กดเพื่อแสดงเบอร์โทร
+                                                    </span>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -1452,26 +1632,22 @@ export default function CenterDetailClient({
 
                                             {/* 3. ติดต่อเจ้าหน้าที่ */}
                                             {center.phone ? (
-                                                <a
-                                                    href={getTelHref(center.phone)}
-                                                    onClick={(e) => {
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
                                                         const telUrl = getTelHref(center.phone);
-                                                        const verified = getVerifiedLead();
-                                                        if (!verified || !verified.phone) {
-                                                            e.preventDefault();
-                                                            handleGatedAction('call', undefined, () => {
-                                                                window.location.href = telUrl;
-                                                            });
-                                                            return;
-                                                        }
+                                                        handleGatedAction('call', undefined, () => {
+                                                            setIsInfoUnlocked(true);
+                                                            window.location.href = telUrl;
+                                                        });
                                                         gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
                                                         logTraffic('click_phone');
                                                     }}
                                                     className="w-full flex items-center justify-center px-5 py-3 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-full shadow hover:border-blue-500 hover:bg-blue-50/50 transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                                 >
                                                     <Phone className="w-5 h-5 mr-2 text-blue-600 fill-current flex-shrink-0" />
-                                                    ติดต่อเจ้าหน้าที่
-                                                </a>
+                                                    {isInfoUnlocked ? `โทร ${formatPhone(center.phone)}` : 'กดเพื่อแสดงเบอร์โทร'}
+                                                </button>
                                             ) : null}
 
                                             {/* Line Separator */}
@@ -1519,25 +1695,118 @@ export default function CenterDetailClient({
                                         </>
                                     ) : (
                                         <>
-                                            {/* Web / Website button (Solid blue button style with white text) */}
-                                            {center.website ? (
-                                                <a
-                                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                            {/* เบอร์โทรศัพท์ติดต่อศูนย์ (สำหรับศูนย์ทั่วไป) - ต้องกดเพื่อแสดงเบอร์และเก็บ Lead Tracking ทุกครั้ง */}
+                                            {center.phone && (
+                                                isInfoUnlocked ? (
+                                                    <div className="w-full p-3.5 bg-gradient-to-r from-blue-50/90 to-sky-50/70 border border-blue-200 rounded-2xl animate-in fade-in duration-300">
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                                                                    <Phone className="w-5 h-5 fill-current" />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
+                                                                    <a
+                                                                        href={getTelHref(center.phone)}
+                                                                        onClick={(e) => {
+                                                                            const telUrl = getTelHref(center.phone);
+                                                                            e.preventDefault();
+                                                                            handleGatedAction('call', undefined, () => {
+                                                                                window.location.href = telUrl;
+                                                                            });
+                                                                            gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
+                                                                            logTraffic('click_phone');
+                                                                        }}
+                                                                        className="text-base sm:text-lg font-extrabold text-blue-950 tracking-wider hover:underline block truncate"
+                                                                    >
+                                                                        {formatPhone(center.phone)}
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                            <a
+                                                                href={getTelHref(center.phone)}
+                                                                onClick={(e) => {
+                                                                    const telUrl = getTelHref(center.phone);
+                                                                    e.preventDefault();
+                                                                    handleGatedAction('call', undefined, () => {
+                                                                        window.location.href = telUrl;
+                                                                    });
+                                                                    gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
+                                                                    logTraffic('click_phone');
+                                                                }}
+                                                                className="flex-shrink-0 text-xs font-bold px-3.5 py-2 rounded-full transition-all bg-green-600 hover:bg-green-700 text-white shadow-xs cursor-pointer flex items-center gap-1"
+                                                            >
+                                                                <Phone className="w-3.5 h-3.5 fill-current" />
+                                                                โทรออก
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const telUrl = getTelHref(center.phone);
+                                                            handleGatedAction('call', undefined, () => {
+                                                                setIsInfoUnlocked(true);
+                                                                window.location.href = telUrl;
+                                                            });
+                                                            gtag.event({ action: 'click_reveal_phone', category: 'Conversion', label: center.name });
+                                                            logTraffic('click_phone');
+                                                        }}
+                                                        className="w-full flex items-center justify-between p-3.5 bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-indigo-50/80 border border-blue-200 hover:border-blue-400 rounded-2xl transition-all hover:shadow-md active:scale-[0.98] group cursor-pointer text-left"
+                                                    >
+                                                        <div className="flex items-center gap-3 min-w-0">
+                                                            <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                                                                <Phone className="w-5 h-5 fill-current" />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
+                                                                <div className="text-sm sm:text-base font-extrabold text-blue-900 mt-0.5">
+                                                                    กดเพื่อแสดงเบอร์โทรศัพท์
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <span className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full transition-all bg-blue-600 text-white shadow-xs group-hover:bg-blue-700 flex items-center gap-1">
+                                                            <Eye className="w-3.5 h-3.5" />
+                                                            กดดูเบอร์
+                                                        </span>
+                                                    </button>
+                                                )
+                                            )}
+
+                                            {/* เข้าชมเว็บไซต์ศูนย์ดูแล (ถ้ามี) */}
+                                            {center.website && (
+                                                <button
+                                                    type="button"
                                                     onClick={() => {
+                                                        const dest = createOutboundLink(center.website, 'sidebar_website_btn');
+                                                        handleGatedAction('contact', dest, () => {
+                                                            window.open(dest, '_blank', 'noopener,noreferrer');
+                                                        });
                                                         gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
                                                         logTraffic('click_website');
                                                     }}
-                                                    className="w-full flex items-center justify-center px-5 py-3 bg-[#2b64a0] text-white text-base font-extrabold rounded-full shadow hover:bg-[#1e4a77] hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                    className="w-full flex items-center justify-center px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-extrabold rounded-full shadow hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
                                                 >
                                                     <Globe className="w-5 h-5 mr-2 text-white flex-shrink-0" />
+                                                    เข้าชมเว็บไซต์ศูนย์ดูแล
+                                                </button>
+                                            )}
+
+                                            {/* กรณีไม่มีทั้งเบอร์และเว็บ */}
+                                            {!center.phone && !center.website && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        handleGatedAction('consultation', undefined, () => {
+                                                            setIsConsultationModalOpen(true);
+                                                        });
+                                                    }}
+                                                    className="w-full flex items-center justify-center px-5 py-3 bg-[#2b64a0] hover:bg-[#1e4a77] text-white text-base font-extrabold rounded-full shadow hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                >
+                                                    <Phone className="w-5 h-5 mr-2 text-white flex-shrink-0" />
                                                     ติดต่อศูนย์ดูแล
-                                                </a>
-                                            ) : (
-                                                <div className="text-center p-3 bg-gray-50 border border-dashed rounded-full text-gray-400 text-xs font-semibold">
-                                                    ยังไม่มีข้อมูลเว็บไซต์ทางการ
-                                                </div>
+                                                </button>
                                             )}
 
                                             {/* เปิดแผนที่ / นำทาง (สำหรับศูนย์ทั่วไป) */}

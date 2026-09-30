@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { saveVerifiedLead, VerifiedLeadData } from '../lib/leadSession';
 import * as gtag from '../lib/gtag';
 
-export type LeadActionType = 'navigation' | 'call' | 'line' | 'consultation';
+export type LeadActionType = 'navigation' | 'call' | 'line' | 'consultation' | 'view_info' | 'contact';
 
 export interface LeadCaptureModalProps {
     isOpen: boolean;
@@ -40,15 +40,19 @@ export default function LeadCaptureModal({
         navigation: 'เปิดแผนที่นำทางสู่',
         call: 'โทรติดต่อเจ้าหน้าที่',
         line: 'ติดต่อผ่าน LINE ของ',
-        consultation: 'นัดหมายเยี่ยมชม'
-    }[actionType];
+        consultation: 'นัดหมายเยี่ยมชม',
+        view_info: 'ดูข้อมูลและรายละเอียดของ',
+        contact: 'ติดต่อศูนย์ดูแล'
+    }[actionType] || 'ดูข้อมูลของ';
 
     const buttonText = {
         navigation: 'ยืนยันและเปิดแผนที่นำทาง',
         call: 'ยืนยันและโทรออก',
         line: 'ยืนยันและเปิด LINE',
-        consultation: 'ยืนยันข้อมูลเพื่อนัดหมาย'
-    }[actionType];
+        consultation: 'ยืนยันข้อมูลเพื่อนัดหมาย',
+        view_info: 'ยืนยันเพื่อดูข้อมูลศูนย์',
+        contact: 'ยืนยันเพื่อติดต่อศูนย์ดูแล'
+    }[actionType] || 'ยืนยันข้อมูล';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
