@@ -44,7 +44,7 @@ export default function ConsultationManagement() {
             setConsultations(result.data.sort((a, b) => b.id - a.id));
         } catch (error) {
             console.error('Fetch error:', error);
-            alert('ไม่สามารถโหลดข้อมูล Consultations ได้');
+            alert('ไม่สามารถโหลดข้อมูลการติดต่อได้');
         } finally {
             setIsLoading(false);
         }

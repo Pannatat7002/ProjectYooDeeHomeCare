@@ -2,11 +2,18 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Facebook, PhoneCall, Mail } from 'lucide-react';
 import * as gtag from '../lib/gtag';
 
 export default function Footer() {
+    const pathname = usePathname();
     const currentYear = new Date().getFullYear();
+
+    // ซ่อน Footer หน้าบ้านบนหน้า Admin และหน้า Login
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/login')) {
+        return null;
+    }
 
     return (
         <footer className="bg-gray-900 text-white pt-10">

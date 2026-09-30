@@ -19,9 +19,6 @@ export default function AboutPage() {
 
                 {/* Content */}
                 <div className="relative z-10 container mx-auto px-4 text-center">
-                    {/* <span className="inline-block py-1 px-3 rounded-full bg-blue-500/30 border border-blue-400/30 text-blue-100 text-sm font-medium mb-4 backdrop-blur-sm">
-                        ThaiCareCenter
-                    </span> */}
                     <h1 className="text-4xl md:text-4xl font-bold mb-6 text-white tracking-tight">
                         เราคือเพื่อนคู่คิด เพื่อคนที่คุณรัก
                     </h1>
@@ -36,12 +33,7 @@ export default function AboutPage() {
             <div className="py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="mb-6 flex justify-center">
-                            <div className="p-3 bg-blue-50 rounded-full">
-                                <Target className="w-8 h-8 text-blue-600" />
-                            </div>
-                        </div>
-                        <h2 className="text-2xl font-bold text-blue-900 mb-6 uppercase tracking-wider">วิสัยทัศน์ของเรา</h2>
+                        <h2 className="text-xs font-bold text-blue-600 mb-4 uppercase tracking-widest">วิสัยทัศน์ของเรา</h2>
                         <h3 className="text-3xl md:text-4xl font-medium text-slate-800 leading-snug mb-8">
                             มุ่งสู่การเป็นแพลตฟอร์มศูนย์กลางอันดับหนึ่งของไทย <br className="hidden md:block" />
                             ที่สร้างมาตรฐานการดูแลที่<span className="text-blue-600">เท่าเทียม</span> และ <span className="text-blue-600">โปร่งใส</span>
@@ -125,9 +117,9 @@ export default function AboutPage() {
 
                         {/* Content */}
                         <div className="lg:col-span-6 space-y-6">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-semibold">
-                                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                                ทีมที่ปรึกษาของเรา
+                            <div className="flex items-center gap-2.5">
+                                <span className="w-8 h-[2px] bg-blue-600"></span>
+                                <span className="text-xs font-bold uppercase tracking-widest text-blue-600">ทีมที่ปรึกษาของเรา</span>
                             </div>
 
                             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-snug">
@@ -140,30 +132,24 @@ export default function AboutPage() {
                             </p>
 
                             <div className="space-y-3.5 pt-2">
-                                <div className="flex items-start gap-3">
-                                    <div className="p-1 rounded-full bg-green-100 text-green-600 mt-1 flex-shrink-0">
-                                        <Handshake className="w-4 h-4" />
-                                    </div>
+                                <div className="flex items-start gap-3.5">
+                                    <Handshake className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <div>
                                         <h4 className="font-bold text-slate-800 text-sm">คัดกรองศูนย์ดูแลอย่างเป็นกลาง</h4>
                                         <p className="text-xs text-slate-500 mt-0.5">เลือกสถานที่ที่เหมาะสมกับอาการ งบประมาณ และทำเลที่สะดวกกับครอบครัว</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-3">
-                                    <div className="p-1 rounded-full bg-blue-100 text-blue-600 mt-1 flex-shrink-0">
-                                        <Target className="w-4 h-4" />
-                                    </div>
+                                <div className="flex items-start gap-3.5">
+                                    <Target className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <div>
                                         <h4 className="font-bold text-slate-800 text-sm">ประสานงานนัดหมายเข้าชมสถานที่</h4>
                                         <p className="text-xs text-slate-500 mt-0.5">อำนวยความสะดวกในการติดต่อและนัดพบกับทีมพยาบาลของศูนย์ดูแลโดยตรง</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-3">
-                                    <div className="p-1 rounded-full bg-orange-100 text-orange-600 mt-1 flex-shrink-0">
-                                        <Users className="w-4 h-4" />
-                                    </div>
+                                <div className="flex items-start gap-3.5">
+                                    <Users className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <div>
                                         <h4 className="font-bold text-slate-800 text-sm">บริการฟรี ไม่มีค่าใช้จ่ายใดๆ</h4>
                                         <p className="text-xs text-slate-500 mt-0.5">ให้คำปรึกษาด้วยความจริงใจ เพื่อประโยชน์สูงสุดของผู้สูงอายุ</p>

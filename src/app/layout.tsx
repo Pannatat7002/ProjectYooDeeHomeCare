@@ -145,7 +145,7 @@ export default function RootLayout({
         />
 
         <Header />
-        <main className="bg-white flex-grow">
+        <main className="flex-grow flex flex-col">
           {children}
         </main>
         <MascotAssistant />

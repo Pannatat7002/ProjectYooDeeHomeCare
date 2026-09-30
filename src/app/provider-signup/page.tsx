@@ -113,9 +113,9 @@ export default function ProviderSignupPage() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/30 to-transparent"></div>
                                 <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-10 text-white">
-                                    <span className="inline-block px-3 py-1 rounded-full bg-blue-500/30 border border-blue-400/40 text-blue-200 text-xs font-semibold backdrop-blur-sm mb-3">
+                                    <p className="text-xs font-bold uppercase tracking-widest text-blue-300 mb-2">
                                         Professional Excellence & Trust
-                                    </span>
+                                    </p>
                                     <h3 className="text-2xl md:text-3xl font-extrabold mb-2">
                                         ยินดีต้อนรับสู่ครอบครัว ThaiCareCenter
                                     </h3>

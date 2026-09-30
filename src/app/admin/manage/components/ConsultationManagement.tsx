@@ -42,7 +42,7 @@ export default function ConsultationManagement() {
                 alert('ลบรายการสำเร็จ');
                 fetchConsultations();
             } else {
-                alert('ลบรายการไม่สำเร็จ (กรุณาตรวจสอบ API DELETE)');
+                alert('ลบรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
             }
         } catch (error) { console.error('Delete error:', error); alert('เกิดข้อผิดพลาดในการลบ'); }
     };
@@ -59,7 +59,7 @@ export default function ConsultationManagement() {
                 alert(`เปลี่ยนสถานะเป็น "${newStatus}" สำเร็จ`);
                 fetchConsultations();
             } else {
-                alert(`เปลี่ยนสถานะไม่สำเร็จ (กรุณาตรวจสอบ API PUT/PATCH)`);
+                alert('เปลี่ยนสถานะไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
             }
         } catch (error) { console.error('Update status error:', error); alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ'); }
     };

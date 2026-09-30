@@ -212,7 +212,7 @@ export default function GoogleMapLocationPicker({
     // Quick geolocation button
     const handleUseCurrentLocation = () => {
         if (!navigator.geolocation) {
-            alert('เบราว์เซอร์ไม่รองรับ Geolocation');
+            alert('เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง');
             return;
         }
 
@@ -231,8 +231,8 @@ export default function GoogleMapLocationPicker({
                     markerRef.current.setPosition(newPos);
                 }
             },
-            (err) => {
-                alert('ไม่สามารถดึงตำแหน่งปัจจุบันได้: ' + err.message);
+            () => {
+                alert('ไม่สามารถระบุตำแหน่งของคุณได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง หรือลองใหม่อีกครั้ง');
             }
         );
     };

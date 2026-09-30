@@ -9,7 +9,8 @@ import {
     Database,
     LogOut,
     MessageSquare,
-    ShieldCheck
+    ShieldCheck,
+    X
 } from 'lucide-react';
 
 // กำหนด Type ของข้อมูล Admin ตาม JSON ที่ให้มา
@@ -24,7 +25,12 @@ interface AdminProfile {
     lastLogin: string;
 }
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+    isOpen?: boolean;
+    onClose?: () => void;
+}
+
+export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
 
@@ -45,6 +51,7 @@ export default function AdminSidebar() {
     }, []);
 
     const handleLogout = () => {
+        onClose?.();
         localStorage.removeItem('token');
         localStorage.removeItem('admin');
         router.push('/login');
@@ -56,16 +63,30 @@ export default function AdminSidebar() {
             : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600';
 
     return (
-        <aside className="w-72 bg-white h-screen flex flex-col fixed left-0 top-0 z-30 border-r border-slate-100 shadow-xl transition-all duration-300">
-            {/* 1. Header Logo */}
-            <div className="p-8 pb-6 flex items-center gap-3">
-                <div className="p-2 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-200">
-                    <ShieldCheck size={24} />
+        <aside
+            className={`w-72 bg-white h-screen flex flex-col fixed left-0 top-0 z-40 border-r border-slate-100 shadow-xl transition-transform duration-300 ease-in-out ${
+                isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            }`}
+        >
+            {/* 1. Header Logo & Close button */}
+            <div className="p-6 pb-5 flex items-center justify-between border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-200">
+                        <ShieldCheck size={22} />
+                    </div>
+                    <div>
+                        <h1 className="text-lg font-bold text-slate-800 tracking-tight">Admin Panel</h1>
+                        <p className="text-xs text-slate-400 font-medium">System Manager</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 className="text-xl font-bold text-slate-800 tracking-tight">Admin Panel</h1>
-                    <p className="text-xs text-slate-400 font-medium">System Manager</p>
-                </div>
+
+                <button
+                    onClick={onClose}
+                    className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    aria-label="Close menu"
+                >
+                    <X size={20} />
+                </button>
             </div>
 
             {/* 2. Menu Navigation */}
@@ -74,17 +95,29 @@ export default function AdminSidebar() {
                     Menu
                 </p>
 
-                <Link href="/admin/dashboard" className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/dashboard')}`}>
+                <Link
+                    href="/admin/dashboard"
+                    onClick={onClose}
+                    className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/dashboard')}`}
+                >
                     <LayoutDashboard className="w-5 h-5 mr-3" />
                     Dashboard
                 </Link>
 
-                <Link href="/admin/manage" className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/manage')}`}>
+                <Link
+                    href="/admin/manage"
+                    onClick={onClose}
+                    className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/manage')}`}
+                >
                     <Database className="w-5 h-5 mr-3" />
                     จัดการข้อมูล
                 </Link>
 
-                <Link href="/admin/consultation" className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/consultation')}`}>
+                <Link
+                    href="/admin/consultation"
+                    onClick={onClose}
+                    className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive('/admin/consultation')}`}
+                >
                     <MessageSquare className="w-5 h-5 mr-3" />
                     หน้าปรึกษา
                 </Link>

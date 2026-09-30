@@ -3,12 +3,19 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Phone, MessageCircle, Mail, Search, X, HelpCircle } from 'lucide-react';
 import * as gtag from '../lib/gtag';
 
 export default function MascotAssistant() {
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [hasDismissedBadge, setHasDismissedBadge] = useState(false);
+
+    // ซ่อน Mascot หน้าบ้านบนหน้า Admin และหน้า Login
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/login')) {
+        return null;
+    }
 
     const handleOpen = () => {
         setIsOpen(true);

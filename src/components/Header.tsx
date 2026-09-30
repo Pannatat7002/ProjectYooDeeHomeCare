@@ -3,11 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import * as gtag from '../lib/gtag';
 
 export default function Header() {
+    const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // ซ่อน Header หน้าบ้านบนหน้า Admin และหน้า Login
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/login')) {
+        return null;
+    }
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);

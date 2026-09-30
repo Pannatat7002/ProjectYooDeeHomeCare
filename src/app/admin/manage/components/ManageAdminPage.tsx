@@ -38,7 +38,7 @@ export default function ManageAdminPage() {
             if (data.success) {
                 setAdmins(data.data);
             } else {
-                alert('ไม่สามารถโหลดข้อมูล Admin ได้');
+                alert('ไม่สามารถโหลดข้อมูลผู้ดูแลระบบได้');
             }
         } catch (error) {
             console.error('Fetch admins error:', error);
@@ -125,7 +125,7 @@ export default function ManageAdminPage() {
             const data = await response.json();
 
             if (data.success) {
-                alert('ลบ Admin สำเร็จ');
+                alert('ลบผู้ดูแลระบบสำเร็จ');
                 fetchAdmins();
             } else {
                 alert(data.message || 'ลบไม่สำเร็จ');

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Cookie, ShieldCheck, Settings, X, Check } from 'lucide-react';
 import { setCookie, getCookie } from '../lib/leadSession';
 
@@ -16,10 +17,16 @@ const COOKIE_CONSENT_KEY = 'tcc_cookie_consent';
 const STORAGE_CONSENT_KEY = 'tcc_cookie_preferences';
 
 export default function CookieConsentBanner() {
+    const pathname = usePathname();
     const [isVisible, setIsVisible] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [leadSessionConsent, setLeadSessionConsent] = useState(true);
     const [analyticsConsent, setAnalyticsConsent] = useState(true);
+
+    // ซ่อน Cookie Consent บนหน้า Admin และหน้า Login
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/login')) {
+        return null;
+    }
 
     useEffect(() => {
         // Check if user already made a choice
