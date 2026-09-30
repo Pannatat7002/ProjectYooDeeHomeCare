@@ -708,13 +708,13 @@ const RoomTypeCard = ({
             </div>
 
             {/* Bottom Row: Status and Inquiry Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 {/* Bed Status */}
-                <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm font-extrabold px-3.5 py-2 rounded-md w-fit">
+                {/* <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm font-extrabold px-3.5 py-2 rounded-md w-fit">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
                     {room.status || 'เตียงว่างพร้อมดูแลทันที'}
-                </div>
-
+                </div> */}
+                <div></div>
                 {/* Inquiry Button */}
                 <button
                     type="button"
@@ -860,7 +860,7 @@ export default function CenterDetailClient({
                     message: `[Returning User] ติดตามความสนใจ: ${actionLabel} ที่ศูนย์ "${center.name}" (${center.province || ''}) | งบ: ${verified.budget || '-'}`,
                     roomType: 'ยังไม่ระบุห้องพัก'
                 })
-            }).catch(() => {});
+            }).catch(() => { });
 
             gtag.event({
                 action: `returning_lead_${actionType}`,

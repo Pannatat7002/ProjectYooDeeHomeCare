@@ -254,9 +254,17 @@ export default function TrafficAnalyticsPage() {
     const getDeviceIcon = (ua: string = '') => {
         const lowerUa = ua.toLowerCase();
         if (lowerUa.includes('mobile') || lowerUa.includes('android') || lowerUa.includes('iphone')) {
-            return <Smartphone className="w-3.5 h-3.5 text-slate-400" title="อุปกรณ์มือถือ" />;
+            return (
+                <span title="อุปกรณ์มือถือ" className="inline-flex items-center">
+                    <Smartphone className="w-3.5 h-3.5 text-slate-400" />
+                </span>
+            );
         }
-        return <Monitor className="w-3.5 h-3.5 text-slate-400" title="คอมพิวเตอร์ / เดสก์ท็อป" />;
+        return (
+            <span title="คอมพิวเตอร์ / เดสก์ท็อป" className="inline-flex items-center">
+                <Monitor className="w-3.5 h-3.5 text-slate-400" />
+            </span>
+        );
     };
 
     if (isLoading) {
