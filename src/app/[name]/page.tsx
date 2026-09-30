@@ -6,20 +6,13 @@ import type { Metadata } from 'next';
 
 // กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
 export const revalidate = 300; 
+export const dynamicParams = true;
 
-// สร้าง path สำหรับทุกศูนย์ดูแลที่มีสถานะ visible ตอน build time
+// ⚡ ปรับ generateStaticParams ให้เป็น On-Demand (ISR)
+// เพื่อป้องกันปัญหา Vercel Linux Filesystem จำกัดความยาวชื่อโฟลเดอร์ภาษาไทย (ENAMETOOLONG)
+// และป้องกัน Build Timeout จากการ Pre-render ศูนย์กว่า 950 แห่งพร้อมกันตอน Build time
 export async function generateStaticParams() {
-    try {
-        const careCenters = await getCareCenters();
-        return careCenters
-            .filter((c: any) => c.status === 'visible')
-            .map((c: any) => ({
-                name: c.name.replace(/\s+/g, '-'),
-            }));
-    } catch (error) {
-        console.error('Error generating static params for care centers:', error);
-        return [];
-    }
+    return [];
 }
 
 // 1. สร้าง Metadata สำหรับ SEO รายหน้าแบบ Dynamic
