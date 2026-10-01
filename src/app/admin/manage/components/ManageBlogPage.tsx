@@ -111,10 +111,14 @@ export default function ManageBlogPage() {
         }
     };
 
-    const filteredBlogs = blogs.filter(blog =>
-        (blog.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (blog.author || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredBlogs = (blogs || []).filter(blog => {
+        if (!blog) return false;
+        const q = (searchTerm || '').toLowerCase().trim();
+        if (!q) return true;
+        return (blog.title || '').toLowerCase().includes(q) ||
+               (blog.author || '').toLowerCase().includes(q) ||
+               (blog.category || '').toLowerCase().includes(q);
+    });
 
     return (
         <div className="p-4 md:p-8">

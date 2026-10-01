@@ -34,7 +34,7 @@ export default function MascotAssistant() {
         <div className="fixed bottom-6 right-5 z-40 font-sans print:hidden select-none">
             {/* Popover Card */}
             {isOpen && (
-                <div 
+                <div
                     className="mb-3 w-[320px] sm:w-[350px] bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-blue-100 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300 transform transition-all"
                 >
                     {/* Header with Mascot Theme */}
@@ -176,7 +176,7 @@ export default function MascotAssistant() {
                     </div>
 
                     {/* Status badge */}
-                    <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                    {/* <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span> */}
                 </button>
             </div>
         </div>

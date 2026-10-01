@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { MapPin, Search, Navigation, ExternalLink, Loader2 } from 'lucide-react';
+import { MapPin, Search, Navigation, ExternalLink, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface GoogleMapLocationPickerProps {
     lat: number;
@@ -13,6 +13,7 @@ interface GoogleMapLocationPickerProps {
 declare global {
     interface Window {
         google: any;
+        gm_authFailure?: () => void;
     }
 }
 
@@ -37,11 +38,12 @@ export default function GoogleMapLocationPicker({
     const [localLat, setLocalLat] = useState<string>(lat ? lat.toString() : '13.7563');
     const [localLng, setLocalLng] = useState<string>(lng ? lng.toString() : '100.5018');
 
-    // Search state (Fallback mode)
+    // Search state
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState<Array<{ name: string; lat: number; lng: number }>>([]);
     const [showResultsDropdown, setShowResultsDropdown] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
     // Sync when props change from external
     useEffect(() => {
@@ -58,12 +60,14 @@ export default function GoogleMapLocationPicker({
         }
     }, [lat, lng]);
 
-    // Check API Key
+    // Check API Key from Next.js public env or localStorage
     useEffect(() => {
         const checkKey = () => {
-            const envKey = process.env.CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+            const envKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+                process.env.CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+                '';
             const savedKey = typeof window !== 'undefined' ? localStorage.getItem('google_maps_api_key') : null;
-            const effectiveKey = envKey || savedKey || '';
+            const effectiveKey = (envKey || savedKey || '').trim();
             setApiKey(effectiveKey);
         };
         checkKey();
@@ -79,12 +83,29 @@ export default function GoogleMapLocationPicker({
             return;
         }
 
+        // Catch authentication errors (e.g. invalid key, referrer restrictions)
+        window.gm_authFailure = () => {
+            console.warn('[Google Maps] Authentication failed. Falling back to standard mode.');
+            setLoadError('Google Maps API Key ไม่ผ่านการตรวจสอบจาก Google (กำลังใช้โหมดแผนที่มาตรฐาน)');
+            setIsLoaded(false);
+        };
+
+        if (window.google?.maps?.places) {
+            setIsLoaded(true);
+            setLoadError(null);
+            return;
+        }
+
         const existingScript = document.getElementById('google-maps-picker-script') as HTMLScriptElement;
         if (existingScript) {
-            if (window.google && window.google.maps) {
-                setIsLoaded(true);
-            }
-            return;
+            const handleLoad = () => {
+                if (window.google && window.google.maps) {
+                    setIsLoaded(true);
+                    setLoadError(null);
+                }
+            };
+            existingScript.addEventListener('load', handleLoad);
+            return () => existingScript.removeEventListener('load', handleLoad);
         }
 
         const script = document.createElement('script');
@@ -138,15 +159,22 @@ export default function GoogleMapLocationPicker({
         const geocoder = new window.google.maps.Geocoder();
 
         const updatePosition = (position: { lat: number; lng: number }) => {
-            setLocalLat(position.lat.toFixed(6));
-            setLocalLng(position.lng.toFixed(6));
+            const latStr = position.lat.toFixed(6);
+            const lngStr = position.lng.toFixed(6);
+            setLocalLat(latStr);
+            setLocalLng(lngStr);
 
             geocoder.geocode({ location: position }, (results: any, status: string) => {
                 const address = status === 'OK' && results[0] ? results[0].formatted_address : undefined;
-                onChange(Number(position.lat.toFixed(6)), Number(position.lng.toFixed(6)), address);
+                onChange(Number(latStr), Number(lngStr), address);
+                if (address) {
+                    setStatusMessage(`ปักหมุดแล้ว: ${address}`);
+                    setTimeout(() => setStatusMessage(null), 4000);
+                }
             });
         };
 
+        // Drag marker to adjust
         marker.addListener('dragend', () => {
             const pos = marker.getPosition();
             if (pos) {
@@ -154,6 +182,7 @@ export default function GoogleMapLocationPicker({
             }
         });
 
+        // Click map anywhere to reposition marker
         map.addListener('click', (e: any) => {
             const clickedPos = e.latLng;
             if (clickedPos) {
@@ -162,6 +191,7 @@ export default function GoogleMapLocationPicker({
             }
         });
 
+        // Places Autocomplete
         if (searchInputRef.current && window.google.maps.places) {
             const autocomplete = new window.google.maps.places.Autocomplete(searchInputRef.current, {
                 componentRestrictions: { country: 'th' },
@@ -185,7 +215,10 @@ export default function GoogleMapLocationPicker({
                 const newLng = Number(newLocation.lng().toFixed(6));
                 setLocalLat(newLat.toString());
                 setLocalLng(newLng.toString());
-                onChange(newLat, newLng, place.formatted_address || place.name);
+                const addr = place.formatted_address || place.name;
+                onChange(newLat, newLng, addr);
+                setStatusMessage(`พบสถานที่: ${addr}`);
+                setTimeout(() => setStatusMessage(null), 4000);
             });
         }
     }, [isLoaded]);
@@ -201,6 +234,8 @@ export default function GoogleMapLocationPicker({
 
         const newPos = { lat: parsedLat, lng: parsedLng };
         onChange(parsedLat, parsedLng);
+        setStatusMessage(`อัปเดตพิกัด (${parsedLat}, ${parsedLng}) เรียบร้อย`);
+        setTimeout(() => setStatusMessage(null), 3000);
 
         if (mapInstanceRef.current && markerRef.current) {
             mapInstanceRef.current.panTo(newPos);
@@ -223,6 +258,8 @@ export default function GoogleMapLocationPicker({
                 setLocalLat(newLat.toString());
                 setLocalLng(newLng.toString());
                 onChange(newLat, newLng);
+                setStatusMessage('ระบุตำแหน่งปัจจุบันของอุปกรณ์สำเร็จ');
+                setTimeout(() => setStatusMessage(null), 3000);
 
                 if (mapInstanceRef.current && markerRef.current) {
                     const newPos = { lat: newLat, lng: newLng };
@@ -237,27 +274,65 @@ export default function GoogleMapLocationPicker({
         );
     };
 
-    // Fallback search using open geocoder
-    const handleFallbackSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!searchQuery.trim()) return;
+    // Unified Search handler (works in both Interactive and Fallback modes)
+    const handleSearch = async (e?: React.FormEvent | React.KeyboardEvent | React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
+        const query = (searchQuery || searchInputRef.current?.value || '').trim();
+        if (!query) return;
+
+        setIsSearching(true);
+
+        // If interactive Google Maps is loaded, try Google Geocoder first
+        if (isLoaded && window.google?.maps?.Geocoder && mapInstanceRef.current && markerRef.current) {
+            const geocoder = new window.google.maps.Geocoder();
+            geocoder.geocode(
+                { address: query, componentRestrictions: { country: 'TH' } },
+                async (results: any, status: string) => {
+                    if (status === 'OK' && results[0]?.geometry?.location) {
+                        const loc = results[0].geometry.location;
+                        mapInstanceRef.current.panTo(loc);
+                        mapInstanceRef.current.setZoom(17);
+                        markerRef.current.setPosition(loc);
+
+                        const newLat = Number(loc.lat().toFixed(6));
+                        const newLng = Number(loc.lng().toFixed(6));
+                        setLocalLat(newLat.toString());
+                        setLocalLng(newLng.toString());
+                        const addr = results[0].formatted_address;
+                        onChange(newLat, newLng, addr);
+                        setStatusMessage(`พบสถานที่: ${addr}`);
+                        setTimeout(() => setStatusMessage(null), 4000);
+                        setIsSearching(false);
+                    } else {
+                        // Fallback to internal geocode API
+                        await executeFallbackSearch(query);
+                    }
+                }
+            );
+            return;
+        }
+
+        // Standard / Fallback mode search
+        await executeFallbackSearch(query);
+    };
+
+    const executeFallbackSearch = async (query: string) => {
         setIsSearching(true);
         setShowResultsDropdown(true);
         try {
-            const q = encodeURIComponent(searchQuery.trim() + ' ประเทศไทย');
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=5&countrycodes=th`, {
-                headers: { 'Accept-Language': 'th' }
-            });
+            const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+            if (!res.ok) throw new Error('Failed to fetch geocode');
             const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-                setSearchResults(data.map(item => ({
-                    name: item.display_name,
-                    lat: parseFloat(item.lat),
-                    lng: parseFloat(item.lon)
-                })));
+            if (data && Array.isArray(data.results) && data.results.length > 0) {
+                setSearchResults(data.results);
             } else {
                 setSearchResults([]);
+                setStatusMessage('ไม่พบสถานที่ตรงกับคำค้นหา กรุณาระบุชื่อสถานที่ให้ชัดเจนยิ่งขึ้น');
+                setTimeout(() => setStatusMessage(null), 4000);
             }
         } catch (err) {
             console.error('Search error:', err);
@@ -275,6 +350,12 @@ export default function GoogleMapLocationPicker({
         onChange(newLat, newLng, result.name);
         setShowResultsDropdown(false);
         setSearchQuery(result.name);
+        if (searchInputRef.current) {
+            searchInputRef.current.value = result.name;
+        }
+
+        setStatusMessage(`เลือกพิกัด: ${result.name}`);
+        setTimeout(() => setStatusMessage(null), 4000);
 
         if (mapInstanceRef.current && markerRef.current) {
             const newPos = { lat: newLat, lng: newLng };
@@ -298,8 +379,24 @@ export default function GoogleMapLocationPicker({
                         <MapPin className="w-4 h-4" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-gray-900 text-sm">ค้นหาและปักหมุดตำแหน่ง (Google Maps)</h4>
-                        <p className="text-xs text-gray-500">พิมพ์ค้นหาสถานที่ หรือระบุพิกัด Lat, Lng เพื่อแสดงระยะทางที่แม่นยำ</p>
+                        <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-gray-900 text-sm">ค้นหาและปักหมุดตำแหน่ง (Google Maps)</h4>
+                            {isLoaded ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    Interactive Pin
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                                    Standard Map
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                            {isLoaded
+                                ? 'คลิกหรือลากหมุดบนแผนที่เพื่อขยับตำแหน่ง หรือพิมพ์ค้นหาด้านล่าง'
+                                : 'พิมพ์ค้นหาสถานที่ หรือระบุพิกัด Lat, Lng เพื่อคำนวณระยะทางโรงพยาบาล'}
+                        </p>
                     </div>
                 </div>
 
@@ -326,75 +423,100 @@ export default function GoogleMapLocationPicker({
                 </div>
             </div>
 
-            {/* Search Box */}
-            {isLoaded ? (
-                // Google Places Autocomplete (when API key is loaded)
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <Search className="w-4 h-4" />
+            {/* Error or Alert banner if load failed */}
+            {loadError && (
+                <div className="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-2.5 rounded-lg flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-1.5">
+                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                        <span>{loadError}</span>
                     </div>
-                    <input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder="พิมพ์ค้นหาชื่อศูนย์, ซอย หรือถนน..."
-                        className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') e.preventDefault();
-                        }}
-                    />
-                </div>
-            ) : (
-                // Instant Search Form (Works immediately without API key)
-                <div className="relative">
-                    <form onSubmit={handleFallbackSearch} className="flex gap-2">
-                        <div className="relative flex-1">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                <Search className="w-4 h-4" />
-                            </div>
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="พิมพ์ค้นหาสถานที่หรือที่อยู่ เช่น ซอยติวานนท์ 38/1, เมืองทองธานี..."
-                                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={isSearching}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shrink-0"
-                        >
-                            {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
-                            ค้นหา
-                        </button>
-                    </form>
-
-                    {/* Results Dropdown */}
-                    {showResultsDropdown && searchResults.length > 0 && (
-                        <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-52 overflow-y-auto">
-                            {searchResults.map((item, idx) => (
-                                <button
-                                    key={idx}
-                                    type="button"
-                                    onClick={() => handleSelectSearchResult(item)}
-                                    className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-b border-gray-50 last:border-0 flex items-start gap-2"
-                                >
-                                    <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
-                                    <span className="line-clamp-2">{item.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
+                    <button
+                        type="button"
+                        onClick={() => setLoadError(null)}
+                        className="text-amber-500 hover:text-amber-800 shrink-0 font-bold"
+                    >
+                        ✕
+                    </button>
                 </div>
             )}
 
+            {/* Status Feedback Message */}
+            {statusMessage && (
+                <div className="text-xs text-blue-800 bg-blue-50 border border-blue-200 p-2 rounded-lg flex items-center gap-1.5 animate-fadeIn">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>{statusMessage}</span>
+                </div>
+            )}
+
+            {/* Unified Search Box */}
+            <div className="relative">
+                <div className="flex gap-2">
+                    <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <Search className="w-4 h-4" />
+                        </div>
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleSearch(e);
+                                }
+                            }}
+                            placeholder="พิมพ์ค้นหาชื่อศูนย์, ซอย หรือสถานที่ เช่น ซอยติวานนท์ 38/1, แจ้งวัฒนะ..."
+                            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={(e) => handleSearch(e)}
+                        disabled={isSearching}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shrink-0 shadow-xs"
+                    >
+                        {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+                        ค้นหา
+                    </button>
+                </div>
+
+                {/* Results Dropdown (for fallback and external geocode results) */}
+                {showResultsDropdown && searchResults.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-30 max-h-56 overflow-y-auto">
+                        <div className="p-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                            <span>ผลการค้นหาสถานที่ ({searchResults.length})</span>
+                            <button
+                                type="button"
+                                onClick={() => setShowResultsDropdown(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                ปิด
+                            </button>
+                        </div>
+                        {searchResults.map((item, idx) => (
+                            <button
+                                key={idx}
+                                type="button"
+                                onClick={() => handleSelectSearchResult(item)}
+                                className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-b border-gray-50 last:border-0 flex items-start gap-2 transition-colors"
+                            >
+                                <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
+                                <span className="line-clamp-2">{item.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {/* Map Preview Container */}
-            <div className="relative w-full h-[280px] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+            <div className="relative w-full h-[300px] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                 {isLoaded ? (
-                    // Interactive Google Map (with draggable pin)
+                    // Interactive Google Map (Draggable pin & Click-to-pin)
                     <div ref={mapRef} className="w-full h-full" />
                 ) : (
-                    // Direct Google Map Embed (Free, no API key required, always works)
+                    // Direct Google Map Embed (Always accessible)
                     <iframe
                         title="Google Maps Location Preview"
                         src={googleMapsEmbedUrl}
@@ -405,6 +527,18 @@ export default function GoogleMapLocationPicker({
                         referrerPolicy="no-referrer-when-downgrade"
                     />
                 )}
+            </div>
+
+            {/* Instruction Tip */}
+            <div className="text-[11px] text-gray-500 bg-gray-50 px-3 py-1.5 rounded-md border border-gray-200/60 flex items-center justify-between">
+                <span>
+                    {isLoaded
+                        ? '💡 คุณสามารถคลิกจุดใดก็ได้บนแผนที่ หรือลากหมุดสีแดงเพื่อขยับพิกัดได้อย่างอิสระ'
+                        : '💡 โหมดแผนที่มาตรฐาน: พิมพ์ค้นหาด้านบน หรือกรอกตัวเลขพิกัดด้านล่างแล้วกด "ปรับพิกัด"'}
+                </span>
+                <span className="font-mono text-gray-400 text-[10px]">
+                    {parsedLat.toFixed(4)}, {parsedLng.toFixed(4)}
+                </span>
             </div>
 
             {/* Coordinate Inputs (Lat / Long) */}
@@ -418,6 +552,13 @@ export default function GoogleMapLocationPicker({
                         step="any"
                         value={localLat}
                         onChange={(e) => setLocalLat(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleApplyManualCoords();
+                            }
+                        }}
                         className="w-full px-2.5 py-1.5 text-xs bg-white border border-gray-300 rounded-md font-mono text-gray-800 focus:ring-1 focus:ring-blue-500 outline-none"
                         placeholder="เช่น 13.929415"
                     />
@@ -431,6 +572,13 @@ export default function GoogleMapLocationPicker({
                         step="any"
                         value={localLng}
                         onChange={(e) => setLocalLng(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleApplyManualCoords();
+                            }
+                        }}
                         className="w-full px-2.5 py-1.5 text-xs bg-white border border-gray-300 rounded-md font-mono text-gray-800 focus:ring-1 focus:ring-blue-500 outline-none"
                         placeholder="เช่น 100.532570"
                     />

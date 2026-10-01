@@ -166,17 +166,19 @@ export default function ContactMessageManagement() {
     };
 
     const filteredMessages = useMemo(() => {
-        return messages.filter(item => {
+        const q = (searchQuery || '').toLowerCase().trim();
+        return (messages || []).filter(item => {
+            if (!item) return false;
             const matchSearch =
-                searchQuery === '' ||
-                (item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (item.phone && item.phone.includes(searchQuery)) ||
-                (item.subject && item.subject.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (item.message && item.message.toLowerCase().includes(searchQuery.toLowerCase()));
+                q === '' ||
+                ((item.name || '').toLowerCase().includes(q)) ||
+                ((item.email || '').toLowerCase().includes(q)) ||
+                ((item.phone || '').includes(q)) ||
+                ((item.subject || '').toLowerCase().includes(q)) ||
+                ((item.message || '').toLowerCase().includes(q));
 
             const matchStatus =
-                statusFilter === 'all' || item.status?.toLowerCase() === statusFilter;
+                statusFilter === 'all' || (item.status || '').toLowerCase() === statusFilter;
 
             return matchSearch && matchStatus;
         });

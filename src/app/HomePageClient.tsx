@@ -916,27 +916,124 @@ export default function HomePageClient({
 
           </div>
 
-          {/* Trust Counter Badges (3 สถิติใต้กล่องค้นหา) */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-white text-sm sm:text-base font-semibold">
-            <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/20 shadow-sm hover:border-white/40 transition-all hover:scale-105">
-              <Image src="/images/badges/badge-carecenter.png" alt="950+ ศูนย์ดูแลทั่วไทย" width={36} height={36} className="w-7 h-7 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" priority />
-              <span><strong>950+</strong> ศูนย์ดูแลทั่วไทย</span>
-            </div>
-            <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/20 shadow-sm hover:border-white/40 transition-all hover:scale-105">
-              <Image src="/images/badges/badge-thailand-map.png" alt="ครอบคลุม 77 จังหวัด" width={36} height={36} className="w-7 h-7 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" priority />
-              <span>ครอบคลุม <strong>77 จังหวัด</strong></span>
-            </div>
-            <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/20 shadow-sm hover:border-white/40 transition-all hover:scale-105">
-              <Image src="/images/badges/badge-proximity-pin.png" alt="คำนวณพิกัด ใกล้บ้านคุณ" width={36} height={36} className="w-7 h-7 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" priority />
-              <span>คำนวณพิกัด <strong>ใกล้บ้านคุณ</strong></span>
-            </div>
-          </div>
-
         </div>
 
       </div>
 
+      {/* 🌟 Trust & Feature Hub Section (ใช้พื้นที่ให้คุ้มค่า มีประโยชน์ และสามารถกดใช้งานได้จริง) */}
+      <section className="bg-gradient-to-b from-white to-slate-50/70 py-6 sm:py-8 shadow-xs">
+        <div className="container max-w-6xl mx-auto px-4">
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
+
+            {/* Card 1: 950+ ศูนย์ดูแลทั่วไทย */}
+            <div
+              // onClick={scrollToResults}
+              className="group transition-all duration-200 flex flex-col justify-between"
+            >
+              <div className="flex items-start gap-3.5">
+                <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
+                  <Image src="/images/badges/badge-carecenter.png" alt="950+ ศูนย์ดูแลทั่วไทย" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-xl sm:text-2xl font-extrabold text-[#2b64a0] tracking-tight">950+</span>
+                    <span className="text-sm sm:text-base font-bold text-gray-900">ศูนย์ดูแลทั่วไทย</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                    ศูนย์พักฟื้น เนอร์สซิ่งโฮม และดูแลผู้สูงอายุ คัดสรรข้อมูลครบถ้วน พร้อมราคาจริง
+                  </p>
+                </div>
+              </div>
+              {/* <div className="mt-3.5 pt-2.5 border-t border-gray-100 flex items-center text-xs sm:text-sm font-semibold text-[#2b64a0] group-hover:text-blue-700">
+                <span>เลือกดูศูนย์ทั้งหมด</span>
+                <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div> */}
+            </div>
+
+            {/* Card 2: ครอบคลุม 77 จังหวัด */}
+            <div className="group transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-start gap-3.5">
+                <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
+                  <Image src="/images/badges/badge-thailand-map.png" alt="ครอบคลุม 77 จังหวัด" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-xl sm:text-2xl font-extrabold text-[#2b64a0] tracking-tight">77</span>
+                    <span className="text-sm sm:text-base font-bold text-gray-900">จังหวัดทั่วไทย</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                    ครอบคลุมทั้งกรุงเทพฯ ปริมณฑล และทุกภูมิภาค ค้นหาได้ใกล้บ้านคนที่คุณรัก
+                  </p>
+                </div>
+              </div>
+              {/* <div className="mt-3.5 pt-2.5 border-t border-gray-100 flex flex-wrap items-center gap-1.5 text-xs">
+                <span className="text-gray-400 font-medium">ยอดนิยม:</span>
+                {['กรุงเทพมหานคร', 'นนทบุรี', 'เชียงใหม่', 'ชลบุรี'].map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => { setProvince(p); setSortByDistance(false); scrollToResults(); }}
+                    className="px-2 py-0.5 rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-800 font-medium transition-colors cursor-pointer"
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div> */}
+            </div>
+
+            {/* Card 3: คำนวณพิกัด ใกล้บ้านคุณ */}
+            <div className="group transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-start gap-3.5">
+                <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
+                  <Image src="/images/badges/badge-proximity-pin.png" alt="คำนวณพิกัด ใกล้บ้านคุณ" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-sm sm:text-base font-bold text-gray-900">คำนวณพิกัด</span>
+                    {/* <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">GPS แม่นยำ</span> */}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                    ค้นหาศูนย์ดูแลที่ใกล้พิกัดปัจจุบันของคุณมากที่สุด คำนวณระยะทางจริงอัตโนมัติ
+                  </p>
+                </div>
+              </div>
+              {/* <div className="mt-3.5 pt-2.5 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={handleNearMe}
+                  disabled={isLocating}
+                  className="w-full py-2 px-3 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-98 cursor-pointer"
+                >
+                  {isLocating ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Navigation className="w-4 h-4" />
+                  )}
+                  <span>{isLocating ? 'กำลังค้นหาพิกัด...' : 'กดค้นหาศูนย์ใกล้ฉันทันที'}</span>
+                </button>
+              </div> */}
+            </div>
+
+          </div>
+
+          {/* Value Props Strip ด้านล่าง เสริมความน่าเชื่อถือ */}
+          {/* <div className="mt-5 pt-4 border-t border-gray-200/60 flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-10 gap-y-2 text-xs sm:text-sm text-gray-600 font-medium">
+            <span className="inline-flex items-center gap-1.5 text-slate-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              ฐานข้อมูลอัปเดตมาตรฐานต่อเนื่อง
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-slate-700">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              ตรวจสอบสถานพยาบาลใกล้เคียงได้ในตัว
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-slate-700">
+              <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+              นัดหมายเยี่ยมชมฟรี ไม่มีค่าธรรมเนียม
+            </span>
+          </div> */}
+
+        </div>
+      </section>
 
       {/* 🌟 Ads Section (ประชาสัมพันธ์) */}
 

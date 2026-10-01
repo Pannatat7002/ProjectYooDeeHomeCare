@@ -173,17 +173,19 @@ export default function ConsultationManagement() {
 
     // --- Filtering & Pagination ---
     const filteredConsultations = useMemo(() => {
-        return consultations.filter(item => {
+        const q = (searchQuery || '').toLowerCase().trim();
+        return (consultations || []).filter(item => {
+            if (!item) return false;
             const matchSearch =
-                searchQuery === '' ||
-                (item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (item.phone && item.phone.includes(searchQuery)) ||
-                (item.branch && item.branch.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (item.recipientName && item.recipientName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (item.message && item.message.toLowerCase().includes(searchQuery.toLowerCase()));
+                q === '' ||
+                ((item.name || '').toLowerCase().includes(q)) ||
+                ((item.phone || '').includes(q)) ||
+                ((item.branch || '').toLowerCase().includes(q)) ||
+                ((item.recipientName || '').toLowerCase().includes(q)) ||
+                ((item.message || '').toLowerCase().includes(q));
 
             const matchStatus =
-                statusFilter === 'all' || item.status?.toLowerCase() === statusFilter;
+                statusFilter === 'all' || (item.status || '').toLowerCase() === statusFilter;
 
             return matchSearch && matchStatus;
         });

@@ -88,7 +88,7 @@ export default function ManageCenterPage() {
     const [isKeyBannerDismissed, setIsKeyBannerDismissed] = useState(false);
 
     useEffect(() => {
-        const envKey = process.env.CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+        const envKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
         const savedKey = typeof window !== 'undefined' ? localStorage.getItem('google_maps_api_key') : null;
         setMapsApiKey(envKey || savedKey || '');
         if (typeof window !== 'undefined' && sessionStorage.getItem('dismiss_maps_banner')) {
@@ -118,13 +118,14 @@ export default function ManageCenterPage() {
             const res = await fetch('/api/care-centers');
             if (!res.ok) throw new Error('Failed to fetch');
             const data = await res.json();
-            const normalizedData = data.map((center: CareCenter) => ({
+            const rawList = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+            const normalizedData = rawList.map((center: CareCenter) => ({
                 ...center,
-                imageUrls: Array.isArray(center.imageUrls) ? center.imageUrls.filter((u: string) => u && u.trim() !== '') : [],
+                imageUrls: Array.isArray(center?.imageUrls) ? center.imageUrls.filter((u: string) => u && u.trim() !== '') : [],
             }));
-            setCenters(normalizedData.sort((a: CareCenter, b: CareCenter) => b.id - a.id));
+            setCenters(normalizedData.sort((a: CareCenter, b: CareCenter) => (b?.id || 0) - (a?.id || 0)));
         } catch (error) {
-            console.error(error);
+            console.error('Fetch centers error:', error);
         } finally {
             setIsLoading(false);
         }
@@ -136,22 +137,23 @@ export default function ManageCenterPage() {
 
     // --- Logic การกรองแบบรวมศูนย์ ---
     const filteredCenters = useMemo(() => {
-        let currentCenters = centers;
-        const lowerCaseSearch = searchTerm.toLowerCase().trim();
+        let currentCenters = Array.isArray(centers) ? centers : [];
+        const lowerCaseSearch = (searchTerm || '').toLowerCase().trim();
 
         // 1. กรองตามจังหวัด
         if (filterProvince !== 'ทั้งหมด') {
-            currentCenters = currentCenters.filter(center => center.province === filterProvince);
+            currentCenters = currentCenters.filter(center => center && center.province === filterProvince);
         }
 
         // 2. กรองตามสถานะ (Status)
         if (filterStatus !== 'all') {
-            currentCenters = currentCenters.filter(center => center.status === filterStatus);
+            currentCenters = currentCenters.filter(center => center && center.status === filterStatus);
         }
 
         // 3. กรองตามประเภท (Type)
         if (filterType !== 'all') {
             currentCenters = currentCenters.filter(center => {
+                if (!center) return false;
                 // ถ้าเลือกรายเดือน ต้องเจอ monthly หรือ both
                 if (filterType === 'monthly') return center.type === 'monthly' || center.type === 'both';
                 // ถ้าเลือกรายวัน ต้องเจอ daily หรือ both
@@ -163,16 +165,21 @@ export default function ManageCenterPage() {
         // 4. กรองตามพาร์ทเนอร์ (Partner)
         if (filterPartner !== 'all') {
             const isPartnerBool = filterPartner === 'true';
-            currentCenters = currentCenters.filter(center => center.isPartner === isPartnerBool);
+            currentCenters = currentCenters.filter(center => center && center.isPartner === isPartnerBool);
         }
 
         // 5. กรองตามข้อความค้นหา (Search)
         if (lowerCaseSearch) {
-            currentCenters = currentCenters.filter(center =>
-                center.name.toLowerCase().includes(lowerCaseSearch) ||
-                (center.province && center.province.toLowerCase().includes(lowerCaseSearch)) ||
-                (center.utmSource && center.utmSource.toLowerCase().includes(lowerCaseSearch))
-            );
+            currentCenters = currentCenters.filter(center => {
+                if (!center) return false;
+                const nameMatch = (center.name || '').toLowerCase().includes(lowerCaseSearch);
+                const provinceMatch = (center.province || '').toLowerCase().includes(lowerCaseSearch);
+                const addressMatch = (center.address || '').toLowerCase().includes(lowerCaseSearch);
+                const phoneMatch = (center.phone || '').toLowerCase().includes(lowerCaseSearch);
+                const brandMatch = (center.brandName || '').toLowerCase().includes(lowerCaseSearch);
+                const utmMatch = (center.utmSource || '').toLowerCase().includes(lowerCaseSearch);
+                return nameMatch || provinceMatch || addressMatch || phoneMatch || brandMatch || utmMatch;
+            });
         }
 
         return currentCenters;

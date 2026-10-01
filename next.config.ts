@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.CONFIG_NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
