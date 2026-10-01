@@ -16,6 +16,7 @@ import {
     Eye
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import * as gtag from '../../lib/gtag';
 import { CareCenter, RoomType } from '../../types/index';
 import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
@@ -1501,8 +1502,9 @@ export default function CenterDetailClient({
                         {/* สถานพยาบาลที่อยู่ใกล้ */}
                         {nearbyHospitals && nearbyHospitals.length > 0 && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
-                                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3">
-                                    สถานพยาบาลที่อยู่ใกล้
+                                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 flex items-center gap-2.5">
+                                    <Image src="/images/badges/badge-hospital.png" alt="สถานพยาบาลใกล้เคียง" width={80} height={80} className="w-12 h-12 sm:w-16 sm:h-16 object-contain shrink-0 drop-shadow-xs" />
+                                    <span>สถานพยาบาลที่อยู่ใกล้</span>
                                 </h3>
                                 <div className="space-y-2 text-sm sm:text-base">
                                     {nearbyHospitals.map((item, idx) => {
@@ -1517,7 +1519,7 @@ export default function CenterDetailClient({
                                                     {hosp.nameTh}
                                                 </Link>
                                                 <span className="text-gray-500 shrink-0 font-medium text-sm">
-                                                    ระยะ {Number(item.distanceKm).toFixed(1)}
+                                                    ระยะประมาณ {Number(item.distanceKm).toFixed(1)}
                                                 </span>
                                             </div>
                                         );

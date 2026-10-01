@@ -22,7 +22,6 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { INITIAL_HOSPITALS, findTopNearbyHospitals } from '../lib/hospitalProximity';
 
 // *** สมมติว่า types.ts ถูกกำหนดไว้แล้ว ***
 
@@ -151,10 +150,9 @@ const BlogCardImage = ({ src, alt }: { src?: string; alt: string }) => {
 interface CenterCardProps {
   center: CareCenter;
   userLocation?: { lat: number; lng: number } | null;
-  hospitals?: any[];
 }
 
-const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, hospitals = [] }) => {
+const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
   const createSlug = (name: string) => encodeURIComponent(name.replace(/\s+/g, '-'));
 
   const distance = useMemo(() => {
@@ -163,16 +161,6 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, hospitals
     }
     return null;
   }, [userLocation, center]);
-
-  const nearestHospitals = useMemo(() => {
-    if (center.nearbyHospitals && center.nearbyHospitals.length > 0) {
-      return center.nearbyHospitals.slice(0, 2);
-    }
-    if (center.lat && center.lng && hospitals && hospitals.length > 0) {
-      return findTopNearbyHospitals(Number(center.lat), Number(center.lng), hospitals, 2);
-    }
-    return [];
-  }, [center, hospitals]);
 
 
 
@@ -317,38 +305,6 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, hospitals
 
           </div>
 
-          {/* สถานพยาบาลที่อยู่ใกล้ */}
-          {nearestHospitals.length > 0 && (
-            <div className="mt-auto pt-2.5 border-t border-gray-100 text-xs">
-              <div className="text-gray-500 font-medium mb-1">สถานพยาบาลที่อยู่ใกล้</div>
-              <div className="space-y-1">
-                {nearestHospitals.map((item: any, idx: number) => {
-                  const hosp = item.hospital || item;
-                  const hospId = hosp.id || item.hospitalId;
-                  const hospName = hosp.nameTh || item.nameTh;
-                  const dist = Number(item.distanceKm).toFixed(1);
-                  return (
-                    <div key={idx} className="flex justify-between items-center text-gray-700">
-                      <span
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          window.location.href = `/hospitals/${hospId}?fromCenter=${encodeURIComponent(center.name)}&centerLat=${center.lat}&centerLng=${center.lng}`;
-                        }}
-                        className="hover:text-blue-600 truncate mr-2 font-medium cursor-pointer"
-                        title="คลิกเพื่อดูรายละเอียดสถานพยาบาล"
-                      >
-                        {hospName}
-                      </span>
-                      <span className="text-gray-500 shrink-0 font-medium text-[11px]">
-                        ระยะ {dist}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
 
 
@@ -529,24 +485,10 @@ export default function HomePageClient({
   const [priceRange, setPriceRange] = useState('all');
   const [province, setProvince] = useState('all');
 
-  // Hospital list for calculating distance in cards
-  const [hospitalsList, setHospitalsList] = useState<any[]>(INITIAL_HOSPITALS);
-
   // Location State
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [sortByDistance, setSortByDistance] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/hospitals?limit=100')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          setHospitalsList(data.data);
-        }
-      })
-      .catch(() => { });
-  }, []);
 
 
 
@@ -975,17 +917,17 @@ export default function HomePageClient({
           </div>
 
           {/* Trust Counter Badges (3 สถิติใต้กล่องค้นหา) */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-white text-xs sm:text-sm font-semibold">
-            <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-sm">
-              <span className="text-base">🏢</span>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-white text-sm sm:text-base font-semibold">
+            <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/20 shadow-sm hover:border-white/40 transition-all hover:scale-105">
+              <Image src="/images/badges/badge-carecenter.png" alt="950+ ศูนย์ดูแลทั่วไทย" width={36} height={36} className="w-7 h-7 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" priority />
               <span><strong>950+</strong> ศูนย์ดูแลทั่วไทย</span>
             </div>
-            <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-sm">
-              <span className="text-base">🗺️</span>
+            <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/20 shadow-sm hover:border-white/40 transition-all hover:scale-105">
+              <Image src="/images/badges/badge-thailand-map.png" alt="ครอบคลุม 77 จังหวัด" width={36} height={36} className="w-7 h-7 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" priority />
               <span>ครอบคลุม <strong>77 จังหวัด</strong></span>
             </div>
-            <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-sm">
-              <span className="text-base">📍</span>
+            <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/20 shadow-sm hover:border-white/40 transition-all hover:scale-105">
+              <Image src="/images/badges/badge-proximity-pin.png" alt="คำนวณพิกัด ใกล้บ้านคุณ" width={36} height={36} className="w-7 h-7 sm:w-9 sm:h-9 object-contain shrink-0 drop-shadow-sm" priority />
               <span>คำนวณพิกัด <strong>ใกล้บ้านคุณ</strong></span>
             </div>
           </div>
@@ -1143,7 +1085,6 @@ export default function HomePageClient({
                   <CenterCard
                     center={center}
                     userLocation={userLocation}
-                    hospitals={hospitalsList}
                   />
                 </div>
 
@@ -1201,19 +1142,12 @@ export default function HomePageClient({
 
 
         {/* 4. ส่วน: ผลลัพธ์การค้นหาทั้งหมด */}
-
         <section>
-
           <div className="flex justify-between items-end mb-6">
-
             <div>
-
               <h2 className="text-2xl font-bold text-gray-800">
-
                 {isSearchActive ? 'ผลลัพธ์จากการค้นหา' : 'ศูนย์ดูแลทั้งหมด'}
-
               </h2>
-
               <p className="text-gray-500 text-sm mt-1">
                 {isSearchActive
                   ? `พบข้อมูลจำนวน ${totalCount} แห่ง ตามเงื่อนไขที่คุณเลือก (แสดงแล้ว ${centers.length} แห่ง)`
@@ -1244,7 +1178,6 @@ export default function HomePageClient({
                     key={center.id}
                     center={center}
                     userLocation={userLocation}
-                    hospitals={hospitalsList}
                   />
                 ))}
 

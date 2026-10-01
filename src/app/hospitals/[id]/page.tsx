@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Navigation, MapPin, Phone, Building2, ShieldCheck, Compass } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, Navigation, MapPin } from 'lucide-react';
 import { getHospitalById } from '../../../lib/db';
 import { calculateHaversineDistance, getGoogleMapsRouteUrl } from '../../../lib/hospitalProximity';
 
@@ -16,8 +17,9 @@ interface Props {
     }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
     const { id } = await params;
+    const { fromCenter } = await searchParams;
     const hospital = await getHospitalById(id);
 
     if (!hospital) {
@@ -26,9 +28,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    const titleName = hospital.nameEn ? `${hospital.nameTh} (${hospital.nameEn})` : hospital.nameTh;
+    const fromText = fromCenter ? ` ใกล้${fromCenter}` : '';
     return {
-        title: `${hospital.nameTh} | รายละเอียดสถานพยาบาล ThaiCareCenter`,
-        description: `ข้อมูลและพิกัดเส้นทาง ${hospital.nameTh} (${hospital.nameEn || ''}) ${hospital.district || ''} ${hospital.province || ''}`,
+        title: `${titleName}${fromText} - ข้อมูลสถานพยาบาลและแผนที่นำทาง | ThaiCareCenter`,
+        description: `แผนที่ พิกัด และเส้นทางนำทางไปยัง ${titleName}${hospital.address ? ` ตั้งอยู่ที่ ${hospital.address}` : ''} ${hospital.province ? `จ.${hospital.province}` : ''}`,
     };
 }
 
@@ -62,156 +66,120 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
         )
         : `https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`;
 
+    const mapEmbedUrl = hospital.latitude && hospital.longitude
+        ? `https://maps.google.com/maps?q=${hospital.latitude},${hospital.longitude}&hl=th&z=15&output=embed`
+        : null;
+
+    const displayName = hospital.nameEn
+        ? `${hospital.nameTh} (${hospital.nameEn})`
+        : hospital.nameTh;
+
     return (
         <div className="min-h-screen bg-white">
-            <article className="pt-10 pb-16">
-                <div className="container mx-auto max-w-4xl px-4">
+            <main className="container mx-auto max-w-4xl px-4 pt-6 pb-12">
 
-                    {/* Back Link */}
-                    <div className="mb-6">
-                        <Link
-                            href="/"
-                            className="inline-flex items-center text-gray-500 hover:text-[#2b64a0] transition-colors text-sm font-medium"
-                        >
-                            <ArrowLeft className="w-4 h-4 mr-1.5" />
-                            กลับหน้าหลัก
-                        </Link>
-                    </div>
-
-                    {/* Header */}
-                    <header className="mb-8 border-b border-gray-100 pb-6">
-                        <div className="flex flex-wrap items-center gap-2 mb-3">
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                                <Building2 className="w-3.5 h-3.5" />
-                                {hospital.hospitalType || 'สถานพยาบาล'}
-                            </span>
-                            {hospital.province && (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
-                                    <MapPin className="w-3.5 h-3.5 text-gray-500" />
-                                    {hospital.province}
-                                </span>
-                            )}
-                            {hospital.level && (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
-                                    <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
-                                    {hospital.level}
-                                </span>
-                            )}
-                        </div>
-
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-2 leading-tight">
-                            {hospital.nameTh}
-                        </h1>
-
-                        {hospital.nameEn && (
-                            <p className="text-lg md:text-xl text-gray-500 font-medium mb-3">
-                                {hospital.nameEn}
-                            </p>
-                        )}
-
-                        {hospital.affiliation && (
-                            <p className="text-sm text-gray-600">
-                                สังกัด: <span className="font-semibold text-gray-800">{hospital.affiliation}</span>
-                            </p>
-                        )}
-                    </header>
-
-                    {/* Content Section */}
-                    <div className="space-y-6">
-
-                        {/* Relative Proximity to Care Center Notice (if navigated from center) */}
-                        {fromCenter && (
-                            <div className="p-4 bg-blue-50/70 border border-blue-100 rounded-xl text-sm text-blue-900 flex items-start gap-3">
-                                <Compass className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                                <div>
-                                    <div className="font-bold">
-                                        เชื่อมโยงกับศูนย์ดูแล: {fromCenter}
-                                    </div>
-                                    {distanceKm && (
-                                        <div className="text-xs text-blue-700 mt-0.5">
-                                            ระยะห่างจากศูนย์ดูแล: <span className="font-extrabold">~{distanceKm} กม.</span> (ระยะทางตรง ไม่ได้อิงจากเส้นทางถนน)
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Hospital Details Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* ที่อยู่ */}
-                            <div className="p-5 rounded-xl border border-gray-100 bg-gray-50/60">
-                                <div className="flex items-center gap-2 text-gray-700 font-bold mb-2 text-sm">
-                                    <MapPin className="w-4 h-4 text-blue-600" />
-                                    ที่อยู่และสถานที่ตั้ง
-                                </div>
-                                <p className="text-gray-700 text-sm leading-relaxed">
-                                    {hospital.address || `${hospital.district || ''} ${hospital.province || ''}`}
-                                </p>
-                                {hospital.latitude && hospital.longitude && (
-                                    <p className="text-xs text-gray-400 mt-2 font-mono">
-                                        พิกัด: {hospital.latitude.toFixed(4)}, {hospital.longitude.toFixed(4)}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* เบอร์โทรศัพท์ */}
-                            <div className="p-5 rounded-xl border border-gray-100 bg-gray-50/60">
-                                <div className="flex items-center gap-2 text-gray-700 font-bold mb-2 text-sm">
-                                    <Phone className="w-4 h-4 text-blue-600" />
-                                    การติดต่อ
-                                </div>
-                                <div className="space-y-1.5 text-sm">
-                                    {hospital.phone && (
-                                        <div>
-                                            <span className="text-gray-500">โทรทั่วไป: </span>
-                                            <a
-                                                href={`tel:${hospital.phone.replace(/[^0-9]/g, '')}`}
-                                                className="font-bold text-gray-900 hover:text-blue-600 hover:underline"
-                                            >
-                                                {hospital.phone}
-                                            </a>
-                                        </div>
-                                    )}
-                                    {hospital.emergencyPhone && (
-                                        <div>
-                                            <span className="text-red-600 font-semibold">เบอร์ฉุกเฉิน: </span>
-                                            <a
-                                                href={`tel:${hospital.emergencyPhone.replace(/[^0-9]/g, '')}`}
-                                                className="font-extrabold text-red-600 hover:underline"
-                                            >
-                                                {hospital.emergencyPhone}
-                                            </a>
-                                        </div>
-                                    )}
-                                    {!hospital.phone && !hospital.emergencyPhone && (
-                                        <p className="text-gray-400 text-xs">ติดต่อสายด่วนกู้ชีพฉุกเฉิน 1669</p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Single Clean Action: ปุ่มเปิด Google Maps นำทาง */}
-                        <div className="pt-6">
-                            <a
-                                href={navigationUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#2b64a0] hover:bg-[#1e4a77] text-white text-base font-bold rounded-xl transition-all shadow-md shadow-[#2b64a0]/25"
-                            >
-                                <Navigation className="w-5 h-5" />
-                                {hasOrigin ? 'เปิด Google Maps นำทางจากศูนย์ดูแล' : 'เปิด Google Maps นำทางไปยังโรงพยาบาล'}
-                            </a>
-                        </div>
-
-                        {/* Simple Clean Disclaimer Note */}
-                        <div className="pt-8 border-t border-gray-100 text-xs text-gray-400 leading-relaxed">
-                            * ข้อมูลสถานพยาบาลและพิกัดจัดทำขึ้นเพื่อความสะดวกในการสัญจรและการประสานงานส่งต่อผู้สูงอายุ กรณีเหตุฉุกเฉินทางการแพทย์วิกฤต กรุณาติดต่อสายด่วนกู้ชีพ 1669
-                        </div>
-
-                    </div>
-
+                {/* ปุ่มย้อนกลับ */}
+                <div className="mb-4">
+                    <Link
+                        href="/"
+                        className="inline-flex items-center text-gray-500 hover:text-[#2b64a0] transition-colors text-sm font-medium"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-1.5" />
+                        กลับ
+                    </Link>
                 </div>
-            </article>
+
+                {/* Header / Detail Title */}
+                <div className="mb-4">
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                            <Image src="/images/badges/badge-hospital.png" alt="สถานพยาบาล" width={24} height={24} className="w-5 h-5 object-contain shrink-0" />
+                            ข้อมูลสถานพยาบาลและการนำทาง
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            <Image src="/images/badges/badge-emergency.png" alt="การส่งต่อฉุกเฉิน" width={24} height={24} className="w-5 h-5 object-contain shrink-0" />
+                            รองรับการส่งต่อฉุกเฉิน
+                        </span>
+                        {hospital.hospitalType && (
+                            <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md">
+                                {hospital.hospitalType}
+                            </span>
+                        )}
+                        {hospital.province && (
+                            <span className="text-xs text-gray-500 font-medium">
+                                📍 {hospital.province}
+                            </span>
+                        )}
+                    </div>
+
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-snug">
+                        {hospital.nameTh}
+                        {hospital.nameEn && (
+                            <span className="text-lg sm:text-xl font-normal text-gray-500 ml-2 block sm:inline">
+                                ({hospital.nameEn})
+                            </span>
+                        )}
+                    </h1>
+
+                    {/* Proximity & Address info */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600 mt-1.5">
+                        {fromCenter && (
+                            <p className="text-sm text-gray-700">
+                                ห่างจาก <span className="font-semibold text-gray-900">{fromCenter}</span>
+                                {distanceKm && (
+                                    <> ระยะประมาณ <span className="font-semibold text-[#2b64a0]">{distanceKm}</span> กม.*</>
+                                )}
+                            </p>
+                        )}
+                        {hospital.address && (
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                {hospital.address}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* [ MAP ] */}
+                <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-xs h-[340px] sm:h-[440px] bg-gray-100 relative mb-4">
+                    {mapEmbedUrl ? (
+                        <iframe
+                            src={mapEmbedUrl}
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title={`แผนที่ ${displayName}`}
+                            className="w-full h-full"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm">
+                            <MapPin className="w-8 h-8 mb-2 opacity-40" />
+                            <span>ไม่พบข้อมูลพิกัดแผนที่</span>
+                        </div>
+                    )}
+                </div>
+
+                {/* [ นำทาง ] */}
+                <a
+                    href={navigationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-[#2b64a0] hover:bg-[#1e4a77] text-white text-base font-bold rounded-xl shadow-md shadow-[#2b64a0]/25 transition-all active:scale-[0.99]"
+                >
+                    <Navigation className="w-5 h-5" />
+                    นำทาง
+                </a>
+
+                {fromCenter && (
+                    <p className="text-[11px] text-gray-400 text-center mt-3">
+                        *ระยะทางตรง ไม่ได้อิงจากเส้นทางถนน
+                    </p>
+                )}
+
+            </main>
         </div>
     );
 }
