@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 
-import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2 } from 'lucide-react';
+import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X } from 'lucide-react';
 
 // Inline SVG data URI สำหรับ fallback image — ป้องกัน onError loop
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f3f4f6' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -195,16 +195,16 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
 
 
+          {/* 
+              <div className="absolute top-3 left-3 flex gap-2">
 
-          <div className="absolute top-3 left-3 flex gap-2">
+                {center.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
 
-            {center.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
+                {center.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
 
-            {center.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
+                {center.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
 
-            {center.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
-
-          </div>
+              </div> */}
 
 
 
@@ -790,7 +790,7 @@ export default function HomePageClient({
           </div>
 
           {/* Search Box Container */}
-          <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-white/40">
+          <div className="max-w-4xl lg:max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-white/40">
             {/* Layout Wrapper: ใช้ flex-col เพื่อให้ Input อยู่บรรทัดบนเสมอ */}
             <div className="flex flex-col gap-4">
               {/* === ROW 1: Search Input (Full Width) === */}
@@ -822,14 +822,14 @@ export default function HomePageClient({
               </div>
 
               {/* === ROW 2: Filters & Actions === */}
-              <div className="flex flex-col lg:flex-row gap-3 justify-between lg:items-center">
+              <div className="flex flex-col lg:flex-row gap-2.5 justify-between lg:items-center">
                 {/* Filters Group */}
-                <div className="grid grid-cols-2 lg:flex gap-2 w-full lg:w-auto">
+                <div className="grid grid-cols-2 lg:flex gap-2 w-full lg:flex-1 min-w-0">
                   {/* ปุ่มใกล้ฉัน (Desktop - GPS Spotlight Button เด่นชัด) */}
                   <button
                     onClick={handleNearMe}
                     disabled={isLocating}
-                    className={`hidden lg:flex px-5 py-3 rounded-xl items-center gap-2 font-bold transition-all whitespace-nowrap shadow-sm cursor-pointer ${sortByDistance
+                    className={`hidden lg:flex px-4 py-3 rounded-xl items-center gap-2 font-bold transition-all whitespace-nowrap shadow-sm cursor-pointer shrink-0 text-sm ${sortByDistance
                       ? 'bg-blue-600 text-white shadow-md ring-4 ring-blue-500/20'
                       : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600'
                       }`}
@@ -839,16 +839,15 @@ export default function HomePageClient({
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <span className="relative flex h-3.5 w-3.5 items-center justify-center">
-                        {/* <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span> */}
                         <Navigation className={`relative w-3.5 h-3.5 ${sortByDistance ? 'fill-current' : ''}`} />
                       </span>
                     )}
-                    <span>ค้นหาศูนย์ใกล้ฉัน</span>
+                    <span>ใกล้ฉัน</span>
                   </button>
 
                   {/* Select Filters */}
                   <select
-                    className="col-span-2 lg:col-span-1 px-4 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm lg:text-base lg:min-w-[160px] cursor-pointer"
+                    className="col-span-2 lg:col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
                     value={province}
                     onChange={handleProvinceChange}
                   >
@@ -857,32 +856,31 @@ export default function HomePageClient({
                   </select>
 
                   <select
-                    className="px-4 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm lg:text-base cursor-pointer"
+                    className="col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
                     value={careType}
                     onChange={handleCareTypeChange}
                   >
                     <option value="all">ทุกประเภท</option>
-                    <option value="daily">รายวัน</option>
-                    <option value="monthly">รายเดือน</option>
+                    <option value="daily">รายวัน (Day Care)</option>
+                    <option value="monthly">รายเดือน (พักค้างคืน)</option>
                   </select>
 
                   <select
-                    className="px-4 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm lg:text-base cursor-pointer"
+                    className="col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
                     value={priceRange}
                     onChange={handlePriceChange}
                   >
-                    <option value="all">ทุกราคา</option>
-                    <option value="0-20000">&lt; 20k</option>
-                    <option value="20001-25000">20k-25k</option>
-                    <option value="25001-999999">&gt; 25k</option>
+                    <option value="all">ทุกช่วงราคา</option>
+                    <option value="0-20000">ต่ำกว่า 20,000 บาท</option>
+                    <option value="20001-25000">20,000 - 25,000 บาท</option>
+                    <option value="25001-999999">มากกว่า 25,000 บาท</option>
                   </select>
                 </div>
-
 
                 {/* Search Button */}
                 <button
                   onClick={scrollToResults}
-                  className="w-full lg:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 lg:ml-auto"
+                  className="w-full lg:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 shrink-0 cursor-pointer text-sm md:text-base lg:ml-1"
                 >
                   <Search className="w-5 h-5 lg:hidden" />
                   ค้นหาข้อมูล
@@ -897,7 +895,7 @@ export default function HomePageClient({
                 <button
                   key={prov}
                   onClick={() => { setProvince(prov); setSortByDistance(false); gtag.event({ action: 'quick_select_province', category: 'Engagement', label: prov }); }}
-                  className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all border ${province === prov ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
+                  className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all border ${province === prov ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'} cursor-pointer`}
                 >
                   {prov}
                 </button>
@@ -907,7 +905,7 @@ export default function HomePageClient({
               {isSearchActive && (
                 <button
                   onClick={handleClearFilters}
-                  className="text-red-500 text-xs md:text-sm font-medium hover:underline ml-2 flex items-center gap-1"
+                  className="text-red-500 text-xs md:text-sm font-medium hover:underline ml-2 flex items-center gap-1 cursor-pointer"
                 >
                   <XCircle className="w-4 h-4" /> ล้างค่าทั้งหมด
                 </button>

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
 
@@ -52,29 +53,9 @@
   --color-indigo-950: #0a1829;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-
-    /* Adjust colors for dark mode */
-    --text-primary: #ededed;
-    --text-secondary: #d4d4d4;
-    /* lighter for dark backgrounds */
-    --text-muted: #a3a3a3;
-    /* gray-400 works better on dark */
-    --link-color: #60a5fa;
-    /* blue-400 - better for dark mode */
-    --link-hover: #93c5fd;
-    /* blue-300 */
-    --success-color: #4ade80;
-    /* green-400 - better for dark mode */
-    --success-hover: #86efac;
-    /* green-300 */
-  }
-}
-
+html,
 body {
+  color-scheme: light;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;

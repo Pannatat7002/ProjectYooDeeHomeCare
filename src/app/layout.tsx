@@ -23,6 +23,7 @@ const BASE_URL = 'https://ThaiCareCenter.com';
 // ** ส่วนเสริม: Viewport (แยกออกมาใน Next.js เวอร์ชันใหม่) **
 export const viewport: Viewport = {
   themeColor: '#ffffff', // ปรับตามสีแบรนด์ของคุณ
+  colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5, // อนุญาตให้ user zoom ได้ (Accessibility)
@@ -136,7 +137,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="th">
+    <html lang="th" className="light" style={{ colorScheme: 'light' }}>
       <body className={`${sarabun.variable} ${sarabun.className} font-sans bg-gray-50 min-h-screen flex flex-col`}>
         {/* ใส่ JSON-LD Script */}
         <script
