@@ -1,7 +1,7 @@
 // src/app/layout.tsx
 
 import type { Metadata, Viewport } from "next"; // เพิ่ม Viewport
-import { Noto_Sans_Thai_Looped } from "next/font/google";
+import { Sarabun } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { GA_TRACKING_ID, GOOGLE_ADS_ID } from "../lib/gtag";
@@ -11,10 +11,10 @@ import Footer from "../components/Footer";
 import MascotAssistant from "../components/MascotAssistant";
 import CookieConsentBanner from "../components/CookieConsentBanner";
 
-const notoSansThaiLooped = Noto_Sans_Thai_Looped({
-  weight: ['400', '500', '600', '700'],
+const sarabun = Sarabun({
+  weight: ['300', '400', '500', '600', '700'],
   subsets: ['thai', 'latin'],
-  variable: '--font-noto-sans-thai-looped',
+  variable: '--font-sarabun',
   display: 'swap',
 });
 
@@ -137,7 +137,7 @@ export default function RootLayout({
 
   return (
     <html lang="th">
-      <body className={`${notoSansThaiLooped.className} bg-gray-50 min-h-screen flex flex-col`}>
+      <body className={`${sarabun.variable} ${sarabun.className} font-sans bg-gray-50 min-h-screen flex flex-col`}>
         {/* ใส่ JSON-LD Script */}
         <script
           type="application/ld+json"
