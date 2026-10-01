@@ -82,6 +82,7 @@ export interface Blog {
     updatedAt: string;
     tags: string[];
     isPublished: boolean;
+    category?: string;
     isRecent?: boolean;
     isFeatured?: boolean;
 }

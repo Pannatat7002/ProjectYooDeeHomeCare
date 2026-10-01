@@ -117,7 +117,8 @@ export default function ManageBlogPage() {
         if (!q) return true;
         return (blog.title || '').toLowerCase().includes(q) ||
                (blog.author || '').toLowerCase().includes(q) ||
-               (blog.category || '').toLowerCase().includes(q);
+               (blog.category || '').toLowerCase().includes(q) ||
+               (Array.isArray(blog.tags) && blog.tags.some(t => (t || '').toLowerCase().includes(q)));
     });
 
     return (
