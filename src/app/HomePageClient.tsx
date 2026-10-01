@@ -349,10 +349,43 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
     </Link>
 
   );
-
 };
 
+// --- Sub-Component: Skeleton Card for Centers Loading State ---
+const CenterCardSkeleton = () => (
+  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full animate-pulse">
+    {/* Image Skeleton */}
+    <div className="relative h-56 w-full bg-gray-200">
+      <div className="absolute top-3 left-3 h-5 w-16 bg-gray-300/80 rounded-md" />
+      <div className="absolute bottom-3 right-3 h-5 w-20 bg-gray-300/80 rounded-md" />
+    </div>
 
+    {/* Content Skeleton */}
+    <div className="p-5 flex-grow flex flex-col">
+      <div className="h-5 bg-gray-200 rounded-md w-3/4 mb-2.5" />
+      <div className="h-4 bg-gray-200 rounded-md w-1/2 mb-3" />
+
+      {/* Rating */}
+      <div className="flex items-center gap-1 mb-4">
+        <div className="flex gap-0.5">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="w-3.5 h-3.5 rounded-full bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-3 w-16 bg-gray-200 rounded ml-2" />
+      </div>
+
+      {/* Footer */}
+      <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
+        <div className="space-y-1">
+          <div className="h-3 w-14 bg-gray-200 rounded" />
+          <div className="h-5 w-24 bg-gray-200 rounded-md" />
+        </div>
+        <div className="h-8 w-24 bg-blue-100 rounded-xl" />
+      </div>
+    </div>
+  </div>
+);
 
 // --- Helper Component: Scrollable Container ---
 
@@ -799,271 +832,153 @@ export default function HomePageClient({
 
 
           <div className="mb-8 md:mb-10 flex flex-col items-center justify-center">
-
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 drop-shadow-xl tracking-tight leading-normal">
-
               ค้นหาสถานที่ดูแล<br className="md:hidden" /><span className="inline-block">ผู้สูงอายุ</span>และ<span className="inline-block">ผู้ป่วยพักฟื้น</span>
-
             </h1>
-
             <p className="text-white/90 text-base md:text-xl font-light drop-shadow-lg max-w-2xl mx-auto px-4">
-
               แหล่งรวมศูนย์ดูแลที่ได้มาตรฐาน ครบครัน และปลอดภัยสำหรับคนที่คุณรัก
-
             </p>
-
           </div>
 
-
-
           {/* Search Box Container */}
-
           <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-white/40">
-
-
-
             {/* Layout Wrapper: ใช้ flex-col เพื่อให้ Input อยู่บรรทัดบนเสมอ */}
-
             <div className="flex flex-col gap-4">
-
-
-
               {/* === ROW 1: Search Input (Full Width) === */}
-
               <div className="relative w-full">
-
                 <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-
                   <Search className="h-5 w-5 md:h-6 md:w-6" />
-
                 </div>
-
                 <input
-
                   type="text"
-
-                  className="w-full pl-11 md:pl-14 pr-14 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
-
-                  placeholder="ค้นหาชื่อศูนย์, จังหวัด, หรือบริการ..."
-
+                  className="w-full pl-11 md:pl-14 pr-24 md:pr-14 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
+                  placeholder="ค้นหาชื่อศูนย์, เขต/อำเภอ, หรือจังหวัด..."
                   value={searchTerm}
-
                   onChange={(e) => setSearchTerm(e.target.value)}
-
                   onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
-
                 />
 
-
-
-                {/* ปุ่มใกล้ฉัน (Mobile Only) */}
-
+                {/* ปุ่มใกล้ฉัน (Mobile Only - สีฟ้าเด่นพร้อมข้อความ) */}
                 <button
-
                   onClick={handleNearMe}
-
                   disabled={isLocating}
-
-                  className="lg:hidden absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
-
+                  className={`lg:hidden absolute right-2 top-2 bottom-2 px-3 flex items-center justify-center gap-1 text-white rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 ${sortByDistance
+                    ? 'bg-blue-700 ring-2 ring-blue-300'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
                 >
-
-                  {isLocating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Navigation className="w-5 h-5" />}
-
+                  {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-3.5 h-3.5 fill-current" />}
+                  <span>ใกล้ฉัน</span>
                 </button>
-
               </div>
-
-
 
               {/* === ROW 2: Filters & Actions === */}
-
               <div className="flex flex-col lg:flex-row gap-3 justify-between lg:items-center">
-
-
-
                 {/* Filters Group */}
-
                 <div className="grid grid-cols-2 lg:flex gap-2 w-full lg:w-auto">
-
-
-
-                  {/* ปุ่มใกล้ฉัน (Desktop Only - ย้ายมาอยู่แถวล่าง) */}
-
+                  {/* ปุ่มใกล้ฉัน (Desktop - GPS Spotlight Button เด่นชัด) */}
                   <button
-
                     onClick={handleNearMe}
-
                     disabled={isLocating}
-
-                    className="hidden lg:flex px-5 py-3 border rounded-xl items-center gap-2 font-medium transition-all whitespace-nowrap bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200"
-
+                    className={`hidden lg:flex px-5 py-3 rounded-xl items-center gap-2 font-bold transition-all whitespace-nowrap shadow-sm cursor-pointer ${sortByDistance
+                      ? 'bg-blue-600 text-white shadow-md ring-4 ring-blue-500/20'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600'
+                      }`}
+                    title="ค้นหาศูนย์ดูแลที่ใกล้พิกัดของคุณมากที่สุดผ่าน GPS"
                   >
-
-                    {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className={`w-4 h-4 ${sortByDistance ? 'fill-current text-blue-600' : ''}`} />}
-
-                    ใกล้ฉัน
-
+                    {isLocating ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <span className="relative flex h-3.5 w-3.5 items-center justify-center">
+                        {/* <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span> */}
+                        <Navigation className={`relative w-3.5 h-3.5 ${sortByDistance ? 'fill-current' : ''}`} />
+                      </span>
+                    )}
+                    <span>ค้นหาศูนย์ใกล้ฉัน</span>
                   </button>
 
-
-
                   {/* Select Filters */}
-
                   <select
-
                     className="col-span-2 lg:col-span-1 px-4 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm lg:text-base lg:min-w-[160px] cursor-pointer"
-
                     value={province}
-
                     onChange={handleProvinceChange}
-
                   >
-
                     <option value="all">📍 ทุกจังหวัด</option>
-
                     {THAI_PROVINCES.map(prov => (<option key={prov} value={prov}>{prov}</option>))}
-
                   </select>
 
-
-
                   <select
-
                     className="px-4 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm lg:text-base cursor-pointer"
-
                     value={careType}
-
                     onChange={handleCareTypeChange}
-
                   >
-
                     <option value="all">ทุกประเภท</option>
-
                     <option value="daily">รายวัน</option>
-
                     <option value="monthly">รายเดือน</option>
-
                   </select>
-
-
 
                   <select
-
                     className="px-4 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm lg:text-base cursor-pointer"
-
                     value={priceRange}
-
                     onChange={handlePriceChange}
-
                   >
-
                     <option value="all">ทุกราคา</option>
-
                     <option value="0-20000">&lt; 20k</option>
-
                     <option value="20001-25000">20k-25k</option>
-
                     <option value="25001-999999">&gt; 25k</option>
-
                   </select>
-
                 </div>
 
-
-
                 {/* Search Button */}
-
                 <button
-
                   onClick={scrollToResults}
-
-                  className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 lg:ml-auto"
-
+                  className="w-full lg:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 lg:ml-auto"
                 >
-
                   <Search className="w-5 h-5 lg:hidden" />
-
                   ค้นหาข้อมูล
-
                 </button>
-
               </div>
-
             </div>
-
-
 
             {/* Popular Tags */}
-
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 px-1">
-
               <span className="text-gray-500 text-sm font-medium mr-1 hidden md:inline">จังหวัดยอดนิยม:</span>
-
               {popularProvinces.length > 0 ? popularProvinces.map((prov) => (
-
                 <button
-
                   key={prov}
-
                   onClick={() => { setProvince(prov); setSortByDistance(false); gtag.event({ action: 'quick_select_province', category: 'Engagement', label: prov }); }}
-
                   className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all border ${province === prov ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
-
                 >
-
                   {prov}
-
                 </button>
-
               )) : (<span className="text-gray-400 text-sm italic">กำลังโหลด...</span>)}
 
-
-
               {/* ปุ่มล้างค่า แสดงเมื่อมีการค้นหา */}
-
               {isSearchActive && (
-
                 <button
-
                   onClick={handleClearFilters}
-
                   className="text-red-500 text-xs md:text-sm font-medium hover:underline ml-2 flex items-center gap-1"
-
                 >
-
                   <XCircle className="w-4 h-4" /> ล้างค่าทั้งหมด
-
                 </button>
-
               )}
-
-
-
-              {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (Start) 🔥🔥🔥 */}
-
-              {/*
-
-              {recommendedBlogs.length > 0 && !isSearchActive && (
-
-                <section className="mb-12 border-t border-gray-100 pt-8">
-
-                  ... (โค้ด Blog ซ้ำซ้อน) ...
-
-                </section>
-
-              )}
-
-              */}
-
-              {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (End) 🔥🔥🔥 */}
-
-
-
             </div>
+          </div>
 
-
-
+          {/* Trust Counter Badges (3 สถิติใต้กล่องค้นหา) */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-white text-xs sm:text-sm font-semibold">
+            <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-sm">
+              <span className="text-base">🏢</span>
+              <span><strong>950+</strong> ศูนย์ดูแลทั่วไทย</span>
+            </div>
+            <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-sm">
+              <span className="text-base">🗺️</span>
+              <span>ครอบคลุม <strong>77 จังหวัด</strong></span>
+            </div>
+            <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-sm">
+              <span className="text-base">📍</span>
+              <span>คำนวณพิกัด <strong>ใกล้บ้านคุณ</strong></span>
+            </div>
           </div>
 
         </div>
@@ -1296,11 +1211,18 @@ export default function HomePageClient({
             </div>
           </div>
 
-          {/* สถานะกำลังค้นหาข้อมูล */}
+          {/* สถานะกำลังค้นหาข้อมูล: แสดง Skeleton Cards สวยงามแทน Spinner ทั่วไป */}
           {isFiltering ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
-              <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
-              <p className="text-gray-600 font-medium text-base">กำลังค้นหาศูนย์ดูแล...</p>
+            <div>
+              <div className="flex items-center justify-center gap-2 mb-6 text-sm text-blue-600 font-medium animate-pulse">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>กำลังค้นหาศูนย์ดูแลตามเงื่อนไขของคุณ...</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <CenterCardSkeleton key={i} />
+                ))}
+              </div>
             </div>
           ) : centers.length > 0 ? (
             <>
@@ -1308,6 +1230,14 @@ export default function HomePageClient({
                 {centers.map(center => (
                   <CenterCard key={center.id} center={center} userLocation={userLocation} />
                 ))}
+                {/* แสดง Skeleton 3 การ์ดขณะกำลังโหลดศูนย์เพิ่มเติม */}
+                {isLoadingMore && (
+                  <>
+                    <CenterCardSkeleton />
+                    <CenterCardSkeleton />
+                    <CenterCardSkeleton />
+                  </>
+                )}
               </div>
 
               {/* ปุ่มทยอยโหลดเพิ่มเติมจาก API (Load More) */}
