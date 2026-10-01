@@ -22,6 +22,7 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { INITIAL_HOSPITALS, findTopNearbyHospitals } from '../lib/hospitalProximity';
 
 // *** สมมติว่า types.ts ถูกกำหนดไว้แล้ว ***
 
@@ -34,6 +35,7 @@ type Advertisement = any;
 type Blog = any;
 
 import * as gtag from '../lib/gtag';
+
 
 
 
@@ -147,32 +149,31 @@ const BlogCardImage = ({ src, alt }: { src?: string; alt: string }) => {
 // --- Sub-Component for Center Card ---
 
 interface CenterCardProps {
-
   center: CareCenter;
-
   userLocation?: { lat: number; lng: number } | null;
-
+  hospitals?: any[];
 }
 
-
-
-const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
-
+const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, hospitals = [] }) => {
   const createSlug = (name: string) => encodeURIComponent(name.replace(/\s+/g, '-'));
 
-
-
   const distance = useMemo(() => {
-
     if (userLocation && center.lat && center.lng) {
-
       return getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, center.lat, center.lng).toFixed(1);
-
     }
-
     return null;
-
   }, [userLocation, center]);
+
+  const nearestHospitals = useMemo(() => {
+    if (center.nearbyHospitals && center.nearbyHospitals.length > 0) {
+      return center.nearbyHospitals.slice(0, 2);
+    }
+    if (center.lat && center.lng && hospitals && hospitals.length > 0) {
+      return findTopNearbyHospitals(Number(center.lat), Number(center.lng), hospitals, 2);
+    }
+    return [];
+  }, [center, hospitals]);
+
 
 
 
@@ -316,33 +317,40 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
 
           </div>
 
-
-
-          {/* Footer Section */}
-          {/* 
-          <div className="mt-auto pt-1 border-t border-gray-50 flex items-center justify-between">
-
-            <div>
-
-              <p className="text-xs text-green-600 font-bold mb-0.5">ค้นหาและเข้าใช้งาน</p>
-
-              <p className="text-sm font-extrabold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg inline-block">
-
-                ฟรีไม่มีค่าใช้จ่าย
-
-              </p>
-
+          {/* สถานพยาบาลที่อยู่ใกล้ */}
+          {nearestHospitals.length > 0 && (
+            <div className="mt-auto pt-2.5 border-t border-gray-100 text-xs">
+              <div className="text-gray-500 font-medium mb-1">สถานพยาบาลที่อยู่ใกล้</div>
+              <div className="space-y-1">
+                {nearestHospitals.map((item: any, idx: number) => {
+                  const hosp = item.hospital || item;
+                  const hospId = hosp.id || item.hospitalId;
+                  const hospName = hosp.nameTh || item.nameTh;
+                  const dist = Number(item.distanceKm).toFixed(1);
+                  return (
+                    <div key={idx} className="flex justify-between items-center text-gray-700">
+                      <span
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.location.href = `/hospitals/${hospId}?fromCenter=${encodeURIComponent(center.name)}&centerLat=${center.lat}&centerLng=${center.lng}`;
+                        }}
+                        className="hover:text-blue-600 truncate mr-2 font-medium cursor-pointer"
+                        title="คลิกเพื่อดูรายละเอียดสถานพยาบาล"
+                      >
+                        {hospName}
+                      </span>
+                      <span className="text-gray-500 shrink-0 font-medium text-[11px]">
+                        ระยะ {dist}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-
-            <div className="text-right text-xs text-gray-400 font-medium">
-
-              ติดต่อตรงต้นทาง
-
-            </div>
-
-          </div> */}
-
+          )}
         </div>
+
 
       </div>
 
@@ -521,15 +529,25 @@ export default function HomePageClient({
   const [priceRange, setPriceRange] = useState('all');
   const [province, setProvince] = useState('all');
 
-
+  // Hospital list for calculating distance in cards
+  const [hospitalsList, setHospitalsList] = useState<any[]>(INITIAL_HOSPITALS);
 
   // Location State
-
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-
   const [sortByDistance, setSortByDistance] = useState(false);
-
   const [isLocating, setIsLocating] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/hospitals?limit=100')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setHospitalsList(data.data);
+        }
+      })
+      .catch(() => { });
+  }, []);
+
 
 
 
@@ -646,29 +664,17 @@ export default function HomePageClient({
 
 
   // ✅ ฟังก์ชันสำหรับล้างค่าทั้งหมด (Reset All)
-
   const handleClearFilters = () => {
-
     setSearchTerm('');
-
     setProvince('all');
-
     setCareType('all');
-
     setPriceRange('all');
-
     setUserLocation(null);
-
     setSortByDistance(false);
-
     gtag.event({ action: 'clear_all_filters', category: 'Engagement' });
-
   };
 
-
-
   // ✅ ตัวแปรเช็คว่ากำลังค้นหา/กรองข้อมูลอยู่หรือไม่
-
   const isSearchActive = searchTerm !== '' || careType !== 'all' || priceRange !== 'all' || province !== 'all' || sortByDistance;
 
   // Progressive API fetch
@@ -747,6 +753,7 @@ export default function HomePageClient({
 
     return () => clearTimeout(timer);
   }, [searchTerm, province, careType, priceRange, sortByDistance, userLocation]);
+
 
   const handleLoadMore = () => {
     if (isLoadingMore || !hasMore) return;
@@ -929,6 +936,7 @@ export default function HomePageClient({
                   </select>
                 </div>
 
+
                 {/* Search Button */}
                 <button
                   onClick={scrollToResults}
@@ -963,6 +971,7 @@ export default function HomePageClient({
                 </button>
               )}
             </div>
+
           </div>
 
           {/* Trust Counter Badges (3 สถิติใต้กล่องค้นหา) */}
@@ -1131,10 +1140,13 @@ export default function HomePageClient({
               {recommendedCenters.map(center => (
 
                 <div key={center.id} className="flex-shrink-0 w-80 snap-center h-auto">
-
-                  <CenterCard center={center} userLocation={userLocation} />
-
+                  <CenterCard
+                    center={center}
+                    userLocation={userLocation}
+                    hospitals={hospitalsList}
+                  />
                 </div>
+
 
               ))}
 
@@ -1228,8 +1240,14 @@ export default function HomePageClient({
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {centers.map(center => (
-                  <CenterCard key={center.id} center={center} userLocation={userLocation} />
+                  <CenterCard
+                    key={center.id}
+                    center={center}
+                    userLocation={userLocation}
+                    hospitals={hospitalsList}
+                  />
                 ))}
+
                 {/* แสดง Skeleton 3 การ์ดขณะกำลังโหลดศูนย์เพิ่มเติม */}
                 {isLoadingMore && (
                   <>

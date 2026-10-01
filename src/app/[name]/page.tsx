@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { getCareCenters } from '../../lib/db';
+import { getCareCenters, getNearbyHospitalsByCenterId } from '../../lib/db';
 import CenterDetailClient from './CenterDetailClient';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -81,6 +80,13 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         roomTypes: Array.isArray(center.roomTypes) ? center.roomTypes : [],
     };
 
+    // ดึงโรงพยาบาลใกล้เคียง 3 อันดับแรก
+    const nearbyHospitals = await getNearbyHospitalsByCenterId(
+        normalizedCenter.id,
+        normalizedCenter.lat ? Number(normalizedCenter.lat) : undefined,
+        normalizedCenter.lng ? Number(normalizedCenter.lng) : undefined
+    );
+
     // ดึงศูนย์ดูแลอื่นๆ ที่ไม่ใช่ตัวเองจำนวน 3 แห่งมาแสดงในกล่อง แนะนำเพิ่มเติม
     const relatedCenters = careCenters
         .filter((c: any) => c.id !== normalizedCenter.id && c.status === 'visible')
@@ -124,7 +130,8 @@ export default async function Page({ params }: { params: Promise<{ name: string 
             <CenterDetailClient 
                 center={normalizedCenter} 
                 relatedCenters={relatedCenters} 
+                nearbyHospitals={nearbyHospitals}
             />
         </>
     );
-}
+}

@@ -21,6 +21,7 @@ import { CareCenter, RoomType } from '../../types/index';
 import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
 import { getVerifiedLead, saveVerifiedLead } from '../../lib/leadSession';
 
+
 // =========================================================================================
 // UTILITIES & CONSTANTS
 // =========================================================================================
@@ -762,10 +763,12 @@ const RoomTypeCard = ({
 
 export default function CenterDetailClient({
     center,
-    relatedCenters = []
+    relatedCenters = [],
+    nearbyHospitals = []
 }: {
     center: CareCenter;
     relatedCenters: CareCenter[];
+    nearbyHospitals?: any[];
 }) {
     const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/800x600?text=No+Image';
     const allImages = useMemo(
@@ -795,6 +798,7 @@ export default function CenterDetailClient({
         destinationUrl?: string;
         onProceed?: () => void;
     }>({ actionType: 'navigation' });
+
 
     // ตรวจสอบว่าศูนย์นี้เคยถูกปลดล็อกใน Session ของผู้ใช้หรือไม่
     useEffect(() => {
@@ -1493,7 +1497,36 @@ export default function CenterDetailClient({
                                 </div>
                             </section>
                         )}
+
+                        {/* สถานพยาบาลที่อยู่ใกล้ */}
+                        {nearbyHospitals && nearbyHospitals.length > 0 && (
+                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3">
+                                    สถานพยาบาลที่อยู่ใกล้
+                                </h3>
+                                <div className="space-y-2 text-sm sm:text-base">
+                                    {nearbyHospitals.map((item, idx) => {
+                                        const hosp = item.hospital;
+                                        if (!hosp) return null;
+                                        return (
+                                            <div key={hosp.id || idx} className="flex items-center justify-between text-gray-700 py-1 border-b border-gray-50 last:border-b-0">
+                                                <Link
+                                                    href={`/hospitals/${hosp.id}?fromCenter=${encodeURIComponent(center.name)}&centerLat=${center.lat}&centerLng=${center.lng}`}
+                                                    className="hover:text-blue-600 truncate mr-3 font-medium text-gray-800"
+                                                >
+                                                    {hosp.nameTh}
+                                                </Link>
+                                                <span className="text-gray-500 shrink-0 font-medium text-sm">
+                                                    ระยะ {Number(item.distanceKm).toFixed(1)}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        )}
                     </div>
+
 
                     {/* Right Column: Sticky Sidebar */}
                     <div className="lg:col-span-1">
@@ -1963,5 +1996,6 @@ export default function CenterDetailClient({
                 destinationUrl={leadModalConfig.destinationUrl}
             />
         </div >
+
     );
 }

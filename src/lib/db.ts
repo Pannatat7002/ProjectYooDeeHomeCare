@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { supabaseAdmin, isSupabaseConfigured } from './supabase';
 import { revalidateTag } from 'next/cache';
+import { INITIAL_HOSPITALS, findTopNearbyHospitals } from './hospitalProximity';
+
 
 // --- 1. Helper: Convert camelCase (frontend/app) to snake_case (PostgreSQL DB) ---
 export const toSnakeCase = (obj: any): any => {
@@ -245,9 +246,27 @@ const saveDataToTable = async (tableName: string, items: any[]) => {
 // 1. CARE CENTERS
 export const getCareCenters = async () => loadDataFromTable('care_centers');
 export const saveCareCenters = async (data: any[]) => saveDataToTable('care_centers', data);
-export const addCareCenter = async (item: any) => insertDataToTable('care_centers', item);
-export const updateCareCenter = async (id: number | string, data: any) => updateDataInTable('care_centers', id, data);
+export const addCareCenter = async (item: any) => {
+    const created = await insertDataToTable('care_centers', item);
+    const centerId = created?.id || item.id;
+    if (centerId && item.lat && item.lng) {
+        recalculateCenterNearbyHospitals(Number(centerId), Number(item.lat), Number(item.lng)).catch(e =>
+            console.error('[Nearby Hospitals Auto-Recalculate Error]', e)
+        );
+    }
+    return created;
+};
+export const updateCareCenter = async (id: number | string, data: any) => {
+    const updated = await updateDataInTable('care_centers', id, data);
+    if (data.lat && data.lng) {
+        recalculateCenterNearbyHospitals(Number(id), Number(data.lat), Number(data.lng)).catch(e =>
+            console.error('[Nearby Hospitals Auto-Recalculate Error]', e)
+        );
+    }
+    return updated;
+};
 export const deleteCareCenter = async (id: number | string) => deleteDataFromTable('care_centers', id);
+
 
 // 2. CONSULTATIONS
 export const getConsultations = async () => loadDataFromTable('consultations');
@@ -311,3 +330,130 @@ export const appendProviderSignup = async (data: any) => {
     return { success: true };
 };
 export const getProviderSignups = async () => loadDataFromTable('provider_signups');
+
+// 9. HOSPITALS & HEALTHCARE NETWORK
+
+export const getHospitals = async (): Promise<any[]> => {
+
+    try {
+        const rows = await loadDataFromTable('hospitals');
+        if (rows && rows.length > 0) {
+            return rows;
+        }
+        return INITIAL_HOSPITALS;
+    } catch {
+        return INITIAL_HOSPITALS;
+    }
+};
+
+export const saveHospitals = async (data: any[]) => saveDataToTable('hospitals', data);
+
+export const getHospitalById = async (id: string): Promise<any | null> => {
+    try {
+        const hospitals = await getHospitals();
+        const found = hospitals.find((h: any) => String(h.id) === String(id));
+        return found || null;
+    } catch {
+        const fallback = INITIAL_HOSPITALS.find((h) => String(h.id) === String(id));
+        return fallback || null;
+    }
+};
+
+export const getNearbyHospitalsByCenterId = async (
+    centerId: number,
+    centerLat?: number,
+    centerLng?: number
+): Promise<any[]> => {
+    try {
+        if (isSupabaseConfigured()) {
+            const { data, error } = await supabaseAdmin
+                .from('center_nearby_hospitals')
+                .select(`
+                    id,
+                    center_id,
+                    hospital_id,
+                    distance_km,
+                    is_primary_transfer,
+                    priority_order,
+                    hospitals:hospital_id (*)
+                `)
+                .eq('center_id', centerId)
+                .order('priority_order', { ascending: true });
+
+            if (!error && data && data.length > 0) {
+                return data.map((item: any) => {
+                    const parsed = parseRow(item);
+                    return {
+                        id: parsed.id,
+                        centerId: parsed.centerId,
+                        hospitalId: parsed.hospitalId,
+                        distanceKm: Number(parsed.distanceKm),
+                        isPrimaryTransfer: parsed.isPrimaryTransfer,
+                        priorityOrder: parsed.priorityOrder,
+                        hospital: item.hospitals ? parseRow(item.hospitals) : undefined,
+                    };
+                });
+            }
+        }
+
+        // Fallback: Compute dynamically if table is empty or center has lat/lng
+        if (centerLat && centerLng) {
+            const allHospitals = await getHospitals();
+            const topNearby = findTopNearbyHospitals(centerLat, centerLng, allHospitals, 3);
+            return topNearby.map(item => ({
+                ...item,
+                centerId,
+            }));
+        }
+
+        return [];
+    } catch (e) {
+        console.error('[DB Error] Failed to get nearby hospitals:', e);
+        if (centerLat && centerLng) {
+            return findTopNearbyHospitals(centerLat, centerLng, INITIAL_HOSPITALS, 3).map(item => ({
+                ...item,
+                centerId,
+            }));
+        }
+        return [];
+    }
+};
+
+export const recalculateCenterNearbyHospitals = async (
+    centerId: number,
+    lat: number,
+    lng: number
+): Promise<void> => {
+    try {
+        if (!isSupabaseConfigured() || !lat || !lng) return;
+
+        const allHospitals = await getHospitals();
+        const topHospitals = findTopNearbyHospitals(lat, lng, allHospitals, 5);
+
+        if (topHospitals.length === 0) return;
+
+        // Delete existing nearby hospitals for this center
+        await supabaseAdmin
+            .from('center_nearby_hospitals')
+            .delete()
+            .eq('center_id', centerId);
+
+        // Insert new top hospitals
+        const rowsToInsert = topHospitals.map(item => ({
+            center_id: centerId,
+            hospital_id: item.hospitalId,
+            distance_km: item.distanceKm,
+            is_primary_transfer: item.isPrimaryTransfer || false,
+            priority_order: item.priorityOrder,
+        }));
+
+        await supabaseAdmin
+            .from('center_nearby_hospitals')
+            .insert(rowsToInsert);
+
+        invalidateCache('center_nearby_hospitals');
+    } catch (err) {
+        console.error(`[DB Error] Failed to recalculate nearby hospitals for center ${centerId}:`, err);
+    }
+};
+

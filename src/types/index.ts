@@ -38,6 +38,34 @@ export interface CareCenter {
     utmSource?: string;
     utmMedium?: string;
     utmCampaign?: string;
+    nearbyHospitals?: CenterNearbyHospital[];
+}
+
+export interface Hospital {
+    id: string;
+    nameTh: string;
+    nameEn?: string;
+    hospitalType: 'รัฐบาล' | 'เอกชน';
+    level?: string;
+    province: string;
+    district?: string;
+    latitude: number;
+    longitude: number;
+    emergency24h?: boolean;
+    googleMapsUrl?: string;
+    phone?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface CenterNearbyHospital {
+    id?: number | string;
+    centerId: number;
+    hospitalId: string;
+    distanceKm: number;
+    isPrimaryTransfer?: boolean;
+    priorityOrder: number;
+    hospital?: Hospital;
 }
 
 export interface Blog {
