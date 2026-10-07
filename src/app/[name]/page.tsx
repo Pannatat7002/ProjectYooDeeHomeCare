@@ -1,4 +1,5 @@
 import { getCareCenters, getNearbyHospitalsByCenterId } from '../../lib/db';
+import { calculateHaversineDistance } from '../../lib/hospitalProximity';
 import CenterDetailClient from './CenterDetailClient';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -87,10 +88,156 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         normalizedCenter.lng ? Number(normalizedCenter.lng) : undefined
     );
 
-    // ดึงศูนย์ดูแลอื่นๆ ที่ไม่ใช่ตัวเองจำนวน 3 แห่งมาแสดงในกล่อง แนะนำเพิ่มเติม
-    const relatedCenters = careCenters
-        .filter((c: any) => c.id !== normalizedCenter.id && c.status === 'visible')
-        .slice(0, 3);
+    const targetProvince = (normalizedCenter.province || '').trim();
+    const hasValidCoords = Boolean(normalizedCenter.lat && normalizedCenter.lng && Number(normalizedCenter.lat) !== 0 && Number(normalizedCenter.lng) !== 0);
+
+    // ดึงศูนย์ดูแลใกล้เคียง 3 แห่งแรก:
+    // ให้ความสำคัญกับศูนย์ในจังหวัดเดียวกันเป็นอันดับแรก เพื่อป้องกันการดึงศูนย์ข้ามภาค (เช่น กรุงเทพมาแสดงในเชียงใหม่)
+    let nearbyCenters: any[] = [];
+    if (hasValidCoords) {
+        const centersWithDist = careCenters
+            .filter((c: any) => c.id !== normalizedCenter.id && c.status === 'visible' && c.lat && c.lng && Number(c.lat) !== 0)
+            .map((c: any) => ({
+                ...c,
+                distanceKm: calculateHaversineDistance(
+                    Number(normalizedCenter.lat),
+                    Number(normalizedCenter.lng),
+                    Number(c.lat),
+                    Number(c.lng)
+                )
+            }));
+
+        // 1. หาศูนย์ในจังหวัดเดียวกันที่มีพิกัด เรียงตามระยะทาง
+        const sameProvinceWithDist = targetProvince
+            ? centersWithDist.filter((c: any) => (c.province || '').trim() === targetProvince)
+            : [];
+
+        if (sameProvinceWithDist.length > 0) {
+            nearbyCenters = sameProvinceWithDist
+                .sort((a: any, b: any) => a.distanceKm - b.distanceKm)
+                .slice(0, 3);
+        } else {
+            // 2. ถ้าในจังหวัดเดียวกันไม่มีพิกัด ลองหารัศมีใกล้เคียงจริงไม่เกิน 50 กม.
+            nearbyCenters = centersWithDist
+                .filter((c: any) => c.distanceKm <= 50)
+                .sort((a: any, b: any) => a.distanceKm - b.distanceKm)
+                .slice(0, 3);
+        }
+    }
+
+    // 3. ถ้ายังไม่ครบ 3 แห่ง ให้เติมด้วยศูนย์ในจังหวัดเดียวกัน
+    if (nearbyCenters.length < 3 && targetProvince) {
+        const existingNearbyIds = new Set(nearbyCenters.map((c: any) => c.id));
+        const sameProvRemaining = careCenters
+            .filter((c: any) => c.id !== normalizedCenter.id && c.status === 'visible' && (c.province || '').trim() === targetProvince && !existingNearbyIds.has(c.id));
+        nearbyCenters = [...nearbyCenters, ...sameProvRemaining].slice(0, 3);
+    }
+
+    // ดึงศูนย์ดูแลอื่นๆ ที่น่าสนใจ:
+    // ลำดับความสำคัญ:
+    // 1) ศูนย์ Partner ในจังหวัดเดียวกัน (หากมีพิกัดในรัศมี 7 กม. ให้ขึ้นก่อน)
+    // 2) ศูนย์ในจังหวัดเดียวกันที่มีช่วงราคาใกล้เคียงกัน (±5,000 บาท)
+    // 3) ศูนย์อื่นๆ ในจังหวัดเดียวกัน เพื่อให้ครบ 3 แห่ง
+    // 4) Fallback: หากทั้งจังหวัดมีศูนย์ไม่ถึง 3 แห่ง ค่อยดึงศูนย์นอกจังหวัด
+    const nearbyIds = new Set(nearbyCenters.map((c: any) => c.id));
+    const availableCenters = careCenters
+        .filter((c: any) => c.id !== normalizedCenter.id && c.status === 'visible' && !nearbyIds.has(c.id))
+        .map((c: any) => {
+            const hasCoords = hasValidCoords && c.lat && c.lng && Number(c.lat) !== 0;
+            const distanceKm = hasCoords
+                ? calculateHaversineDistance(
+                    Number(normalizedCenter.lat),
+                    Number(normalizedCenter.lng),
+                    Number(c.lat),
+                    Number(c.lng)
+                )
+                : undefined;
+            return { ...c, distanceKm };
+        });
+
+    // คัดกรองศูนย์ในจังหวัดเดียวกันเป็นกลุ่มแรก
+    const sameProvinceCenters = targetProvince
+        ? availableCenters.filter((c: any) => (c.province || '').trim() === targetProvince)
+        : availableCenters;
+    const otherProvinceCenters = targetProvince
+        ? availableCenters.filter((c: any) => (c.province || '').trim() !== targetProvince)
+        : [];
+
+    const targetPrice = Number(normalizedCenter.price) || 0;
+    const selectedRelatedMap = new Map<number, any>();
+
+    // 1. ศูนย์ Partner ในจังหวัดเดียวกัน (หากมีรัศมี <= 7 กม. ให้อยู่ลำดับแรก)
+    sameProvinceCenters
+        .filter((c: any) => c.isPartner)
+        .sort((a: any, b: any) => {
+            const aIn7 = a.distanceKm !== undefined && a.distanceKm <= 7 ? 1 : 0;
+            const bIn7 = b.distanceKm !== undefined && b.distanceKm <= 7 ? 1 : 0;
+            if (aIn7 !== bIn7) return bIn7 - aIn7;
+            if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+                return a.distanceKm - b.distanceKm;
+            }
+            return 0;
+        })
+        .forEach((c: any) => {
+            if (selectedRelatedMap.size < 3) selectedRelatedMap.set(c.id, c);
+        });
+
+    // 2. ศูนย์ในจังหวัดเดียวกัน ที่มีช่วงราคาเดียวกัน (±5,000 บาท)
+    if (selectedRelatedMap.size < 3 && targetPrice > 0) {
+        sameProvinceCenters
+            .filter((c: any) => {
+                if (selectedRelatedMap.has(c.id)) return false;
+                const p = Number(c.price) || 0;
+                return p > 0 && Math.abs(p - targetPrice) <= 5000;
+            })
+            .sort((a: any, b: any) => {
+                if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+                    return a.distanceKm - b.distanceKm;
+                }
+                return Math.abs((Number(a.price) || 0) - targetPrice) - Math.abs((Number(b.price) || 0) - targetPrice);
+            })
+            .forEach((c: any) => {
+                if (selectedRelatedMap.size < 3) selectedRelatedMap.set(c.id, c);
+            });
+    }
+
+    // 3. ศูนย์อื่นๆ ในจังหวัดเดียวกัน (เติมให้ครบ 3 แห่ง)
+    if (selectedRelatedMap.size < 3) {
+        sameProvinceCenters
+            .filter((c: any) => !selectedRelatedMap.has(c.id))
+            .sort((a: any, b: any) => {
+                if (Boolean(a.isPartner) !== Boolean(b.isPartner)) {
+                    return a.isPartner ? -1 : 1;
+                }
+                if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+                    return a.distanceKm - b.distanceKm;
+                }
+                return 0;
+            })
+            .forEach((c: any) => {
+                if (selectedRelatedMap.size < 3) selectedRelatedMap.set(c.id, c);
+            });
+    }
+
+    // 4. Fallback: หากทั้งจังหวัดมีศูนย์ไม่ถึง 3 แห่ง ค่อยดึงศูนย์นอกจังหวัด
+    if (selectedRelatedMap.size < 3) {
+        otherProvinceCenters
+            .filter((c: any) => !selectedRelatedMap.has(c.id))
+            .sort((a: any, b: any) => {
+                if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+                    return a.distanceKm - b.distanceKm;
+                }
+                if (Boolean(a.isPartner) !== Boolean(b.isPartner)) {
+                    return a.isPartner ? -1 : 1;
+                }
+                return 0;
+            })
+            .forEach((c: any) => {
+                if (selectedRelatedMap.size < 3) selectedRelatedMap.set(c.id, c);
+            });
+    }
+
+    const relatedCenters = Array.from(selectedRelatedMap.values()).slice(0, 3);
 
     // 3. สร้าง Schema.org JSON-LD สำหรับให้ AI Search Engine (เช่น Perplexity, ChatGPT) อ่านข้อมูลโครงสร้าง
     const BASE_URL = 'https://thaicarecenter.com';
@@ -129,6 +276,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
             />
             <CenterDetailClient 
                 center={normalizedCenter} 
+                nearbyCenters={nearbyCenters}
                 relatedCenters={relatedCenters} 
                 nearbyHospitals={nearbyHospitals}
             />

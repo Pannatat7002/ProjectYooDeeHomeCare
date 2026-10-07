@@ -766,10 +766,12 @@ const RoomTypeCard = ({
 
 export default function CenterDetailClient({
     center,
+    nearbyCenters = [],
     relatedCenters = [],
     nearbyHospitals = []
 }: {
     center: CareCenter;
+    nearbyCenters?: (CareCenter & { distanceKm?: number })[];
     relatedCenters: CareCenter[];
     nearbyHospitals?: any[];
 }) {
@@ -1885,11 +1887,89 @@ export default function CenterDetailClient({
                     </div>
                 </div>
 
+                {/* Nearby Centers Section (ศูนย์ดูแลใกล้เคียง) */}
+                {
+                    nearbyCenters && nearbyCenters.length > 0 && (
+                        <div className="mt-20 border-t border-gray-200 pt-12">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900">ศูนย์ดูแลใกล้เคียง</h2>
+                                    <p className="text-gray-500 text-sm mt-1">ศูนย์ดูแลผู้สูงอายุและผู้มีภาวะพึ่งพิงในละแวกใกล้เคียง</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {nearbyCenters.map(nc => (
+                                    <Link
+                                        key={nc.id}
+                                        href={`/${createSlug(nc.name)}`}
+                                        className="block group"
+                                        onClick={() => gtag.event({ action: 'click_nearby_center', category: 'Navigation', label: nc.name })}
+                                    >
+                                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
+                                            <div className="relative h-56 overflow-hidden">
+                                                <img
+                                                    src={nc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
+                                                    alt={nc.name}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+
+                                                {/* Starting Price Badge */}
+                                                {nc.price && Number(nc.price) > 0 ? (
+                                                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-gray-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 border border-white/40">
+                                                        <span className="text-gray-500 font-medium text-[11px]">เริ่มต้น</span>
+                                                        <span className="text-blue-600 font-bold">
+                                                            ฿{Number(nc.price).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                ) : null}
+
+
+                                                {/* Partner / Basic Info Badge */}
+                                                <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1 ${nc.isPartner ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                                                    {nc.isPartner ? (
+                                                        <>ยืนยันตัวตนแล้ว</>
+                                                    ) : (
+                                                        <>ข้อมูลเบื้องต้น</>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="p-5 flex-grow flex flex-col">
+                                                <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                                    {nc.name}
+                                                </h3>
+                                                <p className="text-gray-500 text-sm flex items-center mb-3">
+                                                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
+                                                    <span className="line-clamp-1">{nc.address}</span>
+                                                </p>
+                                                <div className="flex items-center mb-4">
+                                                    <div className="flex text-yellow-400">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(nc.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
+                                                        ))}
+                                                    </div>
+                                                    <span className="text-xs text-gray-400 ml-2 font-medium">{nc.rating ? nc.rating.toFixed(1) : '0.0'} (รีวิว)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )
+                }
+
                 {/* Recommended Centers Section */}
                 {
                     relatedCenters.length > 0 && (
-                        <div className="mt-20 border-t border-gray-200 pt-12">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
+                        <div className="mt-16 border-t border-gray-200 pt-12">
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
+                                <p className="text-gray-500 text-sm mt-1">ศูนย์พันธมิตรในรัศมี 7 กม. หรือทางเลือกในช่วงราคาที่ใกล้เคียงกัน</p>
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {relatedCenters.map(rc => (
                                     <Link
@@ -1898,30 +1978,36 @@ export default function CenterDetailClient({
                                         className="block group"
                                         onClick={() => gtag.event({ action: 'click_related_center', category: 'Navigation', label: rc.name })}
                                     >
-                                        <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border-y border-x-0 sm:border border-gray-100 overflow-hidden relative -mx-4 sm:mx-0">
+                                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
                                             <div className="relative h-56 overflow-hidden">
                                                 <img
                                                     src={rc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
                                                     alt={rc.name}
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                     onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Error')}
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                                                <div className="absolute top-3 left-3 flex gap-2">
-                                                    {rc.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
-                                                    {rc.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
-                                                    {rc.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
+
+                                                {/* Starting Price Badge */}
+                                                {rc.price && Number(rc.price) > 0 ? (
+                                                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-gray-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 border border-white/40">
+                                                        <span className="text-gray-500 font-medium text-[11px]">เริ่มต้น</span>
+                                                        <span className="text-blue-600 font-bold">
+                                                            ฿{Number(rc.price).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                ) : null}
+
+                                                {/* Partner / Basic Info Badge */}
+                                                <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1 ${rc.isPartner ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                                                    {rc.isPartner ? (
+                                                        <>ยืนยันตัวตนแล้ว</>
+                                                    ) : (
+                                                        <>ข้อมูลเบื้องต้น</>
+                                                    )}
                                                 </div>
-                                                {isTrue(rc.hasGovernmentCertificate) && (
-                                                    <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
-                                                        <ShieldCheck className="w-3 h-3" /> กรม สบส.
-                                                    </div>
-                                                )}
-                                                {isTrue(rc.isPartner) && (
-                                                    <div className="absolute bottom-3 right-3">
-                                                        <OfficialPartnerBadge variant="badge" size="sm" />
-                                                    </div>
-                                                )}
                                             </div>
                                             <div className="p-5 flex-grow flex flex-col">
                                                 <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">

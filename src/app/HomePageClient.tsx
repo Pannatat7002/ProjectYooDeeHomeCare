@@ -195,16 +195,16 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
 
 
-          {/* 
-              <div className="absolute top-3 left-3 flex gap-2">
+          {/* Starting Price Badge */}
+          {center.price && Number(center.price) > 0 ? (
+            <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-gray-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 border border-white/40">
+              <span className="text-gray-500 font-medium text-[11px]">เริ่มต้น</span>
+              <span className="text-blue-600 font-bold">
+                ฿{Number(center.price).toLocaleString()}
+              </span>
+            </div>
+          ) : null}
 
-                {center.type === 'daily' && <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน</span>}
-
-                {center.type === 'monthly' && <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายเดือน</span>}
-
-                {center.type === 'both' && <span className="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wide">รายวัน/เดือน</span>}
-
-              </div> */}
 
 
 
