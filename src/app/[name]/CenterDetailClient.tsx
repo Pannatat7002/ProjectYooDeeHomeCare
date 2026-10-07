@@ -21,6 +21,8 @@ import * as gtag from '../../lib/gtag';
 import { CareCenter, RoomType } from '../../types/index';
 import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
 import { getVerifiedLead, saveVerifiedLead } from '../../lib/leadSession';
+import { IconOfficialPartner } from '../../components/icons/CustomIcons';
+import { OfficialPartnerBadge } from '../../components/OfficialPartnerBadge';
 
 
 // =========================================================================================
@@ -100,7 +102,7 @@ const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoU
 const VerificationByMOPHCard = ({ hasGovernmentCertificate }: { hasGovernmentCertificate: boolean }) => {
     if (!hasGovernmentCertificate) return null;
     return (
-        <Link href="https://esta.hss.moph.go.th/shop_passed.php?utm_source=thaicarecenter&utm_medium=%E0%B8%B4banner&utm_campaign=esta">
+        <Link href="https://esta.hss.moph.go.th/check-shops.php?utm_source=thaicarecenter&utm_medium=%E0%B8%B4banner&utm_campaign=esta">
             <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-200 p-4 mb-6 -mx-4 sm:mx-0 flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
                     <h3 className="text-lg font-bold text-gray-900 mt-0.5 break-words">ผ่านการรับรองจากกรมสนับสนุนบริการสุขภาพ (สบส.)</h3>
@@ -1176,9 +1178,7 @@ export default function CenterDetailClient({
 
                         {/* ✅ ใช้ isTrue เช็ค isPartner */}
                         {isTrue(center.isPartner) ? (
-                            <div className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-200">
-                                <CheckCircle2 className="h-3 w-3 mr-1" /> Verified Partner
-                            </div>
+                            <OfficialPartnerBadge variant="pill" size="md" />
                         ) : (
                             <div className="flex items-center bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold border border-gray-200">
                                 <Info className="h-3 w-3 mr-1" /> ข้อมูลเบื้องต้น
@@ -1266,16 +1266,22 @@ export default function CenterDetailClient({
                         <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl pointer-events-none"></div>
                         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
 
-                        <div className="relative z-10 flex items-start space-x-4">
-                            <div className="bg-white/10 p-3 rounded-xl backdrop-blur-md border border-white/10 shrink-0">
-                                <ShieldCheck className="h-6 w-6 text-blue-300" />
+                        <div className="relative z-10 flex items-center space-x-4 sm:space-x-5">
+                            <div className="shrink-0 p-1.5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center">
+                                <Image
+                                    src="/images/badges/badge-official-partner.png"
+                                    alt="Official Partner"
+                                    width={48}
+                                    height={48}
+                                    className="w-13 h-13 sm:w-16 sm:h-16 object-contain drop-shadow-md"
+                                />
                             </div>
                             <div>
                                 <h3 className="text-lg md:text-xl font-bold flex items-center flex-wrap gap-2 text-white">
                                     Official Partner
-                                    <span className="ml-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center">
-                                        <CheckCircle2 className="w-3 h-3 mr-1" /> Verified
-                                    </span>
+                                    {/* <span className="ml-1 bg-gradient-to-r from-amber-400 to-yellow-500 text-blue-950 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+                                        <CheckCircle2 className="w-3 h-3" /> Verified
+                                    </span> */}
                                 </h3>
                                 <p className="text-blue-100 text-sm md:text-base mt-1 font-medium">
                                     ศูนย์นี้ผ่านการตรวจสอบมาตรฐานความปลอดภัยและบริการโดยทีมงาน ThaiCareCenter
@@ -1553,7 +1559,7 @@ export default function CenterDetailClient({
                                         </div>
 
                                         {/* Promo Box */}
-                                        <div className="p-3 sm:p-3.5 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2.5 shadow-inner">
+                                        {/* <div className="p-3 sm:p-3.5 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2.5 shadow-inner">
                                             <div className="flex items-start text-gray-950 text-sm sm:text-base font-bold leading-normal">
                                                 <span className="text-lg mr-2 shrink-0 animate-bounce">🔥</span>
                                                 <div>
@@ -1566,10 +1572,10 @@ export default function CenterDetailClient({
 
                                             <div className="text-xs sm:text-sm font-bold text-[#2b64a0]">
                                                 📞 โทรจองสิทธิ์ทดลองพักฟรีด่วน!
-                                            </div>
+                                            </div> */}
 
-                                            {/* Big Phone Number Box */}
-                                            {isInfoUnlocked ? (
+                                        {/* Big Phone Number Box */}
+                                        {/* {isInfoUnlocked ? (
                                                 <a
                                                     href={getTelHref(center.phone, '080-102-7615')}
                                                     className="flex items-center justify-center gap-2 px-3 py-2 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all group"
@@ -1607,9 +1613,9 @@ export default function CenterDetailClient({
                                                         กดเพื่อแสดงเบอร์โทร
                                                     </span>
                                                 </button>
-                                            )}
-                                        </div>
+                                            )} */}
                                     </div>
+                                    // </div>
                                 )}
 
                                 {/* Contact Header */}
@@ -1909,6 +1915,11 @@ export default function CenterDetailClient({
                                                 {isTrue(rc.hasGovernmentCertificate) && (
                                                     <div className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
                                                         <ShieldCheck className="w-3 h-3" /> กรม สบส.
+                                                    </div>
+                                                )}
+                                                {isTrue(rc.isPartner) && (
+                                                    <div className="absolute bottom-3 right-3">
+                                                        <OfficialPartnerBadge variant="badge" size="sm" />
                                                     </div>
                                                 )}
                                             </div>

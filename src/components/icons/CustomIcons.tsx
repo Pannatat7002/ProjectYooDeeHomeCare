@@ -206,7 +206,154 @@ export const IconProximityLoc: React.FC<IconProps> = ({ size = 20, className = '
         />
         {/* Center Target Dot */}
         <circle cx="12" cy="8" r="2.5" fill="#f43f5e" />
-        {/* Ground Pulse Rings */}
-        <ellipse cx="12" cy="20.5" rx="5" ry="1.5" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
     </svg>
 );
+
+/**
+ * 6. IconOfficialPartner: ตราสัญลักษณ์ Official Partner / พาร์ทเนอร์อย่างเป็นทางการ
+ * โล่เกียรติยศ ผสานดาวแห่งมาตรฐาน เครื่องหมายยืนยันความถูกต้อง (Verified Check) และช่อชัยพฤกษ์ทองคำ
+ * รองรับทั้งแบบ 'color' (เฉดสีน้ำเงินรอยัลบลู + ทองคำหรูหรา) และ 'mono' (ยึดตาม currentColor)
+ */
+export const IconOfficialPartner: React.FC<IconProps & { variant?: 'color' | 'mono' }> = ({
+    size = 24,
+    className = '',
+    variant = 'color',
+    ...props
+}) => {
+    if (variant === 'mono') {
+        return (
+            <svg
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={className}
+                aria-hidden="true"
+                {...props}
+            >
+                {/* Shield Outline */}
+                <path
+                    d="M12 2L4.5 5.5V11.5C4.5 16.5 7.7 21 12 22.5C16.3 21 19.5 16.5 19.5 11.5V5.5L12 2Z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinejoin="round"
+                />
+                {/* Inner Shield Accent */}
+                <path
+                    d="M12 4.2L6.5 6.8V11.5C6.5 15.2 9 18.7 12 19.9C15 18.7 17.5 15.2 17.5 11.5V6.8L12 4.2Z"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    strokeOpacity="0.4"
+                    strokeLinejoin="round"
+                />
+                {/* Verified Checkmark */}
+                <path
+                    d="M8.8 12.2L11 14.4L15.5 9.8"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+            </svg>
+        );
+    }
+
+    // Rich multi-tone Royal Blue + Premium Gold Seal
+    return (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden="true"
+            {...props}
+        >
+            <defs>
+                {/* Royal Blue Gradient for Shield Body */}
+                <linearGradient id="opBlueGrad" x1="24" y1="4" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#2563EB" />
+                    <stop offset="50%" stopColor="#1D4ED8" />
+                    <stop offset="100%" stopColor="#1E3A8A" />
+                </linearGradient>
+
+                {/* Metallic Gold Gradient for Outer Frame */}
+                <linearGradient id="opGoldGrad" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#FDE047" />
+                    <stop offset="30%" stopColor="#EAB308" />
+                    <stop offset="70%" stopColor="#CA8A04" />
+                    <stop offset="100%" stopColor="#FACC15" />
+                </linearGradient>
+
+                {/* Inner Glow Gradient */}
+                <linearGradient id="opInnerGlow" x1="24" y1="8" x2="24" y2="38" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0" />
+                </linearGradient>
+
+                {/* Filter for Drop Shadow */}
+                <filter id="opShadow" x="0" y="2" width="48" height="46" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                    <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" floodColor="#1e3a8a" floodOpacity="0.25" />
+                </filter>
+            </defs>
+
+            <g filter="url(#opShadow)">
+                {/* Outer Shield Frame (Gold) */}
+                <path
+                    d="M24 4L7 9.5V23C7 33.5 14.2 42.8 24 45C33.8 42.8 41 33.5 41 23V9.5L24 4Z"
+                    fill="url(#opGoldGrad)"
+                />
+
+                {/* Inner Shield Body (Royal Blue) */}
+                <path
+                    d="M24 6.8L9.5 11.5V23C9.5 32 15.7 40.2 24 42.2C32.3 40.2 38.5 32 38.5 23V11.5L24 6.8Z"
+                    fill="url(#opBlueGrad)"
+                />
+
+                {/* Inner Highlights / Depth */}
+                <path
+                    d="M24 8.5L11.5 12.8V23C11.5 30.8 16.8 38 24 39.8C31.2 38 36.5 30.8 36.5 23V12.8L24 8.5Z"
+                    fill="url(#opInnerGlow)"
+                    stroke="url(#opGoldGrad)"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.6"
+                />
+
+                {/* Top Excellence Star */}
+                <polygon
+                    points="24,11 25.4,14.5 29,14.7 26.2,17 27.1,20.5 24,18.5 20.9,20.5 21.8,17 19,14.7 22.6,14.5"
+                    fill="url(#opGoldGrad)"
+                />
+
+                {/* Bold Verified Checkmark */}
+                <path
+                    d="M17 26.5L21.8 31.5L31.5 21"
+                    stroke="#FFFFFF"
+                    strokeWidth="4.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <path
+                    d="M17 26.5L21.8 31.5L31.5 21"
+                    stroke="url(#opGoldGrad)"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeOpacity="0.85"
+                />
+
+                {/* Laurel Leaves Bottom Accents */}
+                <path
+                    d="M14 36C17 38.5 20.5 39.5 24 39.5C27.5 39.5 31 38.5 34 36"
+                    stroke="url(#opGoldGrad)"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeOpacity="0.8"
+                />
+            </g>
+        </svg>
+    );
+};
+

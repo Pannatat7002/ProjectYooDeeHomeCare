@@ -11,6 +11,7 @@ import { fetchWithAuth } from '../../../../lib/auth-client';
 import RichTextEditor from '@/src/components/RichTextEditor';
 import ImageUploadButton from '@/src/components/ImageUploadButton';
 import GoogleMapLocationPicker from '@/src/components/GoogleMapLocationPicker';
+import Image from 'next/image';
 
 const INITIAL_FORM_STATE: any = {
     name: '', address: '', lat: 13.7563, lng: 100.5018, price: 0,
@@ -552,8 +553,9 @@ export default function ManageCenterPage() {
                                                 {truncateText(center.name, 35)}
                                             </div>
                                             {center.isPartner && (
-                                                <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 mt-1">
-                                                    Partner
+                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 mt-1 shadow-2xs">
+                                                    <Image src="/images/badges/badge-official-partner.png" alt="Official Partner" width={14} height={14} className="w-3.5 h-3.5 object-contain inline" />
+                                                    Official Partner
                                                 </span>
                                             )}
                                         </td>
