@@ -1,5 +1,7 @@
 import { getCareCenters, getNearbyHospitalsByCenterId } from '../../lib/db';
 import { calculateHaversineDistance } from '../../lib/hospitalProximity';
+import { findTopNearbyTransitStations } from '../../lib/transitStations';
+import { getRoadDistance } from '../../lib/osrmRouting';
 import CenterDetailClient from './CenterDetailClient';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -90,6 +92,55 @@ export default async function Page({ params }: { params: Promise<{ name: string 
 
     const targetProvince = (normalizedCenter.province || '').trim();
     const hasValidCoords = Boolean(normalizedCenter.lat && normalizedCenter.lng && Number(normalizedCenter.lat) !== 0 && Number(normalizedCenter.lng) !== 0);
+
+    // ดึงสถานีรถไฟ/รถไฟฟ้าใกล้เคียง 3 อันดับแรก (ถ้าระยะไม่เกิน 20 กม.)
+    const nearbyTransitStations = hasValidCoords
+        ? findTopNearbyTransitStations(Number(normalizedCenter.lat), Number(normalizedCenter.lng), 3, 20)
+        : [];
+
+    // คำนวณระยะทางจริงบนถนนและเวลาขับรถผ่าน OSRM API (ฟรี 100%)
+    const [roadNearbyHospitals, roadNearbyTransitStations] = await Promise.all([
+        Promise.all(
+            nearbyHospitals.map(async (item) => {
+                const hosp = item.hospital;
+                if (hasValidCoords && hosp?.latitude && hosp?.longitude) {
+                    const road = await getRoadDistance(
+                        Number(normalizedCenter.lat),
+                        Number(normalizedCenter.lng),
+                        Number(hosp.latitude),
+                        Number(hosp.longitude),
+                        Number(item.distanceKm)
+                    );
+                    return {
+                        ...item,
+                        distanceKm: road.distanceKm,
+                        durationMinutes: road.durationMinutes,
+                    };
+                }
+                return item;
+            })
+        ),
+        Promise.all(
+            nearbyTransitStations.map(async (item) => {
+                const st = item.station;
+                if (hasValidCoords && st?.lat && st?.lng) {
+                    const road = await getRoadDistance(
+                        Number(normalizedCenter.lat),
+                        Number(normalizedCenter.lng),
+                        Number(st.lat),
+                        Number(st.lng),
+                        Number(item.distanceKm)
+                    );
+                    return {
+                        ...item,
+                        distanceKm: road.distanceKm,
+                        durationMinutes: road.durationMinutes,
+                    };
+                }
+                return item;
+            })
+        ),
+    ]);
 
     // ดึงศูนย์ดูแลใกล้เคียง 3 แห่งแรก:
     // ให้ความสำคัญกับศูนย์ในจังหวัดเดียวกันเป็นอันดับแรก เพื่อป้องกันการดึงศูนย์ข้ามภาค (เช่น กรุงเทพมาแสดงในเชียงใหม่)
@@ -278,7 +329,8 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                 center={normalizedCenter} 
                 nearbyCenters={nearbyCenters}
                 relatedCenters={relatedCenters} 
-                nearbyHospitals={nearbyHospitals}
+                nearbyHospitals={roadNearbyHospitals}
+                nearbyTransitStations={roadNearbyTransitStations}
             />
         </>
     );

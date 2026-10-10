@@ -1,3 +1,5 @@
+import { calculateHaversineDistance } from './hospitalProximity';
+
 export interface TransitStation {
     id: string;
     nameTh: string;
@@ -6,6 +8,13 @@ export interface TransitStation {
     lineCode: 'BTS_GREEN' | 'BTS_SILOM' | 'MRT_BLUE' | 'MRT_PURPLE' | 'MRT_YELLOW' | 'MRT_PINK' | 'SRT_RED' | 'ARL';
     lat: number;
     lng: number;
+}
+
+export interface NearbyTransitStation {
+    station: TransitStation;
+    distanceKm: number;
+    durationMinutes?: number;
+    priorityOrder: number;
 }
 
 export const TRANSIT_LINES = [
@@ -147,3 +156,39 @@ export const TRANSIT_STATIONS: TransitStation[] = [
     { id: 'arl-makkasan', nameTh: 'มักกะสัน', nameEn: 'Makkasan', line: 'Airport Rail Link', lineCode: 'ARL', lat: 13.7508, lng: 100.5614 },
     { id: 'arl-suvarnabhumi', nameTh: 'สุวรรณภูมิ', nameEn: 'Suvarnabhumi', line: 'Airport Rail Link', lineCode: 'ARL', lat: 13.6931, lng: 100.7511 }
 ];
+
+/**
+ * คัดเลือกสถานีรถไฟฟ้า/รถไฟที่ใกล้ที่สุดตามลำดับ (Top N Nearby Transit Stations)
+ * กรองเฉพาะสถานีที่มีระยะทางไม่เกิน maxDistanceKm (ค่าเริ่มต้น 20 กม.)
+ */
+export function findTopNearbyTransitStations(
+    centerLat: number,
+    centerLng: number,
+    limit: number = 3,
+    maxDistanceKm: number = 20
+): NearbyTransitStation[] {
+    if (!centerLat || !centerLng || isNaN(Number(centerLat)) || isNaN(Number(centerLng))) {
+        return [];
+    }
+
+    const cLat = Number(centerLat);
+    const cLng = Number(centerLng);
+    if (cLat === 0 && cLng === 0) {
+        return [];
+    }
+
+    return TRANSIT_STATIONS
+        .filter(st => st.lat && st.lng)
+        .map(station => ({
+            station,
+            distanceKm: calculateHaversineDistance(cLat, cLng, station.lat, station.lng),
+        }))
+        .filter(item => item.distanceKm <= maxDistanceKm)
+        .sort((a, b) => a.distanceKm - b.distanceKm)
+        .slice(0, limit)
+        .map((item, index) => ({
+            station: item.station,
+            distanceKm: item.distanceKm,
+            priorityOrder: index + 1,
+        }));
+}

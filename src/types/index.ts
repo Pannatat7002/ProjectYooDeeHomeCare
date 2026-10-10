@@ -63,6 +63,7 @@ export interface CenterNearbyHospital {
     centerId: number;
     hospitalId: string;
     distanceKm: number;
+    durationMinutes?: number;
     isPrimaryTransfer?: boolean;
     priorityOrder: number;
     hospital?: Hospital;

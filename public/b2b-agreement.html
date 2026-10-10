@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สัญญาความร่วมมือพันธมิตร B2B | ThaiCareCenter & YooDeeHomeCare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --primary-light: #ccfbf1;
+            --secondary: #0369a1;
+            --dark: #0f172a;
+            --slate: #475569;
+            --light-bg: #f8fafc;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --gold: #d97706;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Prompt', sans-serif;
+            background-color: var(--light-bg);
+            color: #334155;
+            line-height: 1.7;
+            padding: 24px;
+        }
+
+        .header-bar {
+            max-width: 900px;
+            margin: 0 auto 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            padding: 8px 16px;
+            border-radius: 999px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            font-family: 'Prompt', sans-serif;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: 'Prompt', sans-serif;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        .btn-outline {
+            background: white;
+            color: var(--slate);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover { background: #f1f5f9; color: var(--dark); }
+
+        .contract-paper {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            background: var(--white);
+            padding: 56px 64px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+        }
+
+        .title-block {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .contract-title {
+            font-family: 'Prompt', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .contract-subtitle {
+            font-size: 15px;
+            color: var(--slate);
+            font-weight: 500;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            background: #f8fafc;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+            border: 1px solid #edf2f7;
+            font-size: 14px;
+        }
+
+        .party-box {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .party-title {
+            font-family: 'Prompt', sans-serif;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .editable-field {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border-bottom: 1px dashed #94a3b8;
+            font-weight: 500;
+            color: #0f172a;
+        }
+
+        .clause-heading {
+            font-family: 'Prompt', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 32px 0 14px;
+            padding-left: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .clause-p {
+            font-size: 15px;
+            color: #334155;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 24px;
+            font-size: 14px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .pricing-table th {
+            background: #0f766e;
+            color: white;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 500;
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        .pricing-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: #ffffff;
+        }
+
+        .pricing-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pricing-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .highlight-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-left: 4px solid var(--success);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: #14532d;
+        }
+
+        .warning-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--gold);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: #78350f;
+        }
+
+        .signature-section {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .sign-box {
+            text-align: center;
+        }
+
+        .sign-line {
+            width: 80%;
+            height: 1px;
+            background: #94a3b8;
+            margin: 60px auto 12px;
+        }
+
+        .sign-role {
+            font-size: 13px;
+            color: var(--slate);
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .header-bar { display: none; }
+            .contract-paper {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+            .contract-paper { padding: 32px 20px; }
+            .signature-section { grid-template-columns: 1fr; gap: 32px; }
+            .meta-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <div class="brand-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            ThaiCareCenter & YooDeeHomeCare Partnership Framework
+        </div>
+        <div class="actions">
+            <button class="btn btn-outline" onclick="window.print()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                พิมพ์ / บันทึก PDF
+            </button>
+            <button class="btn btn-primary" onclick="alert('สามารถดาวน์โหลดหรือนำข้อความไปจัดทำเป็นเอกสารสัญญาสมบูรณ์ได้ทันทีครับ')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                พร้อมใช้งาน
+            </button>
+        </div>
+    </div>
+
+    <div class="contract-paper">
+        <div class="title-block">
+            <h1 class="contract-title">สัญญาความร่วมมือการเป็นพันธมิตรและส่งต่อผู้รับบริการ</h1>
+            <p class="contract-subtitle">Care Center Strategic Partnership & Lead Referral Agreement</p>
+        </div>
+
+        <div class="meta-grid">
+            <div><strong>เลขที่สัญญา:</strong> TC-B2B-2026/XXXX</div>
+            <div><strong>วันที่ทำสัญญา:</strong> <span class="editable-field">.......... / .......... / 2569</span></div>
+            <div><strong>สถานที่ทำสัญญา:</strong> บริษัท ยูดีโฮมแคร์ จำกัด (ThaiCareCenter)</div>
+            <div><strong>สถานะความร่วมมือ:</strong> <span style="color: var(--primary); font-weight: 600;">Official Certified Partner</span></div>
+        </div>
+
+        <div class="party-box">
+            <div class="party-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                คู่สัญญาฝ่ายที่ 1: แพลตฟอร์มผู้ให้บริการส่งต่อ (Platform Facilitator)
+            </div>
+            <p class="clause-p">
+                <strong>บริษัท ยูดีโฮมแคร์ จำกัด (แพลตฟอร์ม ThaiCareCenter)</strong> สำนักงานตั้งอยู่เลขที่ ............................................................................................................ ซึ่งต่อไปในสัญญานี้จะเรียกว่า <strong>"แพลตฟอร์ม"</strong> ฝ่ายหนึ่ง กับ
+            </p>
+        </div>
+
+        <div class="party-box">
+            <div class="party-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                คู่สัญญาฝ่ายที่ 2: สถานประกอบการดูแลผู้สูงอายุ (Care Center Partner)
+            </div>
+            <p class="clause-p">
+                <strong>ศูนย์/นิติบุคคล:</strong> <span class="editable-field">[ระบุชื่อศูนย์ดูแลผู้สูงอายุ หรือชื่อนิติบุคคล]</span><br>
+                <strong>เลขทะเบียนนิติบุคคล / ใบอนุญาต สบส.:</strong> <span class="editable-field">....................................................................................</span><br>
+                <strong>ที่ตั้งสถานประกอบการ:</strong> <span class="editable-field">.......................................................................................................................................................................................</span><br>
+                ซึ่งต่อไปในสัญญานี้จะเรียกว่า <strong>"ศูนย์พันธมิตร"</strong> อีกฝ่ายหนึ่ง
+            </p>
+        </div>
+
+        <p class="clause-p" style="margin-bottom: 24px;">
+            ทั้งสองฝ่ายได้ตกลงทำสัญญานี้ขึ้น โดยมีข้อความและเงื่อนไขที่ตกลงร่วมกันดังต่อไปนี้:
+        </p>
+
+        <!-- หมวดที่ 1 -->
+        <h2 class="clause-heading">ข้อ 1. วัตถุประสงค์และขอบเขตความร่วมมือ</h2>
+        <p class="clause-p">
+            1.1 "แพลตฟอร์ม" ตกลงทำหน้าที่เป็นช่องทางประชาสัมพันธ์ คัดกรองความต้องการเบื้องต้นของครอบครัวผู้สูงอายุ (Lead Qualification) และส่งต่อข้อมูลผู้สนใจเข้าพักแก่ "ศูนย์พันธมิตร"<br>
+            1.2 "ศูนย์พันธมิตร" ตกลงรับการส่งต่อผู้รับบริการจากแพลตฟอร์ม และให้บริการการดูแลผู้สูงอายุหรือผู้มีภาวะพึ่งพิงด้วยมาตรฐานวิชาชีพ มีสุขอนามัย และปฏิบัติตามกฎหมายอย่างเคร่งครัด
+        </p>
+
+        <!-- หมวดที่ 2 -->
+        <h2 class="clause-heading">ข้อ 2. ค่าตอบแทนและเงื่อนไขการชำระเงิน (Referral Commission)</h2>
+        <p class="clause-p">
+            2.1 ทั้งสองฝ่ายตกลงค่าธรรมเนียมการแนะนำและส่งต่อผู้รับบริการ (Success Fee) ดังนี้:
+        </p>
+        <table class="pricing-table">
+            <thead>
+                <tr>
+                    <th>รูปแบบการส่งต่อ</th>
+                    <th>อัตราค่าตอบแทน (Commission)</th>
+                    <th>เงื่อนไขการคิดค่าบริการ (Trigger)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>ผู้รับบริการพักระยะยาว (รายเดือน)</strong></td>
+                    <td><strong style="color: var(--primary);">10% – 15%</strong> ของค่าบริการเดือนแรก (หรือ 3,000 – 5,000 บ./เคส)</td>
+                    <td>เมื่อผู้รับบริการเข้าพักจริง (Check-in) เกิน 14 วันขึ้นไป</td>
+                </tr>
+                <tr>
+                    <td><strong>ผู้รับบริการฟื้นฟูระยะสั้น (รายสัปดาห์)</strong></td>
+                    <td><strong>10%</strong> ของยอดค่าบริการจริงตลอดช่วงเวลาที่เข้าพัก</td>
+                    <td>เมื่อชำระเงินและเข้าพักครบตามกำหนด</td>
+                </tr>
+                <tr>
+                    <td><strong>ตราสัญลักษณ์ Official Partner</strong></td>
+                    <td>ฟรี / ตามข้อตกลงพิเศษ (Featured Ranking)</td>
+                    <td>แสดงป้ายการันตีตรวจสอบแล้วบนแพลตฟอร์ม</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="clause-p">
+            2.2 <strong>รอบการสรุปยอดและชำระเงิน:</strong> แพลตฟอร์มจะจัดส่งใบแจ้งหนี้ (Invoice) ทุกวันที่ 25 ของเดือน และศูนย์พันธมิตรตกลงชำระเงินภายใน 7 วันทำการ
+        </p>
+
+        <!-- หมวดที่ 3 -->
+        <h2 class="clause-heading">ข้อ 3. การการันตีความพึงพอใจและนโยบายคืนเงิน (Guarantee & Safety Buffer)</h2>
+        <div class="highlight-box">
+            <strong>นโยบาย Safety Buffer 14 วัน:</strong><br>
+            หากผู้รับบริการเข้าพักจริงไม่ถึง 14 วัน นับจากวันแรกที่เข้าพัก อันเนื่องมาจากเหตุจำเป็นสุดวิสัย เช่น ผู้ป่วยจำเป็นต้องเข้ารักษาตัวฉุกเฉินในโรงพยาบาล, เสียชีวิต หรือขอยกเลิกสัญญาตามสิทธิ ศูนย์พันธมิตรตกลงคิดค่าบริการตามสัดส่วนวันที่เข้าพักจริง (Pro-rata) และแพลตฟอร์มจะปรับลดยอดค่าธรรมเนียมตามสัดส่วน หรือยกเว้นค่าธรรมเนียมในเคสดังกล่าว
+        </div>
+
+        <!-- หมวดที่ 4 -->
+        <h2 class="clause-heading">ข้อ 4. มาตรฐานสถานประกอบการและใบอนุญาต สบส.</h2>
+        <p class="clause-p">
+            4.1 "ศูนย์พันธมิตร" ขอรับรองว่าสถานประกอบการได้รับใบอนุญาตประกอบกิจการการดูแลผู้สูงอายุหรือผู้มีภาวะพึ่งพิง จากกรมสนับสนุนบริการสุขภาพ (สบส.) กระทรวงสาธารณสุข อย่างถูกต้องสมบูรณ์<br>
+            4.2 มีบุคลากรดูแล (Caregiver / พยาบาลวิชาชีพ) ที่ผ่านการอบรมตามเกณฑ์มาตรฐาน และมีอัตราส่วนผู้ดูแลต่อผู้ป่วยที่เหมาะสมและปลอดภัย
+        </p>
+
+        <!-- หมวดที่ 5 -->
+        <h2 class="clause-heading">ข้อ 5. การคุ้มครองข้อมูลส่วนบุคคล (PDPA Compliance)</h2>
+        <p class="clause-p">
+            5.1 ข้อมูลประวัติการรักษา ข้อมูลสุขภาพ และข้อมูลการติดต่อของครอบครัวผู้ป่วย ถือเป็นข้อมูลส่วนบุคคลที่มีความอ่อนไหว (Sensitive Personal Data)<br>
+            5.2 ทั้งสองฝ่ายตกลงเก็บรักษาข้อมูลเป็นความลับ ใช้เพื่อวัตถุประสงค์ในการประเมินและให้บริการดูแลเท่านั้น ห้ามนำไปจำหน่าย แจกจ่าย หรือเผยแพร่แก่บุคคลภายนอกโดยเด็ดขาด
+        </p>
+
+        <!-- หมวดที่ 6 -->
+        <h2 class="clause-heading">ข้อ 6. ข้อจำกัดความรับผิดชอบ (Limitation of Liability)</h2>
+        <div class="warning-box">
+            <strong>การจำกัดความรับผิดชอบของแพลตฟอร์ม:</strong><br>
+            แพลตฟอร์มทำหน้าที่เป็นเพียงตัวกลางประสานงาน ให้ข้อมูล และแนะนำการค้นหาเท่านั้น แพลตฟอร์มไม่มีอำนาจควบคุมการปฏิบัติงานจริง และไม่ได้เป็นผู้ให้บริการทางการแพทย์ การพยาบาล หรือบริการสุขภาพโดยตรง ความรับผิดชอบต่อความปลอดภัย อุบัติเหตุ หรือผลการดูแลผู้รับบริการ ณ สถานประกอบการ เป็นความรับผิดชอบของศูนย์พันธมิตรแต่เพียงผู้เดียว
+        </div>
+
+        <!-- หมวดที่ 7 -->
+        <h2 class="clause-heading">ข้อ 7. ระยะเวลาสัญญาและการบอกเลิกสัญญา</h2>
+        <p class="clause-p">
+            สัญญานี้มีผลบังคับใช้นับตั้งแต่วันที่ลงนาม มีกำหนดระยะเวลา 1 (หนึ่ง) ปี และจะต่ออายุสัญญาออกไปคราวละ 1 ปีโดยอัตโนมัติ เว้นแต่คู่สัญญาฝ่ายใดฝ่ายหนึ่งจะแจ้งยกเลิกเป็นลายลักษณ์อักษรล่วงหน้าไม่น้อยกว่า 30 วัน
+        </p>
+
+        <!-- Signature -->
+        <div class="signature-section">
+            <div class="sign-box">
+                <p>ลงชื่อ ..............................................................</p>
+                <div class="sign-line"></div>
+                <p><strong>(..............................................................)</strong></p>
+                <p class="sign-role">ผู้มีอำนาจลงนาม / กรรมการผู้มีอำนาจ</p>
+                <p class="sign-role">บริษัท ยูดีโฮมแคร์ จำกัด (ThaiCareCenter)</p>
+            </div>
+            <div class="sign-box">
+                <p>ลงชื่อ ..............................................................</p>
+                <div class="sign-line"></div>
+                <p><strong>(..............................................................)</strong></p>
+                <p class="sign-role">ผู้มีอำนาจลงนาม / ผู้ดำเนินการสถานประกอบการ</p>
+                <p class="sign-role"><span class="editable-field">[ชื่อศูนย์ดูแลผู้สูงอายุพันธมิตร]</span></p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

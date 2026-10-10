@@ -36,6 +36,8 @@ type Blog = any;
 import * as gtag from '../lib/gtag';
 import { TRANSIT_LINES, TRANSIT_STATIONS, POPULAR_TRANSIT_STATIONS } from '../lib/transitStations';
 import { INITIAL_HOSPITALS } from '../lib/hospitalProximity';
+type TransitStation = (typeof TRANSIT_STATIONS)[number];
+type Hospital = (typeof INITIAL_HOSPITALS)[number];
 import { IconSearchCareCenter, IconSearchTransit, IconSearchHospital } from '../components/icons/CustomIcons';
 
 const POPULAR_HOSPITALS = [
@@ -637,7 +639,83 @@ export default function HomePageClient({
   // Tab change handler
   const handleTabChange = (tab: 'general' | 'transit' | 'hospital') => {
     setActiveTab(tab);
+    setShowSuggestions(false);
     gtag.event({ action: 'switch_search_tab', category: 'Engagement', label: tab });
+  };
+
+  // Auto-suggestions State & Ref
+  const searchInputRef = useRef<HTMLDivElement>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Suggestions for Transit Tab (BTS / MRT)
+  const transitSuggestions = useMemo(() => {
+    if (activeTab !== 'transit' || !searchTerm.trim()) return [];
+    const raw = searchTerm.trim().toLowerCase();
+    // Normalize common typos (e.g., อนุเสาวร -> อนุสาวร)
+    const q = raw.replace(/อนุเสาวร/g, 'อนุสาวร').replace(/เสาวร/g, 'สาวร');
+
+    return TRANSIT_STATIONS.filter(st => {
+      const nameTh = st.nameTh.toLowerCase();
+      const nameEn = (st.nameEn || '').toLowerCase();
+      const line = (st.line || '').toLowerCase();
+      if (nameTh.includes(q) || nameEn.includes(raw) || line.includes(q)) return true;
+      if (nameTh.includes('อนุสาวรีย์') && (raw.includes('อนุ') || raw.includes('เสาวร'))) return true;
+      return false;
+    }).slice(0, 8);
+  }, [activeTab, searchTerm]);
+
+  // Suggestions for Hospital Tab
+  const hospitalSuggestions = useMemo(() => {
+    if (activeTab !== 'hospital' || !searchTerm.trim()) return [];
+    const raw = searchTerm.trim().toLowerCase();
+    // Normalize common typos
+    const q = raw.replace(/อนุเสาวร/g, 'อนุสาวร').replace(/เสาวร/g, 'สาวร');
+
+    return INITIAL_HOSPITALS.filter(h => {
+      const nameTh = h.nameTh.toLowerCase();
+      const nameEn = (h.nameEn || '').toLowerCase();
+      const district = (h.district || '').toLowerCase();
+      const province = (h.province || '').toLowerCase();
+
+      if (nameTh.includes(q) || nameEn.includes(raw) || district.includes(q) || province.includes(q)) {
+        return true;
+      }
+      // If user typed "อนุ" or "อนุสาวรีย์" -> show hospitals near Victory Monument
+      if (q.includes('อนุ') || q.includes('เสาวร') || raw.includes('อนุ')) {
+        if (nameTh.includes('ราชวิถี') || nameTh.includes('พระมงกุฎ') || district.includes('ราชเทวี')) {
+          return true;
+        }
+      }
+      return false;
+    }).slice(0, 8);
+  }, [activeTab, searchTerm]);
+
+  const handleSelectTransitSuggestion = (st: TransitStation) => {
+    setSelectedTransitLine(st.lineCode);
+    setSelectedStationId(st.id);
+    setSearchTerm(st.nameTh);
+    setShowSuggestions(false);
+    gtag.event({ action: 'select_transit_suggestion', category: 'Search', label: st.nameTh });
+    scrollToResults();
+  };
+
+  const handleSelectHospitalSuggestion = (hosp: Hospital) => {
+    if (hosp.province) setHospitalProvince(hosp.province);
+    setSelectedHospitalId(hosp.id);
+    setSearchTerm(hosp.nameTh);
+    setShowSuggestions(false);
+    gtag.event({ action: 'select_hospital_suggestion', category: 'Search', label: hosp.nameTh });
+    scrollToResults();
   };
 
   const handleSelectPopularStation = (stationId: string) => {
@@ -749,7 +827,11 @@ export default function HomePageClient({
       params.set('status', 'visible');
 
       if (searchTerm.trim()) {
-        params.set('search', searchTerm.trim());
+        const isSelectedStationName = activeTab === 'transit' && selectedStation && searchTerm.trim() === selectedStation.nameTh;
+        const isSelectedHospitalName = activeTab === 'hospital' && selectedHospital && searchTerm.trim() === selectedHospital.nameTh;
+        if (!isSelectedStationName && !isSelectedHospitalName) {
+          params.set('search', searchTerm.trim());
+        }
       }
 
       if (activeTab === 'general') {
@@ -1114,26 +1196,82 @@ export default function HomePageClient({
             {/* === TAB 2: BTS / MRT === */}
             {activeTab === 'transit' && (
               <div className="flex flex-col gap-4">
-                {/* ROW 1: Search Input */}
-                <div className="relative w-full">
+                {/* ROW 1: Search Input with Auto-Suggestions */}
+                <div ref={searchInputRef} className="relative w-full">
                   <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-[#65A85A] pointer-events-none">
                     <IconSearchTransit size={24} />
                   </div>
                   <input
                     type="text"
                     className="w-full pl-11 md:pl-14 pr-10 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#65A85A]/30 focus:border-[#65A85A] focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
-                    placeholder="ค้นหาชื่อศูนย์ หรือระบุชื่อสถานีรถไฟฟ้า เช่น หมอชิต, อารีย์, อโศก..."
+                    placeholder="พิมพ์ชื่อสถานี เช่น อนุสาวรีย์, หมอชิต, อารีย์, อโศก..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') setShowSuggestions(false);
+                      if (e.key === 'Enter') {
+                        setShowSuggestions(false);
+                        scrollToResults();
+                      }
+                    }}
                   />
                   {searchTerm && (
                     <button
-                      onClick={() => setSearchTerm('')}
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedStationId('');
+                        setShowSuggestions(false);
+                      }}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
+                  )}
+
+                  {/* Auto-Suggestions Dropdown: Transit Stations */}
+                  {showSuggestions && transitSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden divide-y divide-gray-100 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="px-4 py-2.5 bg-gray-50/90 border-b border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                        <span className="font-semibold flex items-center gap-1.5 text-[#2B5897]">
+                          <IconSearchTransit size={15} /> สถานีรถไฟฟ้าที่แนะนำ ({transitSuggestions.length})
+                        </span>
+                        <span className="text-gray-400 text-[11px]">คลิกเพื่อเลือก</span>
+                      </div>
+                      <ul className="max-h-72 overflow-y-auto divide-y divide-gray-50">
+                        {transitSuggestions.map((st) => (
+                          <li
+                            key={st.id}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectTransitSuggestion(st);
+                            }}
+                            className="px-4 py-3 hover:bg-[#65A85A]/10 cursor-pointer flex items-center justify-between gap-3 transition-colors group text-left"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="w-8 h-8 rounded-lg bg-[#65A85A]/15 text-[#65A85A] flex items-center justify-center shrink-0">
+                                <IconSearchTransit size={18} />
+                              </span>
+                              <div className="min-w-0">
+                                <div className="font-bold text-gray-900 group-hover:text-[#2B5897] text-sm sm:text-base truncate">
+                                  {st.nameTh}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">
+                                  {st.line} {st.nameEn ? `• ${st.nameEn}` : ''}
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium group-hover:bg-[#2B5897] group-hover:text-white transition-colors shrink-0">
+                              เลือกสถานีนี้
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
 
@@ -1195,26 +1333,86 @@ export default function HomePageClient({
             {/* === TAB 3: โรงพยาบาล === */}
             {activeTab === 'hospital' && (
               <div className="flex flex-col gap-4">
-                {/* ROW 1: Search Input */}
-                <div className="relative w-full">
+                {/* ROW 1: Search Input with Auto-Suggestions */}
+                <div ref={searchInputRef} className="relative w-full">
                   <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-[#2B5897] pointer-events-none">
                     <IconSearchHospital size={24} />
                   </div>
                   <input
                     type="text"
                     className="w-full pl-11 md:pl-14 pr-10 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#2B5897]/30 focus:border-[#2B5897] focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
-                    placeholder="ค้นหาชื่อศูนย์ หรือระบุชื่อโรงพยาบาล เช่น ศิริราช, จุฬาฯ, รามาธิบดี..."
+                    placeholder="พิมพ์ชื่อโรงพยาบาล เช่น ราชวิถี, ศิริราช, จุฬาฯ, รามา..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') setShowSuggestions(false);
+                      if (e.key === 'Enter') {
+                        setShowSuggestions(false);
+                        scrollToResults();
+                      }
+                    }}
                   />
                   {searchTerm && (
                     <button
-                      onClick={() => setSearchTerm('')}
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedHospitalId('');
+                        setShowSuggestions(false);
+                      }}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
+                  )}
+
+                  {/* Auto-Suggestions Dropdown: Hospitals */}
+                  {showSuggestions && hospitalSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden divide-y divide-gray-100 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="px-4 py-2.5 bg-gray-50/90 border-b border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                        <span className="font-semibold flex items-center gap-1.5 text-[#2B5897]">
+                          <IconSearchHospital size={15} /> โรงพยาบาลที่แนะนำ ({hospitalSuggestions.length})
+                        </span>
+                        <span className="text-gray-400 text-[11px]">คลิกเพื่อเลือก</span>
+                      </div>
+                      <ul className="max-h-72 overflow-y-auto divide-y divide-gray-50">
+                        {hospitalSuggestions.map((hosp) => (
+                          <li
+                            key={hosp.id}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectHospitalSuggestion(hosp);
+                            }}
+                            className="px-4 py-3 hover:bg-[#2B5897]/10 cursor-pointer flex items-center justify-between gap-3 transition-colors group text-left"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="w-8 h-8 rounded-lg bg-[#2B5897]/15 text-[#2B5897] flex items-center justify-center shrink-0">
+                                <IconSearchHospital size={18} />
+                              </span>
+                              <div className="min-w-0">
+                                <div className="font-bold text-gray-900 group-hover:text-[#2B5897] text-sm sm:text-base truncate">
+                                  {hosp.nameTh}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">
+                                  {hosp.district ? `${hosp.district}, ` : ''}{hosp.province} {hosp.hospitalType ? `• ${hosp.hospitalType}` : ''}
+                                  {/* If matches Victory Monument hub */}
+                                  {(hosp.nameTh.includes('ราชวิถี') || hosp.nameTh.includes('พระมงกุฎ')) && (
+                                    <span className="ml-1.5 text-[#65A85A] font-semibold">• ย่านอนุสาวรีย์ชัยฯ</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium group-hover:bg-[#2B5897] group-hover:text-white transition-colors shrink-0">
+                              เลือกรพ.นี้
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
 

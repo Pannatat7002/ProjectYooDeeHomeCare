@@ -21,8 +21,9 @@ import * as gtag from '../../lib/gtag';
 import { CareCenter, RoomType } from '../../types/index';
 import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
 import { getVerifiedLead, saveVerifiedLead } from '../../lib/leadSession';
-import { IconOfficialPartner } from '../../components/icons/CustomIcons';
+import { IconOfficialPartner, IconSearchTransit } from '../../components/icons/CustomIcons';
 import { OfficialPartnerBadge } from '../../components/OfficialPartnerBadge';
+import { NearbyTransitStation, findTopNearbyTransitStations } from '../../lib/transitStations';
 
 
 // =========================================================================================
@@ -30,6 +31,65 @@ import { OfficialPartnerBadge } from '../../components/OfficialPartnerBadge';
 // =========================================================================================
 
 const isTrue = (value: any) => !!value;
+
+const getTransitLineBadge = (lineCode: string, lineName?: string) => {
+    switch (lineCode) {
+        case 'BTS_GREEN':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                    BTS สายสีเขียว
+                </span>
+            );
+        case 'BTS_SILOM':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-teal-50 text-teal-700 border border-teal-200 shrink-0">
+                    BTS สายสีลม
+                </span>
+            );
+        case 'MRT_BLUE':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+                    MRT สายสีน้ำเงิน
+                </span>
+            );
+        case 'MRT_PURPLE':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
+                    MRT สายสีม่วง
+                </span>
+            );
+        case 'MRT_YELLOW':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+                    MRT สายสีเหลือง
+                </span>
+            );
+        case 'MRT_PINK':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-pink-50 text-pink-700 border border-pink-200 shrink-0">
+                    MRT สายสีชมพู
+                </span>
+            );
+        case 'SRT_RED':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
+                    SRT สายสีแดง
+                </span>
+            );
+        case 'ARL':
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-800 border border-red-200 shrink-0">
+                    ARL แอร์พอร์ตลิงก์
+                </span>
+            );
+        default:
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200 shrink-0">
+                    {lineName || 'รถไฟฟ้า'}
+                </span>
+            );
+    }
+};
 
 const formatPhone = (phone: any) => {
     if (!phone) return '';
@@ -768,13 +828,24 @@ export default function CenterDetailClient({
     center,
     nearbyCenters = [],
     relatedCenters = [],
-    nearbyHospitals = []
+    nearbyHospitals = [],
+    nearbyTransitStations = []
 }: {
     center: CareCenter;
     nearbyCenters?: (CareCenter & { distanceKm?: number })[];
     relatedCenters: CareCenter[];
     nearbyHospitals?: any[];
+    nearbyTransitStations?: NearbyTransitStation[];
 }) {
+    const effectiveTransitStations = useMemo(() => {
+        if (nearbyTransitStations && nearbyTransitStations.length > 0) {
+            return nearbyTransitStations;
+        }
+        if (center?.lat && center?.lng) {
+            return findTopNearbyTransitStations(Number(center.lat), Number(center.lng), 3, 20);
+        }
+        return [];
+    }, [nearbyTransitStations, center?.lat, center?.lng]);
     const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/800x600?text=No+Image';
     const allImages = useMemo(
         () => (center?.imageUrls?.length > 0 ? center.imageUrls : [PLACEHOLDER_IMAGE]),
@@ -1518,17 +1589,94 @@ export default function CenterDetailClient({
                                     {nearbyHospitals.map((item, idx) => {
                                         const hosp = item.hospital;
                                         if (!hosp) return null;
+                                        const hospRouteUrl = (center.lat && center.lng && hosp.latitude && hosp.longitude)
+                                            ? `https://www.google.com/maps/dir/?api=1&origin=${center.lat},${center.lng}&destination=${hosp.latitude},${hosp.longitude}`
+                                            : (hosp.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hosp.nameTh)}`);
+
                                         return (
-                                            <div key={hosp.id || idx} className="flex items-center justify-between text-gray-700 py-1 border-b border-gray-50 last:border-b-0">
+                                            <div key={hosp.id || idx} className="flex items-center justify-between text-gray-700 py-1.5 border-b border-gray-50 last:border-b-0 gap-2">
                                                 <Link
                                                     href={`/hospitals/${hosp.id}?fromCenter=${encodeURIComponent(center.name)}&centerLat=${center.lat}&centerLng=${center.lng}`}
-                                                    className="hover:text-blue-600 truncate mr-3 font-medium text-gray-800"
+                                                    className="hover:text-blue-600 truncate mr-2 font-medium text-gray-800 transition-colors"
                                                 >
                                                     {hosp.nameTh}
                                                 </Link>
-                                                <span className="text-gray-500 shrink-0 font-medium text-sm">
-                                                    ระยะประมาณ {Number(item.distanceKm).toFixed(1)}
-                                                </span>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <span className="text-gray-500 font-medium text-sm whitespace-nowrap">
+                                                        ระยะประมาณ {Number(item.distanceKm).toFixed(1)} กม.
+                                                        {item.durationMinutes && item.durationMinutes > 0 ? (
+                                                            <span className="text-gray-400 font-normal text-xs ml-1">(~{item.durationMinutes} นาที)</span>
+                                                        ) : null}
+                                                    </span>
+                                                    <a
+                                                        href={hospRouteUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-gray-400 hover:text-blue-600 transition-colors p-0.5"
+                                                        title={`เปิดเส้นทางนำทางไป ${hosp.nameTh} ใน Google Maps`}
+                                                    >
+                                                        <Navigation className="w-3.5 h-3.5" />
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        )}
+
+                        {/* ใกล้สถานีรถไฟ */}
+                        {effectiveTransitStations && effectiveTransitStations.length > 0 && (
+                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
+                                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 flex items-center gap-2.5">
+                                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-blue-50 border border-emerald-100 flex items-center justify-center shrink-0 drop-shadow-xs p-1.5 sm:p-2">
+                                        <IconSearchTransit className="w-8 h-8 sm:w-11 sm:h-11 object-contain" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span>ใกล้สถานีรถไฟ</span>
+                                        <span className="text-xs text-gray-400 font-normal">สถานีรถไฟฟ้า / รถไฟใกล้เคียง 3 ลำดับแรก</span>
+                                    </div>
+                                </h3>
+                                <div className="space-y-2 text-sm sm:text-base">
+                                    {effectiveTransitStations.slice(0, 3).map((item, idx) => {
+                                        const station = item.station;
+                                        if (!station) return null;
+                                        const routeUrl = center.lat && center.lng
+                                            ? `https://www.google.com/maps/dir/?api=1&origin=${center.lat},${center.lng}&destination=${station.lat},${station.lng}`
+                                            : `https://www.google.com/maps/search/?api=1&query=${station.lat},${station.lng}`;
+                                        const displayName = station.nameTh.startsWith('สถานี') ? station.nameTh : `สถานี${station.nameTh}`;
+
+                                        return (
+                                            <div key={station.id || idx} className="flex items-center justify-between text-gray-700 py-1.5 border-b border-gray-50 last:border-b-0 gap-2">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <a
+                                                        href={routeUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="hover:text-emerald-700 truncate font-medium text-gray-800 transition-colors"
+                                                        title={`ดูเส้นทางไป ${displayName} บน Google Maps`}
+                                                    >
+                                                        {displayName}
+                                                    </a>
+                                                    {getTransitLineBadge(station.lineCode, station.line)}
+                                                </div>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <span className="text-gray-500 font-medium text-sm whitespace-nowrap">
+                                                        ระยะประมาณ {Number(item.distanceKm).toFixed(1)} กม.
+                                                        {item.durationMinutes && item.durationMinutes > 0 ? (
+                                                            <span className="text-gray-400 font-normal text-xs ml-1">(~{item.durationMinutes} นาที)</span>
+                                                        ) : null}
+                                                    </span>
+                                                    <a
+                                                        href={routeUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-gray-400 hover:text-emerald-600 transition-colors p-0.5"
+                                                        title="เปิดเส้นทางนำทางใน Google Maps"
+                                                    >
+                                                        <Navigation className="w-3.5 h-3.5" />
+                                                    </a>
+                                                </div>
                                             </div>
                                         );
                                     })}

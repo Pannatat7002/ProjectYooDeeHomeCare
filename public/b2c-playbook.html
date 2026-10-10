@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือและบทพูดคุยกับลูกค้า B2C (Care Consultation Playbook) | ThaiCareCenter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --primary-light: #e0f2fe;
+            --accent: #10b981;
+            --accent-dark: #059669;
+            --dark: #0f172a;
+            --slate: #475569;
+            --light-bg: #f8fafc;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Prompt', sans-serif;
+            background-color: var(--light-bg);
+            color: #334155;
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .header {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white;
+            padding: 36px 32px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            font-family: 'Prompt', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header-content p {
+            color: #e0f2fe;
+            font-size: 15px;
+        }
+
+        .quick-nav {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px;
+            border-radius: 10px;
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: white;
+            color: var(--primary-dark);
+        }
+
+        /* Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 28px;
+        }
+
+        @media (max-width: 900px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Step Card */
+        .step-card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s;
+        }
+
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+        }
+
+        .step-title {
+            font-family: 'Prompt', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-desc {
+            font-size: 15px;
+            color: var(--slate);
+            margin-bottom: 18px;
+        }
+
+        /* Script Box */
+        .script-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 14px 0;
+            position: relative;
+        }
+
+        .script-label {
+            font-family: 'Prompt', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .script-text {
+            font-size: 14.5px;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: var(--slate);
+            font-family: 'Prompt', sans-serif;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-color: var(--primary);
+        }
+
+        /* ADL Calculator Widget */
+        .calculator-widget {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            position: sticky;
+            top: 24px;
+        }
+
+        .widget-title {
+            font-family: 'Prompt', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .check-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .check-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #f8fafc;
+            transition: background 0.15s;
+        }
+
+        .check-label:hover {
+            background: #f1f5f9;
+        }
+
+        .check-label input {
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        .result-box {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .result-level {
+            font-family: 'Prompt', sans-serif;
+            font-weight: 700;
+            color: #065f46;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .result-cost {
+            font-family: 'Prompt', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #047857;
+        }
+
+        .tips-list {
+            margin: 12px 0 0 18px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .tips-list li {
+            margin-bottom: 8px;
+        }
+
+        /* Toast message */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f172a;
+            color: white;
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Top Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>B2C Care Consultation Playbook</h1>
+                <p>คู่มือขั้นตอนและบทพูดคุยกับครอบครัวผู้สูงอายุ (ตั้งแต่ติดต่อจนปิดการส่งต่อเข้าศูนย์)</p>
+            </div>
+            <div class="quick-nav">
+                <button class="nav-btn active" onclick="scrollToStep('step1')">Step 1-2</button>
+                <button class="nav-btn" onclick="scrollToStep('step3')">Step 3-4</button>
+                <button class="nav-btn" onclick="scrollToStep('step5')">Step 5-6</button>
+                <button class="nav-btn" onclick="window.print()">พิมพ์</button>
+            </div>
+        </div>
+
+        <div class="layout-grid">
+            <!-- Left Column: Steps & Scripts -->
+            <div class="steps-column">
+
+                <!-- Step 1 -->
+                <div class="step-card" id="step1">
+                    <span class="step-badge">Step 1: First Touch</span>
+                    <h2 class="step-title">ทักทาย & สร้างความอุ่นใจ (Empathy First)</h2>
+                    <p class="step-desc">
+                        ลูกค้ากลุ่มนี้กำลังเผชิญความเครียดหรือความกังวลอย่างสูง ให้แสดงความเข้าใจ ไม่ฮาร์ดเซลล์ และทำตัวเป็น "ที่ปรึกษาส่วนตัว"
+                    </p>
+
+                    <div class="script-box">
+                        <div class="script-label">
+                            <span>บทพูดทักทายทางโทรศัพท์ / LINE</span>
+                            <button class="copy-btn" onclick="copyText('script-1')">📋 คัดลอก</button>
+                        </div>
+                        <div class="script-text" id="script-1">
+                            "สวัสดีครับคุณ [ชื่อลูกค้า] จาก ThaiCareCenter นะครับ ได้รับข้อมูลที่คุณติดต่อเข้ามาเรื่องหาศูนย์ดูแลให้คุณแม่เรียบร้อยครับ ช่วงนี้คุณแม่เป็นอย่างไรบ้างครับ เพิ่งออกจากโรงพยาบาลหรือกำลังมองหาล่วงหน้าครับ? ยินดีช่วยดูแลและช่วยคัดเลือกศูนย์ที่ตรงกับอาการและงบประมาณให้ครอบครัวนะครับ"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card" id="step2">
+                    <span class="step-badge">Step 2: Needs Assessment</span>
+                    <h2 class="step-title">ซักประวัติ 5 ข้อสำคัญ (Assessment Checklist)</h2>
+                    <p class="step-desc">
+                        ต้องทราบความต้องการให้ครบเพื่อไม่ให้ส่งศูนย์ผิดประเภท:
+                    </p>
+
+                    <ul class="tips-list">
+                        <li><strong>1. ภาวะพึ่งพิง (ADL):</strong> ติดเตียงไหม? พยุงเดินได้ไหม? มีสายยาง (อาหาร/ปัสสาวะ/เจาะคอ/แผลกดทับ) หรือไม่?</li>
+                        <li><strong>2. ทำเลที่สะดวก:</strong> ใกล้บ้านโซนไหน หรือต้องใกล้โรงพยาบาลประจำที่ต้องพาไปพบแพทย์?</li>
+                        <li><strong>3. งบประมาณต่อเดือน:</strong> ตั้งงบไว้ช่วงไหน (เช่น 18,000–25,000 หรือ 30,000–40,000 บาท)?</li>
+                        <li><strong>4. ความเร่งด่วน:</strong> ต้องการเข้าพักทันที หรือวางแผนสำหรับเดือนหน้า?</li>
+                        <li><strong>5. เงื่อนไขพิเศษ:</strong> ต้องการทำกายภาพบำบัดฟื้นฟูทุกวัน, เป็นห้องเดี่ยว, หรือนับถือศาสนาอิสลาม?</li>
+                    </ul>
+
+                    <div class="script-box">
+                        <div class="script-label">
+                            <span>บทพูดถามประวัติอย่างสุภาพ</span>
+                            <button class="copy-btn" onclick="copyText('script-2')">📋 คัดลอก</button>
+                        </div>
+                        <div class="script-text" id="script-2">
+                            "เพื่อให้ผมช่วยคัดเลือกศูนย์ที่มีทีมพยาบาลและอุปกรณ์รองรับได้ตรงจุดที่สุด รบกวนสอบถามอาการเบื้องต้นของคุณแม่ครับ ตอนนี้ช่วยเหลือตัวเองได้ประมาณไหนครับ มีสายอาหารหรือสายสวนปัสสาวะที่ต้องดูแลเป็นพิเศษไหมครับ? และครอบครัวสะดวกเป็นโซนแถวไหนเป็นหลักครับ?"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card" id="step3">
+                    <span class="step-badge">Step 3: Matching & Recommendation</span>
+                    <h2 class="step-title">นำเสนอตัวเลือกที่คัดสรรแล้ว (2-3 แห่งพอ)</h2>
+                    <p class="step-desc">
+                        <strong>กฎเหล็ก:</strong> ห้ามส่งให้ทีละ 10 ศูนย์ ลูกค้าจะสับสน ให้เลือกศูนย์ที่ตอบโจทย์ที่สุด 2 ถึง 3 แห่ง พร้อมเปรียบเทียบจุดเด่น
+                    </p>
+
+                    <div class="script-box">
+                        <div class="script-label">
+                            <span>บทพูดนำเสนอเปรียบเทียบ 2 ศูนย์</span>
+                            <button class="copy-btn" onclick="copyText('script-3')">📋 คัดลอก</button>
+                        </div>
+                        <div class="script-text" id="script-3">
+                            "จากที่ประเมินอาการของคุณแม่ ทางเราคัดกรองศูนย์ที่ผ่านมาตรฐาน สบส. ในโซน [นนทบุรี] ที่มีพยาบาลวิชาชีพดูแล 24 ชม. มาให้ 2 แห่งที่เหมาะสมที่สุดครับ:
+1. ศูนย์ A: จุดเด่นคือใกล้ รพ. ประจำเพียง 10 นาที บรรยากาศโปร่ง มีนักกายภาพเข้าสัปดาห์ละ 3 วัน งบประมาณราวๆ 28,000 บ./เดือน
+2. ศูนย์ B: จุดเด่นคือมีแพทย์อายุรกรรมเข้าตรวจสัปดาห์ละครั้ง ห้องพักกว้างขวาง งบประมาณราวๆ 32,000 บ./เดือน
+เดี๋ยวผมส่งรูปภาพห้องพักจริงและแพ็กเกจให้ทางไลน์นี้นะครับ"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step-card" id="step4">
+                    <span class="step-badge">Step 4: Site Visit</span>
+                    <h2 class="step-title">นัดหมายเข้าดูสถานที่จริง (หัวใจของการตัดสินใจ)</h2>
+                    <p class="step-desc">
+                        กว่า 80% ของลูกค้าจะตัดสินใจเข้าพักหลังจากได้ไปเห็นสถานที่จริง ได้กลิ่น บรรยากาศ และได้คุยกับหัวหน้าพยาบาล
+                    </p>
+
+                    <div class="script-box">
+                        <div class="script-label">
+                            <span>บทพูดเชิญชวนไปดูสถานที่จริง</span>
+                            <button class="copy-btn" onclick="copyText('script-4')">📋 คัดลอก</button>
+                        </div>
+                        <div class="script-text" id="script-4">
+                            "เรื่องการดูแลคุณพ่อคุณแม่ ทางเราแนะนำให้ครอบครัวได้ไปดูบรรยากาศจริง พูดคุยกับหัวหน้าพยาบาลหน้างานเพื่อความสบายใจที่สุดก่อนตัดสินใจครับ สะดวกเป็นวันเสาร์หรืออาทิตย์นี้ช่วงเช้าดีครับ? เดี๋ยวทางผมประสานงานนัดหมายผู้จัดการศูนย์และล็อคคิวให้เป็นพิเศษเลยครับ"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step-card" id="step5">
+                    <span class="step-badge">Step 5: Post-Visit Follow-Up</span>
+                    <h2 class="step-title">ติดตามผลหลังเข้าชม (ภายใน 2-4 ชั่วโมง)</h2>
+                    <p class="step-desc">
+                        อย่าปล่อยให้เวลาผ่านไปเกิน 24 ชม. รีบโทรหรือทักไลน์สอบถามความรู้สึกและคลายข้อสงสัยทันที
+                    </p>
+
+                    <div class="script-box">
+                        <div class="script-label">
+                            <span>บทพูด Follow-up</span>
+                            <button class="copy-btn" onclick="copyText('script-5')">📋 คัดลอก</button>
+                        </div>
+                        <div class="script-text" id="script-5">
+                            "สวัสดีครับคุณ [ลูกค้า] หลังจากไปดูศูนย์ [ชื่อศูนย์] มาเมื่อช่วงบ่าย บรรยากาศและทีมงานถูกใจครอบครัวไหมครับ? มีจุดไหนที่ยังกังวลหรืออยากให้ผมสอบถามทางศูนย์เพิ่มเติมให้ไหมครับ?"
+                        </div>
+                    </div>
+
+                    <div class="script-box" style="border-left-color: #d97706;">
+                        <div class="script-label" style="color: #b45309;">
+                            <span>การรับมือข้อโต้แย้ง: "กลัวส่งพ่อแม่ไปแล้วรู้สึกผิด / กลัวคนมองไม่ดี"</span>
+                            <button class="copy-btn" onclick="copyText('script-5-guilt')">📋 คัดลอก</button>
+                        </div>
+                        <div class="script-text" id="script-5-guilt">
+                            "เข้าใจความรู้สึกของคุณลูกมากๆ เลยครับ หลายครอบครัวก็มีความกังวลนี้เช่นกัน แต่ในความจริง การพาคุณแม่มาพักที่ศูนย์ที่มีพยาบาลดูแล 24 ชม. ไม่ใช่การทอดทิ้ง แต่เป็นการมอบความปลอดภัยที่ดีที่สุด และช่วยฟื้นฟูกายภาพให้ท่านได้เร็วกว่าอยู่บ้าน ทางครอบครัวสามารถแวะมาเยี่ยมและทานข้าวกับท่านได้ตลอดเวลาเลยครับ"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="step-card" id="step6">
+                    <span class="step-badge" style="background: #dcfce7; color: #15803d;">Step 6: Move-in & Retention</span>
+                    <h2 class="step-title">ยืนยันการเข้าพัก & ติดตามผลหลังส่งต่อ</h2>
+                    <p class="step-desc">
+                        ช่วยเตรียมเอกสาร และทักทายวันที่ 3 และ 7 เพื่อความประทับใจสูงสุด และใช้ยืนยันยอดคอมมิชชั่นกับศูนย์ B2B
+                    </p>
+
+                    <div class="script-box">
+                        <div class="script-label">
+                            <span>บทพูดเช็คอินวันที่ 3 หลังเข้าพัก</span>
+                            <button class="copy-btn" onclick="copyText('script-6')">📋 คัดลอก</button>
+                        </div>
+                        <div class="script-text" id="script-6">
+                            "สวัสดีครับคุณ [ลูกค้า] วันนี้เป็นวันที่ 3 ที่คุณแม่เข้าพักที่ศูนย์ [ชื่อศูนย์] แล้ว ทางศูนย์ดูแลเรียบร้อยดีไหมครับ คุณแม่ทานข้าวและปรับตัวได้ราบรื่นไหมครับ? หากมีเรื่องไหนอยากให้ทาง ThaiCareCenter ช่วยประสานงานแจ้งได้ตลอดเลยนะครับ"
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Interactive Assessment Calculator -->
+            <div class="sidebar-column">
+                <div class="calculator-widget">
+                    <h3 class="widget-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                        คำนวณระดับอาการ & งบประมาณ
+                    </h3>
+                    <p style="font-size: 13px; color: var(--slate); margin-bottom: 14px;">ติ๊กเลือกอาการของผู้สูงอายุเพื่อประเมินระดับการดูแลและงบประมาณโดยเฉลี่ย:</p>
+
+                    <div class="check-group">
+                        <label class="check-label">
+                            <input type="checkbox" id="c-bedridden" onchange="calculateCare()">
+                            <span>ผู้ป่วยติดเตียง (Bedridden)</span>
+                        </label>
+                        <label class="check-label">
+                            <input type="checkbox" id="c-tube" onchange="calculateCare()">
+                            <span>มีสายให้อาหาร (NG Tube)</span>
+                        </label>
+                        <label class="check-label">
+                            <input type="checkbox" id="c-foley" onchange="calculateCare()">
+                            <span>มีสายสวนปัสสาวะ (Foley)</span>
+                        </label>
+                        <label class="check-label">
+                            <input type="checkbox" id="c-sore" onchange="calculateCare()">
+                            <span>มีแผลกดทับ / แผลผ่าตัด</span>
+                        </label>
+                        <label class="check-label">
+                            <input type="checkbox" id="c-pt" onchange="calculateCare()">
+                            <span>ต้องการกายภาพฟื้นฟูสมอง/หลอดเลือด</span>
+                        </label>
+                    </div>
+
+                    <div class="result-box">
+                        <div class="result-level" id="res-level">ระดับ 1: พึ่งพิงน้อย (เดินได้)</div>
+                        <div class="result-cost" id="res-cost">18,000 – 24,000 บ./เดือน</div>
+                        <div style="font-size: 12px; color: #047857; margin-top: 6px;" id="res-desc">
+                            ต้องการการช่วยเหลือในกิจวัตรทั่วไป
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">คัดลอกบทพูดลงคลิปบอร์ดแล้ว!</div>
+
+    <script>
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('คัดลอกข้อความบทพูดเรียบร้อยแล้ว!');
+            }).catch(() => {
+                showToast('คัดลอกสำเร็จ');
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        function scrollToStep(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function calculateCare() {
+            const bedridden = document.getElementById('c-bedridden').checked;
+            const tube = document.getElementById('c-tube').checked;
+            const foley = document.getElementById('c-foley').checked;
+            const sore = document.getElementById('c-sore').checked;
+            const pt = document.getElementById('c-pt').checked;
+
+            let score = 0;
+            if (bedridden) score += 2;
+            if (tube) score += 1.5;
+            if (foley) score += 1;
+            if (sore) score += 1;
+            if (pt) score += 1;
+
+            const resLevel = document.getElementById('res-level');
+            const resCost = document.getElementById('res-cost');
+            const resDesc = document.getElementById('res-desc');
+
+            if (score === 0) {
+                resLevel.innerText = 'ระดับ 1: พึ่งพิงน้อย (ช่วยเหลือตัวเองได้)';
+                resCost.innerText = '18,000 – 24,000 บ./เดือน';
+                resDesc.innerText = 'ดูแลกิจวัตรประจำวัน อาหาร 3 มื้อ และวัดสัญญาณชีพ';
+            } else if (score <= 2.5) {
+                resLevel.innerText = 'ระดับ 2: พึ่งพิงปานกลาง (Semi-Bedridden)';
+                resCost.innerText = '25,000 – 32,000 บ./เดือน';
+                resDesc.innerText = 'พยุงเดิน มีสายยาง หรือต้องการกายภาพบำบัดฟื้นฟู';
+            } else {
+                resLevel.innerText = 'ระดับ 3: ภาวะพึ่งพิงสูง (Total Care / ติดเตียง)';
+                resCost.innerText = '32,000 – 45,000+ บ./เดือน';
+                resDesc.innerText = 'ติดเตียง มีสายให้อาหาร/สายปัสสาวะ หรือแผลกดทับที่ต้องทำแผลทุกวัน';
+            }
+        }
+    </script>
+</body>
+</html>

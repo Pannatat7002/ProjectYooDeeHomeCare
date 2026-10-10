@@ -56,8 +56,13 @@ const parseRow = (row: any) => {
 };
 
 // --- Cache Invalidation ---
+let hospitalsTableExists: boolean | null = false;
+let nearbyHospitalsTableExists: boolean | null = false;
+
 const invalidateCache = (tableName: string) => {
     try {
+        if (tableName === 'hospitals') hospitalsTableExists = null;
+        if (tableName === 'center_nearby_hospitals') nearbyHospitalsTableExists = null;
         revalidateTag(tableName, 'max');
         console.log(`[Cache] Invalidated Next.js tag cache for: ${tableName}`);
     } catch {
@@ -86,7 +91,13 @@ const loadDataFromTable = async (tableName: string) => {
                 .range(from, from + PAGE_SIZE - 1);
 
             if (error) {
-                console.error(`[Supabase Error] Error fetching from ${tableName}:`, error);
+                if (error.code === 'PGRST205') {
+                    if (tableName === 'hospitals') {
+                        hospitalsTableExists = false;
+                    }
+                } else {
+                    console.error(`[Supabase Error] Error fetching from ${tableName}:`, error.message || error);
+                }
                 break;
             }
 
@@ -334,10 +345,13 @@ export const getProviderSignups = async () => loadDataFromTable('provider_signup
 // 9. HOSPITALS & HEALTHCARE NETWORK
 
 export const getHospitals = async (): Promise<any[]> => {
-
     try {
+        if (hospitalsTableExists === false) {
+            return INITIAL_HOSPITALS;
+        }
         const rows = await loadDataFromTable('hospitals');
         if (rows && rows.length > 0) {
+            hospitalsTableExists = true;
             return rows;
         }
         return INITIAL_HOSPITALS;
@@ -365,7 +379,7 @@ export const getNearbyHospitalsByCenterId = async (
     centerLng?: number
 ): Promise<any[]> => {
     try {
-        if (isSupabaseConfigured()) {
+        if (isSupabaseConfigured() && nearbyHospitalsTableExists !== false) {
             const { data, error } = await supabaseAdmin
                 .from('center_nearby_hospitals')
                 .select(`
@@ -380,7 +394,10 @@ export const getNearbyHospitalsByCenterId = async (
                 .eq('center_id', centerId)
                 .order('priority_order', { ascending: true });
 
-            if (!error && data && data.length > 0) {
+            if (error && error.code === 'PGRST205') {
+                nearbyHospitalsTableExists = false;
+            } else if (!error && data && data.length > 0) {
+                nearbyHospitalsTableExists = true;
                 return data.map((item: any) => {
                     const parsed = parseRow(item);
                     return {
@@ -407,8 +424,7 @@ export const getNearbyHospitalsByCenterId = async (
         }
 
         return [];
-    } catch (e) {
-        console.error('[DB Error] Failed to get nearby hospitals:', e);
+    } catch {
         if (centerLat && centerLng) {
             return findTopNearbyHospitals(centerLat, centerLng, INITIAL_HOSPITALS, 3).map(item => ({
                 ...item,
@@ -425,7 +441,7 @@ export const recalculateCenterNearbyHospitals = async (
     lng: number
 ): Promise<void> => {
     try {
-        if (!isSupabaseConfigured() || !lat || !lng) return;
+        if (!isSupabaseConfigured() || !lat || !lng || nearbyHospitalsTableExists === false) return;
 
         const allHospitals = await getHospitals();
         const topHospitals = findTopNearbyHospitals(lat, lng, allHospitals, 5);
