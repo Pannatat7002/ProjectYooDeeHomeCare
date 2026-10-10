@@ -114,6 +114,12 @@ const loadDataFromTable = async (tableName: string) => {
     }
 };
 
+const extractMissingColumn = (error: any): string | null => {
+    if (!error?.message || typeof error.message !== 'string') return null;
+    const match = error.message.match(/Could not find the '([^']+)' column/i);
+    return match ? match[1] : null;
+};
+
 const insertDataToTable = async (tableName: string, newItem: any) => {
     try {
         if (!isSupabaseConfigured()) {
@@ -136,10 +142,26 @@ const insertDataToTable = async (tableName: string, newItem: any) => {
             }
         }
 
-        const { data, error } = await supabaseAdmin
+        let { data, error } = await supabaseAdmin
             .from(tableName)
             .insert([dbItem])
             .select();
+
+        // Handle case where column does not exist yet in database schema (e.g. PGRST204)
+        if (error && (error.code === 'PGRST204' || error.message?.includes('Could not find the'))) {
+            const missingCol = extractMissingColumn(error);
+            if (missingCol && missingCol in dbItem) {
+                console.warn(`[Supabase Notice] Column '${missingCol}' does not exist in table '${tableName}'. Retrying insert without it.`);
+                const retryItem = { ...dbItem };
+                delete retryItem[missingCol];
+                const retry = await supabaseAdmin
+                    .from(tableName)
+                    .insert([retryItem])
+                    .select();
+                data = retry.data;
+                error = retry.error;
+            }
+        }
 
         if (error) {
             console.error(`[Supabase Error] Error inserting into ${tableName}:`, error);
@@ -163,10 +185,25 @@ const updateDataInTable = async (tableName: string, id: number | string, updated
         const dbItem = toSnakeCase(updatedData);
         delete dbItem.id; // Do not overwrite primary key
 
-        const { error } = await supabaseAdmin
+        let { error } = await supabaseAdmin
             .from(tableName)
             .update(dbItem)
             .eq('id', id);
+
+        // Handle case where column does not exist yet in database schema (e.g. PGRST204)
+        if (error && (error.code === 'PGRST204' || error.message?.includes('Could not find the'))) {
+            const missingCol = extractMissingColumn(error);
+            if (missingCol && missingCol in dbItem) {
+                console.warn(`[Supabase Notice] Column '${missingCol}' does not exist in table '${tableName}'. Retrying update without it.`);
+                const retryItem = { ...dbItem };
+                delete retryItem[missingCol];
+                const retry = await supabaseAdmin
+                    .from(tableName)
+                    .update(retryItem)
+                    .eq('id', id);
+                error = retry.error;
+            }
+        }
 
         if (error) {
             console.error(`[Supabase Error] Error updating row in ${tableName}:`, error);
@@ -231,10 +268,26 @@ const saveDataToTable = async (tableName: string, items: any[]) => {
 
         // 2. Upsert items
         if (items.length > 0) {
-            const dbItems = items.map(toSnakeCase);
-            const { error: upsertError } = await supabaseAdmin
+            let dbItems = items.map(toSnakeCase);
+            let { error: upsertError } = await supabaseAdmin
                 .from(tableName)
                 .upsert(dbItems);
+
+            if (upsertError && (upsertError.code === 'PGRST204' || upsertError.message?.includes('Could not find the'))) {
+                const missingCol = extractMissingColumn(upsertError);
+                if (missingCol) {
+                    console.warn(`[Supabase Notice] Column '${missingCol}' does not exist in table '${tableName}'. Retrying upsert without it.`);
+                    dbItems = dbItems.map((item: any) => {
+                        const copy = { ...item };
+                        delete copy[missingCol];
+                        return copy;
+                    });
+                    const retry = await supabaseAdmin
+                        .from(tableName)
+                        .upsert(dbItems);
+                    upsertError = retry.error;
+                }
+            }
 
             if (upsertError) {
                 console.error(`[Supabase Error] Error upserting into ${tableName}:`, upsertError);

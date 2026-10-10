@@ -99,6 +99,7 @@ export default function ManageAdsPage() {
                 linkUrl: ad.linkUrl || '',
                 title: ad.title || '',
                 description: ad.description || '',
+                placement: ad.placement || 'both',
                 baseUrl,
                 utmSource,
                 utmMedium,
@@ -111,6 +112,7 @@ export default function ManageAdsPage() {
                 linkUrl: '',
                 title: '',
                 description: '',
+                placement: 'both',
                 baseUrl: '', // Default suggestion could go here
                 utmSource: '', // Default empty allowing manual input
                 utmMedium: 'cpc',
@@ -143,7 +145,8 @@ export default function ManageAdsPage() {
             imageUrl: formData.imageUrl,
             linkUrl: formData.linkUrl, // This is the final generated URL
             title: formData.title,
-            description: formData.description
+            description: formData.description,
+            placement: formData.placement || 'both'
         };
 
         try {
@@ -259,7 +262,18 @@ export default function ManageAdsPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">{ad.title || '-'}</div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-sm font-medium text-gray-900">{ad.title || '-'}</span>
+                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                                                    ad.placement === 'infeed'
+                                                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                                        : ad.placement === 'pr'
+                                                        ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                                                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                }`}>
+                                                    {ad.placement === 'infeed' ? 'In-Feed Ads' : ad.placement === 'pr' ? 'ประชาสัมพันธ์' : 'แสดงทั้ง 2 จุด'}
+                                                </span>
+                                            </div>
                                             <div className="text-sm text-gray-500 line-clamp-1">{ad.description || '-'}</div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -420,6 +434,26 @@ export default function ManageAdsPage() {
                                                     value={formData.description || ''}
                                                     onChange={(e) => handleInputChange('description', e.target.value)}
                                                 />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                                    ตำแหน่งการแสดงผล (Placement)
+                                                </label>
+                                                <select
+                                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
+                                                    value={formData.placement || 'both'}
+                                                    onChange={(e) => handleInputChange('placement' as any, e.target.value)}
+                                                >
+                                                    <option value="both">🌐 แสดงทั้ง 2 จุด (ผลการค้นหา + แถบประชาสัมพันธ์)</option>
+                                                    <option value="infeed">🔍 เฉพาะ In-Feed Ads (แทรกในผลการค้นหา)</option>
+                                                    <option value="pr">📢 เฉพาะ แถบประชาสัมพันธ์ (Banner เลื่อนแนวนอนด้านล่าง)</option>
+                                                </select>
+                                                <div className="mt-2 p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 text-[11px] text-blue-800 space-y-1">
+                                                    <div className="font-semibold text-blue-900">📐 ขนาดรูปภาพ (Pixel) ที่แนะนำสำหรับลูกค้า:</div>
+                                                    <div>• <strong>In-Feed Ads:</strong> 800 x 800 px (สี่เหลี่ยมจัตุรัส 1:1) หรือ 800 x 900 px (แนวตั้ง)</div>
+                                                    <div>• <strong>ประชาสัมพันธ์:</strong> 1050 x 450 px (แนวนอน 21:9) หรือ 1200 x 630 px (16:9)</div>
+                                                </div>
                                             </div>
                                         </div>
 

@@ -150,11 +150,15 @@ export interface JWTPayload {
     exp?: number;
 }
 
+export type AdPlacement = 'pr' | 'infeed' | 'both';
+
 export interface Advertisement {
     id: number;
     imageUrl: string;
     linkUrl?: string;
     title?: string;
     description?: string;
-    createdAt: string;
+    placement?: AdPlacement;
+    category?: 'course' | 'product' | 'center' | 'general';
+    createdAt?: string;
 }

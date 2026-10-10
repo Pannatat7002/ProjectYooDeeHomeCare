@@ -116,8 +116,11 @@ CREATE TABLE IF NOT EXISTS public.ads (
     link_url TEXT DEFAULT '',
     title TEXT DEFAULT '',
     description TEXT DEFAULT '',
+    placement TEXT DEFAULT 'both', -- 'infeed' (การ์ดค้นหา) | 'pr' (แบนเนอร์ประชาสัมพันธ์) | 'both' (ทั้งสองจุด)
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
+-- Migration สำหรับฐานข้อมูลเดิมที่สร้างไว้แล้ว:
+ALTER TABLE public.ads ADD COLUMN IF NOT EXISTS placement TEXT DEFAULT 'both';
 
 -- 7. ตาราง provider_signups (ใบสมัครผู้ให้บริการ)
 CREATE TABLE IF NOT EXISTS public.provider_signups (

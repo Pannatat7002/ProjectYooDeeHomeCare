@@ -605,13 +605,23 @@ export default function HomePageClient({
   const ads = initialAds;
   const blogs = initialBlogs;
 
-  // รวมรายการ Ads สำหรับ In-feed: หาก ads ในระบบมีระบุฟิลด์ category ให้ดึงมาใช้ หรือใช้ SAMPLE_IN_FEED_ADS ครบ 4 หมวดหมู่
-  const availableInFeedAds = useMemo(() => {
-    const customWithCategory = ads.filter((a: any) => a.category);
-    if (customWithCategory.length >= 4) {
-      return customWithCategory;
-    }
-    return SAMPLE_IN_FEED_ADS;
+  // 1. รายการ Ads สำหรับ In-feed (แทรกเนียนในผลการค้นหา - ไม่ซ้ำ ID)
+  const inFeedAds = useMemo(() => {
+    const filtered = ads.filter((a: any) => !a.placement || a.placement === 'infeed' || a.placement === 'both');
+    const sourceList = filtered.length > 0 ? filtered : SAMPLE_IN_FEED_ADS;
+    // กรองเอาเฉพาะโฆษณาที่ไม่ซ้ำกัน
+    const seenIds = new Set<string>();
+    return sourceList.filter((ad: any) => {
+      const key = String(ad.id || ad.imageUrl || ad.title);
+      if (seenIds.has(key)) return false;
+      seenIds.add(key);
+      return true;
+    });
+  }, [ads]);
+
+  // 2. รายการ Ads สำหรับ แถบประชาสัมพันธ์ (Banner ด้านล่าง)
+  const prAds = useMemo(() => {
+    return ads.filter((a: any) => !a.placement || a.placement === 'pr' || a.placement === 'both');
   }, [ads]);
 
   // Search & Filter State
@@ -2088,9 +2098,10 @@ export default function HomePageClient({
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {(centers.length > 0 ? centers : initialCenters).map((center, index) => {
+                  // แสดงโฆษณาแทรกเป็นระยะ โดย "ไม่แสดงซ้ำ" (แสดงโฆษณาแต่ละตัวเพียงครั้งเดียวจนกว่าจะหมดรายการ Ads ที่ไม่ซ้ำกัน)
                   const shouldInsertAd = (index + 1) % 3 === 0;
-                  const adIndex = Math.floor(index / 3) % availableInFeedAds.length;
-                  const adToInsert = shouldInsertAd ? availableInFeedAds[adIndex] : null;
+                  const adIndex = Math.floor(index / 3);
+                  const adToInsert = shouldInsertAd && adIndex < inFeedAds.length ? inFeedAds[adIndex] : null;
 
                   return (
                     <Fragment key={center.id}>
@@ -2106,11 +2117,11 @@ export default function HomePageClient({
                   );
                 })}
 
-                {/* กรณีผลการค้นหามีน้อยกว่า 3 แห่ง ให้เสริมการ์ดแนะนำ 1 รายการเพื่อความสมบูรณ์ */}
+                {/* กรณีผลการค้นหามีน้อยกว่า 3 แห่ง ให้แสดงต่อท้ายเพียง 1 จุด (หากยังไม่ได้แสดง) */}
                 {(centers.length > 0 ? centers : initialCenters).length > 0 &&
                   (centers.length > 0 ? centers : initialCenters).length < 3 &&
-                  availableInFeedAds[0] && (
-                    <InFeedAdCard key="ad-supplement" ad={availableInFeedAds[0]} />
+                  inFeedAds.length > 0 && (
+                    <InFeedAdCard key="ad-supplement" ad={inFeedAds[0]} />
                   )}
 
                 {/* แสดง Skeleton 3 การ์ดขณะกำลังโหลดศูนย์เพิ่มเติม */}
@@ -2158,13 +2169,13 @@ export default function HomePageClient({
         )}
 
         {/* 🌟 Ads Section (ประชาสัมพันธ์) - ย้ายมาอยู่ใต้ผลการค้นหาศูนย์ดูแล */}
-        {ads.length > 0 && (
+        {prAds.length > 0 && (
           <section className="my-10 pt-6 border-t border-gray-100">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
               <span className="bg-blue-600 w-1.5 h-6 rounded-full mr-3"></span>ประชาสัมพันธ์
             </h2>
             <ScrollableContainer itemWidth={350}>
-              {ads.map((ad) => (
+              {prAds.map((ad) => (
                 <a
                   key={ad.id}
                   href={ad.linkUrl || '#'}
