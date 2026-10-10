@@ -46,12 +46,28 @@ export async function GET(request: Request) {
     const search = searchParams.get('search') || searchParams.get('q');
     if (search) {
         const lowerSearch = search.toLowerCase().trim();
-        careCenters = careCenters.filter((c: CareCenter) =>
-            (c.name && c.name.toLowerCase().includes(lowerSearch)) ||
-            (c.address && c.address.toLowerCase().includes(lowerSearch)) ||
-            (c.province && c.province.toLowerCase().includes(lowerSearch)) ||
-            (c.brandName && c.brandName.toLowerCase().includes(lowerSearch))
-        );
+        const normSearch = lowerSearch.replace(/\s+/g, '');
+        const searchTokens = lowerSearch.split(/\s+/).map(t => t.replace(/\s+/g, '')).filter(Boolean);
+
+        careCenters = careCenters.filter((c: CareCenter) => {
+            const combined = [c.name, c.address, c.province, (c as any).district, c.brandName]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+            const normCombined = combined.replace(/\s+/g, '');
+
+            // 1. Direct match or whitespace-insensitive match (e.g. "พระราม3" matches "พระราม 3")
+            if (combined.includes(lowerSearch) || normCombined.includes(normSearch)) {
+                return true;
+            }
+
+            // 2. Multi-token match (all tokens found in target string, whitespace-insensitive)
+            if (searchTokens.length > 0 && searchTokens.every(t => normCombined.includes(t))) {
+                return true;
+            }
+
+            return false;
+        });
     }
 
     const priceRange = searchParams.get('priceRange');

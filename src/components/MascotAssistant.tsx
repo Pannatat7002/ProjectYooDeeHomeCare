@@ -101,11 +101,15 @@ export default function MascotAssistant() {
                                 className="flex items-center justify-between w-full px-3.5 py-2.5 bg-[#06C755] hover:bg-[#05b04b] text-white rounded-xl font-medium text-xs shadow-sm transition-all group"
                             >
                                 <div className="flex items-center gap-2.5">
-                                    <div className="p-1.5 rounded-lg bg-white/20">
-                                        <MessageCircle className="w-4 h-4" />
+                                    <div className="p-1 rounded-lg bg-white/20 flex items-center justify-center">
+                                        <img
+                                            src="/images/LINE_APP_iOS.png"
+                                            alt="LINE Icon"
+                                            className="w-5 h-5 object-contain rounded-xs"
+                                        />
                                     </div>
                                     <div className="text-left">
-                                        <div className="text-[11px] text-green-100">คุยผ่าน LINE สะดวก รวดเร็ว</div>
+                                        <div className="text-[11px] text-green-100">ติดต่อผ่าน LINE</div>
                                         <div className="font-semibold text-sm">LINE: @256zihiv</div>
                                     </div>
                                 </div>

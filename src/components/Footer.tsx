@@ -192,7 +192,7 @@ export default function Footer() {
                             alt="LINE Icon"
                             className="w-5 h-5 object-contain rounded-sm flex-shrink-0"
                         />
-                        <span>ปรึกษาฟรีกับเจ้าหน้าที่ผ่าน LINE</span>
+                        <span>ติดต่อผ่าน LINE</span>
                     </a>
                 </div>
             </div>

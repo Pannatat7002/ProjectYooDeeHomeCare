@@ -54,11 +54,22 @@ export default async function Page() {
         isFeatured: b.isFeatured || false,
     }));
 
+    // ✅ สร้าง lightweight lookup list สำหรับ autocomplete และ validation ในช่องค้นหาศูนย์
+    const centerSuggestionsList = visibleCenters.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        address: c.address || '',
+        province: c.province || '',
+        district: c.district || '',
+        brandName: c.brandName || '',
+    }));
+
     // 3. ส่งข้อมูลตั้งต้นผ่าน Props ไปให้ Client Component ทำงานต่อ
     return (
         <HomePageClient 
             initialCenters={initialCenters} 
             initialPartnerCenters={partnerCenters}
+            centerSuggestionsList={centerSuggestionsList}
             totalCentersCount={visibleCenters.length}
             popularProvinces={popularProvinces}
             initialAds={allAds} 

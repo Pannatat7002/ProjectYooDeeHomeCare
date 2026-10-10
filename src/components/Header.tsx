@@ -79,14 +79,21 @@ export default function Header() {
                         </div>
 
 
-                        {/* 3. CTA Button - ปรับขนาดและ padding ให้เล็กลง: px-3 py-2 */}
-                        <Link
-                            href="/contact"
-                            className="hidden sm:flex px-3 md:px-5 py-2 bg-blue-600 text-white text-sm rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-400/30"
-                            onClick={() => gtag.event({ action: 'click_header_cta', category: 'Conversion', label: 'Contact_Consultation' })}
+                        {/* 3. CTA Button - LINE Contact */}
+                        <a
+                            href="https://line.me/R/ti/p/%40256zihiv"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hidden sm:flex items-center gap-2 px-3 md:px-4 py-2 bg-[#06C755] hover:bg-[#05b04b] text-white text-sm rounded-xl font-bold transition-all shadow-md shadow-green-500/20 active:scale-95"
+                            onClick={() => gtag.event({ action: 'click_header_cta', category: 'Conversion', label: 'LINE_Contact' })}
                         >
-                            ลงประกาศ
-                        </Link>
+                            <img
+                                src="/images/LINE_APP_iOS.png"
+                                alt="LINE Icon"
+                                className="w-5 h-5 object-contain rounded-xs shrink-0"
+                            />
+                            <span>ติดต่อผ่าน LINE</span>
+                        </a>
 
                         {/* Mobile Menu Toggle (คงเดิม) */}
                         <button
@@ -111,17 +118,24 @@ export default function Header() {
                             {/* <Link href="/blogs" className={mobileLinkClasses} onClick={toggleMobileMenu}>บทความ</Link> */}
                             <Link href="/provider-signup" className={mobileLinkClasses} onClick={toggleMobileMenu}>สมัครเป็นผู้ให้บริการ</Link>
 
-                            {/* CTA Button ใน Mobile Menu - ปรับเป็น mt-3 และ py-2 */}
-                            <Link
-                                href="/contact"
-                                className="text-white bg-blue-600 hover:bg-blue-700 py-2 px-3 mt-3 rounded-lg font-bold text-center transition-all shadow-md"
+                            {/* CTA Button ใน Mobile Menu */}
+                            <a
+                                href="https://line.me/R/ti/p/%40256zihiv"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 text-white bg-[#06C755] hover:bg-[#05b04b] py-2.5 px-4 mt-3 rounded-xl font-bold text-center transition-all shadow-md active:scale-95"
                                 onClick={() => {
                                     toggleMobileMenu();
-                                    gtag.event({ action: 'click_mobile_menu_cta', category: 'Conversion', label: 'Contact_Consultation' });
+                                    gtag.event({ action: 'click_mobile_menu_cta', category: 'Conversion', label: 'LINE_Contact' });
                                 }}
                             >
-                                สนใจเข้ารวม
-                            </Link>
+                                <img
+                                    src="/images/LINE_APP_iOS.png"
+                                    alt="LINE Icon"
+                                    className="w-5 h-5 object-contain rounded-xs shrink-0"
+                                />
+                                <span>ติดต่อผ่าน LINE</span>
+                            </a>
 
 
                             {/* Language Switcher ใน Mobile Menu (คงเดิม) */}
