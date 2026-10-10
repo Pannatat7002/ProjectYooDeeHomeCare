@@ -43,10 +43,10 @@ export default function ServicesPage() {
 
                 <div className="relative z-10 container max-w-5xl mx-auto text-center">
                     {/* Pill Tag */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs md:text-sm font-semibold mb-6 backdrop-blur-md">
+                    {/* <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs md:text-sm font-semibold mb-6 backdrop-blur-md">
                         <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                         <span>บริการครบวงจร · Our Comprehensive Services</span>
-                    </div>
+                    </div> */}
 
                     <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 drop-shadow-xl tracking-tight leading-tight">
                         บริการที่ครอบคลุม <br className="hidden sm:inline" />
@@ -242,9 +242,9 @@ export default function ServicesPage() {
             <section className="py-20 bg-slate-50/70 border-b border-gray-100">
                 <div className="container max-w-6xl mx-auto px-4">
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-full mb-3 border border-emerald-200">
+                        {/* <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-full mb-3 border border-emerald-200">
                             ⚙️ สะดวกและรวดเร็ว
-                        </div>
+                        </div> */}
                         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
                             ขั้นตอนการใช้บริการ (4 ขั้นตอนง่ายๆ)
                         </h2>

@@ -4,7 +4,7 @@
 
 
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
 
 import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X, Train, Hospital, Home, Sparkles, AlertCircle } from 'lucide-react';
 
@@ -23,13 +23,9 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 import Link from 'next/link';
 import Image from 'next/image';
 
-// *** สมมติว่า types.ts ถูกกำหนดไว้แล้ว ***
-
-// import { CareCenter, Advertisement, Blog } from '../types';
+import { Advertisement } from '../types';
 
 type CareCenter = any;
-
-type Advertisement = any;
 
 type Blog = any;
 
@@ -364,6 +360,121 @@ const CenterCardSkeleton = () => (
   </div>
 );
 
+// --- Mock / Sample In-feed Ads สำหรับ 4 หมวดหมู่ ('course' | 'product' | 'center' | 'general') ---
+const SAMPLE_IN_FEED_ADS: Advertisement[] = [
+  {
+    id: 9001,
+    category: 'course',
+    title: 'คอร์สกายภาพบำบัดฟื้นฟู Stroke & ผู้สูงอายุถึงบ้าน',
+    description: 'ฝึกเดิน ฟื้นฟูกล้ามเนื้อ ป้องกันข้อติด โดยนักกายภาพบำบัดวิชาชีพมีใบประกอบโรคศิลปะ ประเมินร่างกายฟรีครั้งแรก',
+    linkUrl: 'https://line.me/R/ti/p/%40256zihiv',
+    imageUrl: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 9002,
+    category: 'product',
+    title: 'เตียงผู้ป่วยปรับไฟฟ้า 3 ไกร์ มาตรฐาน รพ.',
+    description: 'รีโมทไฟฟ้า ปรับระดับหัว-ขา-สูงต่ำ โครงเหล็กแข็งแรง แถมฟรีเบาะลมป้องกันแผลกดทับ จัดส่งและติดตั้งฟรี',
+    linkUrl: 'https://line.me/R/ti/p/%40256zihiv',
+    imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 9003,
+    category: 'center',
+    title: 'โฮมแคร์ภิบาล การ์ดิเนีย สาขาประเวศ สวนหลวง',
+    description: 'ศูนย์ดูแลผู้สูงอายุและฟื้นฟูสุขภาพระดับพรีเมียม สภาพแวดล้อมร่มรื่น พยาบาลวิชาชีพดูแล 24 ชม. ใกล้ รพ.สิรินธร',
+    linkUrl: '/%E0%B9%82%E0%B8%87%E0%B8%A1%E0%B9%81%E0%B8%84%E0%B8%A3%E0%B9%8C%E0%B8%A0%E0%B8%B4%E0%B8%9A%E0%B8%B2%E0%B8%A5-%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%94%E0%B8%B4%E0%B9%80%E0%B8%99%E0%B8%A2',
+    imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 9004,
+    category: 'general',
+    title: 'บริการรถพยาบาล & รถรับส่งผู้ป่วยติดเตียง (Ambulance)',
+    description: 'รับส่งพบแพทย์ตามนัดหมาย เดินทางปลอดภัย อุปกรณ์กู้ชีพครบครัน พร้อมเจ้าหน้าที่พยาบาลดูแลตลอดเส้นทาง',
+    linkUrl: 'https://line.me/R/ti/p/%40256zihiv',
+    imageUrl: 'https://images.unsplash.com/photo-1587745416684-47953f16f02f?auto=format&fit=crop&w=800&q=80',
+  },
+];
+
+// --- Sub-Component: InFeedAdCard (การ์ดโฆษณาเน้นรูปเต็มใบ ไม่คุมดำ ไม่มี radius แสดงแค่ title และโชว์ description เมื่อ hover) ---
+const InFeedAdCard: React.FC<{ ad: Advertisement }> = ({ ad }) => {
+  const isExternal = Boolean(ad.linkUrl?.startsWith('http'));
+
+  const content = (
+    <div className="relative w-full h-full min-h-[360px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200 bg-white group cursor-pointer flex flex-col justify-between">
+      {/* 🖼️ ภาพถ่าย / แบนเนอร์โฆษณา (Full-Bleed Image: ไม่คุมดำ แสดงภาพสว่างธรรมชาติ 100%) */}
+      <img
+        src={ad.imageUrl || FALLBACK_IMAGE}
+        alt={ad.title || 'โฆษณาแนะนำ'}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        onError={handleImageError}
+      />
+
+      {/* [ผู้สนับสนุน] (บนซ้าย - ไม่มี radius) */}
+      <div className="relative z-10 p-3">
+        <span className="inline-block bg-black/75 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 shadow-sm">
+          ผู้สนับสนุน
+        </span>
+      </div>
+
+      {/* แถบข้อความด้านล่าง: แสดงเฉพาะ Title และแสดง Description เมื่อ Hover (ไม่คุมดำทั้งภาพ) */}
+      <div className="relative z-10 p-4 text-white bg-gradient-to-t from-black/85 via-black/45 to-transparent transition-all duration-300">
+        <h3 className="text-base md:text-lg font-bold text-white leading-snug drop-shadow-md line-clamp-2">
+          <span className="mr-1.5">📌</span>
+          {ad.title}
+        </h3>
+
+        {/* Description: ซ่อนเป็นค่าเริ่มต้น และสไลด์แสดงขึ้นมาเมื่อ Hover */}
+        {ad.description && (
+          <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out">
+            <div className="overflow-hidden">
+              <p className="text-white/95 text-xs md:text-sm mt-2 leading-relaxed font-normal pt-2 border-t border-white/20 drop-shadow-sm">
+                {ad.description}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const handleClick = () => {
+    gtag.event({
+      action: 'click_infeed_ad',
+      category: 'InFeedAd',
+      label: ad.title || 'Advertisement',
+      ad_id: ad.id,
+      ad_category: ad.category || 'general',
+    });
+  };
+
+  if (isExternal) {
+    return (
+      <a
+        href={ad.linkUrl || '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block group h-full"
+        onClick={handleClick}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={ad.linkUrl || '#'}
+      className="block group h-full"
+      onClick={handleClick}
+    >
+      {content}
+    </Link>
+  );
+};
+
 // --- Helper Component: Scrollable Container ---
 
 const ScrollableContainer = ({ children, itemWidth = 320 }: { children: React.ReactNode, itemWidth?: number }) => {
@@ -493,6 +604,15 @@ export default function HomePageClient({
 
   const ads = initialAds;
   const blogs = initialBlogs;
+
+  // รวมรายการ Ads สำหรับ In-feed: หาก ads ในระบบมีระบุฟิลด์ category ให้ดึงมาใช้ หรือใช้ SAMPLE_IN_FEED_ADS ครบ 4 หมวดหมู่
+  const availableInFeedAds = useMemo(() => {
+    const customWithCategory = ads.filter((a: any) => a.category);
+    if (customWithCategory.length >= 4) {
+      return customWithCategory;
+    }
+    return SAMPLE_IN_FEED_ADS;
+  }, [ads]);
 
   // Search & Filter State
   const [activeTab, setActiveTab] = useState<'general' | 'transit' | 'hospital'>('general');
@@ -1134,7 +1254,67 @@ export default function HomePageClient({
     scrollToResults();
   };
 
+  // 🌟 Trust & Feature Hub Component (ย้ายตำแหน่งได้ตามเงื่อนไขการค้นหา)
+  const renderTrustFeatureHub = () => (
+    <section className="bg-gradient-to-b from-white to-slate-50/70 py-6 sm:py-8 shadow-xs rounded-2xl">
+      <div className="container max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
+          {/* Card 1: 950+ ศูนย์ดูแลทั่วไทย */}
+          <div className="group transition-all duration-200 flex flex-col justify-between">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
+                <Image src="/images/badges/badge-carecenter.png" alt="950+ ศูนย์ดูแลทั่วไทย" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="text-xl sm:text-2xl font-extrabold text-[#2b64a0] tracking-tight">950+</span>
+                  <span className="text-sm sm:text-base font-bold text-gray-900">ศูนย์ดูแลทั่วไทย</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                  ศูนย์พักฟื้น เนอร์สซิ่งโฮม และดูแลผู้สูงอายุ คัดสรรข้อมูลครบถ้วน พร้อมราคาจริง
+                </p>
+              </div>
+            </div>
+          </div>
 
+          {/* Card 2: ครอบคลุม 77 จังหวัด */}
+          <div className="group transition-all duration-200 flex flex-col justify-between">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
+                <Image src="/images/badges/badge-thailand-map.png" alt="ครอบคลุม 77 จังหวัด" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="text-xl sm:text-2xl font-extrabold text-[#2b64a0] tracking-tight">77</span>
+                  <span className="text-sm sm:text-base font-bold text-gray-900">จังหวัดทั่วไทย</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                  ครอบคลุมทั้งกรุงเทพฯ ปริมณฑล และทุกภูมิภาค ค้นหาได้ใกล้บ้านคนที่คุณรัก
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: คำนวณพิกัด ใกล้บ้านคุณ */}
+          <div className="group transition-all duration-200 flex flex-col justify-between">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
+                <Image src="/images/badges/badge-proximity-pin.png" alt="คำนวณพิกัด ใกล้บ้านคุณ" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="text-sm sm:text-base font-bold text-gray-900">คำนวณพิกัด</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                  ค้นหาศูนย์ดูแลที่ใกล้พิกัดปัจจุบันของคุณมากที่สุด คำนวณระยะทางจริงอัตโนมัติ
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 
   return (
 
@@ -1786,227 +1966,8 @@ export default function HomePageClient({
 
       </div>
 
-      {/* 🌟 Trust & Feature Hub Section (ใช้พื้นที่ให้คุ้มค่า มีประโยชน์ และสามารถกดใช้งานได้จริง) */}
-      <section className="bg-gradient-to-b from-white to-slate-50/70 py-6 sm:py-8 shadow-xs">
-        <div className="container max-w-6xl mx-auto px-4">
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
-
-            {/* Card 1: 950+ ศูนย์ดูแลทั่วไทย */}
-            <div
-              // onClick={scrollToResults}
-              className="group transition-all duration-200 flex flex-col justify-between"
-            >
-              <div className="flex items-start gap-3.5">
-                <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
-                  <Image src="/images/badges/badge-carecenter.png" alt="950+ ศูนย์ดูแลทั่วไทย" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-1.5 flex-wrap">
-                    <span className="text-xl sm:text-2xl font-extrabold text-[#2b64a0] tracking-tight">950+</span>
-                    <span className="text-sm sm:text-base font-bold text-gray-900">ศูนย์ดูแลทั่วไทย</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
-                    ศูนย์พักฟื้น เนอร์สซิ่งโฮม และดูแลผู้สูงอายุ คัดสรรข้อมูลครบถ้วน พร้อมราคาจริง
-                  </p>
-                </div>
-              </div>
-              {/* <div className="mt-3.5 pt-2.5 border-t border-gray-100 flex items-center text-xs sm:text-sm font-semibold text-[#2b64a0] group-hover:text-blue-700">
-                <span>เลือกดูศูนย์ทั้งหมด</span>
-                <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </div> */}
-            </div>
-
-            {/* Card 2: ครอบคลุม 77 จังหวัด */}
-            <div className="group transition-all duration-200 flex flex-col justify-between">
-              <div className="flex items-start gap-3.5">
-                <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
-                  <Image src="/images/badges/badge-thailand-map.png" alt="ครอบคลุม 77 จังหวัด" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-1.5 flex-wrap">
-                    <span className="text-xl sm:text-2xl font-extrabold text-[#2b64a0] tracking-tight">77</span>
-                    <span className="text-sm sm:text-base font-bold text-gray-900">จังหวัดทั่วไทย</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
-                    ครอบคลุมทั้งกรุงเทพฯ ปริมณฑล และทุกภูมิภาค ค้นหาได้ใกล้บ้านคนที่คุณรัก
-                  </p>
-                </div>
-              </div>
-              {/* <div className="mt-3.5 pt-2.5 border-t border-gray-100 flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="text-gray-400 font-medium">ยอดนิยม:</span>
-                {['กรุงเทพมหานคร', 'นนทบุรี', 'เชียงใหม่', 'ชลบุรี'].map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => { setProvince(p); setSortByDistance(false); scrollToResults(); }}
-                    className="px-2 py-0.5 rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-800 font-medium transition-colors cursor-pointer"
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div> */}
-            </div>
-
-            {/* Card 3: คำนวณพิกัด ใกล้บ้านคุณ */}
-            <div className="group transition-all duration-200 flex flex-col justify-between">
-              <div className="flex items-start gap-3.5">
-                <div className="p-2 sm:p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-200 shrink-0">
-                  <Image src="/images/badges/badge-proximity-pin.png" alt="คำนวณพิกัด ใกล้บ้านคุณ" width={80} height={80} className="w-12 h-12 sm:w-13 sm:h-13 object-contain" priority />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-1.5 flex-wrap">
-                    <span className="text-sm sm:text-base font-bold text-gray-900">คำนวณพิกัด</span>
-                    {/* <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">GPS แม่นยำ</span> */}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
-                    ค้นหาศูนย์ดูแลที่ใกล้พิกัดปัจจุบันของคุณมากที่สุด คำนวณระยะทางจริงอัตโนมัติ
-                  </p>
-                </div>
-              </div>
-              {/* <div className="mt-3.5 pt-2.5 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={handleNearMe}
-                  disabled={isLocating}
-                  className="w-full py-2 px-3 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-98 cursor-pointer"
-                >
-                  {isLocating ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Navigation className="w-4 h-4" />
-                  )}
-                  <span>{isLocating ? 'กำลังค้นหาพิกัด...' : 'กดค้นหาศูนย์ใกล้ฉันทันที'}</span>
-                </button>
-              </div> */}
-            </div>
-
-          </div>
-
-          {/* Value Props Strip ด้านล่าง เสริมความน่าเชื่อถือ */}
-          {/* <div className="mt-5 pt-4 border-t border-gray-200/60 flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-10 gap-y-2 text-xs sm:text-sm text-gray-600 font-medium">
-            <span className="inline-flex items-center gap-1.5 text-slate-700">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              ฐานข้อมูลอัปเดตมาตรฐานต่อเนื่อง
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-slate-700">
-              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-              ตรวจสอบสถานพยาบาลใกล้เคียงได้ในตัว
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-slate-700">
-              <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-              นัดหมายเยี่ยมชมฟรี ไม่มีค่าธรรมเนียม
-            </span>
-          </div> */}
-
-        </div>
-      </section>
-
-      {/* 🌟 Ads Section (ประชาสัมพันธ์) */}
-
-      {ads.length > 0 && (
-
-        <div className="border-b border-gray-100 py-8">
-
-          <div className="container max-w-6xl mx-auto px-4">
-
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
-
-              <span className="bg-blue-600 w-1.5 h-6 rounded-full mr-3"></span>ประชาสัมพันธ์
-
-            </h2>
-
-            <ScrollableContainer itemWidth={350}>
-
-              {ads.map((ad) => (
-
-                <a
-
-                  key={ad.id}
-
-                  href={ad.linkUrl || '#'}
-
-                  target="_blank"
-
-                  rel="noreferrer"
-
-                  className="group relative flex-shrink-0 w-[85vw] md:w-[350px] bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 snap-center h-full"
-
-                >
-
-                  <div className="aspect-[21/9] overflow-hidden relative">
-
-                    <img
-                      src={ad.imageUrl || FALLBACK_IMAGE}
-                      alt={ad.title || 'Advertisement'}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      onError={handleImageError}
-                    />
-
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
-
-                  </div>
-
-                  {(ad.title || ad.description) && (
-
-                    <div className="p-4">
-
-                      {ad.title && (
-
-                        <h3 className="font-bold text-gray-800 group-hover:text-blue-600 transition-colors mb-1 truncate">
-
-                          {ad.title}
-
-                        </h3>
-
-                      )}
-
-                      {ad.description && (
-
-                        <p className="text-sm text-gray-500 line-clamp-2">
-
-                          {ad.description}
-
-                        </p>
-
-                      )}
-
-                      {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (Start) 🔥🔥🔥 */}
-
-                      {/*
-
-                      {recommendedBlogs.length > 0 && !isSearchActive && (
-
-                        <section className="mb-12 border-t border-gray-100 pt-8">
-
-                          ... (โค้ด Blog ซ้ำซ้อน) ...
-
-                        </section>
-
-                      )}
-
-                      */}
-
-                      {/* 🔥🔥🔥 โค้ดที่ซ้ำซ้อนถูกลบออกแล้ว (End) 🔥🔥🔥 */}
-
-                    </div>
-
-                  )}
-
-                </a>
-
-              ))}
-
-            </ScrollableContainer>
-
-          </div>
-
-        </div>
-
-      )}
-
-
+      {/* 🌟 เมื่อยังไม่ได้ค้นหา: แสดง Trust & Feature Hub ด้านบนตามปกติ */}
+      {!isSearchActive && renderTrustFeatureHub()}
 
       <div id="results-section" className="container max-w-6xl mx-auto p-4 md:p-8 flex-grow">
 
@@ -2126,14 +2087,31 @@ export default function HomePageClient({
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(centers.length > 0 ? centers : initialCenters).map(center => (
-                  <CenterCard
-                    key={center.id}
-                    center={center}
-                    userLocation={effectiveLocation}
-                    locationLabel={effectiveLocationLabel}
-                  />
-                ))}
+                {(centers.length > 0 ? centers : initialCenters).map((center, index) => {
+                  const shouldInsertAd = (index + 1) % 3 === 0;
+                  const adIndex = Math.floor(index / 3) % availableInFeedAds.length;
+                  const adToInsert = shouldInsertAd ? availableInFeedAds[adIndex] : null;
+
+                  return (
+                    <Fragment key={center.id}>
+                      <CenterCard
+                        center={center}
+                        userLocation={effectiveLocation}
+                        locationLabel={effectiveLocationLabel}
+                      />
+                      {adToInsert && (
+                        <InFeedAdCard key={`ad-${adToInsert.id}-${index}`} ad={adToInsert} />
+                      )}
+                    </Fragment>
+                  );
+                })}
+
+                {/* กรณีผลการค้นหามีน้อยกว่า 3 แห่ง ให้เสริมการ์ดแนะนำ 1 รายการเพื่อความสมบูรณ์ */}
+                {(centers.length > 0 ? centers : initialCenters).length > 0 &&
+                  (centers.length > 0 ? centers : initialCenters).length < 3 &&
+                  availableInFeedAds[0] && (
+                    <InFeedAdCard key="ad-supplement" ad={availableInFeedAds[0]} />
+                  )}
 
                 {/* แสดง Skeleton 3 การ์ดขณะกำลังโหลดศูนย์เพิ่มเติม */}
                 {isLoadingMore && (
@@ -2171,6 +2149,59 @@ export default function HomePageClient({
           )}
 
         </section>
+
+        {/* 🌟 เมื่อกดค้นหา: ย้าย Trust & Feature Hub มาแสดงด้านล่างผลการค้นหา */}
+        {isSearchActive && (
+          <div className="my-10">
+            {renderTrustFeatureHub()}
+          </div>
+        )}
+
+        {/* 🌟 Ads Section (ประชาสัมพันธ์) - ย้ายมาอยู่ใต้ผลการค้นหาศูนย์ดูแล */}
+        {ads.length > 0 && (
+          <section className="my-10 pt-6 border-t border-gray-100">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <span className="bg-blue-600 w-1.5 h-6 rounded-full mr-3"></span>ประชาสัมพันธ์
+            </h2>
+            <ScrollableContainer itemWidth={350}>
+              {ads.map((ad) => (
+                <a
+                  key={ad.id}
+                  href={ad.linkUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group relative flex-shrink-0 w-[85vw] md:w-[350px] bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 snap-center h-full"
+                >
+                  <div className="aspect-[21/9] overflow-hidden relative">
+                    <img
+                      src={ad.imageUrl || FALLBACK_IMAGE}
+                      alt={ad.title || 'Advertisement'}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      onError={handleImageError}
+                    />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                  </div>
+                  {(ad.title || ad.description) && (
+                    <div className="p-4">
+                      {ad.title && (
+                        <h3 className="font-bold text-gray-800 group-hover:text-blue-600 transition-colors mb-1 truncate">
+                          {ad.title}
+                        </h3>
+                      )}
+                      {ad.description && (
+                        <p className="text-sm text-gray-500 line-clamp-2">
+                          {ad.description}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </a>
+              ))}
+            </ScrollableContainer>
+          </section>
+        )}
 
         {/* Banner: ปรึกษา Care Advisor ฟรี */}
         <section className="my-14">

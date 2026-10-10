@@ -41,10 +41,10 @@ export default function AboutPage() {
 
                 <div className="relative z-10 container max-w-5xl mx-auto text-center">
                     {/* Pill Tag */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs md:text-sm font-semibold mb-6 backdrop-blur-md">
+                    {/* <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs md:text-sm font-semibold mb-6 backdrop-blur-md">
                         <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                         <span>เรื่องราวและพันธกิจของเรา · About ThaiCareCenter</span>
-                    </div>
+                    </div> */}
 
                     <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 drop-shadow-xl tracking-tight leading-tight">
                         เราคือเพื่อนคู่คิด <br className="hidden sm:inline" />
@@ -106,9 +106,9 @@ export default function AboutPage() {
 
                 <div className="container max-w-6xl mx-auto px-4 relative z-10">
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-full mb-3 border border-emerald-200">
+                        {/* <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-full mb-3 border border-emerald-200">
                             🎯 เป้าหมายการดำเนินงาน
-                        </div>
+                        </div> */}
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">พันธกิจของเรา (Our Mission)</h2>
                         <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
                             มุ่งมั่นส่งมอบคุณค่าที่เป็นรูปธรรมให้แก่ทุกฝ่ายในระบบนิเวศการดูแลผู้สูงอายุไทย
@@ -184,9 +184,9 @@ export default function AboutPage() {
 
                         {/* Content */}
                         <div className="lg:col-span-6 space-y-6">
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100">
+                            {/* <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100">
                                 💡 บริการที่ปรึกษาส่วนตัวฟรี
-                            </div>
+                            </div> */}
 
                             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-snug">
                                 มากกว่าแค่ระบบค้นหา <br />
@@ -260,9 +260,9 @@ export default function AboutPage() {
             <div className="py-20 bg-slate-50/60">
                 <div className="container max-w-6xl mx-auto px-4">
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full mb-3 border border-blue-100">
+                        {/* <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full mb-3 border border-blue-100">
                             ⭐ มาตรฐานการบริการ
-                        </div>
+                        </div> */}
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">ทำไมครอบครัวไทยจึงไว้วางใจเรา</h2>
                         <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
                             เรายึดมั่นใน 4 หลักการสำคัญ เพื่อให้คุณได้รับสิ่งที่ดีที่สุดสำหรับคนที่คุณรัก
