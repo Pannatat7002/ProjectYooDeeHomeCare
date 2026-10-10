@@ -357,3 +357,252 @@ export const IconOfficialPartner: React.FC<IconProps & { variant?: 'color' | 'mo
     );
 };
 
+/**
+ * 7. IconSearchCareCenter: ไอคอนประจำ Tab ค้นหาศูนย์ดูแลผู้สูงอายุ (ThaiCareCenter Brand Palette)
+ * ใช้เฉพาะสีประจำแบรนด์: น้ำเงิน (#2B5897), เขียวใบไม้ (#65A85A), ขาว (#FFFFFF)
+ */
+export const IconSearchCareCenter: React.FC<IconProps> = ({ size = 24, className = '', ...props }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        aria-hidden="true"
+        {...props}
+    >
+        {/* Ground Green Lawn */}
+        <rect x="6" y="54" width="52" height="4" rx="2" fill="#65A85A" />
+
+        {/* House Walls (Clean White with Brand Blue Border) */}
+        <rect x="14" y="24" width="36" height="30" rx="3" fill="#FFFFFF" stroke="#2B5897" strokeWidth="2.4" />
+
+        {/* Gable Roof (Brand Blue) */}
+        <path
+            d="M32 6L9 24C8 24.8 8.5 26 10 26H54C55.5 26 56 24.8 55 24L32 6Z"
+            fill="#2B5897"
+        />
+        {/* Roof Overhang Trim */}
+        <path d="M7 25L32 6.5L57 25" stroke="#1D3E6B" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+
+        {/* Chimney (Brand Green) */}
+        <rect x="42" y="9" width="5" height="11" rx="1.5" fill="#65A85A" />
+
+        {/* Heart Care Emblem in Attic (Brand Green) */}
+        <circle cx="32" cy="18" r="5.2" fill="#FFFFFF" />
+        <path
+            d="M32 20.5C32 20.5 29 18.2 29 16.3C29 14.8 30.2 14.2 31.2 14.8C31.7 15.1 32 15.5 32 15.5C32 15.5 32.3 15.1 32.8 14.8C33.8 14.2 35 14.8 35 16.3C35 18.2 32 20.5 32 20.5Z"
+            fill="#65A85A"
+        />
+
+        {/* Big Windows (Soft Ice Blue / White Tint with Brand Blue Frame) */}
+        <rect x="17" y="29" width="11" height="11" rx="2" fill="#EBF3FA" stroke="#2B5897" strokeWidth="1.8" />
+        <path d="M26 30.5L19 38.5" stroke="#2B5897" strokeWidth="1.6" strokeLinecap="round" opacity="0.4" />
+
+        <rect x="36" y="29" width="11" height="11" rx="2" fill="#EBF3FA" stroke="#2B5897" strokeWidth="1.8" />
+        <path d="M45 30.5L38 38.5" stroke="#2B5897" strokeWidth="1.6" strokeLinecap="round" opacity="0.4" />
+
+        {/* Welcoming Door (Brand Blue with Green Knob) */}
+        <path d="M26 42C26 40.5 27 39 28.5 39H35.5C37 39 38 40.5 38 42V54H26V42Z" fill="#2B5897" />
+        <circle cx="35" cy="47" r="1.3" fill="#65A85A" />
+
+        {/* Green Bushes */}
+        <circle cx="11.5" cy="52" r="3.5" fill="#65A85A" />
+        <circle cx="52.5" cy="52" r="3.5" fill="#65A85A" />
+    </svg>
+);
+
+/**
+ * 8. IconSearchTransit: ไอคอนประจำ Tab รถไฟฟ้า BTS / MRT (ThaiCareCenter Brand Palette)
+ * ใช้เฉพาะสีประจำแบรนด์: เขียวใบไม้ (#65A85A), น้ำเงิน (#2B5897), ขาว (#FFFFFF)
+ */
+export const IconSearchTransit: React.FC<IconProps> = ({ size = 24, className = '', ...props }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        aria-hidden="true"
+        {...props}
+    >
+        {/* Rails underneath (Brand Blue) */}
+        <path d="M12 57L22 46M52 57L42 46" stroke="#2B5897" strokeWidth="3.6" strokeLinecap="round" />
+        <path d="M13 56H51" stroke="#2B5897" strokeWidth="3" strokeLinecap="round" />
+        <path d="M17 50H47" stroke="#65A85A" strokeWidth="2.6" strokeLinecap="round" />
+
+        {/* Main Locomotive Body (Brand Green with Brand Blue Trim) */}
+        <path
+            d="M20 7C20 4.5 24 3 32 3C40 3 44 4.5 44 7L52 14C53.5 15.5 54 18 54 21V43C54 48 46 51 32 51C18 51 10 48 10 43V21C10 18 10.5 15.5 12 14L20 7Z"
+            fill="#65A85A"
+            stroke="#2B5897"
+            strokeWidth="2.2"
+        />
+
+        {/* Top Indicator Pod */}
+        <rect x="27" y="2" width="10" height="6" rx="2" fill="#2B5897" />
+        <circle cx="30" cy="5" r="1.3" fill="#FFFFFF" />
+        <circle cx="34" cy="5" r="1.3" fill="#FFFFFF" />
+
+        {/* Windshields Frame (Brand Blue) */}
+        <rect x="14" y="11" width="36" height="17" rx="3.5" fill="#2B5897" />
+
+        {/* Left Windshield (White / Ice Blue + Reflection) */}
+        <rect x="15.5" y="12.5" width="15" height="14" rx="2" fill="#FFFFFF" />
+        <path d="M27 13.5L17.5 25" stroke="#EBF3FA" strokeWidth="2.5" strokeLinecap="round" />
+
+        {/* Right Windshield */}
+        <rect x="33.5" y="12.5" width="15" height="14" rx="2" fill="#FFFFFF" />
+        <path d="M45 13.5L35.5 25" stroke="#EBF3FA" strokeWidth="2.5" strokeLinecap="round" />
+
+        {/* Center Chevron Front Accent (Brand Blue) */}
+        <path
+            d="M10 27L22 35H42L54 27V33L37 41H27L10 33V27Z"
+            fill="#FFFFFF"
+        />
+        <path
+            d="M22 35L32 40L42 35L37 41H27L22 35Z"
+            fill="#2B5897"
+        />
+
+        {/* Lower Brand Blue Accent Band */}
+        <rect x="10" y="38" width="44" height="4" fill="#2B5897" />
+
+        {/* Twin Headlights (White / Green) */}
+        <circle cx="15" cy="35" r="2.5" fill="#FFFFFF" />
+        <circle cx="21" cy="36" r="3" fill="#FFFFFF" stroke="#2B5897" strokeWidth="1" />
+        <circle cx="43" cy="36" r="3" fill="#FFFFFF" stroke="#2B5897" strokeWidth="1" />
+        <circle cx="49" cy="35" r="2.5" fill="#FFFFFF" />
+
+        {/* Front Air Intake Slats */}
+        <rect x="27" y="37" width="10" height="1.6" rx="0.8" fill="#65A85A" />
+        <rect x="27" y="40" width="10" height="1.6" rx="0.8" fill="#65A85A" />
+        <rect x="27" y="43" width="10" height="1.6" rx="0.8" fill="#65A85A" />
+
+        {/* Lower Coupler Skirt */}
+        <path d="M24 45H40L38 49H26L24 45Z" fill="#2B5897" />
+        <rect x="28" y="46" width="8" height="3" rx="1" fill="#FFFFFF" />
+    </svg>
+);
+
+/**
+ * 9. IconSearchHospital: ไอคอนประจำ Tab โรงพยาบาล (ThaiCareCenter Brand Palette)
+ * ใช้เฉพาะสีประจำแบรนด์: น้ำเงิน (#2B5897), เขียว (#65A85A), ขาว (#FFFFFF)
+ */
+export const IconSearchHospital: React.FC<IconProps> = ({ size = 24, className = '', ...props }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        aria-hidden="true"
+        {...props}
+    >
+        {/* Ground Baseline */}
+        <rect x="6" y="54" width="52" height="4" rx="2" fill="#65A85A" />
+
+        {/* Hospital Building Base (White with Brand Blue Border) */}
+        <rect x="13" y="14" width="38" height="40" rx="4" fill="#FFFFFF" stroke="#2B5897" strokeWidth="2.4" />
+
+        {/* Roof Accent / Helipad Pavilion (Brand Blue) */}
+        <rect x="20" y="8" width="24" height="6" rx="2" fill="#2B5897" />
+        <rect x="25" y="6" width="14" height="3" rx="1" fill="#65A85A" />
+
+        {/* Medical Cross Emblem (Brand Blue Shield + Green Cross) */}
+        <rect x="23" y="16" width="18" height="17" rx="8.5" fill="#EBF3FA" stroke="#2B5897" strokeWidth="1.6" />
+        <path
+            d="M32 19V30M26.5 24.5H37.5"
+            stroke="#65A85A"
+            strokeWidth="3.6"
+            strokeLinecap="round"
+        />
+
+        {/* Tinted Clinic Windows */}
+        <rect x="17" y="34" width="8.5" height="7.5" rx="2" fill="#EBF3FA" stroke="#2B5897" strokeWidth="1.6" />
+        <path d="M23.5 35L19 40.5" stroke="#2B5897" strokeWidth="1.4" strokeLinecap="round" opacity="0.4" />
+
+        <rect x="38.5" y="34" width="8.5" height="7.5" rx="2" fill="#EBF3FA" stroke="#2B5897" strokeWidth="1.6" />
+        <path d="M45 35L40.5 40.5" stroke="#2B5897" strokeWidth="1.4" strokeLinecap="round" opacity="0.4" />
+
+        {/* Automatic Sliding Emergency Doors (Brand Blue with Green Accents) */}
+        <rect x="26" y="42" width="12" height="12" rx="2" fill="#2B5897" />
+        <line x1="32" y1="42" x2="32" y2="54" stroke="#FFFFFF" strokeWidth="1.4" />
+
+        {/* Emergency Canopy (Brand Green) */}
+        <rect x="23" y="41" width="18" height="2.8" rx="1" fill="#65A85A" />
+    </svg>
+);
+
+/**
+ * 10. FlatIconNearMe: หมุดพิกัดใกล้ฉัน (Flat Illustration Theme)
+ */
+export const FlatIconNearMe: React.FC<IconProps> = ({ size = 26, className = '', ...props }) => (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+        <ellipse cx="32" cy="56" rx="14" ry="4" fill="#CBD5E1" />
+        <path d="M32 6C20.9 6 12 14.9 12 26C12 40.5 32 54 32 54C32 54 52 40.5 52 26C52 14.9 43.1 6 32 6Z" fill="#2563EB" />
+        <circle cx="32" cy="25" r="9" fill="#FFFFFF" />
+        <circle cx="32" cy="25" r="5" fill="#EF4444" />
+    </svg>
+);
+
+/**
+ * 11. FlatIconBedridden: ผู้ป่วยติดเตียง / การดูแลพิเศษ (Flat Illustration Theme)
+ */
+export const FlatIconBedridden: React.FC<IconProps> = ({ size = 26, className = '', ...props }) => (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+        {/* IV Pole */}
+        <path d="M12 12V48M8 14H16M8 48H16" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="12" cy="18" r="3" fill="#38BDF8" />
+        {/* Bed Frame & Headboard */}
+        <rect x="18" y="22" width="6" height="26" rx="2" fill="#3B82F6" />
+        <rect x="52" y="30" width="5" height="18" rx="2" fill="#3B82F6" />
+        {/* Mattress */}
+        <rect x="22" y="34" width="32" height="10" rx="3" fill="#E2E8F0" />
+        {/* Pillow & Blanket */}
+        <rect x="24" y="30" width="8" height="6" rx="2" fill="#FFFFFF" />
+        <path d="M30 36H52C53 36 54 37 54 38V44H30V36Z" fill="#10B981" />
+        {/* Bed Legs */}
+        <rect x="22" y="44" width="4" height="6" rx="1" fill="#1E293B" />
+        <rect x="48" y="44" width="4" height="6" rx="1" fill="#1E293B" />
+    </svg>
+);
+
+/**
+ * 12. FlatIconAlzheimer: สมองเสื่อม / อัลไซเมอร์ / ความทรงจำ (Flat Illustration Theme)
+ */
+export const FlatIconAlzheimer: React.FC<IconProps> = ({ size = 26, className = '', ...props }) => (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+        <path
+            d="M32 10C24 10 18 16 18 24C14 26 12 30 12 35C12 41 16 46 22 47C24 51 28 54 32 54C36 54 40 51 42 47C48 46 52 41 52 35C52 30 50 26 46 24C46 16 40 10 32 10Z"
+            fill="#F472B6"
+        />
+        {/* Inner Brain Folds */}
+        <path d="M32 16V48M24 24C28 26 28 32 24 36M40 24C36 26 36 32 40 36" stroke="#BE185D" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Memory Star / Heart */}
+        <circle cx="32" cy="30" r="7" fill="#FFFFFF" />
+        <path d="M32 33C32 33 29 31 29 29.5C29 28.5 29.8 28 30.5 28.5C31.2 29 32 29 32 29C32 29 32.8 29 33.5 28.5C34.2 28 35 28.5 35 29.5C35 31 32 33 32 33Z" fill="#EF4444" />
+    </svg>
+);
+
+/**
+ * 13. FlatIconBudget: ราคาประหยัด / งบประมาณคุ้มค่า (Flat Illustration Theme)
+ */
+export const FlatIconBudget: React.FC<IconProps> = ({ size = 26, className = '', ...props }) => (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+        {/* Wallet Body */}
+        <rect x="8" y="18" width="46" height="32" rx="6" fill="#F59E0B" />
+        <path d="M8 26H54" stroke="#D97706" strokeWidth="2.5" />
+        {/* Wallet Flap */}
+        <rect x="36" y="27" width="20" height="14" rx="4" fill="#B45309" />
+        <circle cx="43" cy="34" r="2.5" fill="#FDE68A" />
+        {/* Gold Coin Pop-out */}
+        <circle cx="32" cy="16" r="9" fill="#FBBF24" stroke="#D97706" strokeWidth="2" />
+        <text x="32" y="20" textAnchor="middle" fill="#78350F" fontSize="11" fontWeight="bold" fontFamily="sans-serif">฿</text>
+    </svg>
+);
+
+

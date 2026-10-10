@@ -78,11 +78,13 @@ export async function GET(request: Request) {
         });
     }
 
-    // Distance sorting if requested
+    // Distance sorting & radius filtering
     const sortByDistance = searchParams.get('sortByDistance');
     const userLat = searchParams.get('lat') ? parseFloat(searchParams.get('lat')!) : null;
     const userLng = searchParams.get('lng') ? parseFloat(searchParams.get('lng')!) : null;
-    if (sortByDistance === 'true' && userLat !== null && userLng !== null && !isNaN(userLat) && !isNaN(userLng)) {
+    const maxRadius = searchParams.get('maxRadius') ? parseFloat(searchParams.get('maxRadius')!) : null;
+
+    if (userLat !== null && userLng !== null && !isNaN(userLat) && !isNaN(userLng)) {
         const deg2rad = (deg: number) => deg * (Math.PI / 180);
         const getDist = (lat1: number, lon1: number, lat2: number, lon2: number) => {
             const R = 6371;
@@ -95,11 +97,21 @@ export async function GET(request: Request) {
             return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         };
 
-        careCenters.sort((a: CareCenter, b: CareCenter) => {
-            if (!a.lat || !a.lng) return 1;
-            if (!b.lat || !b.lng) return -1;
-            return getDist(userLat, userLng, a.lat, a.lng) - getDist(userLat, userLng, b.lat, b.lng);
-        });
+        if (maxRadius !== null && !isNaN(maxRadius) && maxRadius > 0) {
+            careCenters = careCenters.filter((c: CareCenter) => {
+                if (!c.lat || !c.lng) return false;
+                const dist = getDist(userLat, userLng, Number(c.lat), Number(c.lng));
+                return dist <= maxRadius;
+            });
+        }
+
+        if (sortByDistance === 'true') {
+            careCenters.sort((a: CareCenter, b: CareCenter) => {
+                if (!a.lat || !a.lng) return 1;
+                if (!b.lat || !b.lng) return -1;
+                return getDist(userLat, userLng, Number(a.lat), Number(a.lng)) - getDist(userLat, userLng, Number(b.lat), Number(b.lng));
+            });
+        }
     }
 
     // Support progressive pagination

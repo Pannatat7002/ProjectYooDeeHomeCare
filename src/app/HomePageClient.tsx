@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 
-import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X } from 'lucide-react';
+import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X, Train, Hospital, Home, Sparkles } from 'lucide-react';
 
 // Inline SVG data URI สำหรับ fallback image — ป้องกัน onError loop
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f3f4f6' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -34,6 +34,19 @@ type Advertisement = any;
 type Blog = any;
 
 import * as gtag from '../lib/gtag';
+import { TRANSIT_LINES, TRANSIT_STATIONS, POPULAR_TRANSIT_STATIONS } from '../lib/transitStations';
+import { INITIAL_HOSPITALS } from '../lib/hospitalProximity';
+import { IconSearchCareCenter, IconSearchTransit, IconSearchHospital } from '../components/icons/CustomIcons';
+
+const POPULAR_HOSPITALS = [
+  { id: 'HOSP-BKK-001', nameTh: 'รพ.ศิริราช' },
+  { id: 'HOSP-BKK-002', nameTh: 'รพ.จุฬาลงกรณ์' },
+  { id: 'HOSP-BKK-003', nameTh: 'รพ.รามาธิบดี' },
+  { id: 'HOSP-BKK-004', nameTh: 'รพ.ราชวิถี' },
+  { id: 'HOSP-BKK-006', nameTh: 'รพ.กรุงเทพ' },
+  { id: 'HOSP-BKK-008', nameTh: 'รพ.สมิติเวช สุขุมวิท' },
+  { id: 'HOSP-BKK-012', nameTh: 'รพ.เกษมราษฎร์ ประชาชื่น' },
+];
 
 
 
@@ -150,9 +163,10 @@ const BlogCardImage = ({ src, alt }: { src?: string; alt: string }) => {
 interface CenterCardProps {
   center: CareCenter;
   userLocation?: { lat: number; lng: number } | null;
+  locationLabel?: string;
 }
 
-const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
+const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationLabel }) => {
   const createSlug = (name: string) => encodeURIComponent(name.replace(/\s+/g, '-'));
 
   const distance = useMemo(() => {
@@ -210,11 +224,13 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation }) => {
 
           {distance && (
 
-            <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-blue-700 text-[11px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1">
+            <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 max-w-[85%] border border-blue-100">
 
-              <Navigation className="w-3 h-3" />
+              <Navigation className="w-3 h-3 shrink-0" />
 
-              ห่าง {distance} กม.
+              <span className="truncate">
+                {locationLabel ? `ห่างจาก ${locationLabel} ${distance} กม.` : `ห่าง ${distance} กม.`}
+              </span>
 
             </div>
 
@@ -482,10 +498,21 @@ export default function HomePageClient({
   const blogs = initialBlogs;
 
   // Search & Filter State
+  const [activeTab, setActiveTab] = useState<'general' | 'transit' | 'hospital'>('general');
   const [searchTerm, setSearchTerm] = useState('');
   const [careType, setCareType] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [province, setProvince] = useState('all');
+
+  // Transit Filter State
+  const [selectedTransitLine, setSelectedTransitLine] = useState<string>('all');
+  const [selectedStationId, setSelectedStationId] = useState<string>('');
+  const [transitRadius, setTransitRadius] = useState<string>('all');
+
+  // Hospital Filter State
+  const [hospitalProvince, setHospitalProvince] = useState<string>('all');
+  const [selectedHospitalId, setSelectedHospitalId] = useState<string>('');
+  const [hospitalRadius, setHospitalRadius] = useState<string>('all');
 
   // Location State
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -607,6 +634,83 @@ export default function HomePageClient({
 
 
 
+  // Tab change handler
+  const handleTabChange = (tab: 'general' | 'transit' | 'hospital') => {
+    setActiveTab(tab);
+    gtag.event({ action: 'switch_search_tab', category: 'Engagement', label: tab });
+  };
+
+  const handleSelectPopularStation = (stationId: string) => {
+    const station = TRANSIT_STATIONS.find(s => s.id === stationId);
+    if (station) {
+      setSelectedTransitLine(station.lineCode);
+      setSelectedStationId(station.id);
+      gtag.event({ action: 'quick_select_station', category: 'Engagement', label: station.nameTh });
+    }
+  };
+
+  const handleSelectPopularHospital = (hospitalId: string) => {
+    const hosp = INITIAL_HOSPITALS.find(h => h.id === hospitalId);
+    if (hosp) {
+      setHospitalProvince(hosp.province || 'all');
+      setSelectedHospitalId(hosp.id);
+      gtag.event({ action: 'quick_select_hospital', category: 'Engagement', label: hosp.nameTh });
+    }
+  };
+
+  const selectedStation = useMemo(() => {
+    return TRANSIT_STATIONS.find(s => s.id === selectedStationId);
+  }, [selectedStationId]);
+
+  const selectedHospital = useMemo(() => {
+    return INITIAL_HOSPITALS.find(h => h.id === selectedHospitalId);
+  }, [selectedHospitalId]);
+
+  const effectiveLocation = useMemo(() => {
+    if (activeTab === 'transit' && selectedStation) {
+      return { lat: selectedStation.lat, lng: selectedStation.lng };
+    }
+    if (activeTab === 'hospital' && selectedHospital) {
+      return { lat: selectedHospital.latitude, lng: selectedHospital.longitude };
+    }
+    if (activeTab === 'general' && sortByDistance && userLocation) {
+      return userLocation;
+    }
+    return null;
+  }, [activeTab, selectedStation, selectedHospital, sortByDistance, userLocation]);
+
+  const effectiveLocationLabel = useMemo(() => {
+    if (activeTab === 'transit' && selectedStation) {
+      return selectedStation.nameTh;
+    }
+    if (activeTab === 'hospital' && selectedHospital) {
+      return selectedHospital.nameTh;
+    }
+    return undefined;
+  }, [activeTab, selectedStation, selectedHospital]);
+
+  const filteredTransitStations = useMemo(() => {
+    if (selectedTransitLine === 'all') {
+      return TRANSIT_STATIONS;
+    }
+    return TRANSIT_STATIONS.filter(s => s.lineCode === selectedTransitLine);
+  }, [selectedTransitLine]);
+
+  const hospitalProvinces = useMemo(() => {
+    const set = new Set<string>();
+    INITIAL_HOSPITALS.forEach(h => {
+      if (h.province) set.add(h.province);
+    });
+    return Array.from(set).sort();
+  }, []);
+
+  const filteredHospitals = useMemo(() => {
+    if (hospitalProvince === 'all') {
+      return INITIAL_HOSPITALS;
+    }
+    return INITIAL_HOSPITALS.filter(h => h.province === hospitalProvince);
+  }, [hospitalProvince]);
+
   // ✅ ฟังก์ชันสำหรับล้างค่าทั้งหมด (Reset All)
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -615,11 +719,20 @@ export default function HomePageClient({
     setPriceRange('all');
     setUserLocation(null);
     setSortByDistance(false);
+    setSelectedTransitLine('all');
+    setSelectedStationId('');
+    setTransitRadius('all');
+    setHospitalProvince('all');
+    setSelectedHospitalId('');
+    setHospitalRadius('all');
     gtag.event({ action: 'clear_all_filters', category: 'Engagement' });
   };
 
   // ✅ ตัวแปรเช็คว่ากำลังค้นหา/กรองข้อมูลอยู่หรือไม่
-  const isSearchActive = searchTerm !== '' || careType !== 'all' || priceRange !== 'all' || province !== 'all' || sortByDistance;
+  const isSearchActive =
+    (activeTab === 'general' && (searchTerm !== '' || careType !== 'all' || priceRange !== 'all' || province !== 'all' || sortByDistance)) ||
+    (activeTab === 'transit' && (searchTerm !== '' || selectedTransitLine !== 'all' || selectedStationId !== '' || transitRadius !== 'all')) ||
+    (activeTab === 'hospital' && (searchTerm !== '' || hospitalProvince !== 'all' || selectedHospitalId !== '' || hospitalRadius !== 'all'));
 
   // Progressive API fetch
   const fetchCenters = async (pageToFetch: number, isNewFilter: boolean = false) => {
@@ -638,19 +751,48 @@ export default function HomePageClient({
       if (searchTerm.trim()) {
         params.set('search', searchTerm.trim());
       }
-      if (province !== 'all') {
-        params.set('province', province);
-      }
-      if (careType !== 'all') {
-        params.set('type', careType);
-      }
-      if (priceRange !== 'all') {
-        params.set('priceRange', priceRange);
-      }
-      if (sortByDistance && userLocation) {
-        params.set('sortByDistance', 'true');
-        params.set('lat', userLocation.lat.toString());
-        params.set('lng', userLocation.lng.toString());
+
+      if (activeTab === 'general') {
+        if (province !== 'all') {
+          params.set('province', province);
+        }
+        if (careType !== 'all') {
+          params.set('type', careType);
+        }
+        if (priceRange !== 'all') {
+          params.set('priceRange', priceRange);
+        }
+        if (sortByDistance && userLocation) {
+          params.set('sortByDistance', 'true');
+          params.set('lat', userLocation.lat.toString());
+          params.set('lng', userLocation.lng.toString());
+        }
+      } else if (activeTab === 'transit') {
+        if (selectedStation) {
+          params.set('sortByDistance', 'true');
+          params.set('lat', selectedStation.lat.toString());
+          params.set('lng', selectedStation.lng.toString());
+          if (transitRadius !== 'all') {
+            params.set('maxRadius', transitRadius);
+          }
+        }
+        if (careType !== 'all') {
+          params.set('type', careType);
+        }
+      } else if (activeTab === 'hospital') {
+        if (selectedHospital) {
+          params.set('sortByDistance', 'true');
+          params.set('lat', selectedHospital.latitude.toString());
+          params.set('lng', selectedHospital.longitude.toString());
+          if (hospitalRadius !== 'all') {
+            params.set('maxRadius', hospitalRadius);
+          }
+        } else if (hospitalProvince !== 'all') {
+          params.set('province', hospitalProvince);
+        }
+        if (careType !== 'all') {
+          params.set('type', careType);
+        }
       }
 
       const res = await fetch(`/api/care-centers?${params.toString()}`);
@@ -696,7 +838,21 @@ export default function HomePageClient({
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, province, careType, priceRange, sortByDistance, userLocation]);
+  }, [
+    searchTerm,
+    province,
+    careType,
+    priceRange,
+    sortByDistance,
+    userLocation,
+    activeTab,
+    selectedTransitLine,
+    selectedStationId,
+    transitRadius,
+    hospitalProvince,
+    selectedHospitalId,
+    hospitalRadius,
+  ]);
 
 
   const handleLoadMore = () => {
@@ -707,14 +863,17 @@ export default function HomePageClient({
 
   const recommendedCenters = useMemo(() => {
     let list = partnerCenters.length > 0 ? partnerCenters : centers.filter(c => c.isPartner);
-    if (province !== 'all') {
+    if (activeTab === 'general' && province !== 'all') {
       list = list.filter(c => c.province === province);
+    }
+    if (activeTab === 'hospital' && hospitalProvince !== 'all') {
+      list = list.filter(c => c.province === hospitalProvince);
     }
     if (careType !== 'all') {
       list = list.filter(c => c.type === careType || c.type === 'both');
     }
     return list;
-  }, [partnerCenters, centers, province, careType]);
+  }, [partnerCenters, centers, activeTab, province, hospitalProvince, careType]);
 
   const recommendedBlogs = useMemo(() => {
     const featured = blogs.filter(b => (b as any).isFeatured);
@@ -762,25 +921,24 @@ export default function HomePageClient({
 
       <div
 
-        className="relative pt-24 pb-20 px-4 bg-cover bg-center min-h-[600px] flex items-center"
+        className="relative pt-24 pb-20 px-4 bg-cover bg-center min-h-[620px] flex items-center overflow-hidden"
 
         style={{
 
-          backgroundImage: 'url("/images/bg-home.jpg")',
+          backgroundImage: 'url("/images/hero-care-home-bg.jpg")',
 
-          backgroundPosition: 'center 30%'
+          backgroundPosition: 'center 38%'
 
         }}
 
       >
 
-        <div className="absolute inset-0 bg-black/50"></div>
-
-
+        {/* Sophisticated Dark Gradient & Ambient Vignette */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/55 to-slate-950/85"></div>
+        {/* Soft Radial Ambient Lighting */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.14),transparent_65%)] pointer-events-none"></div>
 
         <div className="relative z-10 container max-w-5xl mx-auto text-center">
-
-
 
           <div className="mb-8 md:mb-10 flex flex-col items-center justify-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 drop-shadow-xl tracking-tight leading-normal">
@@ -791,127 +949,398 @@ export default function HomePageClient({
             </p>
           </div>
 
+          {/* Tabs Navigation: Clean Unified Segmented Bar (Zero Gap) */}
+          <div className="max-w-4xl lg:max-w-5xl mx-auto px-1 sm:px-0 mb-3 sm:mb-3.5">
+            <div className="bg-[#142640]/90 backdrop-blur-md border border-white/20 p-1 sm:p-1.5 rounded-2xl grid grid-cols-3 gap-0 shadow-2xl">
+              {/* TAB 1: ค้นหาศูนย์ดูแล */}
+              <button
+                type="button"
+                onClick={() => handleTabChange('general')}
+                className={`group w-full py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl font-bold text-xs sm:text-base md:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-all duration-200 cursor-pointer ${activeTab === 'general'
+                  ? 'bg-white text-[#2B5897] shadow-lg ring-1 ring-black/5'
+                  : 'text-white/90 hover:text-white hover:bg-white/10'
+                  }`}
+              >
+                <span className={`w-8 h-8 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all ${activeTab === 'general'
+                  ? 'bg-[#2B5897]/10 ring-1 ring-[#2B5897]/25 shadow-xs'
+                  : 'bg-white/90 ring-1 ring-white/50 shadow-xs group-hover:bg-white group-hover:scale-105'
+                  }`}>
+                  <IconSearchCareCenter className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9" size={36} />
+                </span>
+                <span className="truncate">
+                  <span className="hidden sm:inline">ค้นหา</span>ศูนย์ดูแล
+                </span>
+              </button>
+
+              {/* TAB 2: BTS / MRT */}
+              <button
+                type="button"
+                onClick={() => handleTabChange('transit')}
+                className={`group w-full py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl font-bold text-xs sm:text-base md:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-all duration-200 cursor-pointer ${activeTab === 'transit'
+                  ? 'bg-white text-[#2B5897] shadow-lg ring-1 ring-black/5'
+                  : 'text-white/90 hover:text-white hover:bg-white/10'
+                  }`}
+              >
+                <span className={`w-8 h-8 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all ${activeTab === 'transit'
+                  ? 'bg-[#65A85A]/15 ring-1 ring-[#65A85A]/30 shadow-xs'
+                  : 'bg-white/90 ring-1 ring-white/50 shadow-xs group-hover:bg-white group-hover:scale-105'
+                  }`}>
+                  <IconSearchTransit className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9" size={36} />
+                </span>
+                <span className="truncate">BTS / MRT</span>
+              </button>
+
+              {/* TAB 3: โรงพยาบาล */}
+              <button
+                type="button"
+                onClick={() => handleTabChange('hospital')}
+                className={`group w-full py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl font-bold text-xs sm:text-base md:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-all duration-200 cursor-pointer ${activeTab === 'hospital'
+                  ? 'bg-white text-[#2B5897] shadow-lg ring-1 ring-black/5'
+                  : 'text-white/90 hover:text-white hover:bg-white/10'
+                  }`}
+              >
+                <span className={`w-8 h-8 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all ${activeTab === 'hospital'
+                  ? 'bg-[#2B5897]/10 ring-1 ring-[#2B5897]/25 shadow-xs'
+                  : 'bg-white/90 ring-1 ring-white/50 shadow-xs group-hover:bg-white group-hover:scale-105'
+                  }`}>
+                  <IconSearchHospital className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9" size={36} />
+                </span>
+                <span className="truncate">
+                  <span className="hidden sm:inline">ใกล้</span>โรงพยาบาล
+                </span>
+              </button>
+            </div>
+          </div>
+
+
           {/* Search Box Container */}
-          <div className="max-w-4xl lg:max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-white/40">
-            {/* Layout Wrapper: ใช้ flex-col เพื่อให้ Input อยู่บรรทัดบนเสมอ */}
-            <div className="flex flex-col gap-4">
-              {/* === ROW 1: Search Input (Full Width) === */}
-              <div className="relative w-full">
-                <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                  <Search className="h-5 w-5 md:h-6 md:w-6" />
-                </div>
-                <input
-                  type="text"
-                  className="w-full pl-11 md:pl-14 pr-24 md:pr-14 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
-                  placeholder="ค้นหาชื่อศูนย์, เขต/อำเภอ, หรือจังหวัด..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
-                />
+          <div className="relative max-w-4xl lg:max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-4 md:p-6 pb-6 md:pb-7 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-white/40 text-left mb-12 sm:mb-14">
+            {/* === TAB 1: ค้นหาศูนย์ดูแล (แบบเดิม) === */}
+            {activeTab === 'general' && (
+              <div className="flex flex-col gap-4">
+                {/* ROW 1: Search Input */}
+                <div className="relative w-full">
+                  <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                    <Search className="h-5 w-5 md:h-6 md:w-6" />
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full pl-11 md:pl-14 pr-24 md:pr-14 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
+                    placeholder="ค้นหาชื่อศูนย์, เขต/อำเภอ, หรือจังหวัด..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
+                  />
 
-                {/* ปุ่มใกล้ฉัน (Mobile Only - สีฟ้าเด่นพร้อมข้อความ) */}
-                <button
-                  onClick={handleNearMe}
-                  disabled={isLocating}
-                  className={`lg:hidden absolute right-2 top-2 bottom-2 px-3 flex items-center justify-center gap-1 text-white rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 ${sortByDistance
-                    ? 'bg-blue-700 ring-2 ring-blue-300'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
-                >
-                  {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-3.5 h-3.5 fill-current" />}
-                  <span>ใกล้ฉัน</span>
-                </button>
-              </div>
-
-              {/* === ROW 2: Filters & Actions === */}
-              <div className="flex flex-col lg:flex-row gap-2.5 justify-between lg:items-center">
-                {/* Filters Group */}
-                <div className="grid grid-cols-2 lg:flex gap-2 w-full lg:flex-1 min-w-0">
-                  {/* ปุ่มใกล้ฉัน (Desktop - GPS Spotlight Button เด่นชัด) */}
+                  {/* ปุ่มใกล้ฉัน (Mobile Only) */}
                   <button
                     onClick={handleNearMe}
                     disabled={isLocating}
-                    className={`hidden lg:flex px-4 py-3 rounded-xl items-center gap-2 font-bold transition-all whitespace-nowrap shadow-sm cursor-pointer shrink-0 text-sm ${sortByDistance
-                      ? 'bg-blue-600 text-white shadow-md ring-4 ring-blue-500/20'
-                      : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600'
+                    className={`lg:hidden absolute right-2 top-2 bottom-2 px-3 flex items-center justify-center gap-1 text-white rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 ${sortByDistance
+                      ? 'bg-blue-700 ring-2 ring-blue-300'
+                      : 'bg-blue-600 hover:bg-blue-700'
                       }`}
-                    title="ค้นหาศูนย์ดูแลที่ใกล้พิกัดของคุณมากที่สุดผ่าน GPS"
                   >
-                    {isLocating ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <span className="relative flex h-3.5 w-3.5 items-center justify-center">
-                        <Navigation className={`relative w-3.5 h-3.5 ${sortByDistance ? 'fill-current' : ''}`} />
-                      </span>
-                    )}
+                    {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-3.5 h-3.5 fill-current" />}
                     <span>ใกล้ฉัน</span>
                   </button>
-
-                  {/* Select Filters */}
-                  <select
-                    className="col-span-2 lg:col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
-                    value={province}
-                    onChange={handleProvinceChange}
-                  >
-                    <option value="all">📍 ทุกจังหวัด</option>
-                    {THAI_PROVINCES.map(prov => (<option key={prov} value={prov}>{prov}</option>))}
-                  </select>
-
-                  <select
-                    className="col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
-                    value={careType}
-                    onChange={handleCareTypeChange}
-                  >
-                    <option value="all">ทุกประเภท</option>
-                    <option value="daily">รายวัน (Day Care)</option>
-                    <option value="monthly">รายเดือน (พักค้างคืน)</option>
-                  </select>
-
-                  <select
-                    className="col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
-                    value={priceRange}
-                    onChange={handlePriceChange}
-                  >
-                    <option value="all">ทุกช่วงราคา</option>
-                    <option value="0-20000">ต่ำกว่า 20,000 บาท</option>
-                    <option value="20001-25000">20,000 - 25,000 บาท</option>
-                    <option value="25001-999999">มากกว่า 25,000 บาท</option>
-                  </select>
                 </div>
 
-                {/* Search Button */}
-                <button
-                  onClick={scrollToResults}
-                  className="w-full lg:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 shrink-0 cursor-pointer text-sm md:text-base lg:ml-1"
-                >
-                  <Search className="w-5 h-5 lg:hidden" />
-                  ค้นหาข้อมูล
-                </button>
+                {/* ROW 2: Filters & Actions */}
+                <div className="flex flex-col lg:flex-row gap-2.5 justify-between lg:items-center">
+                  <div className="grid grid-cols-2 lg:flex gap-2 w-full lg:flex-1 min-w-0">
+                    {/* ปุ่มใกล้ฉัน (Desktop) */}
+                    <button
+                      onClick={handleNearMe}
+                      disabled={isLocating}
+                      className={`hidden lg:flex px-4 py-3 rounded-xl items-center gap-2 font-bold transition-all whitespace-nowrap shadow-sm cursor-pointer shrink-0 text-sm ${sortByDistance
+                        ? 'bg-blue-600 text-white shadow-md ring-4 ring-blue-500/20'
+                        : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600'
+                        }`}
+                      title="ค้นหาศูนย์ดูแลที่ใกล้พิกัดของคุณมากที่สุดผ่าน GPS"
+                    >
+                      {isLocating ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <span className="relative flex h-3.5 w-3.5 items-center justify-center">
+                          <Navigation className={`relative w-3.5 h-3.5 ${sortByDistance ? 'fill-current' : ''}`} />
+                        </span>
+                      )}
+                      <span>ใกล้ฉัน</span>
+                    </button>
+
+                    <select
+                      className="col-span-2 lg:col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={province}
+                      onChange={handleProvinceChange}
+                    >
+                      <option value="all">📍 ทุกจังหวัด</option>
+                      {THAI_PROVINCES.map(prov => (<option key={prov} value={prov}>{prov}</option>))}
+                    </select>
+
+                    <select
+                      className="col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={careType}
+                      onChange={handleCareTypeChange}
+                    >
+                      <option value="all">ทุกประเภท</option>
+                      <option value="daily">รายวัน (Day Care)</option>
+                      <option value="monthly">รายเดือน (พักค้างคืน)</option>
+                    </select>
+
+                    <select
+                      className="col-span-1 lg:flex-1 min-w-0 px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={priceRange}
+                      onChange={handlePriceChange}
+                    >
+                      <option value="all">ทุกช่วงราคา</option>
+                      <option value="0-20000">ต่ำกว่า 20,000 บาท</option>
+                      <option value="20001-25000">20,000 - 25,000 บาท</option>
+                      <option value="25001-999999">มากกว่า 25,000 บาท</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={scrollToResults}
+                    className="w-full lg:w-auto bg-[#2B5897] hover:bg-[#204373] text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 shrink-0 cursor-pointer text-sm md:text-base lg:ml-1"
+                  >
+                    <Search className="w-5 h-5 lg:hidden" />
+                    ค้นหาข้อมูล
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Popular Tags */}
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 px-1">
-              <span className="text-gray-500 text-sm font-medium mr-1 hidden md:inline">จังหวัดยอดนิยม:</span>
-              {popularProvinces.length > 0 ? popularProvinces.map((prov) => (
-                <button
-                  key={prov}
-                  onClick={() => { setProvince(prov); setSortByDistance(false); gtag.event({ action: 'quick_select_province', category: 'Engagement', label: prov }); }}
-                  className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all border ${province === prov ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'} cursor-pointer`}
-                >
-                  {prov}
-                </button>
-              )) : (<span className="text-gray-400 text-sm italic">กำลังโหลด...</span>)}
+            {/* === TAB 2: BTS / MRT === */}
+            {activeTab === 'transit' && (
+              <div className="flex flex-col gap-4">
+                {/* ROW 1: Search Input */}
+                <div className="relative w-full">
+                  <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-[#65A85A] pointer-events-none">
+                    <IconSearchTransit size={24} />
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full pl-11 md:pl-14 pr-10 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#65A85A]/30 focus:border-[#65A85A] focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
+                    placeholder="ค้นหาชื่อศูนย์ หรือระบุชื่อสถานีรถไฟฟ้า เช่น หมอชิต, อารีย์, อโศก..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
 
-              {/* ปุ่มล้างค่า แสดงเมื่อมีการค้นหา */}
-              {isSearchActive && (
-                <button
-                  onClick={handleClearFilters}
-                  className="text-red-500 text-xs md:text-sm font-medium hover:underline ml-2 flex items-center gap-1 cursor-pointer"
-                >
-                  <XCircle className="w-4 h-4" /> ล้างค่าทั้งหมด
-                </button>
-              )}
+                {/* ROW 2: Filters & Actions */}
+                <div className="flex flex-col lg:flex-row gap-2.5 justify-between lg:items-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:flex-1 min-w-0">
+                    {/* Line Select */}
+                    <select
+                      className="px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-[#65A85A]/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={selectedTransitLine}
+                      onChange={(e) => {
+                        setSelectedTransitLine(e.target.value);
+                        setSelectedStationId('');
+                      }}
+                    >
+                      {TRANSIT_LINES.map(line => (
+                        <option key={line.code} value={line.code}>🚊 {line.name}</option>
+                      ))}
+                    </select>
+
+                    {/* Station Select */}
+                    <select
+                      className="px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-[#65A85A]/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={selectedStationId}
+                      onChange={(e) => setSelectedStationId(e.target.value)}
+                    >
+                      <option value="">📍 เลือกสถานีรถไฟฟ้า</option>
+                      {filteredTransitStations.map(st => (
+                        <option key={st.id} value={st.id}>
+                          {st.nameTh} ({st.line})
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Radius Select */}
+                    <select
+                      className="px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-[#65A85A]/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={transitRadius}
+                      onChange={(e) => setTransitRadius(e.target.value)}
+                    >
+                      <option value="all">📏 ทุกระยะทาง (ใกล้สุดก่อน)</option>
+                      <option value="3">รัศมีไม่เกิน 3 กม.</option>
+                      <option value="5">รัศมีไม่เกิน 5 กม.</option>
+                      <option value="10">รัศมีไม่เกิน 10 กม.</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={scrollToResults}
+                    className="w-full lg:w-auto bg-[#65A85A] hover:bg-[#538e4a] text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 shrink-0 cursor-pointer text-sm md:text-base lg:ml-1"
+                  >
+                    <IconSearchTransit size={18} />
+                    ค้นหาตามแนวรถไฟฟ้า
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* === TAB 3: โรงพยาบาล === */}
+            {activeTab === 'hospital' && (
+              <div className="flex flex-col gap-4">
+                {/* ROW 1: Search Input */}
+                <div className="relative w-full">
+                  <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-[#2B5897] pointer-events-none">
+                    <IconSearchHospital size={24} />
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full pl-11 md:pl-14 pr-10 py-3 md:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#2B5897]/30 focus:border-[#2B5897] focus:bg-white transition-all text-gray-800 placeholder-gray-400 font-medium text-base md:text-lg outline-none shadow-sm"
+                    placeholder="ค้นหาชื่อศูนย์ หรือระบุชื่อโรงพยาบาล เช่น ศิริราช, จุฬาฯ, รามาธิบดี..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && scrollToResults()}
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* ROW 2: Filters & Actions */}
+                <div className="flex flex-col lg:flex-row gap-2.5 justify-between lg:items-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:flex-1 min-w-0">
+                    {/* Province Select */}
+                    <select
+                      className="px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-[#2B5897]/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={hospitalProvince}
+                      onChange={(e) => {
+                        setHospitalProvince(e.target.value);
+                        setSelectedHospitalId('');
+                      }}
+                    >
+                      <option value="all">📍 จังหวัดของ รพ. (ทุกจังหวัด)</option>
+                      {hospitalProvinces.map(prov => (
+                        <option key={prov} value={prov}>{prov}</option>
+                      ))}
+                    </select>
+
+                    {/* Hospital Select */}
+                    <select
+                      className="px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-[#2B5897]/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={selectedHospitalId}
+                      onChange={(e) => setSelectedHospitalId(e.target.value)}
+                    >
+                      <option value="">🏥 เลือกโรงพยาบาล</option>
+                      {filteredHospitals.map(hosp => (
+                        <option key={hosp.id} value={hosp.id}>
+                          {hosp.nameTh} ({hosp.district ? `${hosp.district}, ` : ''}{hosp.province})
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Radius Select */}
+                    <select
+                      className="px-3 py-3 bg-white lg:bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-[#2B5897]/30 outline-none font-medium text-sm cursor-pointer truncate"
+                      value={hospitalRadius}
+                      onChange={(e) => setHospitalRadius(e.target.value)}
+                    >
+                      <option value="all">📏 ทุกระยะทาง (ใกล้สุดก่อน)</option>
+                      <option value="3">รัศมีไม่เกิน 3 กม.</option>
+                      <option value="5">รัศมีไม่เกิน 5 กม.</option>
+                      <option value="10">รัศมีไม่เกิน 10 กม.</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={scrollToResults}
+                    className="w-full lg:w-auto bg-[#2B5897] hover:bg-[#204373] text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 shrink-0 cursor-pointer text-sm md:text-base lg:ml-1"
+                  >
+                    <IconSearchHospital size={18} />
+                    ค้นหาใกล้โรงพยาบาล
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* === FLOATING POPULAR CHIPS (CSS Absolute Positioned Capsule) === */}
+            <div className="absolute top-full mt-3 sm:mt-3.5 left-1/2 -translate-x-1/2 z-20 flex justify-center w-full max-w-4xl px-2 pointer-events-auto">
+              <div className="bg-white/95 backdrop-blur-md px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-2xl sm:rounded-full shadow-[0_6px_20px_rgba(0,0,0,0.12)] border border-gray-200/90 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-xs max-w-full">
+                <span className="text-gray-500 font-semibold shrink-0 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-[#65A85A]" />
+                  <span className="hidden sm:inline">
+                    {activeTab === 'general' ? 'จังหวัดยอดนิยม:' : activeTab === 'transit' ? 'สถานียอดนิยม:' : 'รพ. ยอดนิยม:'}
+                  </span>
+                  <span className="sm:hidden">ยอดนิยม:</span>
+                </span>
+
+                {/* Tab 1: General Popular Provinces (Max 2 rows on mobile) */}
+                {activeTab === 'general' && popularProvinces.slice(0, 5).map((prov) => (
+                  <button
+                    key={prov}
+                    type="button"
+                    onClick={() => { setProvince(prov); setSortByDistance(false); gtag.event({ action: 'quick_select_province', category: 'Engagement', label: prov }); }}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all border shrink-0 cursor-pointer ${province === prov
+                      ? 'bg-[#2B5897] text-white border-[#2B5897] shadow-xs'
+                      : 'bg-gray-50 hover:bg-[#2B5897]/5 text-gray-700 border-gray-200 hover:border-[#2B5897]/30 hover:text-[#2B5897]'
+                      }`}
+                  >
+                    {prov}
+                  </button>
+                ))}
+
+                {/* Tab 2: BTS / MRT Popular Stations (Max 2 rows on mobile: 6 stations) */}
+                {activeTab === 'transit' && POPULAR_TRANSIT_STATIONS.slice(0, 6).map((st) => (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => handleSelectPopularStation(st.id)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all border shrink-0 cursor-pointer ${selectedStationId === st.id
+                      ? 'bg-[#65A85A] text-white border-[#65A85A] shadow-xs'
+                      : 'bg-gray-50 hover:bg-[#65A85A]/10 text-gray-700 border-gray-200 hover:border-[#65A85A]/40 hover:text-[#2B5897]'
+                      }`}
+                  >
+                    {st.nameTh}
+                  </button>
+                ))}
+
+                {/* Tab 3: Hospital Popular Hospitals (Max 2 rows on mobile: 5 hospitals) */}
+                {activeTab === 'hospital' && POPULAR_HOSPITALS.slice(0, 5).map((hosp) => (
+                  <button
+                    key={hosp.id}
+                    type="button"
+                    onClick={() => handleSelectPopularHospital(hosp.id)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all border shrink-0 cursor-pointer ${selectedHospitalId === hosp.id
+                      ? 'bg-[#2B5897] text-white border-[#2B5897] shadow-xs'
+                      : 'bg-gray-50 hover:bg-[#2B5897]/10 text-gray-700 border-gray-200 hover:border-[#2B5897]/40 hover:text-[#2B5897]'
+                      }`}
+                  >
+                    {hosp.nameTh}
+                  </button>
+                ))}
+
+                {/* Clear Filter Button */}
+                {isSearchActive && (
+                  <button
+                    type="button"
+                    onClick={handleClearFilters}
+                    className="text-slate-600 hover:text-[#2B5897] font-semibold ml-1 flex items-center gap-1 cursor-pointer shrink-0 hover:underline pl-2 border-l border-gray-200"
+                  >
+                    <XCircle className="w-3.5 h-3.5" /> ล้างค่า
+                  </button>
+                )}
+              </div>
             </div>
 
           </div>
@@ -1181,7 +1610,8 @@ export default function HomePageClient({
                 <div key={center.id} className="flex-shrink-0 w-80 snap-center h-auto">
                   <CenterCard
                     center={center}
-                    userLocation={userLocation}
+                    userLocation={effectiveLocation}
+                    locationLabel={effectiveLocationLabel}
                   />
                 </div>
 
@@ -1245,6 +1675,20 @@ export default function HomePageClient({
               <h2 className="text-2xl font-bold text-gray-800">
                 {isSearchActive ? 'ผลลัพธ์จากการค้นหา' : 'ศูนย์ดูแลทั้งหมด'}
               </h2>
+              {activeTab === 'transit' && selectedStation && (
+                <p className="text-sm font-semibold text-emerald-700 mt-1 flex items-center gap-1.5">
+                  <Train className="w-4 h-4 shrink-0" />
+                  ศูนย์ดูแลใกล้สถานี <span className="underline">{selectedStation.nameTh}</span>
+                  {transitRadius !== 'all' ? ` (รัศมีไม่เกิน ${transitRadius} กม.)` : ' (เรียงตามระยะทางใกล้ที่สุด)'}
+                </p>
+              )}
+              {activeTab === 'hospital' && selectedHospital && (
+                <p className="text-sm font-semibold text-rose-700 mt-1 flex items-center gap-1.5">
+                  <Hospital className="w-4 h-4 shrink-0" />
+                  ศูนย์ดูแลใกล้ <span className="underline">{selectedHospital.nameTh}</span>
+                  {hospitalRadius !== 'all' ? ` (รัศมีไม่เกิน ${hospitalRadius} กม.)` : ' (เรียงตามระยะทางใกล้ที่สุด)'}
+                </p>
+              )}
               <p className="text-gray-500 text-sm mt-1">
                 {isSearchActive
                   ? `พบข้อมูลจำนวน ${totalCount} แห่ง ตามเงื่อนไขที่คุณเลือก (แสดงแล้ว ${centers.length} แห่ง)`
@@ -1274,7 +1718,8 @@ export default function HomePageClient({
                   <CenterCard
                     key={center.id}
                     center={center}
-                    userLocation={userLocation}
+                    userLocation={effectiveLocation}
+                    locationLabel={effectiveLocationLabel}
                   />
                 ))}
 
