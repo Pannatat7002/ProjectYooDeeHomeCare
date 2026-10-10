@@ -1333,8 +1333,7 @@ export default function HomePageClient({
       {/* Hero Section */}
 
       <div
-
-        className="relative pt-24 pb-20 px-4 bg-cover bg-center min-h-[620px] flex items-center overflow-hidden"
+        className="relative z-30 pt-24 pb-20 px-4 bg-cover bg-center min-h-[620px] flex items-center"
 
         style={{
 
@@ -1427,12 +1426,12 @@ export default function HomePageClient({
 
 
           {/* Search Box Container */}
-          <div className="relative max-w-4xl lg:max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-4 md:p-6 pb-6 md:pb-7 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-white/40 text-left mb-12 sm:mb-14">
+          <div className="relative z-30 max-w-4xl lg:max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-4 md:p-6 pb-6 md:pb-7 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-white/40 text-left mb-12 sm:mb-14">
             {/* === TAB 1: ค้นหาศูนย์ดูแล (แบบเดิม) === */}
             {activeTab === 'general' && (
               <div className="flex flex-col gap-4">
                 {/* ROW 1: Search Input with Auto-Suggestions */}
-                <div ref={searchInputRef} className="relative w-full">
+                <div ref={searchInputRef} className="relative z-40 w-full">
                   <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
                     <Search className="h-5 w-5 md:h-6 md:w-6" />
                   </div>
@@ -1598,7 +1597,7 @@ export default function HomePageClient({
             {activeTab === 'transit' && (
               <div className="flex flex-col gap-4">
                 {/* ROW 1: Search Input with Auto-Suggestions */}
-                <div ref={searchInputRef} className="relative w-full">
+                <div ref={searchInputRef} className="relative z-40 w-full">
                   <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-[#65A85A] pointer-events-none">
                     <IconSearchTransit size={24} />
                   </div>
@@ -1749,7 +1748,7 @@ export default function HomePageClient({
             {activeTab === 'hospital' && (
               <div className="flex flex-col gap-4">
                 {/* ROW 1: Search Input with Auto-Suggestions */}
-                <div ref={searchInputRef} className="relative w-full">
+                <div ref={searchInputRef} className="relative z-40 w-full">
                   <div className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 text-[#2B5897] pointer-events-none">
                     <IconSearchHospital size={24} />
                   </div>
