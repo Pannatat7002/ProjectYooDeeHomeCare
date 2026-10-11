@@ -81,11 +81,11 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
                 {/* ปุ่มย้อนกลับ */}
                 <div className="mb-4">
                     <Link
-                        href="/"
+                        href={fromCenter ? `/${encodeURIComponent(fromCenter.replace(/\s+/g, '-'))}` : '/?tab=hospital'}
                         className="inline-flex items-center text-gray-500 hover:text-[#2b64a0] transition-colors text-sm font-medium"
                     >
                         <ArrowLeft className="w-4 h-4 mr-1.5" />
-                        กลับ
+                        {fromCenter ? 'กลับหน้ารายละเอียดศูนย์ดูแล' : 'กลับหน้าค้นหา'}
                     </Link>
                 </div>
 

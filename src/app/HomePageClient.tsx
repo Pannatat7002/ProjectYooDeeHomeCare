@@ -4,7 +4,8 @@
 
 
 
-import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
+import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X, Train, Hospital, Home, Sparkles, AlertCircle } from 'lucide-react';
 
@@ -185,7 +186,12 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationL
 
       className="block group h-full"
 
-      onClick={() => gtag.event({ action: 'view_item_list', category: 'Discovery', label: center.name, center_id: center.id })}
+      onClick={() => {
+        if (typeof window !== 'undefined' && window.location.search) {
+          sessionStorage.setItem('thaicarecenter_search_query', window.location.search);
+        }
+        gtag.event({ action: 'view_item_list', category: 'Discovery', label: center.name, center_id: center.id });
+      }}
 
     >
 
@@ -624,28 +630,189 @@ export default function HomePageClient({
     return ads.filter((a: any) => !a.placement || a.placement === 'pr' || a.placement === 'both');
   }, [ads]);
 
-  // Search & Filter State
-  const [activeTab, setActiveTab] = useState<'general' | 'transit' | 'hospital'>('general');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [careType, setCareType] = useState('all');
-  const [priceRange, setPriceRange] = useState('all');
-  const [province, setProvince] = useState('all');
+  // Helper to parse search params from searchParams or URL or sessionStorage
+  const getInitialParamValues = useCallback(() => {
+    let sp: URLSearchParams;
+    if (typeof window !== 'undefined') {
+      const search = window.location.search;
+      if (search && search.length > 1) {
+        sp = new URLSearchParams(search);
+      } else {
+        const saved = sessionStorage.getItem('thaicarecenter_search_query');
+        sp = new URLSearchParams(saved || '');
+      }
+    } else {
+      sp = new URLSearchParams();
+    }
+
+    const tabParam = sp.get('tab');
+    const validTab: 'general' | 'transit' | 'hospital' =
+      tabParam === 'transit' || tabParam === 'hospital' || tabParam === 'general' ? tabParam : 'general';
+
+    const qParam = sp.get('q') || sp.get('search') || '';
+    const stationParam = sp.get('station') || sp.get('stationId') || '';
+    const hospitalParam = sp.get('hospital') || sp.get('hospitalId') || '';
+
+    let targetSearch = qParam;
+    if (!targetSearch && validTab === 'transit' && stationParam) {
+      const st = TRANSIT_STATIONS.find(s => s.id === stationParam);
+      if (st) targetSearch = st.nameTh;
+    } else if (!targetSearch && validTab === 'hospital' && hospitalParam) {
+      const hosp = INITIAL_HOSPITALS.find(h => h.id === hospitalParam);
+      if (hosp) targetSearch = hosp.nameTh;
+    }
+
+    const initialCare = sp.get('careType') || sp.get('type') || 'all';
+    const initialPrice = sp.get('priceRange') || sp.get('price') || 'all';
+    const initialProv = sp.get('province') || 'all';
+    const initialNearMe = sp.get('nearMe') === '1' || sp.get('nearMe') === 'true' || sp.get('sortByDistance') === 'true';
+    const initialLine = sp.get('transitLine') || sp.get('line') || 'all';
+    const initialTRadius = sp.get('transitRadius') || (validTab === 'transit' ? sp.get('radius') : null) || 'all';
+    const initialHospProv = sp.get('hospitalProvince') || 'all';
+    const initialHRadius = sp.get('hospitalRadius') || (validTab === 'hospital' ? sp.get('radius') : null) || 'all';
+
+    const hasActiveFilters = Boolean(
+      validTab !== 'general' ||
+      targetSearch ||
+      initialCare !== 'all' ||
+      initialPrice !== 'all' ||
+      initialProv !== 'all' ||
+      initialNearMe ||
+      initialLine !== 'all' ||
+      stationParam ||
+      initialTRadius !== 'all' ||
+      initialHospProv !== 'all' ||
+      hospitalParam ||
+      initialHRadius !== 'all'
+    );
+
+    return {
+      tab: validTab,
+      searchTerm: targetSearch,
+      careType: initialCare,
+      priceRange: initialPrice,
+      province: initialProv,
+      sortByDistance: initialNearMe,
+      selectedTransitLine: initialLine,
+      selectedStationId: stationParam,
+      transitRadius: initialTRadius,
+      hospitalProvince: initialHospProv,
+      selectedHospitalId: hospitalParam,
+      hospitalRadius: initialHRadius,
+      hasActiveFilters,
+    };
+  }, []);
+
+  // Search & Filter State - initialized directly with URL/session values
+  const [activeTab, setActiveTab] = useState<'general' | 'transit' | 'hospital'>(() => getInitialParamValues().tab);
+  const [searchTerm, setSearchTerm] = useState(() => getInitialParamValues().searchTerm);
+  const [careType, setCareType] = useState(() => getInitialParamValues().careType);
+  const [priceRange, setPriceRange] = useState(() => getInitialParamValues().priceRange);
+  const [province, setProvince] = useState(() => getInitialParamValues().province);
 
   // Transit Filter State
-  const [selectedTransitLine, setSelectedTransitLine] = useState<string>('all');
-  const [selectedStationId, setSelectedStationId] = useState<string>('');
-  const [transitRadius, setTransitRadius] = useState<string>('all');
+  const [selectedTransitLine, setSelectedTransitLine] = useState<string>(() => getInitialParamValues().selectedTransitLine);
+  const [selectedStationId, setSelectedStationId] = useState<string>(() => getInitialParamValues().selectedStationId);
+  const [transitRadius, setTransitRadius] = useState<string>(() => getInitialParamValues().transitRadius);
 
   // Hospital Filter State
-  const [hospitalProvince, setHospitalProvince] = useState<string>('all');
-  const [selectedHospitalId, setSelectedHospitalId] = useState<string>('');
-  const [hospitalRadius, setHospitalRadius] = useState<string>('all');
+  const [hospitalProvince, setHospitalProvince] = useState<string>(() => getInitialParamValues().hospitalProvince);
+  const [selectedHospitalId, setSelectedHospitalId] = useState<string>(() => getInitialParamValues().selectedHospitalId);
+  const [hospitalRadius, setHospitalRadius] = useState<string>(() => getInitialParamValues().hospitalRadius);
 
   // Location State
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [sortByDistance, setSortByDistance] = useState(false);
+  const [sortByDistance, setSortByDistance] = useState(() => getInitialParamValues().sortByDistance);
   const [isLocating, setIsLocating] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+
+  // Listen to popstate (e.g. browser Back / Forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const vals = getInitialParamValues();
+      setActiveTab(vals.tab);
+      setSearchTerm(vals.searchTerm);
+      setCareType(vals.careType);
+      setPriceRange(vals.priceRange);
+      setProvince(vals.province);
+      setSortByDistance(vals.sortByDistance);
+      setSelectedTransitLine(vals.selectedTransitLine);
+      setSelectedStationId(vals.selectedStationId);
+      setTransitRadius(vals.transitRadius);
+      setHospitalProvince(vals.hospitalProvince);
+      setSelectedHospitalId(vals.selectedHospitalId);
+      setHospitalRadius(vals.hospitalRadius);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [getInitialParamValues]);
+
+  // Keep browser URL & sessionStorage updated with current tab & filters
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams();
+
+    // Preserve utm parameters if present in current URL
+    const currentSp = new URLSearchParams(window.location.search);
+    ['utm_source', 'utm_medium', 'utm_campaign'].forEach(key => {
+      const val = currentSp.get(key);
+      if (val) params.set(key, val);
+    });
+
+    if (activeTab !== 'general') {
+      params.set('tab', activeTab);
+    }
+    if (searchTerm.trim()) {
+      params.set('q', searchTerm.trim());
+    }
+    if (careType && careType !== 'all') {
+      params.set('type', careType);
+    }
+
+    if (activeTab === 'general') {
+      if (priceRange && priceRange !== 'all') params.set('price', priceRange);
+      if (province && province !== 'all') params.set('province', province);
+      if (sortByDistance) params.set('nearMe', '1');
+    } else if (activeTab === 'transit') {
+      if (selectedTransitLine && selectedTransitLine !== 'all') params.set('line', selectedTransitLine);
+      if (selectedStationId) params.set('station', selectedStationId);
+      if (transitRadius && transitRadius !== 'all') params.set('transitRadius', transitRadius);
+    } else if (activeTab === 'hospital') {
+      if (hospitalProvince && hospitalProvince !== 'all') params.set('hospitalProvince', hospitalProvince);
+      if (selectedHospitalId) params.set('hospital', selectedHospitalId);
+      if (hospitalRadius && hospitalRadius !== 'all') params.set('hospitalRadius', hospitalRadius);
+    }
+
+    const newQuery = params.toString();
+    const newRelativePath = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
+    const currentRelativePath = `${window.location.pathname}${window.location.search}`;
+
+    if (currentRelativePath !== newRelativePath) {
+      window.history.replaceState(null, '', newRelativePath);
+    }
+
+    // Save to sessionStorage as resilient backup for back navigation
+    if (newQuery) {
+      sessionStorage.setItem('thaicarecenter_search_query', `?${newQuery}`);
+    } else {
+      sessionStorage.removeItem('thaicarecenter_search_query');
+    }
+  }, [
+    activeTab,
+    searchTerm,
+    careType,
+    priceRange,
+    province,
+    sortByDistance,
+    selectedTransitLine,
+    selectedStationId,
+    transitRadius,
+    hospitalProvince,
+    selectedHospitalId,
+    hospitalRadius,
+  ]);
 
   // Auto-dismiss search error toast after 3.5 seconds
   useEffect(() => {
@@ -982,6 +1149,9 @@ export default function HomePageClient({
 
   // ✅ ฟังก์ชันสำหรับล้างค่าทั้งหมด (Reset All)
   const handleClearFilters = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('thaicarecenter_search_query');
+    }
     setSearchTerm('');
     setProvince('all');
     setCareType('all');
@@ -1127,10 +1297,14 @@ export default function HomePageClient({
   };
 
   // ดึงข้อมูลเมื่อผู้ใช้เปลี่ยน Filter หรือ Search
-  const isFirstMount = useRef(true);
+  const isInitialMount = useRef(true);
   useEffect(() => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      const initial = getInitialParamValues();
+      if (initial.hasActiveFilters) {
+        fetchCenters(1, true);
+      }
       return;
     }
 
