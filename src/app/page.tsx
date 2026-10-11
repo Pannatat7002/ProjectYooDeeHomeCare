@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Suspense } from 'react';
 import { getCareCenters, getAds, getBlogs } from '../lib/db';
 import HomePageClient from './HomePageClient';
 
@@ -66,14 +67,16 @@ export default async function Page() {
 
     // 3. ส่งข้อมูลตั้งต้นผ่าน Props ไปให้ Client Component ทำงานต่อ
     return (
-        <HomePageClient 
-            initialCenters={initialCenters} 
-            initialPartnerCenters={partnerCenters}
-            centerSuggestionsList={centerSuggestionsList}
-            totalCentersCount={visibleCenters.length}
-            popularProvinces={popularProvinces}
-            initialAds={allAds} 
-            initialBlogs={blogs} 
-        />
+        <Suspense fallback={null}>
+            <HomePageClient 
+                initialCenters={initialCenters} 
+                initialPartnerCenters={partnerCenters}
+                centerSuggestionsList={centerSuggestionsList}
+                totalCentersCount={visibleCenters.length}
+                popularProvinces={popularProvinces}
+                initialAds={allAds} 
+                initialBlogs={blogs} 
+            />
+        </Suspense>
     );
 }

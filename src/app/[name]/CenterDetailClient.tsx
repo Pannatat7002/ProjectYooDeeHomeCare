@@ -16,6 +16,7 @@ import {
     Eye
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import * as gtag from '../../lib/gtag';
 import { CareCenter, RoomType } from '../../types/index';
@@ -873,6 +874,21 @@ export default function CenterDetailClient({
     nearbyHospitals?: any[];
     nearbyTransitStations?: NearbyTransitStation[];
 }) {
+    const router = useRouter();
+
+    const handleBackToSearch = (e: React.MouseEvent) => {
+        if (typeof window !== 'undefined') {
+            const savedQuery = sessionStorage.getItem('thaicarecenter_search_query');
+            if (window.history.length > 1) {
+                e.preventDefault();
+                router.back();
+            } else {
+                e.preventDefault();
+                router.push(savedQuery ? `/${savedQuery}` : '/');
+            }
+        }
+    };
+
     const effectiveTransitStations = useMemo(() => {
         if (nearbyTransitStations && nearbyTransitStations.length > 0) {
             return nearbyTransitStations;
@@ -1237,7 +1253,7 @@ export default function CenterDetailClient({
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
                     <Info className="w-16 h-16 text-blue-200 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold text-gray-800 mb-2">ไม่พบข้อมูลศูนย์ดูแล</h1>
-                    <Link href="/" className="inline-flex items-center justify-center px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all font-medium w-full">
+                    <Link href="/" onClick={handleBackToSearch} className="inline-flex items-center justify-center px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all font-medium w-full">
                         <ArrowLeft className="w-5 h-5 mr-2" /> กลับหน้าค้นหา
                     </Link>
                 </div>
@@ -1260,7 +1276,7 @@ export default function CenterDetailClient({
         <div className="min-h-screen bg-gray-50/50 pb-24 md:pb-12">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 <div className="text-left pb-4">
-                    <Link href="/" className="inline-flex items-center text-black-600 font-medium text-md hover:text-blue-800 transition-colors">
+                    <Link href="/" onClick={handleBackToSearch} className="inline-flex items-center text-black-600 font-medium text-md hover:text-blue-800 transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-2" /> กลับหน้าค้นหาศูนย์ดูแล
                     </Link>
                 </div>
