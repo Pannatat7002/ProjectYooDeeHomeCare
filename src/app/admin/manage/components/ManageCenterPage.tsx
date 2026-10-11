@@ -4,7 +4,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
     Plus, FilePenLine, Trash2, ChevronLeft, ChevronRight,
-    X, Save, ImageIcon, XCircle, Megaphone, Filter, Search, RotateCcw
+    X, Save, ImageIcon, XCircle, Megaphone, Filter, Search, RotateCcw,
+    ShieldCheck, ExternalLink
 } from 'lucide-react';
 import { CareCenter, Package } from '@/src/types';
 import { fetchWithAuth } from '../../../../lib/auth-client';
@@ -18,7 +19,7 @@ const INITIAL_FORM_STATE: any = {
     type: 'monthly', rating: 5, phone: '', website: '', mapUrl: '',
     imageUrls: [], description: '', services: [], packages: [],
     roomTypes: [],
-    hasGovernmentCertificate: false, brandName: '', brandLogoUrl: '',
+    hasGovernmentCertificate: false, mophOrder: '', licenseNumber: '', mophApprovedDate: '', brandName: '', brandLogoUrl: '',
     isPartner: false, province: 'กรุงเทพมหานคร', status: 'visible',
     // UTM Fields
     utmSource: '', utmMedium: '', utmCampaign: ''
@@ -227,6 +228,9 @@ export default function ManageCenterPage() {
                     imageUrls: Array.isArray(rt.imageUrls) ? rt.imageUrls.filter((u: string) => u && u.trim() !== '') : []
                 })) : [],
                 hasGovernmentCertificate: center.hasGovernmentCertificate || false,
+                mophOrder: center.mophOrder ?? '',
+                licenseNumber: center.licenseNumber || '',
+                mophApprovedDate: center.mophApprovedDate || '',
                 brandName: center.brandName || '',
                 brandLogoUrl: center.brandLogoUrl || '',
                 isPartner: center.isPartner || false,
@@ -249,8 +253,31 @@ export default function ManageCenterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // 1. ตรวจสอบความซ้ำซ้อนของเลขลำดับ สบส.
+        if (formData.mophOrder && Number(formData.mophOrder) > 0) {
+            const dupOrder = centers.find((c: any) => c.id !== editingId && Number(c.mophOrder) === Number(formData.mophOrder));
+            if (dupOrder) {
+                if (!confirm(`⚠️ ตรวจพบข้อมูลซ้ำซ้อนในระบบ!\nลำดับที่ สบส. #${formData.mophOrder} มีอยู่ในระบบแล้ว:\nศูนย์: "${dupOrder.name}" (ID: ${dupOrder.id}, จังหวัด: ${dupOrder.province})\n\nคุณแน่ใจหรือไม่ว่าต้องการบันทึกข้อมูลนี้?`)) {
+                    return;
+                }
+            }
+        }
+
+        // 2. ตรวจสอบความซ้ำซ้อนของชื่อศูนย์และจังหวัด
+        const cleanNameInput = (formData.name || '').replace(/[\s\-_.,()\/]/g, '').toLowerCase();
+        if (cleanNameInput) {
+            const dupName = centers.find((c: any) => c.id !== editingId && c.province === formData.province && (c.name || '').replace(/[\s\-_.,()\/]/g, '').toLowerCase() === cleanNameInput);
+            if (dupName) {
+                if (!confirm(`⚠️ ตรวจพบชื่อศูนย์ใกล้เคียง/ซ้ำกันในจังหวัด ${formData.province}!\n(ID: ${dupName.id} - "${dupName.name}")\n\nคุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?`)) {
+                    return;
+                }
+            }
+        }
+
         const payload = {
             ...formData,
+            mophOrder: formData.mophOrder !== '' && !isNaN(Number(formData.mophOrder)) ? Number(formData.mophOrder) : null,
             lat: (formData.lat !== undefined && formData.lat !== null && !isNaN(Number(formData.lat))) ? Number(formData.lat) : 13.7563,
             lng: (formData.lng !== undefined && formData.lng !== null && !isNaN(Number(formData.lng))) ? Number(formData.lng) : 100.5018,
             imageUrls: formData.imageUrls.filter((url: string) => url.trim() !== ''),
@@ -268,11 +295,17 @@ export default function ManageCenterPage() {
         const method = editingId ? 'PUT' : 'POST';
         try {
             const res = await fetchWithAuth(url, { method, body: JSON.stringify(payload) });
-            if (!res.ok) throw new Error('Failed to save');
+            const data = await res.json().catch(() => null);
+            if (!res.ok) {
+                throw new Error(data?.message || 'Failed to save');
+            }
             alert('บันทึกข้อมูลสำเร็จ');
             closeModal();
             fetchCenters();
-        } catch (error) { console.error(error); alert('เกิดข้อผิดพลาดในการบันทึก'); }
+        } catch (error: any) { 
+            console.error(error); 
+            alert(error?.message || 'เกิดข้อผิดพลาดในการบันทึก'); 
+        }
     };
 
     // Helper functions for form
@@ -552,12 +585,20 @@ export default function ManageCenterPage() {
                                             <div className="font-semibold text-gray-900 max-w-xs overflow-hidden whitespace-nowrap text-ellipsis" title={center.name}>
                                                 {truncateText(center.name, 35)}
                                             </div>
-                                            {center.isPartner && (
-                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 mt-1 shadow-2xs">
-                                                    <Image src="/images/badges/badge-official-partner.png" alt="Official Partner" width={14} height={14} className="w-3.5 h-3.5 object-contain inline" />
-                                                    Official Partner
-                                                </span>
-                                            )}
+                                            <div className="flex flex-wrap items-center gap-1 mt-1">
+                                                {center.isPartner && (
+                                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 shadow-2xs">
+                                                        <Image src="/images/badges/badge-official-partner.png" alt="Official Partner" width={14} height={14} className="w-3.5 h-3.5 object-contain inline" />
+                                                        Official Partner
+                                                    </span>
+                                                )}
+                                                {center.hasGovernmentCertificate && (
+                                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                                                        <ShieldCheck className="w-3 h-3 text-emerald-600 inline" />
+                                                        สบส.{center.mophOrder ? ` #${center.mophOrder}` : ''}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="py-3 px-4">{center.province || '-'}</td>
                                         <td className="py-3 px-4">
@@ -754,6 +795,67 @@ export default function ManageCenterPage() {
                                             </label>
                                         </div>
                                     </div>
+
+                                    {/* MOPH Certificate Detail Fields */}
+                                    {formData.hasGovernmentCertificate && (
+                                        <div className="md:col-span-2 p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-3">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                                                    <span className="text-sm font-bold text-emerald-900">
+                                                        ข้อมูลการรับรอง กรมสนับสนุนบริการสุขภาพ (สบส.)
+                                                    </span>
+                                                </div>
+                                                <a 
+                                                    href="https://esta.hss.moph.go.th/check-shops.php" 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-blue-600 hover:underline flex items-center gap-1 font-medium"
+                                                >
+                                                    <ExternalLink className="w-3.5 h-3.5" />
+                                                    เปิดตรวจสอบในเว็บ สบส. (esta.hss.moph.go.th)
+                                                </a>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                                        ลำดับที่ สบส. (#) <span className="text-emerald-700 font-normal">(ใช้ป้องกันศูนย์ซ้ำ)</span>
+                                                    </label>
+                                                    <input 
+                                                        type="number" 
+                                                        className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
+                                                        placeholder="เช่น 1080"
+                                                        value={formData.mophOrder || ''} 
+                                                        onChange={e => setFormData({ ...formData, mophOrder: e.target.value })} 
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                                        เลขที่ใบอนุญาต / คำขอ
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
+                                                        placeholder="เช่น สบส. ลำดับที่ 1080"
+                                                        value={formData.licenseNumber || ''} 
+                                                        onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })} 
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                                        วันที่อนุญาต (วัน-เดือน-ปี พ.ศ.)
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
+                                                        placeholder="เช่น 25-02-2565"
+                                                        value={formData.mophApprovedDate || ''} 
+                                                        onChange={e => setFormData({ ...formData, mophApprovedDate: e.target.value })} 
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อแบรนด์/เครือ (Brand Name)</label>
                                         <input type="text" className="w-full border rounded-md px-3 py-2"

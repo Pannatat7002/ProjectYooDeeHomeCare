@@ -159,16 +159,52 @@ const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoU
         </div>
     );
 };
-const VerificationByMOPHCard = ({ hasGovernmentCertificate }: { hasGovernmentCertificate: boolean }) => {
+const VerificationByMOPHCard = ({ 
+    hasGovernmentCertificate,
+    mophOrder,
+    licenseNumber,
+    mophApprovedDate
+}: { 
+    hasGovernmentCertificate: boolean;
+    mophOrder?: number;
+    licenseNumber?: string;
+    mophApprovedDate?: string;
+}) => {
     if (!hasGovernmentCertificate) return null;
     return (
-        <Link href="https://esta.hss.moph.go.th/check-shops.php?utm_source=thaicarecenter&utm_medium=%E0%B8%B4banner&utm_campaign=esta">
-            <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-200 p-4 mb-6 -mx-4 sm:mx-0 flex items-center justify-between gap-4">
+        <Link 
+            href="https://esta.hss.moph.go.th/check-shops.php?utm_source=thaicarecenter&utm_medium=banner&utm_campaign=esta"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block group"
+        >
+            <div className="bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-emerald-200/80 p-4 mb-6 -mx-4 sm:mx-0 flex items-center justify-between gap-4 transition-all duration-200 hover:border-emerald-400 hover:shadow-md">
                 <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 mt-0.5 break-words">ผ่านการรับรองจากกรมสนับสนุนบริการสุขภาพ (สบส.)</h3>
+                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mb-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>ผ่านการรับรองจาก กรม สบส.</span>
+                    </div>
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900 break-words group-hover:text-emerald-700 transition-colors">
+                        สถานประกอบการที่ได้รับอนุญาต
+                    </h3>
+                    {(mophOrder || licenseNumber || mophApprovedDate) && (
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-600">
+                            {(mophOrder || licenseNumber) && (
+                                <span className="inline-flex items-center font-medium bg-gray-100 text-gray-800 px-2 py-0.5 rounded">
+                                    เลขลำดับ: #{mophOrder || licenseNumber}
+                                </span>
+                            )}
+                            {mophApprovedDate && (
+                                <span className="text-gray-500">
+                                    อนุญาตเมื่อ: {mophApprovedDate}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <div className="h-12 w-20 flex-shrink-0 flex items-center justify-end">
-                    <img src="/images/สบส.png" alt="สบส. Logo" className="max-h-full max-w-full object-contain" />                </div>
+                    <img src="/images/สบส.png" alt="สบส. Logo" className="max-h-full max-w-full object-contain" />
+                </div>
             </div>
         </Link>
     );
@@ -1245,7 +1281,7 @@ export default function CenterDetailClient({
                         {/* ✅ ใช้ isTrue เช็ค hasGovernmentCertificate */}
                         {isTrue(center.hasGovernmentCertificate) && (
                             <div className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
-                                <ShieldCheck className="h-3 w-3 mr-1" /> รับรองจาก กรม สบส.
+                                <ShieldCheck className="h-3 w-3 mr-1" /> รับรองจาก กรม สบส. {center.mophOrder ? `(#${center.mophOrder})` : ''}
                             </div>
                         )}
 
@@ -1689,7 +1725,12 @@ export default function CenterDetailClient({
                     {/* Right Column: Sticky Sidebar */}
                     <div className="lg:col-span-1">
                         <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
-                        <VerificationByMOPHCard hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)} />
+                        <VerificationByMOPHCard 
+                            hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)} 
+                            mophOrder={center.mophOrder}
+                            licenseNumber={center.licenseNumber}
+                            mophApprovedDate={center.mophApprovedDate}
+                        />
                         <div id="contact-sidebar" className="sticky top-24 bg-white rounded-none sm:rounded-3xl shadow-none sm:shadow-xl border-y border-x-0 sm:border border-gray-100 p-4 sm:p-5 -mx-4 sm:mx-0 z-10 transition-all duration-300 hover:shadow-2xl">
                             {/* Main Content Area */}
                             <div className="grid grid-cols-1 gap-4">

@@ -31,6 +31,9 @@ export interface CareCenter {
     packages: Package[];
     roomTypes?: RoomType[];
     hasGovernmentCertificate?: boolean;
+    mophOrder?: number;
+    licenseNumber?: string;
+    mophApprovedDate?: string;
     brandName?: string;
     brandLogoUrl?: string;
     isPartner?: boolean;

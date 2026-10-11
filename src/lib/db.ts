@@ -9,7 +9,7 @@ export const toSnakeCase = (obj: any): any => {
         return obj;
     }
     const result: any = {};
-    const numericFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipient_age', 'center_id', 'recipientAge', 'centerId'];
+    const numericFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipient_age', 'center_id', 'recipientAge', 'centerId', 'moph_order', 'mophOrder'];
     for (const key of Object.keys(obj)) {
         const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
         let val = obj[key];
@@ -44,7 +44,7 @@ const parseRow = (row: any) => {
     const item = toCamelCase(row);
 
     // Number conversion check
-    const numberFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipientAge', 'centerId'];
+    const numberFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipientAge', 'centerId', 'mophOrder'];
     for (const field of numberFields) {
         if (item[field] !== undefined && item[field] !== null && item[field] !== '') {
             const num = Number(item[field]);

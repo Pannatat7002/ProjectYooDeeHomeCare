@@ -28,6 +28,18 @@ export async function PUT(
             const { id } = await params;
             const centerId = parseInt(id);
             const body = await request.json();
+
+            // Anti-duplicate check by mophOrder
+            if (body.mophOrder && Number(body.mophOrder) > 0) {
+                const careCenters = await getCareCenters();
+                const dupMoph = careCenters.find((c: any) => c.id !== centerId && Number(c.mophOrder) === Number(body.mophOrder));
+                if (dupMoph) {
+                    return NextResponse.json({
+                        success: false,
+                        message: `ตรวจพบข้อมูลซ้ำซ้อน: ลำดับที่ สบส. #${body.mophOrder} ถูกใช้งานแล้วโดยศูนย์ "${dupMoph.name}" (ID: ${dupMoph.id})`
+                    }, { status: 409 });
+                }
+            }
             
             const success = await updateCareCenter(centerId, body);
 

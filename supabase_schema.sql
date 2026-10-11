@@ -27,6 +27,9 @@ CREATE TABLE IF NOT EXISTS public.care_centers (
     packages JSONB DEFAULT '[]'::jsonb,
     room_types JSONB DEFAULT '[]'::jsonb,
     has_government_certificate BOOLEAN DEFAULT false,
+    moph_order INT DEFAULT NULL,
+    license_number TEXT DEFAULT '',
+    moph_approved_date TEXT DEFAULT '',
     brand_name TEXT DEFAULT '',
     brand_logo_url TEXT DEFAULT '',
     is_partner BOOLEAN DEFAULT false,
@@ -39,6 +42,8 @@ CREATE TABLE IF NOT EXISTS public.care_centers (
 
 CREATE INDEX IF NOT EXISTS idx_care_centers_status ON public.care_centers (status);
 CREATE INDEX IF NOT EXISTS idx_care_centers_province ON public.care_centers (province);
+CREATE INDEX IF NOT EXISTS idx_care_centers_moph_order ON public.care_centers (moph_order);
+CREATE INDEX IF NOT EXISTS idx_care_centers_license_number ON public.care_centers (license_number);
 
 -- 2. ตาราง blogs (บทความ)
 CREATE TABLE IF NOT EXISTS public.blogs (

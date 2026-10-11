@@ -160,6 +160,17 @@ export async function POST(request: NextRequest) {
             const body = await request.json();
             const careCenters: CareCenter[] = await getCareCenters();
 
+            // Anti-duplicate check by mophOrder
+            if (body.mophOrder && Number(body.mophOrder) > 0) {
+                const dupMoph = careCenters.find((c: CareCenter) => Number(c.mophOrder) === Number(body.mophOrder));
+                if (dupMoph) {
+                    return NextResponse.json({
+                        success: false,
+                        message: `ตรวจพบข้อมูลซ้ำซ้อน: ลำดับที่ สบส. #${body.mophOrder} ถูกใช้งานแล้วโดยศูนย์ "${dupMoph.name}" (ID: ${dupMoph.id})`
+                    }, { status: 409 });
+                }
+            }
+
             const nextCenterId = careCenters.length > 0
                 ? Math.max(...careCenters.map((c: CareCenter) => c.id)) + 1
                 : 1;
