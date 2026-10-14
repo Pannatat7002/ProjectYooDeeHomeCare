@@ -160,12 +160,12 @@ const BrandCard = ({ brandName, brandLogoUrl }: { brandName?: string, brandLogoU
         </div>
     );
 };
-const VerificationByMOPHCard = ({ 
+const VerificationByMOPHCard = ({
     hasGovernmentCertificate,
     mophOrder,
     licenseNumber,
     mophApprovedDate
-}: { 
+}: {
     hasGovernmentCertificate: boolean;
     mophOrder?: number;
     licenseNumber?: string;
@@ -173,7 +173,7 @@ const VerificationByMOPHCard = ({
 }) => {
     if (!hasGovernmentCertificate) return null;
     return (
-        <Link 
+        <Link
             href="https://esta.hss.moph.go.th/check-shops.php?utm_source=thaicarecenter&utm_medium=banner&utm_campaign=esta"
             target="_blank"
             rel="noopener noreferrer"
@@ -1427,49 +1427,18 @@ export default function CenterDetailClient({
                     {/* Left Column */}
                     <div className="lg:col-span-2 space-y-12">
                         <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
-                            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">เกี่ยวกับศูนย์ดูแล</h2>
-                            {isTrue(center.isPartner) || isInfoUnlocked ? (
-                                <div
-                                    className="prose max-w-none text-gray-800 leading-relaxed text-base md:text-lg animate-in fade-in duration-300"
-                                    dangerouslySetInnerHTML={{
-                                        __html: cleanAboutHtml
-                                    }}
-                                />
-                            ) : (
-                                <div className="relative overflow-hidden rounded-xl border border-gray-100 bg-gray-50/40 p-6 min-h-[180px]">
-                                    {/* Blurred preview background */}
-                                    <div
-                                        className="prose max-w-none text-gray-800 leading-relaxed text-base md:text-lg filter blur-[5px] select-none opacity-30 pointer-events-none"
-                                        dangerouslySetInnerHTML={{
-                                            __html: cleanAboutHtml
-                                        }}
-                                    />
-                                    {/* Shadow Overlay & Unlock Button */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/85 to-transparent flex flex-col items-center justify-center p-6 text-center z-10">
-                                        {/* <div className="p-3 bg-blue-50 text-blue-600 rounded-full mb-2.5 shadow-sm border border-blue-100">
-                                            <Info className="w-5 h-5" />
-                                        </div> */}
-                                        <h4 className="text-base sm:text-lg font-extrabold text-gray-900 mb-1">
-                                            ข้อมูลและรายละเอียดศูนย์ดูแล
-                                        </h4>
-                                        <p className="text-xs sm:text-sm text-gray-500 mb-4 max-w-md">
-                                            กดเพื่อดูข้อมูลการดูแล บริการ และรายละเอียดของศูนย์นี้
-                                        </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                handleGatedAction('view_info', undefined, () => {
-                                                    setIsInfoUnlocked(true);
-                                                });
-                                            }}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                            กดเพื่อดูข้อมูล
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                            <div className="flex items-center justify-between mb-5 border-b pb-3">
+                                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">เกี่ยวกับศูนย์ดูแล</h2>
+                                <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+                                    ข้อมูลศูนย์
+                                </span>
+                            </div>
+                            <div
+                                className="prose max-w-none text-gray-800 leading-relaxed text-base md:text-lg animate-in fade-in duration-300"
+                                dangerouslySetInnerHTML={{
+                                    __html: cleanAboutHtml
+                                }}
+                            />
                         </section>
                         {isTrue(center.isPartner) && center.services && center.services.length > 0 && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
@@ -1564,11 +1533,11 @@ export default function CenterDetailClient({
 
                         {(hasValidCoordinates || center.mapUrl) && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b pb-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b pb-4">
                                     <div>
                                         <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">สถานที่ตั้ง</h2>
-                                        {isTrue(center.isPartner) && center.address && (
-                                            <p className="text-xs sm:text-sm text-gray-500 mt-1 flex items-start gap-1.5">
+                                        {center.address && (
+                                            <p className="text-xs sm:text-sm text-gray-600 mt-1 flex items-start gap-1.5">
                                                 <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                                                 <span>{center.address}</span>
                                             </p>
@@ -1578,9 +1547,7 @@ export default function CenterDetailClient({
                                         href={googleMapsDirectionsUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            handleGatedAction('navigation', googleMapsDirectionsUrl);
+                                        onClick={() => {
                                             gtag.event({ action: 'click_map_section_direction', category: 'Engagement', label: center.name });
                                             logTraffic('click_map');
                                         }}
@@ -1592,34 +1559,14 @@ export default function CenterDetailClient({
                                 </div>
                                 <div className="rounded-xl overflow-hidden shadow-inner border h-[350px] bg-gray-100 relative">
                                     {googleMapsEmbedUrl ? (
-                                        <>
-                                            <iframe
-                                                src={googleMapsEmbedUrl}
-                                                width="100%" height="100%" style={{ border: 0 }}
-                                                allowFullScreen loading="lazy"
-                                                referrerPolicy="no-referrer-when-downgrade"
-                                                className={`w-full h-full transition-all duration-500 ${!isTrue(center.isPartner) && !isInfoUnlocked ? 'filter blur-[4px] pointer-events-none opacity-60' : 'filter grayscale-[5%] hover:grayscale-0'}`}
-                                                title={`Map of ${center.name}`}
-                                            />
-                                            {!isTrue(center.isPartner) && !isInfoUnlocked && (
-                                                <div
-                                                    onClick={() => {
-                                                        handleGatedAction('navigation', googleMapsDirectionsUrl);
-                                                    }}
-                                                    className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center cursor-pointer z-10 group"
-                                                >
-                                                    <div className="bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-3 group-hover:scale-105 transition-all">
-                                                        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shadow-xs">
-                                                            <Navigation className="w-5 h-5" />
-                                                        </div>
-                                                        <div className="text-left">
-                                                            <div className="text-sm sm:text-base font-extrabold text-gray-900">กดเพื่อเปิดแผนที่และเส้นทาง</div>
-                                                            <div className="text-xs text-gray-500">คลิกเพื่อดูพิกัดและนำทางสู่ศูนย์ดูแล</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </>
+                                        <iframe
+                                            src={googleMapsEmbedUrl}
+                                            width="100%" height="100%" style={{ border: 0 }}
+                                            allowFullScreen loading="lazy"
+                                            referrerPolicy="no-referrer-when-downgrade"
+                                            className="w-full h-full transition-all duration-500 filter grayscale-[5%] hover:grayscale-0"
+                                            title={`Map of ${center.name}`}
+                                        />
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center text-gray-400 flex-col">
                                             <MapPin className="w-10 h-10 mb-2 opacity-30" />
@@ -1647,12 +1594,18 @@ export default function CenterDetailClient({
 
                                         return (
                                             <div key={hosp.id || idx} className="flex items-center justify-between text-gray-700 py-1.5 border-b border-gray-50 last:border-b-0 gap-2">
-                                                <Link
-                                                    href={`/hospitals/${hosp.id}?fromCenter=${encodeURIComponent(center.name)}&centerLat=${center.lat}&centerLng=${center.lng}`}
-                                                    className="hover:text-blue-600 truncate mr-2 font-medium text-gray-800 transition-colors"
-                                                >
-                                                    {hosp.nameTh}
-                                                </Link>
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <Link
+                                                        href={`/hospitals/${hosp.id}?fromCenter=${encodeURIComponent(center.name)}&centerLat=${center.lat}&centerLng=${center.lng}`}
+                                                        onClick={() => {
+                                                            gtag.event({ action: 'click_nearby_hospital', category: 'Engagement', label: hosp.nameTh });
+                                                            logTraffic('click_nearby_hospital');
+                                                        }}
+                                                        className="hover:text-blue-600 truncate mr-2 font-medium text-gray-800 transition-colors"
+                                                    >
+                                                        {hosp.nameTh}
+                                                    </Link>
+                                                </div>
                                                 <div className="flex items-center gap-2 shrink-0">
                                                     <span className="text-gray-500 font-medium text-sm whitespace-nowrap">
                                                         ระยะประมาณ {Number(item.distanceKm).toFixed(1)} กม.
@@ -1664,6 +1617,10 @@ export default function CenterDetailClient({
                                                         href={hospRouteUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
+                                                        onClick={() => {
+                                                            gtag.event({ action: 'click_hospital_map_route', category: 'Engagement', label: `${center.name} -> ${hosp.nameTh}` });
+                                                            logTraffic('click_nearby_hospital_route');
+                                                        }}
                                                         className="text-gray-400 hover:text-blue-600 transition-colors p-0.5"
                                                         title={`เปิดเส้นทางนำทางไป ${hosp.nameTh} ใน Google Maps`}
                                                     >
@@ -1705,6 +1662,10 @@ export default function CenterDetailClient({
                                                         href={routeUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
+                                                        onClick={() => {
+                                                            gtag.event({ action: 'click_nearby_transit', category: 'Engagement', label: displayName });
+                                                            logTraffic('click_nearby_transit');
+                                                        }}
                                                         className="hover:text-emerald-700 truncate font-medium text-gray-800 transition-colors"
                                                         title={`ดูเส้นทางไป ${displayName} บน Google Maps`}
                                                     >
@@ -1723,6 +1684,10 @@ export default function CenterDetailClient({
                                                         href={routeUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
+                                                        onClick={() => {
+                                                            gtag.event({ action: 'click_transit_map_route', category: 'Engagement', label: `${center.name} -> ${displayName}` });
+                                                            logTraffic('click_nearby_transit_route');
+                                                        }}
                                                         className="text-gray-400 hover:text-emerald-600 transition-colors p-0.5"
                                                         title="เปิดเส้นทางนำทางใน Google Maps"
                                                     >
@@ -1741,8 +1706,8 @@ export default function CenterDetailClient({
                     {/* Right Column: Sticky Sidebar */}
                     <div className="lg:col-span-1">
                         <BrandCard brandName={center.brandName} brandLogoUrl={center.brandLogoUrl} />
-                        <VerificationByMOPHCard 
-                            hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)} 
+                        <VerificationByMOPHCard
+                            hasGovernmentCertificate={isTrue(center.hasGovernmentCertificate)}
                             mophOrder={center.mophOrder}
                             licenseNumber={center.licenseNumber}
                             mophApprovedDate={center.mophApprovedDate}
@@ -1830,147 +1795,19 @@ export default function CenterDetailClient({
                                     ช่องทางการติดต่อ
                                 </div>
 
-                                {/* Buttons Stack */}
+                                {/* Buttons Stack (Design เดิม: สวยงาม เรียบหรู ไม่ซ้ำซ้อน) */}
                                 <div className="flex flex-col gap-2.5">
-                                    {isTrue(center.isPartner) ? (
-                                        <>
-                                            {/* 1. เข้าชมเว็บไซต์ */}
-                                            {center.website && (
-                                                <a
-                                                    href={createOutboundLink(center.website, 'sidebar_website_btn')}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    onClick={() => {
-                                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
-                                                        logTraffic('click_website');
-                                                    }}
-                                                    className="w-full flex items-center justify-center px-5 py-3 bg-blue-600 text-white text-base font-extrabold rounded-full shadow hover:bg-blue-700 hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                                >
-                                                    <Globe className="w-5 h-5 mr-2 text-white flex-shrink-0" />
-                                                    ติดต่อศูนย์ดูแล
-                                                </a>
-                                            )}
-
-                                            {/* 2. ติดต่อผ่าน LINE */}
-                                            <a
-                                                href="https://line.me/R/ti/p/%40256zihiv"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => {
-                                                    const lineUrl = "https://line.me/R/ti/p/%40256zihiv";
-                                                    const verified = getVerifiedLead();
-                                                    if (!verified || !verified.phone) {
-                                                        e.preventDefault();
-                                                        handleGatedAction('line', lineUrl);
-                                                        return;
-                                                    }
-                                                    gtag.event({ action: 'click_line_button', category: 'Conversion', label: center.name });
-                                                    gtag.gtagReportLineConversion();
-                                                    logTraffic('click_line');
-                                                }}
-                                                className="w-full flex items-center justify-center px-5 py-3 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                            >
-                                                <img
-                                                    src="/images/LINE_APP_iOS.png"
-                                                    alt="LINE Icon"
-                                                    className="w-5 h-5 object-contain mr-2 flex-shrink-0 animate-pulse"
-                                                />
-                                                ติดต่อผ่าน LINE
-                                            </a>
-
-                                            {/* 3. ติดต่อเจ้าหน้าที่ */}
-                                            {center.phone ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const telUrl = getTelHref(center.phone);
-                                                        handleGatedAction('call', undefined, () => {
-                                                            setIsInfoUnlocked(true);
-                                                            window.location.href = telUrl;
-                                                        });
-                                                        gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
-                                                        logTraffic('click_phone');
-                                                    }}
-                                                    className="w-full flex items-center justify-center px-5 py-3 bg-white text-blue-600 border-2 border-blue-200 text-base font-extrabold rounded-full shadow hover:border-blue-500 hover:bg-blue-50/50 transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                                >
-                                                    <Phone className="w-5 h-5 mr-2 text-blue-600 fill-current flex-shrink-0" />
-                                                    {isInfoUnlocked ? `โทร ${formatPhone(center.phone)}` : 'กดเพื่อแสดงเบอร์โทร'}
-                                                </button>
-                                            ) : null}
-
-                                            {/* Line Separator */}
-                                            <div className="border-t border-gray-100 my-0.5" />
-
-                                            {/* 4. เปิดแผนที่ / นำทาง */}
-                                            <a
-                                                href={googleMapsDirectionsUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => {
-                                                    const verified = getVerifiedLead();
-                                                    if (!verified || !verified.phone) {
-                                                        e.preventDefault();
-                                                        handleGatedAction('navigation', googleMapsDirectionsUrl);
-                                                        return;
-                                                    }
-                                                    gtag.event({ action: 'click_sidebar_map_navigation', category: 'Engagement', label: center.name });
-                                                    logTraffic('click_map');
-                                                }}
-                                                className="w-full flex items-center justify-center px-5 py-2.5 bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 text-sm font-bold rounded-full transition-all active:scale-[0.98] group cursor-pointer shadow-xs"
-                                            >
-                                                <Navigation className="w-4 h-4 mr-2 text-blue-600 flex-shrink-0 group-hover:rotate-45 transition-transform" />
-                                                เปิดแผนที่ / นำทาง
-                                            </a>
-
-                                            {/* 5. นัดเยี่ยมชมศูนย์ */}
-                                            <button
-                                                onClick={() => {
-                                                    const verified = getVerifiedLead();
-                                                    if (!verified || !verified.phone) {
-                                                        handleGatedAction('consultation', undefined, () => {
-                                                            setIsConsultationModalOpen(true);
-                                                        });
-                                                        return;
-                                                    }
-                                                    setIsConsultationModalOpen(true);
-                                                    gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
-                                                }}
-                                                className="w-full flex items-center justify-center px-5 py-2.5 bg-blue-50/50 text-blue-600 border border-blue-100 text-sm font-bold rounded-full hover:bg-blue-50 hover:text-blue-700 transition-all active:scale-[0.98] group cursor-pointer"
-                                            >
-                                                <Calendar className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
-                                                นัดเยี่ยมชมศูนย์
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {/* เบอร์โทรศัพท์ติดต่อศูนย์ (สำหรับศูนย์ทั่วไป) - ต้องกดเพื่อแสดงเบอร์และเก็บ Lead Tracking ทุกครั้ง */}
-                                            {center.phone && (
-                                                isInfoUnlocked ? (
-                                                    <div className="w-full p-3.5 bg-gradient-to-r from-blue-50/90 to-sky-50/70 border border-blue-200 rounded-2xl animate-in fade-in duration-300">
-                                                        <div className="flex items-center justify-between gap-2">
-                                                            <div className="flex items-center gap-3 min-w-0">
-                                                                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
-                                                                    <Phone className="w-5 h-5 fill-current" />
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
-                                                                    <a
-                                                                        href={getTelHref(center.phone)}
-                                                                        onClick={(e) => {
-                                                                            const telUrl = getTelHref(center.phone);
-                                                                            e.preventDefault();
-                                                                            handleGatedAction('call', undefined, () => {
-                                                                                window.location.href = telUrl;
-                                                                            });
-                                                                            gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
-                                                                            logTraffic('click_phone');
-                                                                        }}
-                                                                        className="text-base sm:text-lg font-extrabold text-blue-950 tracking-wider hover:underline block truncate"
-                                                                    >
-                                                                        {formatPhone(center.phone)}
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                    {/* กล่องเบอร์โทรศัพท์ (Comment ไว้ตามที่แจ้ง) */}
+                                    {/* {center.phone && (
+                                        isInfoUnlocked ? (
+                                            <div className="w-full p-3.5 bg-gradient-to-r from-blue-50/90 to-sky-50/70 border border-blue-200 rounded-2xl animate-in fade-in duration-300">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                                                            <Phone className="w-5 h-5 fill-current" />
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
                                                             <a
                                                                 href={getTelHref(center.phone)}
                                                                 onClick={(e) => {
@@ -1982,112 +1819,125 @@ export default function CenterDetailClient({
                                                                     gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
                                                                     logTraffic('click_phone');
                                                                 }}
-                                                                className="flex-shrink-0 text-xs font-bold px-3.5 py-2 rounded-full transition-all bg-green-600 hover:bg-green-700 text-white shadow-xs cursor-pointer flex items-center gap-1"
+                                                                className="text-base sm:text-lg font-extrabold text-blue-950 tracking-wider hover:underline block truncate"
                                                             >
-                                                                <Phone className="w-3.5 h-3.5 fill-current" />
-                                                                โทรออก
+                                                                {formatPhone(center.phone)}
                                                             </a>
                                                         </div>
                                                     </div>
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
+                                                    <a
+                                                        href={getTelHref(center.phone)}
+                                                        onClick={(e) => {
                                                             const telUrl = getTelHref(center.phone);
+                                                            e.preventDefault();
                                                             handleGatedAction('call', undefined, () => {
-                                                                setIsInfoUnlocked(true);
                                                                 window.location.href = telUrl;
                                                             });
-                                                            gtag.event({ action: 'click_reveal_phone', category: 'Conversion', label: center.name });
+                                                            gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
                                                             logTraffic('click_phone');
                                                         }}
-                                                        className="w-full flex items-center justify-between p-3.5 bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-indigo-50/80 border border-blue-200 hover:border-blue-400 rounded-2xl transition-all hover:shadow-md active:scale-[0.98] group cursor-pointer text-left"
+                                                        className="flex-shrink-0 text-xs font-bold px-3.5 py-2 rounded-full transition-all bg-green-600 hover:bg-green-700 text-white shadow-xs cursor-pointer flex items-center gap-1"
                                                     >
-                                                        <div className="flex items-center gap-3 min-w-0">
-                                                            <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
-                                                                <Phone className="w-5 h-5 fill-current" />
-                                                            </div>
-                                                            <div className="min-w-0">
-                                                                <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
-                                                                <div className="text-sm sm:text-base font-extrabold text-blue-900 mt-0.5">
-                                                                    กดเพื่อแสดงเบอร์โทรศัพท์
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <span className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full transition-all bg-blue-600 text-white shadow-xs group-hover:bg-blue-700 flex items-center gap-1">
-                                                            <Eye className="w-3.5 h-3.5" />
-                                                            กดดูเบอร์
-                                                        </span>
-                                                    </button>
-                                                )
-                                            )}
-
-                                            {/* เข้าชมเว็บไซต์ศูนย์ดูแล (ถ้ามี) */}
-                                            {center.website && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const dest = createOutboundLink(center.website, 'sidebar_website_btn');
-                                                        handleGatedAction('contact', dest, () => {
-                                                            window.open(dest, '_blank', 'noopener,noreferrer');
-                                                        });
-                                                        gtag.event({ action: 'click_website_sticky', category: 'Conversion', label: center.name });
-                                                        logTraffic('click_website');
-                                                    }}
-                                                    className="w-full flex items-center justify-center px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-extrabold rounded-full shadow hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                                >
-                                                    <Globe className="w-5 h-5 mr-2 text-white flex-shrink-0" />
-                                                    เข้าชมเว็บไซต์ศูนย์ดูแล
-                                                </button>
-                                            )}
-
-                                            {/* กรณีไม่มีทั้งเบอร์และเว็บ */}
-                                            {!center.phone && !center.website && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        handleGatedAction('consultation', undefined, () => {
-                                                            setIsConsultationModalOpen(true);
-                                                        });
-                                                    }}
-                                                    className="w-full flex items-center justify-center px-5 py-3 bg-[#2b64a0] hover:bg-[#1e4a77] text-white text-base font-extrabold rounded-full shadow hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                                >
-                                                    <Phone className="w-5 h-5 mr-2 text-white flex-shrink-0" />
-                                                    ติดต่อศูนย์ดูแล
-                                                </button>
-                                            )}
-
-                                            {/* เปิดแผนที่ / นำทาง (สำหรับศูนย์ทั่วไป) */}
-                                            <a
-                                                href={googleMapsDirectionsUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => {
-                                                    const verified = getVerifiedLead();
-                                                    if (!verified || !verified.phone) {
-                                                        e.preventDefault();
-                                                        handleGatedAction('navigation', googleMapsDirectionsUrl);
-                                                        return;
-                                                    }
-                                                    gtag.event({ action: 'click_sidebar_map_navigation', category: 'Engagement', label: center.name });
-                                                    logTraffic('click_map');
+                                                        <Phone className="w-3.5 h-3.5 fill-current" />
+                                                        โทรออก
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const telUrl = getTelHref(center.phone);
+                                                    handleGatedAction('call', undefined, () => {
+                                                        setIsInfoUnlocked(true);
+                                                        window.location.href = telUrl;
+                                                    });
+                                                    gtag.event({ action: 'click_reveal_phone', category: 'Conversion', label: center.name });
+                                                    logTraffic('click_phone');
                                                 }}
-                                                className="w-full flex items-center justify-center px-5 py-3 bg-white text-slate-800 border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/40 text-base font-extrabold rounded-full shadow-sm hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                                className="w-full flex items-center justify-between p-3.5 bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-indigo-50/80 border border-blue-200 hover:border-blue-400 rounded-2xl transition-all hover:shadow-md active:scale-[0.98] group cursor-pointer text-left"
                                             >
-                                                <Navigation className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 group-hover:rotate-45 transition-transform" />
-                                                เปิดแผนที่ / นำทาง
-                                            </a>
-                                        </>
-                                    )}
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                                                        <Phone className="w-5 h-5 fill-current" />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
+                                                        <div className="text-sm sm:text-base font-extrabold text-blue-900 mt-0.5">
+                                                            {formatPhone(center.phone).slice(0, 7)}xxxx
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full transition-all bg-blue-600 text-white shadow-xs group-hover:bg-blue-700 flex items-center gap-1">
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                    กดดูเบอร์โทร
+                                                </span>
+                                            </button>
+                                        )
+                                    )} */}
+
+                                    {/* 1. ปุ่มนัดเยี่ยมชมศูนย์ดูแล (Design เดิม: สีน้ำเงิน rounded-full -> แสดง Card ตามในรูปภาพทันที) */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setLeadModalConfig({ actionType: 'consultation' });
+                                            setIsLeadModalOpen(true);
+                                            gtag.event({ action: 'click_schedule_visit', category: 'Conversion', label: center.name });
+                                            logTraffic('click_consultation');
+                                        }}
+                                        className="w-full flex items-center justify-center px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-extrabold rounded-full shadow hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                    >
+                                        <Calendar className="w-5 h-5 mr-2 text-white flex-shrink-0" />
+                                        นัดเยี่ยมชมศูนย์ดูแล
+                                    </button>
+
+                                    {/* 2. ปุ่มติดต่อผ่าน LINE (Design เดิม: สีเขียว rounded-full - เปิด LINE ทางเราได้ทันที ไม่ต้องกรอกข้อมูล) */}
+                                    <a
+                                        href="https://line.me/R/ti/p/%40256zihiv"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => {
+                                            gtag.event({ action: 'click_line_button', category: 'Conversion', label: center.name });
+                                            gtag.gtagReportLineConversion();
+                                            logTraffic('click_line');
+                                        }}
+                                        className="w-full flex items-center justify-center px-5 py-3 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                    >
+                                        <img
+                                            src="/images/LINE_APP_iOS.png"
+                                            alt="LINE Icon"
+                                            className="w-5 h-5 object-contain mr-2 flex-shrink-0 animate-pulse"
+                                        />
+                                        ติดต่อผ่าน LINE
+                                    </a>
+
+                                    {/* 3. ปุ่มเปิดแผนที่ / นำทาง (Design เดิม: สีขาวขอบเทา rounded-full - เปิด Google Maps ได้ทันที) */}
+                                    <a
+                                        href={googleMapsDirectionsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => {
+                                            gtag.event({ action: 'click_sidebar_map_navigation', category: 'Engagement', label: center.name });
+                                            logTraffic('click_map');
+                                        }}
+                                        className="w-full flex items-center justify-center px-5 py-3 bg-white text-slate-800 border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/40 text-base font-extrabold rounded-full shadow-sm hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                    >
+                                        <Navigation className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 group-hover:rotate-45 transition-transform" />
+                                        เปิดแผนที่ / นำทาง
+                                    </a>
                                 </div>
 
+                                {/* Reassurance Micro-Copy */}
+                                <div className="mt-4 pt-3.5 border-t border-gray-100 text-center space-y-1">
+                                    <p className="text-xs text-emerald-700 font-semibold flex items-center justify-center gap-1.5">
+                                        <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                                        <span>ปรึกษาและนัดชมสถานที่จริงฟรี ไม่มีค่าบริการแอบแฝง</span>
+                                    </p>
+                                    <p className="text-[11px] text-gray-400">
+                                        ThaiCareCenter ประสานงานตรวจเช็กเตียงว่างและสิทธิประโยชน์ตรงกับศูนย์ให้ฟรี
+                                    </p>
+                                </div>
                             </div>
-
-                            {isTrue(center.isPartner) && (
-                                <div className="mt-5 pt-5 border-t border-gray-100 text-center">
-                                    <p className="text-[10px] text-gray-400">ติดต่อผ่าน ThaiCareCenter ไม่มีค่าใช้จ่ายเพิ่มเติม</p>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -2296,6 +2146,8 @@ export default function CenterDetailClient({
                 onSuccess={handleLeadSuccess}
                 centerName={center.name}
                 centerPhone={center.phone}
+                centerImageUrl={center.imageUrls?.[0] || center.brandLogoUrl || ''}
+                centerAddress={center.address || ''}
                 actionType={leadModalConfig.actionType}
                 destinationUrl={leadModalConfig.destinationUrl}
             />

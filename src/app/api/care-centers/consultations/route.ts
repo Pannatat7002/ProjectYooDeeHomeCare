@@ -58,6 +58,9 @@ export async function POST(request: Request) {
             budget: budget || 'ยังไม่ระบุ',
             convenientTime: convenientTime || 'ด่วนภายใน 7 วัน',
             message: message || '',
+            utmSource: body.utmSource || '',
+            utmMedium: body.utmMedium || '',
+            utmCampaign: body.utmCampaign || '',
             status: 'verified',
             submittedAt: new Date().toISOString(),
         };
