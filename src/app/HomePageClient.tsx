@@ -827,9 +827,12 @@ export default function HomePageClient({
 
 
 
+  // Guard against duplicate page_view in React StrictMode
+  const hasLoggedHomeViewRef = useRef(false);
+
   useEffect(() => {
-    // โหลดข้อมูลเริ่มต้นเรียบร้อยแล้วจาก Server Side Props
-    // ไม่จำเป็นต้องทำการ Fetch API บน Client อีกครั้งตอนหน้าเว็บเปิดขึ้นมา
+    if (hasLoggedHomeViewRef.current) return;
+    hasLoggedHomeViewRef.current = true;
 
     // ตั้งค่า Log เมื่อรันบนบราวเซอร์ เพื่อส่ง Event การเข้าชมหน้า
     gtag.event({ action: 'view_item_list', category: 'Discovery', label: 'Home Page Loaded' });

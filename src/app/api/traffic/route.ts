@@ -25,6 +25,9 @@ function anonymizeIp(ip: string): string {
     return cleanIp;
 }
 
+// In-memory deduplication cache (prevents duplicate logs from React StrictMode or rapid double-clicks within 2 seconds)
+const recentLogs = new Map<string, number>();
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -32,14 +35,36 @@ export async function POST(request: NextRequest) {
         const rawIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
         const ip = anonymizeIp(rawIp);
 
+        const visitorId = typeof body.visitorId === 'string' ? body.visitorId.slice(0, 64) : '';
+        const eventType = body.eventType || 'page_view';
+        const pagePath = body.pagePath || '/';
+        const centerId = body.centerId ? Number(body.centerId) : null;
+
+        // Dedup check: ignore identical event from same visitor on same page within 2000ms
+        const dedupKey = `${visitorId || ip}_${eventType}_${pagePath}_${centerId || ''}`;
+        const lastLoggedTime = recentLogs.get(dedupKey);
+        const now = Date.now();
+
+        if (lastLoggedTime && now - lastLoggedTime < 2000) {
+            return NextResponse.json({ success: true, deduped: true }, { status: 200 });
+        }
+        recentLogs.set(dedupKey, now);
+
+        // Keep map clean if it grows large
+        if (recentLogs.size > 2000) {
+            for (const [key, time] of recentLogs.entries()) {
+                if (now - time > 5000) recentLogs.delete(key);
+            }
+        }
+
         const newLog = {
             id: Date.now() + Math.floor(Math.random() * 1000),
             timestamp: new Date().toISOString(),
-            eventType: body.eventType || 'page_view',
-            pagePath: body.pagePath || '/',
-            centerId: body.centerId ? Number(body.centerId) : null,
+            eventType,
+            pagePath,
+            centerId,
             centerName: body.centerName || '',
-            visitorId: typeof body.visitorId === 'string' ? body.visitorId.slice(0, 64) : '',
+            visitorId,
             sessionId: typeof body.sessionId === 'string' ? body.sessionId.slice(0, 64) : '',
             utmSource: body.utmSource || '',
             utmMedium: body.utmMedium || '',

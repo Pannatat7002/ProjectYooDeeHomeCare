@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
     MapPin, Star, Phone, Globe, CheckCircle2, ArrowLeft,
     Share2, ShieldCheck, Info, DollarSign, Calendar, X,
@@ -1218,9 +1218,13 @@ export default function CenterDetailClient({
         return match ? match[1] : null;
     };
 
+    // Guard to prevent duplicate page_view logs (e.g. React StrictMode in development)
+    const hasLoggedPageViewRef = useRef<number | string | null>(null);
+
     // Resets active image and form branch name when center prop changes
     useEffect(() => {
-        if (center) {
+        if (center && hasLoggedPageViewRef.current !== center.id) {
+            hasLoggedPageViewRef.current = center.id;
             setActiveImage(center.imageUrls?.[0] || '');
             setFormData(prev => ({ ...prev, branch: center.name }));
 
