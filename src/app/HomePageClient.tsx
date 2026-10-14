@@ -33,6 +33,7 @@ type Blog = any;
 import * as gtag from '../lib/gtag';
 import { TRANSIT_LINES, TRANSIT_STATIONS, POPULAR_TRANSIT_STATIONS } from '../lib/transitStations';
 import { INITIAL_HOSPITALS } from '../lib/hospitalProximity';
+import { getVisitorTrackingData } from '../lib/visitorTracking';
 type TransitStation = (typeof TRANSIT_STATIONS)[number];
 type Hospital = (typeof INITIAL_HOSPITALS)[number];
 import { IconSearchCareCenter, IconSearchTransit, IconSearchHospital } from '../components/icons/CustomIcons';
@@ -834,12 +835,15 @@ export default function HomePageClient({
     gtag.event({ action: 'view_item_list', category: 'Discovery', label: 'Home Page Loaded' });
 
     // ส่ง Traffic Log ไปยัง Backend API
+    const tracker = getVisitorTrackingData();
     fetch('/api/traffic', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         eventType: 'page_view',
         pagePath: '/',
+        visitorId: tracker.visitorId,
+        sessionId: tracker.sessionId,
         utmSource: new URLSearchParams(window.location.search).get('utm_source') || '',
         utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || '',
         utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || '',

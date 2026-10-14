@@ -5,11 +5,32 @@ import { requireAuth } from '../../../lib/middleware';
 
 export const dynamic = 'force-dynamic';
 
+// Helper to anonymize IP address for PDPA compliance (masks the last octet)
+function anonymizeIp(ip: string): string {
+    if (!ip) return '';
+    const cleanIp = ip.split(',')[0].trim();
+    if (cleanIp.includes('.')) {
+        // IPv4: e.g. 192.168.1.55 -> 192.168.1.xxx
+        const parts = cleanIp.split('.');
+        if (parts.length === 4) {
+            return `${parts[0]}.${parts[1]}.${parts[2]}.xxx`;
+        }
+    } else if (cleanIp.includes(':')) {
+        // IPv6
+        const parts = cleanIp.split(':');
+        if (parts.length > 3) {
+            return `${parts.slice(0, 3).join(':')}:xxxx:xxxx`;
+        }
+    }
+    return cleanIp;
+}
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const userAgent = request.headers.get('user-agent') || '';
-        const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+        const rawIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+        const ip = anonymizeIp(rawIp);
 
         const newLog = {
             id: Date.now() + Math.floor(Math.random() * 1000),
@@ -18,6 +39,8 @@ export async function POST(request: NextRequest) {
             pagePath: body.pagePath || '/',
             centerId: body.centerId ? Number(body.centerId) : null,
             centerName: body.centerName || '',
+            visitorId: typeof body.visitorId === 'string' ? body.visitorId.slice(0, 64) : '',
+            sessionId: typeof body.sessionId === 'string' ? body.sessionId.slice(0, 64) : '',
             utmSource: body.utmSource || '',
             utmMedium: body.utmMedium || '',
             utmCampaign: body.utmCampaign || '',

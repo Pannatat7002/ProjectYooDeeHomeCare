@@ -22,6 +22,7 @@ import * as gtag from '../../lib/gtag';
 import { CareCenter, RoomType } from '../../types/index';
 import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
 import { getVerifiedLead, saveVerifiedLead } from '../../lib/leadSession';
+import { getVisitorTrackingData } from '../../lib/visitorTracking';
 import { IconOfficialPartner, IconSearchTransit } from '../../components/icons/CustomIcons';
 import { OfficialPartnerBadge } from '../../components/OfficialPartnerBadge';
 import { NearbyTransitStation, findTopNearbyTransitStations } from '../../lib/transitStations';
@@ -1028,6 +1029,7 @@ export default function CenterDetailClient({
     const logTraffic = useCallback((eventType: string) => {
         if (!center) return;
         const verified = getVerifiedLead();
+        const tracker = getVisitorTrackingData();
         fetch('/api/traffic', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1036,6 +1038,8 @@ export default function CenterDetailClient({
                 pagePath: window.location.pathname,
                 centerId: center.id,
                 centerName: center.name,
+                visitorId: tracker.visitorId,
+                sessionId: tracker.sessionId,
                 utmSource: new URLSearchParams(window.location.search).get('utm_source') || '',
                 utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || '',
                 utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || '',
