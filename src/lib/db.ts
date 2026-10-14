@@ -147,19 +147,22 @@ const insertDataToTable = async (tableName: string, newItem: any) => {
             .insert([dbItem])
             .select();
 
-        // Handle case where column does not exist yet in database schema (e.g. PGRST204)
-        if (error && (error.code === 'PGRST204' || error.message?.includes('Could not find the'))) {
+        // Handle case where columns do not exist yet in database schema (e.g. PGRST204)
+        let retryCount = 0;
+        while (error && (error.code === 'PGRST204' || error.message?.includes('Could not find the')) && retryCount < 5) {
             const missingCol = extractMissingColumn(error);
             if (missingCol && missingCol in dbItem) {
                 console.warn(`[Supabase Notice] Column '${missingCol}' does not exist in table '${tableName}'. Retrying insert without it.`);
-                const retryItem = { ...dbItem };
-                delete retryItem[missingCol];
+                delete dbItem[missingCol];
                 const retry = await supabaseAdmin
                     .from(tableName)
-                    .insert([retryItem])
+                    .insert([dbItem])
                     .select();
                 data = retry.data;
                 error = retry.error;
+                retryCount++;
+            } else {
+                break;
             }
         }
 

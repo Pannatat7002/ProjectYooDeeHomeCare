@@ -22,7 +22,9 @@ import {
     TrendingUp,
     Smartphone,
     Monitor,
-    Compass
+    Compass,
+    Users,
+    User
 } from 'lucide-react';
 import { fetchWithAuth, isAuthenticated } from '../../../lib/auth-client';
 
@@ -174,8 +176,11 @@ export default function TrafficAnalyticsPage() {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
+        const uniqueVisitors = new Set(filteredLogs.filter((l) => l.visitorId).map((l) => l.visitorId)).size;
+
         return {
             total,
+            uniqueVisitors,
             views,
             phone,
             line,
@@ -212,12 +217,14 @@ export default function TrafficAnalyticsPage() {
             return;
         }
 
-        const headers = ['วันเวลา', 'ประเภท Event', 'ศูนย์ดูแล', 'รหัสศูนย์', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'Referrer', 'IP Address'];
+        const headers = ['วันเวลา', 'ประเภท Event', 'ศูนย์ดูแล', 'รหัสศูนย์', 'Visitor ID', 'Session ID', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'Referrer', 'IP Address'];
         const rows = filteredLogs.map((l) => [
             `"${new Date(l.timestamp).toLocaleString('th-TH')}"`,
             `"${l.eventType || ''}"`,
             `"${(l.centerName || 'หน้าหลัก').replace(/"/g, '""')}"`,
             `"${l.centerId || ''}"`,
+            `"${l.visitorId || ''}"`,
+            `"${l.sessionId || ''}"`,
             `"${l.utmSource || ''}"`,
             `"${l.utmMedium || ''}"`,
             `"${l.utmCampaign || ''}"`,
@@ -408,11 +415,19 @@ export default function TrafficAnalyticsPage() {
             </div>
 
             {/* 3. Real-time KPI Cards based on Filters */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                 <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
                     <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">บันทึกที่พบ (Total)</p>
                     <p className="text-xl sm:text-2xl font-black text-slate-800 mt-1">{analytics.total.toLocaleString()}</p>
                     <p className="text-[11px] text-slate-400 mt-1">จากตัวกรองปัจจุบัน</p>
+                </div>
+
+                <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <p className="text-[11px] font-semibold text-purple-600 uppercase tracking-wider flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5" /> ผู้เข้าชมไม่ซ้ำ
+                    </p>
+                    <p className="text-xl sm:text-2xl font-black text-purple-700 mt-1">{analytics.uniqueVisitors.toLocaleString()}</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Unique Visitors</p>
                 </div>
 
                 <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
@@ -433,7 +448,7 @@ export default function TrafficAnalyticsPage() {
                     <p className="text-[11px] text-slate-400 mt-1">คลิกคุยผ่าน LINE</p>
                 </div>
 
-                <div className="col-span-2 lg:col-span-1 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
                     <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">อัตรา CTR ส่งต่อ</p>
                     <p className="text-xl sm:text-2xl font-black text-indigo-600 mt-1">{analytics.ctr}%</p>
                     <p className="text-[11px] text-slate-400 mt-1">{analytics.totalClicks} คลิกจาก {analytics.views} วิว</p>
@@ -550,6 +565,7 @@ export default function TrafficAnalyticsPage() {
                                 <th className="py-3.5 px-4 sm:px-6 w-44">วันเวลา (Time)</th>
                                 <th className="py-3.5 px-4 sm:px-6 w-36">ประเภท (Event)</th>
                                 <th className="py-3.5 px-4 sm:px-6">ศูนย์ดูแลเป้าหมาย</th>
+                                <th className="py-3.5 px-4 sm:px-6 w-32">ผู้เข้าชม (Visitor)</th>
                                 <th className="py-3.5 px-4 sm:px-6 w-44">แหล่งที่มา (UTM Source)</th>
                                 <th className="py-3.5 px-4 sm:px-6 w-48">Referrer</th>
                                 <th className="py-3.5 px-4 sm:px-6 w-20 text-center">อุปกรณ์</th>
@@ -558,7 +574,7 @@ export default function TrafficAnalyticsPage() {
                         <tbody className="divide-y divide-slate-100 text-slate-700">
                             {paginatedLogs.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-12 text-center text-slate-400 italic">
+                                    <td colSpan={7} className="py-12 text-center text-slate-400 italic">
                                         ไม่พบข้อมูลที่ตรงตามเงื่อนไขตัวกรอง
                                     </td>
                                 </tr>
@@ -594,6 +610,19 @@ export default function TrafficAnalyticsPage() {
                                                 <span className="text-slate-400 text-xs italic">
                                                     หน้าหลัก / ระบบค้นหา
                                                 </span>
+                                            )}
+                                        </td>
+                                        <td className="py-3 px-4 sm:px-6">
+                                            {log.visitorId ? (
+                                                <span 
+                                                    className="inline-flex items-center gap-1 font-mono text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200 transition-colors cursor-help"
+                                                    title={`Visitor ID: ${log.visitorId}\nSession ID: ${log.sessionId || '-'}`}
+                                                >
+                                                    <User className="w-2.5 h-2.5 text-blue-500" />
+                                                    <span>#{log.visitorId.slice(-6)}</span>
+                                                </span>
+                                            ) : (
+                                                <span className="text-slate-300 text-xs italic">-</span>
                                             )}
                                         </td>
                                         <td className="py-3 px-4 sm:px-6">
