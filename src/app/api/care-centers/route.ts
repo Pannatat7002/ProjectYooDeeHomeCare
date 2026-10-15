@@ -167,7 +167,9 @@ export async function GET(request: Request) {
             hasMore: page < totalPages,
             nearbyCenters: nearbySearchResult?.nearbyCenters || [],
             nearbyKeywords: nearbySearchResult?.nearbyKeywords || [],
-            matchedZoneName: nearbySearchResult?.matchedZoneName || null,
+            matchedLocationName: nearbySearchResult?.matchedLocationName || null,
+            searchRadiusKm: nearbySearchResult?.searchRadiusKm || 10,
+            isRadiusExpanded: nearbySearchResult?.isRadiusExpanded || false,
         }, {
             headers: NO_CACHE_HEADERS
         });
@@ -178,7 +180,9 @@ export async function GET(request: Request) {
         total: careCenters.length,
         nearbyCenters: nearbySearchResult?.nearbyCenters || [],
         nearbyKeywords: nearbySearchResult?.nearbyKeywords || [],
-        matchedZoneName: nearbySearchResult?.matchedZoneName || null,
+        matchedLocationName: nearbySearchResult?.matchedLocationName || null,
+        searchRadiusKm: nearbySearchResult?.searchRadiusKm || 10,
+        isRadiusExpanded: nearbySearchResult?.isRadiusExpanded || false,
     }, {
         headers: NO_CACHE_HEADERS
     });
