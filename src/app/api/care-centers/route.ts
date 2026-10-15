@@ -4,6 +4,15 @@ import { requireAuth } from '../../../lib/middleware';
 import { calculateHaversineDistance } from '../../../lib/hospitalProximity';
 import { CareCenter } from '../../../types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const NO_CACHE_HEADERS = {
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+};
+
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     let careCenters: CareCenter[] = await getCareCenters();
@@ -148,10 +157,14 @@ export async function GET(request: Request) {
             limit,
             totalPages,
             hasMore: page < totalPages
+        }, {
+            headers: NO_CACHE_HEADERS
         });
     }
 
-    return NextResponse.json(careCenters);
+    return NextResponse.json(careCenters, {
+        headers: NO_CACHE_HEADERS
+    });
 }
 
 export async function POST(request: NextRequest) {
