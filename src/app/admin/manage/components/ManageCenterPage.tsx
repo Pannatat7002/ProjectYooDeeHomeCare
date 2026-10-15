@@ -117,7 +117,7 @@ export default function ManageCenterPage() {
     const fetchCenters = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch('/api/care-centers');
+            const res = await fetch('/api/care-centers', { cache: 'no-store' });
             if (!res.ok) throw new Error('Failed to fetch');
             const data = await res.json();
             const rawList = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
@@ -819,41 +819,44 @@ export default function ManageCenterPage() {
                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                                 <div>
                                                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                        ลำดับที่ สบส. (#) <span className="text-emerald-700 font-normal">(ใช้ป้องกันศูนย์ซ้ำ)</span>
+                                                        วันที่อนุญาต <span className="text-emerald-700 font-normal">(ดูได้จากเว็บ สบส.)</span>
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
+                                                        placeholder="เช่น 10-11-2565"
+                                                        value={formData.mophApprovedDate || ''} 
+                                                        onChange={e => setFormData({ ...formData, mophApprovedDate: e.target.value })} 
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                                        ลำดับที่ สบส. (#) <span className="text-gray-400 font-normal">(เว้นว่างได้)</span>
                                                     </label>
                                                     <input 
                                                         type="number" 
                                                         className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
-                                                        placeholder="เช่น 1080"
+                                                        placeholder="เว้นว่างได้ถ้าไม่มี"
                                                         value={formData.mophOrder || ''} 
                                                         onChange={e => setFormData({ ...formData, mophOrder: e.target.value })} 
                                                     />
                                                 </div>
                                                 <div>
                                                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                        เลขที่ใบอนุญาต / คำขอ
+                                                        เลขที่ใบอนุญาต / คำขอ <span className="text-gray-400 font-normal">(ถ้ามี)</span>
                                                     </label>
                                                     <input 
                                                         type="text" 
                                                         className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
-                                                        placeholder="เช่น สบส. ลำดับที่ 1080"
+                                                        placeholder="เช่น กสบ.xxxx หรือเว้นว่าง"
                                                         value={formData.licenseNumber || ''} 
                                                         onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })} 
                                                     />
                                                 </div>
-                                                <div>
-                                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                        วันที่อนุญาต (วัน-เดือน-ปี พ.ศ.)
-                                                    </label>
-                                                    <input 
-                                                        type="text" 
-                                                        className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
-                                                        placeholder="เช่น 25-02-2565"
-                                                        value={formData.mophApprovedDate || ''} 
-                                                        onChange={e => setFormData({ ...formData, mophApprovedDate: e.target.value })} 
-                                                    />
-                                                </div>
                                             </div>
+                                            <p className="text-[11px] text-emerald-800 bg-emerald-100/60 rounded-md p-2">
+                                                💡 <strong>ข้อแนะนำ:</strong> ในหน้าเว็บตรวจสอบของ สบส. (esta.hss.moph.go.th) จะมีแสดงเพียง 4 คอลัมน์คือ <em>ชื่อสถานประกอบการ, สถานที่ตั้ง, เบอร์โทร, วันที่อนุญาต</em> (ไม่มีคอลัมน์ลำดับที่แสดงผล) ดังนั้นท่านสามารถ<strong>กรอกเฉพาะ &quot;วันที่อนุญาต&quot;</strong> และเว้นว่างช่องลำดับที่ไว้ได้เลยครับ
+                                            </p>
                                         </div>
                                     )}
                                     <div>

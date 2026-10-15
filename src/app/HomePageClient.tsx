@@ -631,7 +631,7 @@ export default function HomePageClient({
     return ads.filter((a: any) => !a.placement || a.placement === 'pr' || a.placement === 'both');
   }, [ads]);
 
-  // Helper to parse search params from searchParams or URL or sessionStorage
+  // Helper to parse search params from searchParams or URL
   const getInitialParamValues = useCallback(() => {
     let sp: URLSearchParams;
     if (typeof window !== 'undefined') {
@@ -639,8 +639,7 @@ export default function HomePageClient({
       if (search && search.length > 1) {
         sp = new URLSearchParams(search);
       } else {
-        const saved = sessionStorage.getItem('thaicarecenter_search_query');
-        sp = new URLSearchParams(saved || '');
+        sp = new URLSearchParams();
       }
     } else {
       sp = new URLSearchParams();
@@ -726,6 +725,7 @@ export default function HomePageClient({
   const [sortByDistance, setSortByDistance] = useState(() => getInitialParamValues().sortByDistance);
   const [isLocating, setIsLocating] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const searchRequestIdRef = useRef<number>(0);
 
   // Listen to popstate (e.g. browser Back / Forward)
   useEffect(() => {
@@ -1183,6 +1183,8 @@ export default function HomePageClient({
 
   // Progressive API fetch
   const fetchCenters = async (pageToFetch: number, isNewFilter: boolean = false) => {
+    const requestId = ++searchRequestIdRef.current;
+
     if (isNewFilter) {
       setIsFiltering(true);
     } else {
@@ -1197,25 +1199,7 @@ export default function HomePageClient({
 
       if (activeTab === 'general') {
         if (searchTerm.trim()) {
-          const raw = searchTerm.trim().toLowerCase();
-          const normSearch = raw.replace(/\s+/g, '');
-          const searchTokens = raw.split(/\s+/).map(t => t.replace(/\s+/g, '')).filter(Boolean);
-
-          const hasMatch = lookupCenters.some((c: any) => {
-            const combined = [c.name, c.address, c.province, c.district, c.brandName].filter(Boolean).join(' ').toLowerCase();
-            const normCombined = combined.replace(/\s+/g, '');
-
-            if (combined.includes(raw) || normCombined.includes(normSearch)) {
-              return true;
-            }
-            if (searchTokens.length > 0 && searchTokens.every(t => normCombined.includes(t))) {
-              return true;
-            }
-            return false;
-          });
-          if (hasMatch) {
-            params.set('search', searchTerm.trim());
-          }
+          params.set('search', searchTerm.trim());
         }
         if (province !== 'all') {
           params.set('province', province);
@@ -1265,7 +1249,15 @@ export default function HomePageClient({
         }
       }
 
-      const res = await fetch(`/api/care-centers?${params.toString()}`);
+      const res = await fetch(`/api/care-centers?${params.toString()}`, {
+        cache: 'no-store',
+      });
+
+      // ป้องกัน Race Condition: หากมี Request ใหม่กว่ายิงไปแล้ว ให้ข้ามการอัปเดต State จาก Request เดิม
+      if (requestId !== searchRequestIdRef.current) {
+        return;
+      }
+
       if (res.ok) {
         const json = await res.json();
         const newItems: CareCenter[] = json.data || (Array.isArray(json) ? json : []);
@@ -1274,8 +1266,8 @@ export default function HomePageClient({
 
         if (isNewFilter) {
           if (newItems.length === 0) {
-            setCenters(initialCenters);
-            setTotalCount(initialCenters.length);
+            setCenters([]);
+            setTotalCount(0);
             setHasMore(false);
           } else {
             setCenters(newItems);
@@ -1290,16 +1282,17 @@ export default function HomePageClient({
             return [...prev, ...uniqueNew];
           });
           setPage(pageToFetch);
+          setTotalCount(newTotal);
+          setHasMore(newHasMore);
         }
-
-        setTotalCount(newTotal);
-        setHasMore(newHasMore);
       }
     } catch (err) {
       console.error('Error fetching care centers:', err);
     } finally {
-      setIsLoadingMore(false);
-      setIsFiltering(false);
+      if (requestId === searchRequestIdRef.current) {
+        setIsLoadingMore(false);
+        setIsFiltering(false);
+      }
     }
   };
 
@@ -1430,18 +1423,9 @@ export default function HomePageClient({
     }
 
     // activeTab === 'general'
-    if (searchTerm.trim()) {
-      if (centerSuggestions.length > 0) {
-        setSearchError(null);
-        setShowSuggestions(false);
-        scrollToResults();
-        return;
-      } else {
-        setSearchError(`ไม่พบศูนย์ดูแล "${searchTerm.trim()}" กรุณาตรวจสอบชื่อศูนย์ หรือเลือกจากรายการแนะนำ`);
-        return;
-      }
-    }
     setSearchError(null);
+    setShowSuggestions(false);
+    fetchCenters(1, true);
     scrollToResults();
   };
 
@@ -2252,67 +2236,65 @@ export default function HomePageClient({
             </div>
           ) : (
             <>
-              {/* เมื่อค้นหาแล้วไม่พบศูนย์ตามเงื่อนไข ให้แสดงข้อความแจ้งเตือน แต่ยังคงแสดงศูนย์ดูแลทั้งหมดให้เลือกชมเหมือนเดิม */}
-              {centers.length === 0 && (
-                <div className="mb-6 p-4 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center justify-between text-amber-800 text-sm shadow-xs">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-amber-200/60 text-amber-700 flex items-center justify-center shrink-0">
-                      <AlertCircle size={16} />
-                    </span>
-                    <span>
-                      {activeTab === 'transit' && selectedStation
-                        ? `ไม่พบศูนย์ดูแลในรัศมีที่เลือกจากสถานี ${selectedStation.nameTh} จึงแสดงศูนย์ดูแลทั้งหมดให้คุณเลือกชมแทน`
-                        : activeTab === 'hospital' && selectedHospital
-                          ? `ไม่พบศูนย์ดูแลใกล้ ${selectedHospital.nameTh} จึงแสดงศูนย์ดูแลทั้งหมดให้คุณเลือกชมแทน`
-                          : 'ไม่พบศูนย์ดูแลตามเงื่อนไขที่เลือก จึงแสดงศูนย์ดูแลทั้งหมดให้คุณเลือกชมแทน'}
-                    </span>
+              {/* เมื่อค้นหาแล้วไม่พบศูนย์ตามเงื่อนไข ให้แสดง Empty State ชัดเจน ไม่ดึงศูนย์เดิมมาทับ */}
+              {isSearchActive && centers.length === 0 ? (
+                <div className="py-16 px-4 text-center bg-white rounded-3xl border border-gray-100 shadow-sm max-w-xl mx-auto my-6">
+                  <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 text-blue-500" />
                   </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">ไม่พบศูนย์ดูแลตามเงื่อนไขที่คุณค้นหา</h3>
+                  <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
+                    {searchTerm.trim()
+                      ? `ไม่พบข้อมูลที่ตรงกับ "${searchTerm.trim()}" ลองค้นหาด้วยคำอื่น หรือเลือกดูตามจังหวัด/แนวรถไฟฟ้า`
+                      : 'ลองปรับเปลี่ยนเงื่อนไขการค้นหา เช่น ขยายช่วงราคา หรือเลือกดูทุกจังหวัด'}
+                  </p>
                   <button
                     onClick={handleClearFilters}
-                    className="text-xs font-bold text-amber-900 underline hover:no-underline cursor-pointer shrink-0 ml-3"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-md active:scale-95 cursor-pointer"
                   >
-                    ล้างการค้นหา
+                    <XCircle className="w-4 h-4" />
+                    <span>ล้างการค้นหา / ดูศูนย์ทั้งหมด</span>
                   </button>
                 </div>
-              )}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {(centers.length > 0 ? centers : initialCenters).map((center, index) => {
+                    // แสดงโฆษณาแทรกเป็นระยะ โดย "ไม่แสดงซ้ำ" (แสดงโฆษณาแต่ละตัวเพียงครั้งเดียวจนกว่าจะหมดรายการ Ads ที่ไม่ซ้ำกัน)
+                    const shouldInsertAd = (index + 1) % 3 === 0;
+                    const adIndex = Math.floor(index / 3);
+                    const adToInsert = shouldInsertAd && adIndex < inFeedAds.length ? inFeedAds[adIndex] : null;
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(centers.length > 0 ? centers : initialCenters).map((center, index) => {
-                  // แสดงโฆษณาแทรกเป็นระยะ โดย "ไม่แสดงซ้ำ" (แสดงโฆษณาแต่ละตัวเพียงครั้งเดียวจนกว่าจะหมดรายการ Ads ที่ไม่ซ้ำกัน)
-                  const shouldInsertAd = (index + 1) % 3 === 0;
-                  const adIndex = Math.floor(index / 3);
-                  const adToInsert = shouldInsertAd && adIndex < inFeedAds.length ? inFeedAds[adIndex] : null;
+                    return (
+                      <Fragment key={center.id}>
+                        <CenterCard
+                          center={center}
+                          userLocation={effectiveLocation}
+                          locationLabel={effectiveLocationLabel}
+                        />
+                        {adToInsert && (
+                          <InFeedAdCard key={`ad-${adToInsert.id}-${index}`} ad={adToInsert} />
+                        )}
+                      </Fragment>
+                    );
+                  })}
 
-                  return (
-                    <Fragment key={center.id}>
-                      <CenterCard
-                        center={center}
-                        userLocation={effectiveLocation}
-                        locationLabel={effectiveLocationLabel}
-                      />
-                      {adToInsert && (
-                        <InFeedAdCard key={`ad-${adToInsert.id}-${index}`} ad={adToInsert} />
-                      )}
-                    </Fragment>
-                  );
-                })}
+                  {/* กรณีผลการค้นหามีน้อยกว่า 3 แห่ง ให้แสดงต่อท้ายเพียง 1 จุด (หากยังไม่ได้แสดง) */}
+                  {(centers.length > 0 ? centers : initialCenters).length > 0 &&
+                    (centers.length > 0 ? centers : initialCenters).length < 3 &&
+                    inFeedAds.length > 0 && (
+                      <InFeedAdCard key="ad-supplement" ad={inFeedAds[0]} />
+                    )}
 
-                {/* กรณีผลการค้นหามีน้อยกว่า 3 แห่ง ให้แสดงต่อท้ายเพียง 1 จุด (หากยังไม่ได้แสดง) */}
-                {(centers.length > 0 ? centers : initialCenters).length > 0 &&
-                  (centers.length > 0 ? centers : initialCenters).length < 3 &&
-                  inFeedAds.length > 0 && (
-                    <InFeedAdCard key="ad-supplement" ad={inFeedAds[0]} />
+                  {/* แสดง Skeleton 3 การ์ดขณะกำลังโหลดศูนย์เพิ่มเติม */}
+                  {isLoadingMore && (
+                    <>
+                      <CenterCardSkeleton />
+                      <CenterCardSkeleton />
+                      <CenterCardSkeleton />
+                    </>
                   )}
-
-                {/* แสดง Skeleton 3 การ์ดขณะกำลังโหลดศูนย์เพิ่มเติม */}
-                {isLoadingMore && (
-                  <>
-                    <CenterCardSkeleton />
-                    <CenterCardSkeleton />
-                    <CenterCardSkeleton />
-                  </>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* ปุ่มทยอยโหลดเพิ่มเติมจาก API (Load More) */}
               {hasMore && centers.length > 0 && (
