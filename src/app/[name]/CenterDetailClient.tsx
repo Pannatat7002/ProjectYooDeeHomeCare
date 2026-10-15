@@ -1485,54 +1485,69 @@ export default function CenterDetailClient({
                         )}
 
                         {/* ✅ Packages: center.packages ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
-                        {isTrue(center.isPartner) && center.packages.length > 0 && (
-                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 mb-6">
-                                    <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">รายละเอียดแผนการดูแล</h2>
-                                    <span className="text-xs md:text-sm text-amber-700 font-extrabold bg-amber-50 px-3 py-1 rounded-full border border-amber-100 mt-1 sm:mt-0">
+                        {isTrue(center.isPartner) && Array.isArray(center.packages) && center.packages.length > 0 && (
+                            <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-slate-100 -mx-4 sm:mx-0">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 mb-6 gap-2">
+                                    <div>
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-2 border border-blue-100">
+                                            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                                            <span>แผนการดูแลมาตรฐาน</span>
+                                        </div>
+                                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">รายละเอียดแผนการดูแล</h2>
+                                    </div>
+                                    <span className="text-xs md:text-sm text-amber-800 font-bold bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200/60 mt-1 sm:mt-0">
                                         * ข้อมูลเบื้องต้น กรุณาสอบถามราคาอัปเดตล่าสุดกับศูนย์โดยตรง
                                     </span>
                                 </div>
                                 <div className="space-y-6">
                                     {center.packages.map((pkg, idx) => (
-                                        <div key={idx} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 transform 
-                          hover:border-green-500 hover:shadow-xl hover:shadow-green-100/30 group flex flex-col h-full">
-
-                                            {/* 1. ส่วนหัว (ชื่อแพ็กเกจและราคา) - ปรับปรุง */}
-                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-100 mb-4">
-
-                                                {/* ชื่อแพ็กเกจ */}
-                                                <h4 className="font-extrabold text-2xl text-gray-900 group-hover:text-green-700 transition-colors mb-2 sm:mb-0">
+                                        <div
+                                            key={idx}
+                                            className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm transition-all duration-300 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/5 group flex flex-col h-full"
+                                        >
+                                            {/* 1. ส่วนหัว (ชื่อแพ็กเกจและราคา) */}
+                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-baseline pb-4 border-b border-slate-100 mb-4 gap-2">
+                                                <h4 className="font-bold text-xl sm:text-2xl text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
                                                     {pkg.name}
                                                 </h4>
-
-                                                {/* ราคา (จะถูกจัดให้อยู่ด้านล่างชื่อแพ็กเกจในจอมือถือ เนื่องจาก div หลักใช้ flex-col) */}
-                                                <div className="text-left sm:text-right flex-shrink-0">
-                                                    <span className="block text-4xl md:text-5xl font-extrabold text-green-600 tracking-tight">
-                                                        ฿{pkg.price?.toLocaleString() ?? '0'}
+                                                <div className="flex items-baseline gap-1.5 shrink-0">
+                                                    <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-blue-600 tracking-tight">
+                                                        ฿{Number(pkg.price || 0).toLocaleString()}
                                                     </span>
-                                                    <span className="text-sm font-extrabold text-gray-500">/ ต่อเดือน</span>
+                                                    <span className="text-xs sm:text-sm font-semibold text-slate-500">/ ต่อเดือน</span>
                                                 </div>
                                             </div>
 
                                             {/* 2. ส่วนรายละเอียด (Details) */}
                                             <div className="flex-grow">
                                                 {pkg.details && Array.isArray(pkg.details) && pkg.details.length > 0 ? (
-                                                    <ul className="space-y-4">
+                                                    <ul className="space-y-3">
                                                         {pkg.details.map((detail, dIdx) => (
-                                                            <li key={dIdx} className="text-base md:text-lg text-gray-800 font-medium flex items-start leading-relaxed">
-                                                                <CheckCircle className="w-5 h-5 mr-3 mt-1 text-green-500 shrink-0" />
-                                                                {detail}
+                                                            <li key={dIdx} className="text-sm sm:text-base text-slate-700 font-medium flex items-start leading-relaxed gap-2.5">
+                                                                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5" />
+                                                                <span>{detail}</span>
                                                             </li>
                                                         ))}
                                                     </ul>
                                                 ) : (
-                                                    <div className="p-4 bg-gray-50 rounded-lg">
-                                                        <p className="text-sm text-gray-500 font-medium italic">
-                                                            <span className="text-green-600 font-bold">สรุป:</span> เหมาะสำหรับผู้ที่ต้องการการดูแลระดับ {idx + 1}
+                                                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                                                        <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                                                            <span className="text-blue-600 font-bold">สรุป:</span> เหมาะสำหรับผู้ที่ต้องการการดูแลระดับ {idx + 1}
                                                         </p>
                                                     </div>
                                                 )}
+                                            </div>
+
+                                            {/* 3. ปุ่มสอบถามแพ็กเกจนี้ */}
+                                            <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleInquireRoom(pkg.name)}
+                                                    className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                                                >
+                                                    <MessageSquare className="w-4 h-4" />
+                                                    <span>สอบถามแผนการดูแลนี้</span>
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
