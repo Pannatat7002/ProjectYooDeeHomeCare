@@ -13,7 +13,8 @@ import {
     Users,
     MessageSquare,
     Navigation,
-    Eye
+    Eye,
+    Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -1601,22 +1602,23 @@ export default function CenterDetailClient({
                                             : (hosp.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hosp.nameTh)}`);
 
                                         return (
-                                            <div key={hosp.id || idx} className="flex items-center justify-between text-gray-700 py-1.5 border-b border-gray-50 last:border-b-0 gap-2">
-                                                <div className="flex items-center gap-2 min-w-0">
+                                            <div key={hosp.id || idx} className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-700 py-2 sm:py-2.5 border-b border-gray-50 last:border-b-0 gap-1 sm:gap-3 group">
+                                                <div className="flex items-center gap-2 min-w-0 flex-1">
                                                     <Link
                                                         href={`/hospitals/${hosp.id}?fromCenter=${encodeURIComponent(center.name)}&centerLat=${center.lat}&centerLng=${center.lng}`}
                                                         onClick={() => {
                                                             gtag.event({ action: 'click_nearby_hospital', category: 'Engagement', label: hosp.nameTh });
                                                             logTraffic('click_nearby_hospital');
                                                         }}
-                                                        className="hover:text-blue-600 truncate mr-2 font-medium text-gray-800 transition-colors"
+                                                        className="hover:text-blue-600 font-semibold text-gray-800 transition-colors text-sm sm:text-base leading-snug line-clamp-2 sm:line-clamp-1"
                                                     >
                                                         {hosp.nameTh}
                                                     </Link>
                                                 </div>
-                                                <div className="flex items-center gap-2 shrink-0">
-                                                    <span className="text-gray-500 font-medium text-sm whitespace-nowrap">
-                                                        ระยะประมาณ {Number(item.distanceKm).toFixed(1)} กม.
+                                                <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                                    <span className="text-gray-500 font-medium text-xs sm:text-sm whitespace-nowrap">
+                                                        <span className="hidden sm:inline">ระยะประมาณ </span>
+                                                        {Number(item.distanceKm).toFixed(1)} กม.
                                                         {item.durationMinutes && item.durationMinutes > 0 ? (
                                                             <span className="text-gray-400 font-normal text-xs ml-1">(~{item.durationMinutes} นาที)</span>
                                                         ) : null}
@@ -1629,7 +1631,7 @@ export default function CenterDetailClient({
                                                             gtag.event({ action: 'click_hospital_map_route', category: 'Engagement', label: `${center.name} -> ${hosp.nameTh}` });
                                                             logTraffic('click_nearby_hospital_route');
                                                         }}
-                                                        className="text-gray-400 hover:text-blue-600 transition-colors p-0.5"
+                                                        className="inline-flex items-center gap-1 text-gray-400 hover:text-blue-600 transition-colors p-1 rounded-md hover:bg-blue-50"
                                                         title={`เปิดเส้นทางนำทางไป ${hosp.nameTh} ใน Google Maps`}
                                                     >
                                                         <Navigation className="w-3.5 h-3.5" />
@@ -1664,45 +1666,46 @@ export default function CenterDetailClient({
                                         const displayName = station.nameTh.startsWith('สถานี') ? station.nameTh : `สถานี${station.nameTh}`;
 
                                         return (
-                                            <div key={station.id || idx} className="flex items-center justify-between text-gray-700 py-1.5 border-b border-gray-50 last:border-b-0 gap-2">
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <a
-                                                        href={routeUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        onClick={() => {
-                                                            gtag.event({ action: 'click_nearby_transit', category: 'Engagement', label: displayName });
-                                                            logTraffic('click_nearby_transit');
-                                                        }}
-                                                        className="hover:text-emerald-700 truncate font-medium text-gray-800 transition-colors"
-                                                        title={`ดูเส้นทางไป ${displayName} บน Google Maps`}
-                                                    >
-                                                        {displayName}
-                                                    </a>
-                                                    {getTransitLineBadge(station.lineCode, station.line)}
-                                                </div>
-                                                <div className="flex items-center gap-2 shrink-0">
-                                                    <span className="text-gray-500 font-medium text-sm whitespace-nowrap">
-                                                        ระยะประมาณ {Number(item.distanceKm).toFixed(1)} กม.
-                                                        {item.durationMinutes && item.durationMinutes > 0 ? (
-                                                            <span className="text-gray-400 font-normal text-xs ml-1">(~{item.durationMinutes} นาที)</span>
-                                                        ) : null}
-                                                    </span>
-                                                    <a
-                                                        href={routeUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        onClick={() => {
-                                                            gtag.event({ action: 'click_transit_map_route', category: 'Engagement', label: `${center.name} -> ${displayName}` });
-                                                            logTraffic('click_nearby_transit_route');
-                                                        }}
-                                                        className="text-gray-400 hover:text-emerald-600 transition-colors p-0.5"
-                                                        title="เปิดเส้นทางนำทางใน Google Maps"
-                                                    >
-                                                        <Navigation className="w-3.5 h-3.5" />
-                                                    </a>
-                                                </div>
-                                            </div>
+                                             <div key={station.id || idx} className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-700 py-2 sm:py-2.5 border-b border-gray-50 last:border-b-0 gap-1.5 sm:gap-3 group">
+                                                 <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                                                     <a
+                                                         href={routeUrl}
+                                                         target="_blank"
+                                                         rel="noopener noreferrer"
+                                                         onClick={() => {
+                                                             gtag.event({ action: 'click_nearby_transit', category: 'Engagement', label: displayName });
+                                                             logTraffic('click_nearby_transit');
+                                                         }}
+                                                         className="hover:text-emerald-700 font-semibold text-gray-800 transition-colors text-sm sm:text-base leading-snug"
+                                                         title={`ดูเส้นทางไป ${displayName} บน Google Maps`}
+                                                     >
+                                                         {displayName}
+                                                     </a>
+                                                     {getTransitLineBadge(station.lineCode, station.line)}
+                                                 </div>
+                                                 <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                                     <span className="text-gray-500 font-medium text-xs sm:text-sm whitespace-nowrap">
+                                                         <span className="hidden sm:inline">ระยะประมาณ </span>
+                                                         {Number(item.distanceKm).toFixed(1)} กม.
+                                                         {item.durationMinutes && item.durationMinutes > 0 ? (
+                                                             <span className="text-gray-400 font-normal text-xs ml-1">(~{item.durationMinutes} นาที)</span>
+                                                         ) : null}
+                                                     </span>
+                                                     <a
+                                                         href={routeUrl}
+                                                         target="_blank"
+                                                         rel="noopener noreferrer"
+                                                         onClick={() => {
+                                                             gtag.event({ action: 'click_transit_map_route', category: 'Engagement', label: `${center.name} -> ${displayName}` });
+                                                             logTraffic('click_nearby_transit_route');
+                                                         }}
+                                                         className="inline-flex items-center gap-1 text-gray-400 hover:text-emerald-600 transition-colors p-1 rounded-md hover:bg-emerald-50"
+                                                         title="เปิดเส้นทางนำทางใน Google Maps"
+                                                     >
+                                                         <Navigation className="w-3.5 h-3.5" />
+                                                     </a>
+                                                 </div>
+                                             </div>
                                         );
                                     })}
                                 </div>
@@ -1953,11 +1956,15 @@ export default function CenterDetailClient({
                 {/* Nearby Centers Section (ศูนย์ดูแลใกล้เคียง) */}
                 {
                     nearbyCenters && nearbyCenters.length > 0 && (
-                        <div className="mt-20 border-t border-gray-200 pt-12">
+                        <div className="mt-20 border-t border-slate-200 pt-12">
                             <div className="flex items-center justify-between mb-6">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">ศูนย์ดูแลใกล้เคียง</h2>
-                                    <p className="text-gray-500 text-sm mt-1">ศูนย์ดูแลผู้สูงอายุและผู้มีภาวะพึ่งพิงในละแวกใกล้เคียง</p>
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-2 border border-blue-100">
+                                        <Navigation className="w-3.5 h-3.5 text-blue-600" />
+                                        <span>ทำเลใกล้เคียง</span>
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">ศูนย์ดูแลใกล้เคียง</h2>
+                                    <p className="text-slate-500 text-sm mt-1">ศูนย์ดูแลผู้สูงอายุและผู้มีภาวะพึ่งพิงในละแวกใกล้เคียง เดินทางสะดวก</p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1965,10 +1972,10 @@ export default function CenterDetailClient({
                                     <Link
                                         key={nc.id}
                                         href={`/${createSlug(nc.name)}`}
-                                        className="block group"
+                                        className="block group h-full"
                                         onClick={() => gtag.event({ action: 'click_nearby_center', category: 'Navigation', label: nc.name })}
                                     >
-                                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
+                                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-slate-100 overflow-hidden relative">
                                             <div className="relative h-56 overflow-hidden">
                                                 <img
                                                     src={nc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
@@ -1982,39 +1989,50 @@ export default function CenterDetailClient({
 
                                                 {/* Starting Price Badge */}
                                                 {nc.price && Number(nc.price) > 0 ? (
-                                                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-gray-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 border border-white/40">
-                                                        <span className="text-gray-500 font-medium text-[11px]">เริ่มต้น</span>
-                                                        <span className="text-blue-600 font-bold">
+                                                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-slate-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 border border-white/60">
+                                                        <span className="text-slate-500 font-medium text-[11px]">เริ่มต้น</span>
+                                                        <span className="text-blue-600 font-extrabold">
                                                             ฿{Number(nc.price).toLocaleString()}
                                                         </span>
                                                     </div>
                                                 ) : null}
 
+                                                {/* Distance Badge */}
+                                                {nc.distanceKm !== undefined && (
+                                                    <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-100">
+                                                        <Navigation className="w-3 h-3 shrink-0" />
+                                                        <span>ห่าง ~{Number(nc.distanceKm).toFixed(1)} กม.</span>
+                                                    </div>
+                                                )}
 
-                                                {/* Partner / Basic Info Badge */}
-                                                <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1 ${nc.isPartner ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                                                {/* Partner / Status Badge */}
+                                                <div className="absolute bottom-3 right-3 flex items-center">
                                                     {nc.isPartner ? (
-                                                        <>ยืนยันตัวตนแล้ว</>
+                                                        <OfficialPartnerBadge variant="badge" size="sm" />
                                                     ) : (
-                                                        <>ข้อมูลเบื้องต้น</>
+                                                        <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
+                                                            ข้อมูลเบื้องต้น
+                                                        </span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="p-5 flex-grow flex flex-col">
-                                                <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
-                                                    {nc.name}
-                                                </h3>
-                                                <p className="text-gray-500 text-sm flex items-center mb-3">
-                                                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
-                                                    <span className="line-clamp-1">{nc.address}</span>
-                                                </p>
-                                                <div className="flex items-center mb-4">
-                                                    <div className="flex text-yellow-400">
+                                            <div className="p-5 flex-grow flex flex-col justify-between">
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-slate-900 leading-snug mb-1.5 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                                        {nc.name}
+                                                    </h3>
+                                                    <p className="text-slate-500 text-sm flex items-center mb-3">
+                                                        <MapPin className="h-3.5 w-3.5 mr-1.5 text-slate-400 shrink-0" />
+                                                        <span className="line-clamp-1">{nc.address}</span>
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center pt-2 border-t border-slate-100">
+                                                    <div className="flex text-amber-400">
                                                         {[...Array(5)].map((_, i) => (
-                                                            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(nc.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
+                                                            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(nc.rating || 0) ? 'fill-current' : 'text-slate-200'}`} />
                                                         ))}
                                                     </div>
-                                                    <span className="text-xs text-gray-400 ml-2 font-medium">{nc.rating ? nc.rating.toFixed(1) : '0.0'} (รีวิว)</span>
+                                                    <span className="text-xs text-slate-400 ml-2 font-medium">{nc.rating ? nc.rating.toFixed(1) : '0.0'} (รีวิว)</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -2028,20 +2046,24 @@ export default function CenterDetailClient({
                 {/* Recommended Centers Section */}
                 {
                     relatedCenters.length > 0 && (
-                        <div className="mt-16 border-t border-gray-200 pt-12">
+                        <div className="mt-16 border-t border-slate-200 pt-12">
                             <div className="mb-6">
-                                <h2 className="text-2xl font-bold text-gray-900">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
-                                <p className="text-gray-500 text-sm mt-1">ศูนย์พันธมิตรในรัศมี 7 กม. หรือทางเลือกในช่วงราคาที่ใกล้เคียงกัน</p>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-2 border border-blue-100">
+                                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                                    <span>ทางเลือกแนะนำ</span>
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">ศูนย์ดูแลอื่นๆ ที่น่าสนใจ</h2>
+                                <p className="text-slate-500 text-sm mt-1">ศูนย์พันธมิตรในรัศมี 7 กม. หรือทางเลือกในช่วงราคาที่ใกล้เคียงกัน</p>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {relatedCenters.map(rc => (
                                     <Link
                                         key={rc.id}
                                         href={`/${createSlug(rc.name)}`}
-                                        className="block group"
+                                        className="block group h-full"
                                         onClick={() => gtag.event({ action: 'click_related_center', category: 'Navigation', label: rc.name })}
                                     >
-                                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative">
+                                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-slate-100 overflow-hidden relative">
                                             <div className="relative h-56 overflow-hidden">
                                                 <img
                                                     src={rc.imageUrls?.[0] || 'https://via.placeholder.com/600x400?text=No+Image'}
@@ -2055,50 +2077,43 @@ export default function CenterDetailClient({
 
                                                 {/* Starting Price Badge */}
                                                 {rc.price && Number(rc.price) > 0 ? (
-                                                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-gray-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 border border-white/40">
-                                                        <span className="text-gray-500 font-medium text-[11px]">เริ่มต้น</span>
-                                                        <span className="text-blue-600 font-bold">
+                                                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-slate-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 border border-white/60">
+                                                        <span className="text-slate-500 font-medium text-[11px]">เริ่มต้น</span>
+                                                        <span className="text-blue-600 font-extrabold">
                                                             ฿{Number(rc.price).toLocaleString()}
                                                         </span>
                                                     </div>
                                                 ) : null}
 
-                                                {/* Partner / Basic Info Badge */}
-                                                <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1 ${rc.isPartner ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                                                {/* Partner / Status Badge */}
+                                                <div className="absolute bottom-3 right-3 flex items-center">
                                                     {rc.isPartner ? (
-                                                        <>ยืนยันตัวตนแล้ว</>
+                                                        <OfficialPartnerBadge variant="badge" size="sm" />
                                                     ) : (
-                                                        <>ข้อมูลเบื้องต้น</>
+                                                        <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
+                                                            ข้อมูลเบื้องต้น
+                                                        </span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="p-5 flex-grow flex flex-col">
-                                                <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
-                                                    {rc.name}
-                                                </h3>
-                                                <p className="text-gray-500 text-sm flex items-center mb-3">
-                                                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-gray-400 flex-shrink-0" />
-                                                    <span className="line-clamp-1">{rc.address}</span>
-                                                </p>
-                                                <div className="flex items-center mb-4">
-                                                    <div className="flex text-yellow-400">
-                                                        {[...Array(5)].map((_, i) => (
-                                                            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rc.rating || 0) ? 'fill-current' : 'text-gray-200'}`} />
-                                                        ))}
-                                                    </div>
-                                                    <span className="text-xs text-gray-400 ml-2 font-medium">{rc.rating ? rc.rating.toFixed(1) : '0.0'} (รีวิว)</span>
-                                                </div>
-                                                {/* <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                                            <div className="p-5 flex-grow flex flex-col justify-between">
                                                 <div>
-                                                    <p className="text-xs text-green-600 font-bold mb-0.5">ค้นหาและเข้าใช้งาน</p>
-                                                    <p className="text-sm font-extrabold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg inline-block">
-                                                        ฟรีไม่มีค่าใช้จ่าย
+                                                    <h3 className="text-lg font-bold text-slate-900 leading-snug mb-1.5 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                                        {rc.name}
+                                                    </h3>
+                                                    <p className="text-slate-500 text-sm flex items-center mb-3">
+                                                        <MapPin className="h-3.5 w-3.5 mr-1.5 text-slate-400 shrink-0" />
+                                                        <span className="line-clamp-1">{rc.address}</span>
                                                     </p>
                                                 </div>
-                                                <div className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-200 transition-colors">
-                                                    <ChevronRight className="w-4 h-4" />
+                                                <div className="flex items-center pt-2 border-t border-slate-100">
+                                                    <div className="flex text-amber-400">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(rc.rating || 0) ? 'fill-current' : 'text-slate-200'}`} />
+                                                        ))}
+                                                    </div>
+                                                    <span className="text-xs text-slate-400 ml-2 font-medium">{rc.rating ? rc.rating.toFixed(1) : '0.0'} (รีวิว)</span>
                                                 </div>
-                                            </div> */}
                                             </div>
                                         </div>
                                     </Link>

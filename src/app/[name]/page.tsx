@@ -142,8 +142,19 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         ),
     ]);
 
+    // กลุ่มจังหวัดปริมณฑลที่เชื่อมต่อกัน (เดินทางข้ามจังหวัดได้ในระยะสั้น เช่น ลาซาล-แบริ่ง)
+    const BKK_METRO_PROVINCES = new Set([
+        'กรุงเทพมหานคร',
+        'สมุทรปราการ',
+        'นนทบุรี',
+        'ปทุมธานี',
+        'สมุทรสาคร',
+        'นครปฐม'
+    ]);
+    const isTargetMetro = BKK_METRO_PROVINCES.has(targetProvince);
+
     // ดึงศูนย์ดูแลใกล้เคียง 3 แห่งแรก:
-    // ให้ความสำคัญกับศูนย์ในจังหวัดเดียวกันเป็นอันดับแรก เพื่อป้องกันการดึงศูนย์ข้ามภาค (เช่น กรุงเทพมาแสดงในเชียงใหม่)
+    // ให้ความสำคัญกับศูนย์ในจังหวัดเดียวกัน หรือในกลุ่มปริมณฑลรัศมีไม่เกิน 15 กม.
     let nearbyCenters: any[] = [];
     if (hasValidCoords) {
         const centersWithDist = careCenters
@@ -158,17 +169,22 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                 )
             }));
 
-        // 1. หาศูนย์ในจังหวัดเดียวกันที่มีพิกัด เรียงตามระยะทาง
-        const sameProvinceWithDist = targetProvince
-            ? centersWithDist.filter((c: any) => (c.province || '').trim() === targetProvince)
-            : [];
+        // 1. หาศูนย์ในจังหวัดเดียวกัน หรือในกลุ่มปริมณฑลใกล้เคียง (เช่น ลาซาล กทม. กับ แบริ่ง สมุทรปราการ ห่างกัน 1-2 กม.)
+        const localCentersWithDist = centersWithDist.filter((c: any) => {
+            const cProv = (c.province || '').trim();
+            if (cProv === targetProvince) return true;
+            if (isTargetMetro && BKK_METRO_PROVINCES.has(cProv) && c.distanceKm <= 15) {
+                return true;
+            }
+            return false;
+        });
 
-        if (sameProvinceWithDist.length > 0) {
-            nearbyCenters = sameProvinceWithDist
+        if (localCentersWithDist.length > 0) {
+            nearbyCenters = localCentersWithDist
                 .sort((a: any, b: any) => a.distanceKm - b.distanceKm)
                 .slice(0, 3);
         } else {
-            // 2. ถ้าในจังหวัดเดียวกันไม่มีพิกัด ลองหารัศมีใกล้เคียงจริงไม่เกิน 50 กม.
+            // 2. ถ้าในพื้นที่ไม่มีพิกัด ลองหารัศมีใกล้เคียงจริงไม่เกิน 50 กม.
             nearbyCenters = centersWithDist
                 .filter((c: any) => c.distanceKm <= 50)
                 .sort((a: any, b: any) => a.distanceKm - b.distanceKm)
@@ -176,17 +192,21 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         }
     }
 
-    // 3. ถ้ายังไม่ครบ 3 แห่ง ให้เติมด้วยศูนย์ในจังหวัดเดียวกัน
+    // 3. ถ้ายังไม่ครบ 3 แห่ง ให้เติมด้วยศูนย์ในจังหวัดเดียวกันหรือปริมณฑล
     if (nearbyCenters.length < 3 && targetProvince) {
         const existingNearbyIds = new Set(nearbyCenters.map((c: any) => c.id));
         const sameProvRemaining = careCenters
-            .filter((c: any) => c.id !== normalizedCenter.id && c.status === 'visible' && (c.province || '').trim() === targetProvince && !existingNearbyIds.has(c.id));
+            .filter((c: any) => {
+                if (c.id === normalizedCenter.id || c.status !== 'visible' || existingNearbyIds.has(c.id)) return false;
+                const cProv = (c.province || '').trim();
+                return cProv === targetProvince || (isTargetMetro && BKK_METRO_PROVINCES.has(cProv));
+            });
         nearbyCenters = [...nearbyCenters, ...sameProvRemaining].slice(0, 3);
     }
 
     // ดึงศูนย์ดูแลอื่นๆ ที่น่าสนใจ:
     // ลำดับความสำคัญ:
-    // 1) ศูนย์ Partner ในจังหวัดเดียวกัน (หากมีพิกัดในรัศมี 7 กม. ให้ขึ้นก่อน)
+    // 1) ศูนย์ Partner ในจังหวัดเดียวกัน / ปริมณฑล (หากมีพิกัดในรัศมี 7 กม. ให้ขึ้นก่อน)
     // 2) ศูนย์ในจังหวัดเดียวกันที่มีช่วงราคาใกล้เคียงกัน (±5,000 บาท)
     // 3) ศูนย์อื่นๆ ในจังหวัดเดียวกัน เพื่อให้ครบ 3 แห่ง
     // 4) Fallback: หากทั้งจังหวัดมีศูนย์ไม่ถึง 3 แห่ง ค่อยดึงศูนย์นอกจังหวัด
@@ -206,12 +226,22 @@ export default async function Page({ params }: { params: Promise<{ name: string 
             return { ...c, distanceKm };
         });
 
-    // คัดกรองศูนย์ในจังหวัดเดียวกันเป็นกลุ่มแรก
+    // คัดกรองศูนย์ในจังหวัดเดียวกันหรือกลุ่มปริมณฑลเป็นกลุ่มแรก
     const sameProvinceCenters = targetProvince
-        ? availableCenters.filter((c: any) => (c.province || '').trim() === targetProvince)
+        ? availableCenters.filter((c: any) => {
+            const cProv = (c.province || '').trim();
+            if (cProv === targetProvince) return true;
+            if (isTargetMetro && BKK_METRO_PROVINCES.has(cProv) && c.distanceKm && c.distanceKm <= 15) return true;
+            return false;
+        })
         : availableCenters;
     const otherProvinceCenters = targetProvince
-        ? availableCenters.filter((c: any) => (c.province || '').trim() !== targetProvince)
+        ? availableCenters.filter((c: any) => {
+            const cProv = (c.province || '').trim();
+            if (cProv === targetProvince) return false;
+            if (isTargetMetro && BKK_METRO_PROVINCES.has(cProv) && c.distanceKm && c.distanceKm <= 15) return false;
+            return true;
+        })
         : [];
 
     const targetPrice = Number(normalizedCenter.price) || 0;
