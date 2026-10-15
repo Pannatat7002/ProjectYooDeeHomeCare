@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCareCenters, addCareCenter, getHospitals } from '../../../lib/db';
 import { requireAuth } from '../../../lib/middleware';
 import { calculateHaversineDistance } from '../../../lib/hospitalProximity';
+import { findNearbyCareCentersForSearch, NearbySearchResult } from '../../../lib/nearbyLocations';
 import { CareCenter } from '../../../types';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +16,8 @@ const NO_CACHE_HEADERS = {
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    let careCenters: CareCenter[] = await getCareCenters();
+    const allRawCenters: CareCenter[] = await getCareCenters();
+    let careCenters: CareCenter[] = [...allRawCenters];
 
     const hasGovernmentCertificate = searchParams.get('hasGovernmentCertificate');
     if (hasGovernmentCertificate !== null) {
@@ -139,6 +141,12 @@ export async function GET(request: Request) {
         }
     }
 
+    // Calculate nearby centers recommendations if searching by keyword/location
+    let nearbySearchResult: NearbySearchResult | null = null;
+    if (search && search.trim()) {
+        nearbySearchResult = findNearbyCareCentersForSearch(search, careCenters, allRawCenters, 6);
+    }
+
     // Support progressive pagination
     const pageParam = searchParams.get('page');
     const limitParam = searchParams.get('limit');
@@ -156,13 +164,22 @@ export async function GET(request: Request) {
             page,
             limit,
             totalPages,
-            hasMore: page < totalPages
+            hasMore: page < totalPages,
+            nearbyCenters: nearbySearchResult?.nearbyCenters || [],
+            nearbyKeywords: nearbySearchResult?.nearbyKeywords || [],
+            matchedZoneName: nearbySearchResult?.matchedZoneName || null,
         }, {
             headers: NO_CACHE_HEADERS
         });
     }
 
-    return NextResponse.json(careCenters, {
+    return NextResponse.json({
+        data: careCenters,
+        total: careCenters.length,
+        nearbyCenters: nearbySearchResult?.nearbyCenters || [],
+        nearbyKeywords: nearbySearchResult?.nearbyKeywords || [],
+        matchedZoneName: nearbySearchResult?.matchedZoneName || null,
+    }, {
         headers: NO_CACHE_HEADERS
     });
 }

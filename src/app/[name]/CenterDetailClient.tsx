@@ -1991,6 +1991,14 @@ export default function CenterDetailClient({
                                                 ) : null}
 
 
+                                                {/* Distance Badge */}
+                                                {nc.distanceKm !== undefined && (
+                                                    <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-100">
+                                                        <Navigation className="w-3 h-3 shrink-0" />
+                                                        <span>ห่าง ~{Number(nc.distanceKm).toFixed(1)} กม.</span>
+                                                    </div>
+                                                )}
+
                                                 {/* Partner / Basic Info Badge */}
                                                 <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1 ${nc.isPartner ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
                                                     {nc.isPartner ? (

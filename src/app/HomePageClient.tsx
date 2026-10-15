@@ -164,14 +164,18 @@ interface CenterCardProps {
   center: CareCenter;
   userLocation?: { lat: number; lng: number } | null;
   locationLabel?: string;
+  badgeLabel?: string;
 }
 
-const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationLabel }) => {
+const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationLabel, badgeLabel }) => {
   const createSlug = (name: string) => encodeURIComponent(name.replace(/\s+/g, '-'));
 
   const distance = useMemo(() => {
     if (userLocation && center.lat && center.lng) {
       return getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, center.lat, center.lng).toFixed(1);
+    }
+    if (center.distanceKm !== undefined && center.distanceKm !== null && !isNaN(Number(center.distanceKm))) {
+      return Number(center.distanceKm).toFixed(1);
     }
     return null;
   }, [userLocation, center]);
@@ -224,8 +228,13 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationL
             </div>
           ) : null}
 
-
-
+          {/* Recommended Nearby Area Badge */}
+          {badgeLabel && (
+            <div className="absolute top-3 right-3 bg-blue-600/95 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1 border border-blue-400/30">
+              <MapPin className="w-3 h-3 shrink-0" />
+              <span>{badgeLabel}</span>
+            </div>
+          )}
 
           {distance && (
             <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-100">
@@ -603,6 +612,9 @@ export default function HomePageClient({
 }) {
   const [centers, setCenters] = useState<CareCenter[]>(initialCenters);
   const [partnerCenters] = useState<CareCenter[]>(initialPartnerCenters);
+  const [nearbyCenters, setNearbyCenters] = useState<CareCenter[]>([]);
+  const [nearbyKeywords, setNearbyKeywords] = useState<string[]>([]);
+  const [matchedZoneName, setMatchedZoneName] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(initialCenters.length < totalCentersCount);
   const [totalCount, setTotalCount] = useState<number>(totalCentersCount || initialCenters.length);
@@ -1171,8 +1183,22 @@ export default function HomePageClient({
     setHospitalProvince('all');
     setSelectedHospitalId('');
     setHospitalRadius('all');
+    setNearbyCenters([]);
+    setNearbyKeywords([]);
+    setMatchedZoneName(null);
     setSearchError(null);
     gtag.event({ action: 'clear_all_filters', category: 'Engagement' });
+  };
+
+  // ✅ ฟังก์ชันเลือกค้นหาย่านใกล้เคียงเมื่อคลิกแท็กแนะนำ (เช่น [บางนา], [แบริ่ง])
+  const handleSelectNearbyKeyword = (keyword: string) => {
+    setActiveTab('general');
+    setProvince('all');
+    setSearchTerm(keyword);
+    setShowSuggestions(false);
+    setSearchError(null);
+    gtag.event({ action: 'select_nearby_keyword', category: 'Search', label: keyword });
+    scrollToResults();
   };
 
   // ✅ ตัวแปรเช็คว่ากำลังค้นหา/กรองข้อมูลอยู่หรือไม่
@@ -1265,6 +1291,13 @@ export default function HomePageClient({
         const newHasMore: boolean = typeof json.hasMore === 'boolean' ? json.hasMore : false;
 
         if (isNewFilter) {
+          const returnedNearby: CareCenter[] = Array.isArray(json.nearbyCenters) ? json.nearbyCenters : [];
+          const returnedKeywords: string[] = Array.isArray(json.nearbyKeywords) ? json.nearbyKeywords : [];
+          const returnedZone: string | null = json.matchedZoneName || null;
+          setNearbyCenters(returnedNearby);
+          setNearbyKeywords(returnedKeywords);
+          setMatchedZoneName(returnedZone);
+
           if (newItems.length === 0) {
             setCenters([]);
             setTotalCount(0);
@@ -2218,6 +2251,24 @@ export default function HomePageClient({
                   : `รวบรวมศูนย์ดูแลคุณภาพ ${totalCount.toLocaleString()} แห่งทั่วประเทศ`
                 }
               </p>
+              {nearbyKeywords.length > 0 && isSearchActive && (
+                <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-1">
+                  <span className="text-xs font-semibold text-gray-500 flex items-center gap-1 mr-1">
+                    <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    ทำเลใกล้เคียงแนะนำ:
+                  </span>
+                  {nearbyKeywords.map(kw => (
+                    <button
+                      key={kw}
+                      type="button"
+                      onClick={() => handleSelectNearbyKeyword(kw)}
+                      className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-200/70 transition-all cursor-pointer shadow-2xs active:scale-95"
+                    >
+                      <span>{kw}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -2236,8 +2287,63 @@ export default function HomePageClient({
             </div>
           ) : (
             <>
-              {/* เมื่อค้นหาแล้วไม่พบศูนย์ตามเงื่อนไข ให้แสดง Empty State ชัดเจน ไม่ดึงศูนย์เดิมมาทับ */}
-              {isSearchActive && centers.length === 0 ? (
+              {/* เมื่อค้นหาแล้วไม่พบศูนย์ตามคำค้นหาโดยตรง แต่มีศูนย์ในทำเลใกล้เคียง (เช่น ค้นหา ลาซาล แต่มี บางนา แบริ่ง) */}
+              {isSearchActive && centers.length === 0 && nearbyCenters.length > 0 ? (
+                <div className="mb-12">
+                  <div className="py-6 px-6 bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/40 rounded-3xl border border-blue-100 shadow-sm mb-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-blue-100/70">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                          <MapPin className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900">
+                            ไม่พบศูนย์ที่ตรงกับ &quot;{searchTerm.trim()}&quot; โดยตรง
+                          </h3>
+                          <p className="text-gray-600 text-sm mt-0.5">
+                            แต่เราพบ <span className="font-bold text-blue-600">{nearbyCenters.length} ศูนย์ดูแลคุณภาพ</span> ในทำเลใกล้เคียง {nearbyKeywords.length > 0 && `(${nearbyKeywords.slice(0, 4).join(', ')})`}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleClearFilters}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white hover:bg-gray-100 text-gray-600 border border-gray-200 transition-all cursor-pointer shrink-0 self-end sm:self-auto"
+                      >
+                        ล้างคำค้นหา
+                      </button>
+                    </div>
+
+                    {nearbyKeywords.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-1">
+                        <span className="text-xs font-semibold text-gray-500 mr-1">เลือกดูเจาะจงย่าน:</span>
+                        {nearbyKeywords.map(kw => (
+                          <button
+                            key={kw}
+                            type="button"
+                            onClick={() => handleSelectNearbyKeyword(kw)}
+                            className="text-xs font-medium px-2.5 py-1 rounded-full bg-white hover:bg-blue-600 hover:text-white text-blue-700 border border-blue-200 transition-all shadow-2xs cursor-pointer"
+                          >
+                            📍 {kw}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Grid of Nearby Centers */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {nearbyCenters.map((nc) => (
+                      <CenterCard
+                        key={`nearby-fallback-${nc.id}`}
+                        center={nc}
+                        userLocation={nc.referenceLocation || effectiveLocation}
+                        locationLabel={nc.nearbyAreaName ? `ย่าน${nc.nearbyAreaName}` : 'ทำเลใกล้เคียง'}
+                        badgeLabel={nc.nearbyAreaName ? `ย่าน${nc.nearbyAreaName}` : 'ทำเลใกล้เคียง'}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : isSearchActive && centers.length === 0 ? (
                 <div className="py-16 px-4 text-center bg-white rounded-3xl border border-gray-100 shadow-sm max-w-xl mx-auto my-6">
                   <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Search className="w-8 h-8 text-blue-500" />
@@ -2316,6 +2422,53 @@ export default function HomePageClient({
                       </>
                     )}
                   </button>
+                </div>
+              )}
+
+              {/* 🌟 ศูนย์ดูแลแนะนำในทำเลใกล้เคียง (แสดงเมื่อค้นหาแล้วพบผลลัพธ์ และมีศูนย์ในทำเลใกล้เคียง เช่น ค้นหา ลาซาล -> แนะนำ บางนา แบริ่ง) */}
+              {isSearchActive && centers.length > 0 && nearbyCenters.length > 0 && (
+                <div className="mt-16 pt-10 border-t border-gray-100">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-2 border border-blue-100">
+                        <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                        <span>ตัวเลือกเสริมในพื้นที่ข้างเคียง</span>
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+                        ศูนย์ดูแลแนะนำในทำเลใกล้เคียง
+                      </h3>
+                      <p className="text-gray-500 text-sm mt-1">
+                        ศูนย์คุณภาพในย่านใกล้เคียง {nearbyKeywords.length > 0 && `(${nearbyKeywords.slice(0, 4).join(', ')})`} ที่เดินทางสะดวก
+                      </p>
+                    </div>
+
+                    {nearbyKeywords.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {nearbyKeywords.slice(0, 4).map(kw => (
+                          <button
+                            key={kw}
+                            type="button"
+                            onClick={() => handleSelectNearbyKeyword(kw)}
+                            className="text-xs font-medium px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-blue-600 hover:text-white text-gray-700 border border-gray-200 transition-all cursor-pointer active:scale-95 shadow-2xs"
+                          >
+                            ค้นหา {kw}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {nearbyCenters.map((nc) => (
+                      <CenterCard
+                        key={`nearby-supplement-${nc.id}`}
+                        center={nc}
+                        userLocation={nc.referenceLocation || effectiveLocation}
+                        locationLabel={nc.nearbyAreaName ? `ย่าน${nc.nearbyAreaName}` : 'ทำเลใกล้เคียง'}
+                        badgeLabel={nc.nearbyAreaName ? `ย่าน${nc.nearbyAreaName}` : 'ทำเลใกล้เคียง'}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </>
