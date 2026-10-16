@@ -4,6 +4,19 @@ import { getAdmins, updateAdmin } from '../../../../lib/db';
 import { createToken } from '../../../../lib/auth';
 import { Admin, AdminLoginRequest, AdminLoginResponse } from '../../../../types';
 
+export async function OPTIONS(request: NextRequest) {
+    const origin = request.headers.get('origin') || '*';
+    return new NextResponse(null, {
+        status: 204,
+        headers: {
+            'Access-Control-Allow-Origin': origin,
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept',
+            'Access-Control-Max-Age': '86400',
+        },
+    });
+}
+
 /**
  * POST /api/auth/login
  * ใช้สำหรับ login ของ Admin
