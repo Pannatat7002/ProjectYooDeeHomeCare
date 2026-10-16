@@ -45,23 +45,38 @@ export async function POST(request: Request) {
         // Create new consultation object with intelligent defaults
         const newConsultation = {
             id: Date.now(),
-            name: name?.trim() || 'ผู้สนใจบริการ',
-            contactName: name?.trim() || 'ผู้สนใจบริการ',
+            name: name?.trim() || body.contact_name?.trim() || 'ผู้สนใจบริการ',
+            contactName: name?.trim() || body.contact_name?.trim() || 'ผู้สนใจบริการ',
             phone: cleanPhone,
-            lineId: lineId || '',
+            lineId: lineId || body.line_id || '',
             email: email || '',
-            recipientName: recipientName || '',
-            recipientAge: recipientAge ? Number(recipientAge) : undefined,
-            relationshipToRecipient: relationshipToRecipient || '',
-            roomType: roomType || 'ยังไม่ระบุห้องพัก',
+            recipientName: recipientName || body.recipient_name || '',
+            recipientAge: (recipientAge !== undefined && recipientAge !== null)
+                ? Number(recipientAge)
+                : ((body.recipient_age !== undefined && body.recipient_age !== null) ? Number(body.recipient_age) : undefined),
+            relationshipToRecipient: relationshipToRecipient || body.relationship_to_recipient || '',
+            roomType: roomType || body.room_type || 'ยังไม่ระบุห้องพัก',
             branch: branch || 'ศูนย์ทั่วไป',
             budget: budget || 'ยังไม่ระบุ',
-            convenientTime: convenientTime || 'ด่วนภายใน 7 วัน',
+            convenientTime: convenientTime || body.convenient_time || 'ด่วนภายใน 7 วัน',
             message: message || '',
-            utmSource: body.utmSource || '',
-            utmMedium: body.utmMedium || '',
-            utmCampaign: body.utmCampaign || '',
-            status: 'verified',
+            utmSource: body.utmSource || body.utm_source || '',
+            utmMedium: body.utmMedium || body.utm_medium || '',
+            utmCampaign: body.utmCampaign || body.utm_campaign || '',
+            status: body.status || 'verified',
+            notes: body.notes || '',
+            centerCallStatus: body.centerCallStatus || body.center_call_status || 'not_called',
+            hasCommission: body.hasCommission !== undefined
+                ? Boolean(body.hasCommission)
+                : (body.has_commission !== undefined ? Boolean(body.has_commission) : false),
+            commissionRate: body.commissionRate || body.commission_rate || '',
+            hasSingleRoom: body.hasSingleRoom !== undefined
+                ? Boolean(body.hasSingleRoom)
+                : (body.has_single_room !== undefined ? Boolean(body.has_single_room) : false),
+            hasSharedRoom: body.hasSharedRoom !== undefined
+                ? Boolean(body.hasSharedRoom)
+                : (body.has_shared_room !== undefined ? Boolean(body.has_shared_room) : false),
+            customPrice: body.customPrice || body.custom_price || '',
             submittedAt: new Date().toISOString(),
         };
 

@@ -97,17 +97,37 @@ export interface Consultation {
     phone: string;
     email?: string;
     lineId?: string;
+    line_id?: string;
     contactName?: string; // ชื่อผู้ติดต่อ
     recipientName?: string; // ชื่อผู้รับบริการ
+    recipient_name?: string;
     recipientAge?: number; // อายุผู้รับบริการ
+    recipient_age?: number;
     relationshipToRecipient?: string; // ความสัมพันธ์กับผู้รับบริการ
+    relationship_to_recipient?: string;
     branch: string;
     budget: string;
     roomType: string;
+    room_type?: string;
     convenientTime: string;
+    convenient_time?: string;
     message: string;
     status: string;
     submittedAt: string;
+    submitted_at?: string;
+    notes?: string;
+    centerCallStatus?: string;
+    center_call_status?: string;
+    hasCommission?: boolean;
+    has_commission?: boolean;
+    commissionRate?: string;
+    commission_rate?: string;
+    hasSingleRoom?: boolean;
+    has_single_room?: boolean;
+    hasSharedRoom?: boolean;
+    has_shared_room?: boolean;
+    customPrice?: string;
+    custom_price?: string;
 }
 
 export interface ContactMessage {

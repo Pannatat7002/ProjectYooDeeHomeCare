@@ -82,6 +82,13 @@ CREATE TABLE IF NOT EXISTS public.consultations (
     convenient_time TEXT DEFAULT '',
     message TEXT DEFAULT '',
     status TEXT DEFAULT 'pending',
+    notes TEXT DEFAULT '',
+    center_call_status TEXT DEFAULT 'not_called',
+    has_commission BOOLEAN DEFAULT false,
+    commission_rate TEXT DEFAULT '',
+    has_single_room BOOLEAN DEFAULT false,
+    has_shared_room BOOLEAN DEFAULT false,
+    custom_price TEXT DEFAULT '',
     submitted_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 

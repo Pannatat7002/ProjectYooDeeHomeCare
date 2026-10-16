@@ -10,6 +10,7 @@ export const toSnakeCase = (obj: any): any => {
     }
     const result: any = {};
     const numericFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipient_age', 'center_id', 'recipientAge', 'centerId', 'moph_order', 'mophOrder'];
+    const booleanFields = ['has_commission', 'has_single_room', 'has_shared_room', 'hasCommission', 'hasSingleRoom', 'hasSharedRoom', 'is_published', 'isPublished', 'has_government_certificate', 'hasGovernmentCertificate', 'is_active', 'isActive'];
     for (const key of Object.keys(obj)) {
         const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
         let val = obj[key];
@@ -18,6 +19,13 @@ export const toSnakeCase = (obj: any): any => {
                 val = null;
             } else if (val !== null && !isNaN(Number(val))) {
                 val = Number(val);
+            }
+        } else if (booleanFields.includes(key) || booleanFields.includes(snakeKey)) {
+            if (typeof val === 'string') {
+                if (val.toLowerCase() === 'true') val = true;
+                else if (val.toLowerCase() === 'false') val = false;
+            } else if (val !== undefined && val !== null) {
+                val = Boolean(val);
             }
         }
         result[snakeKey] = val;
@@ -41,10 +49,12 @@ export const toCamelCase = (obj: any): any => {
 // --- 3. Helper: Parse row from Supabase to match application Types ---
 const parseRow = (row: any) => {
     if (!row) return row;
-    const item = toCamelCase(row);
+    const camel = toCamelCase(row);
+    // Combine both snake_case (from DB) and camelCase so both web admin and Flutter / external API clients receive their expected keys
+    const item = { ...row, ...camel };
 
     // Number conversion check
-    const numberFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipientAge', 'centerId', 'mophOrder'];
+    const numberFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipientAge', 'recipient_age', 'centerId', 'center_id', 'mophOrder', 'moph_order'];
     for (const field of numberFields) {
         if (item[field] !== undefined && item[field] !== null && item[field] !== '') {
             const num = Number(item[field]);
@@ -193,18 +203,21 @@ const updateDataInTable = async (tableName: string, id: number | string, updated
             .update(dbItem)
             .eq('id', id);
 
-        // Handle case where column does not exist yet in database schema (e.g. PGRST204)
-        if (error && (error.code === 'PGRST204' || error.message?.includes('Could not find the'))) {
+        // Handle case where columns do not exist yet in database schema (e.g. PGRST204)
+        let retryCount = 0;
+        while (error && (error.code === 'PGRST204' || error.message?.includes('Could not find the')) && retryCount < 10) {
             const missingCol = extractMissingColumn(error);
             if (missingCol && missingCol in dbItem) {
                 console.warn(`[Supabase Notice] Column '${missingCol}' does not exist in table '${tableName}'. Retrying update without it.`);
-                const retryItem = { ...dbItem };
-                delete retryItem[missingCol];
+                delete dbItem[missingCol];
                 const retry = await supabaseAdmin
                     .from(tableName)
-                    .update(retryItem)
+                    .update(dbItem)
                     .eq('id', id);
                 error = retry.error;
+                retryCount++;
+            } else {
+                break;
             }
         }
 

@@ -9,7 +9,7 @@ export async function PUT(
     return requireAuth(request, async () => {
         try {
             const { id } = await params;
-            const consultationId = Number(id);
+            const consultationId = !isNaN(Number(id)) ? Number(id) : id;
             const body = await request.json();
 
             const success = await updateConsultation(consultationId, body);
