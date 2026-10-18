@@ -14,7 +14,8 @@ import {
     MessageSquare,
     Navigation,
     Eye,
-    Sparkles
+    Sparkles,
+    Facebook
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,8 +25,7 @@ import { CareCenter, RoomType } from '../../types/index';
 import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
 import { getVerifiedLead, saveVerifiedLead } from '../../lib/leadSession';
 import { getVisitorTrackingData } from '../../lib/visitorTracking';
-import { IconOfficialPartner, IconSearchTransit } from '../../components/icons/CustomIcons';
-import { OfficialPartnerBadge } from '../../components/OfficialPartnerBadge';
+import { IconSearchTransit } from '../../components/icons/CustomIcons';
 import { NearbyTransitStation, findTopNearbyTransitStations } from '../../lib/transitStations';
 
 
@@ -1295,7 +1295,7 @@ export default function CenterDetailClient({
                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-snug">{center.name}</h1>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4">
                         <p className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1 text-gray-400 shrink-0" /> {isTrue(center.isPartner) ? center.address : (center.province ? `จังหวัด${center.province}` : 'ประเทศไทย')}
+                            <MapPin className="h-4 w-4 mr-1 text-gray-400 shrink-0" /> {center.address || (center.province ? `จังหวัด${center.province}` : 'ประเทศไทย')}
                         </p>
                         <div className="flex items-center">
                             <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
@@ -1310,14 +1310,9 @@ export default function CenterDetailClient({
                             </div>
                         )}
 
-                        {/* ✅ ใช้ isTrue เช็ค isPartner */}
-                        {isTrue(center.isPartner) ? (
-                            <OfficialPartnerBadge variant="pill" size="md" />
-                        ) : (
-                            <div className="flex items-center bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold border border-gray-200">
-                                <Info className="h-3 w-3 mr-1" /> ข้อมูลเบื้องต้น
-                            </div>
-                        )}
+                        <div className="flex items-center bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold border border-gray-200">
+                            <Info className="h-3 w-3 mr-1" /> ข้อมูลเบื้องต้น
+                        </div>
                     </div>
                 </div>
 
@@ -1393,45 +1388,7 @@ export default function CenterDetailClient({
                     </div>
                 </div>
 
-                {/* Official Partner Banner */}
-                {isTrue(center.isPartner) && (
-                    <div className="relative rounded-none sm:rounded-2xl overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white p-6 md:p-8 shadow-none sm:shadow-lg border-y border-x-0 sm:border border-white/10 mt-6 -mx-4 sm:mx-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        {/* Background decorations */}
-                        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl pointer-events-none"></div>
-                        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
-
-                        <div className="relative z-10 flex items-center space-x-4 sm:space-x-5">
-                            <div className="shrink-0 p-1.5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center">
-                                <Image
-                                    src="/images/badges/badge-official-partner.png"
-                                    alt="Official Partner"
-                                    width={48}
-                                    height={48}
-                                    className="w-13 h-13 sm:w-16 sm:h-16 object-contain drop-shadow-md"
-                                />
-                            </div>
-                            <div>
-                                <h3 className="text-lg md:text-xl font-bold flex items-center flex-wrap gap-2 text-white">
-                                    Official Partner
-                                    {/* <span className="ml-1 bg-gradient-to-r from-amber-400 to-yellow-500 text-blue-950 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
-                                        <CheckCircle2 className="w-3 h-3" /> Verified
-                                    </span> */}
-                                </h3>
-                                <p className="text-blue-100 text-sm md:text-base mt-1 font-medium">
-                                    ศูนย์นี้ผ่านการตรวจสอบมาตรฐานความปลอดภัยและบริการโดยทีมงาน ThaiCareCenter
-                                </p>
-                            </div>
-                        </div>
-                        <div className="relative z-10 flex items-center space-x-6 md:border-l md:border-white/20 md:pl-6">
-                            <div className="text-center md:text-right">
-                                <p className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Status</p>
-                                <p className="font-bold text-white">Official Partner</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-2">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-6">
 
                     {/* Left Column */}
                     <div className="lg:col-span-2 space-y-12">
@@ -1449,7 +1406,7 @@ export default function CenterDetailClient({
                                 }}
                             />
                         </section>
-                        {isTrue(center.isPartner) && center.services && center.services.length > 0 && (
+                        {center.services && center.services.length > 0 && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
                                 <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">สิ่งอำนวยความสะดวกและบริการ</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
@@ -1484,8 +1441,8 @@ export default function CenterDetailClient({
                             </section>
                         )}
 
-                        {/* ✅ Packages: center.packages ถูก Normalize เป็น Array ว่างแล้วใน useEffect */}
-                        {isTrue(center.isPartner) && Array.isArray(center.packages) && center.packages.length > 0 && (
+                        {/* ✅ Packages */}
+                        {Array.isArray(center.packages) && center.packages.length > 0 && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-slate-100 -mx-4 sm:mx-0">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 mb-6 gap-2">
                                     <div>
@@ -1681,46 +1638,46 @@ export default function CenterDetailClient({
                                         const displayName = station.nameTh.startsWith('สถานี') ? station.nameTh : `สถานี${station.nameTh}`;
 
                                         return (
-                                             <div key={station.id || idx} className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-700 py-2 sm:py-2.5 border-b border-gray-50 last:border-b-0 gap-1.5 sm:gap-3 group">
-                                                 <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
-                                                     <a
-                                                         href={routeUrl}
-                                                         target="_blank"
-                                                         rel="noopener noreferrer"
-                                                         onClick={() => {
-                                                             gtag.event({ action: 'click_nearby_transit', category: 'Engagement', label: displayName });
-                                                             logTraffic('click_nearby_transit');
-                                                         }}
-                                                         className="hover:text-emerald-700 font-semibold text-gray-800 transition-colors text-sm sm:text-base leading-snug"
-                                                         title={`ดูเส้นทางไป ${displayName} บน Google Maps`}
-                                                     >
-                                                         {displayName}
-                                                     </a>
-                                                     {getTransitLineBadge(station.lineCode, station.line)}
-                                                 </div>
-                                                 <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
-                                                     <span className="text-gray-500 font-medium text-xs sm:text-sm whitespace-nowrap">
-                                                         <span className="hidden sm:inline">ระยะประมาณ </span>
-                                                         {Number(item.distanceKm).toFixed(1)} กม.
-                                                         {item.durationMinutes && item.durationMinutes > 0 ? (
-                                                             <span className="text-gray-400 font-normal text-xs ml-1">(~{item.durationMinutes} นาที)</span>
-                                                         ) : null}
-                                                     </span>
-                                                     <a
-                                                         href={routeUrl}
-                                                         target="_blank"
-                                                         rel="noopener noreferrer"
-                                                         onClick={() => {
-                                                             gtag.event({ action: 'click_transit_map_route', category: 'Engagement', label: `${center.name} -> ${displayName}` });
-                                                             logTraffic('click_nearby_transit_route');
-                                                         }}
-                                                         className="inline-flex items-center gap-1 text-gray-400 hover:text-emerald-600 transition-colors p-1 rounded-md hover:bg-emerald-50"
-                                                         title="เปิดเส้นทางนำทางใน Google Maps"
-                                                     >
-                                                         <Navigation className="w-3.5 h-3.5" />
-                                                     </a>
-                                                 </div>
-                                             </div>
+                                            <div key={station.id || idx} className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-700 py-2 sm:py-2.5 border-b border-gray-50 last:border-b-0 gap-1.5 sm:gap-3 group">
+                                                <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                                                    <a
+                                                        href={routeUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={() => {
+                                                            gtag.event({ action: 'click_nearby_transit', category: 'Engagement', label: displayName });
+                                                            logTraffic('click_nearby_transit');
+                                                        }}
+                                                        className="hover:text-emerald-700 font-semibold text-gray-800 transition-colors text-sm sm:text-base leading-snug"
+                                                        title={`ดูเส้นทางไป ${displayName} บน Google Maps`}
+                                                    >
+                                                        {displayName}
+                                                    </a>
+                                                    {getTransitLineBadge(station.lineCode, station.line)}
+                                                </div>
+                                                <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                                    <span className="text-gray-500 font-medium text-xs sm:text-sm whitespace-nowrap">
+                                                        <span className="hidden sm:inline">ระยะประมาณ </span>
+                                                        {Number(item.distanceKm).toFixed(1)} กม.
+                                                        {item.durationMinutes && item.durationMinutes > 0 ? (
+                                                            <span className="text-gray-400 font-normal text-xs ml-1">(~{item.durationMinutes} นาที)</span>
+                                                        ) : null}
+                                                    </span>
+                                                    <a
+                                                        href={routeUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={() => {
+                                                            gtag.event({ action: 'click_transit_map_route', category: 'Engagement', label: `${center.name} -> ${displayName}` });
+                                                            logTraffic('click_nearby_transit_route');
+                                                        }}
+                                                        className="inline-flex items-center gap-1 text-gray-400 hover:text-emerald-600 transition-colors p-1 rounded-md hover:bg-emerald-50"
+                                                        title="เปิดเส้นทางนำทางใน Google Maps"
+                                                    >
+                                                        <Navigation className="w-3.5 h-3.5" />
+                                                    </a>
+                                                </div>
+                                            </div>
                                         );
                                     })}
                                 </div>
@@ -1742,167 +1699,65 @@ export default function CenterDetailClient({
                             {/* Main Content Area */}
                             <div className="grid grid-cols-1 gap-4">
                                 {/* Info Section */}
-                                {isTrue(center.isPartner) && (
+                                {center.price && Number(center.price) > 0 ? (
                                     <div className="space-y-3.5">
                                         {/* Price tag */}
                                         <div className="space-y-1">
                                             <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider">อัตราค่าบริการ</div>
                                             <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
                                                 <span className="text-2xl sm:text-3xl font-extrabold text-[#2b64a0] tracking-tight">
-                                                    {center.price && center.price > 0 ? `เริ่มต้น ${center.price.toLocaleString()} บ.` : 'เริ่มต้น 15,000 บ.'}
+                                                    เริ่มต้น {Number(center.price).toLocaleString()} บ.
                                                 </span>
                                                 <span className="text-sm font-bold text-gray-800">/เดือน</span>
                                                 <span className="text-xs font-bold text-red-500">(ไม่รวม VAT)</span>
                                             </div>
                                         </div>
-
-                                        {/* Promo Box */}
-                                        {/* <div className="p-3 sm:p-3.5 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2.5 shadow-inner">
-                                            <div className="flex items-start text-gray-950 text-sm sm:text-base font-bold leading-normal">
-                                                <span className="text-lg mr-2 shrink-0 animate-bounce">🔥</span>
-                                                <div>
-                                                    จองสิทธิ์ <span className="text-[#2b64a0] underline decoration-wavy decoration-orange-400">&ldquo;ทดลองเข้าพัก ฟรี 2 วัน&rdquo;</span>
-                                                    <span className="text-red-500 text-[10px] sm:text-xs block mt-0.5 font-bold">
-                                                        (รับจำนวนจำกัด เพื่อการดูแลที่ทั่วถึง)
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="text-xs sm:text-sm font-bold text-[#2b64a0]">
-                                                📞 โทรจองสิทธิ์ทดลองพักฟรีด่วน!
-                                            </div> */}
-
-                                        {/* Big Phone Number Box */}
-                                        {/* {isInfoUnlocked ? (
-                                                <a
-                                                    href={getTelHref(center.phone, '080-102-7615')}
-                                                    className="flex items-center justify-center gap-2 px-3 py-2 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all group"
-                                                    onClick={(e) => {
-                                                        const telUrl = getTelHref(center.phone, '080-102-7615');
-                                                        e.preventDefault();
-                                                        handleGatedAction('call', undefined, () => {
-                                                            window.location.href = telUrl;
-                                                        });
-                                                        gtag.event({ action: 'click_phone_promo', category: 'Conversion', label: center.name });
-                                                        logTraffic('click_phone');
-                                                    }}
-                                                >
-                                                    <Phone className="w-4 h-4 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
-                                                    <span className="text-lg font-bold text-white tracking-wider">
-                                                        {formatPhone(center.phone || '080-102-7615')}
-                                                    </span>
-                                                </a>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const telUrl = getTelHref(center.phone, '080-102-7615');
-                                                        handleGatedAction('call', undefined, () => {
-                                                            setIsInfoUnlocked(true);
-                                                            window.location.href = telUrl;
-                                                        });
-                                                        gtag.event({ action: 'click_show_phone', category: 'Conversion', label: center.name });
-                                                        logTraffic('click_phone');
-                                                    }}
-                                                    className="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-[#2b64a0] hover:bg-[#1e4a77] text-white rounded-xl border border-blue-200 w-full sm:w-fit shadow-md transition-all cursor-pointer group"
-                                                >
-                                                    <Phone className="w-4 h-4 text-white fill-current group-hover:scale-110 transition-transform flex-shrink-0" />
-                                                    <span className="text-sm font-bold text-white tracking-wide">
-                                                        กดเพื่อแสดงเบอร์โทร
-                                                    </span>
-                                                </button>
-                                            )} */}
                                     </div>
-                                    // </div>
-                                )}
+                                ) : null}
 
                                 {/* Contact Header */}
-                                <div className={`text-gray-400 text-xs font-semibold uppercase tracking-wider ${isTrue(center.isPartner) ? 'border-t border-gray-100 pt-3' : ''}`}>
+                                <div className={`text-gray-400 text-xs font-semibold uppercase tracking-wider ${center.price && Number(center.price) > 0 ? 'border-t border-gray-100 pt-3' : ''}`}>
                                     ช่องทางการติดต่อ
                                 </div>
 
-                                {/* Buttons Stack (Design เดิม: สวยงาม เรียบหรู ไม่ซ้ำซ้อน) */}
+                                {/* Buttons Stack */}
                                 <div className="flex flex-col gap-2.5">
-                                    {/* กล่องเบอร์โทรศัพท์ (Comment ไว้ตามที่แจ้ง) */}
-                                    {/* {center.phone && (
-                                        isInfoUnlocked ? (
-                                            <div className="w-full p-3.5 bg-gradient-to-r from-blue-50/90 to-sky-50/70 border border-blue-200 rounded-2xl animate-in fade-in duration-300">
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <div className="flex items-center gap-3 min-w-0">
-                                                        <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
-                                                            <Phone className="w-5 h-5 fill-current" />
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
-                                                            <a
-                                                                href={getTelHref(center.phone)}
-                                                                onClick={(e) => {
-                                                                    const telUrl = getTelHref(center.phone);
-                                                                    e.preventDefault();
-                                                                    handleGatedAction('call', undefined, () => {
-                                                                        window.location.href = telUrl;
-                                                                    });
-                                                                    gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
-                                                                    logTraffic('click_phone');
-                                                                }}
-                                                                className="text-base sm:text-lg font-extrabold text-blue-950 tracking-wider hover:underline block truncate"
-                                                            >
-                                                                {formatPhone(center.phone)}
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <a
-                                                        href={getTelHref(center.phone)}
-                                                        onClick={(e) => {
-                                                            const telUrl = getTelHref(center.phone);
-                                                            e.preventDefault();
-                                                            handleGatedAction('call', undefined, () => {
-                                                                window.location.href = telUrl;
-                                                            });
-                                                            gtag.event({ action: 'click_phone_button', category: 'Conversion', label: center.name });
-                                                            logTraffic('click_phone');
-                                                        }}
-                                                        className="flex-shrink-0 text-xs font-bold px-3.5 py-2 rounded-full transition-all bg-green-600 hover:bg-green-700 text-white shadow-xs cursor-pointer flex items-center gap-1"
-                                                    >
-                                                        <Phone className="w-3.5 h-3.5 fill-current" />
-                                                        โทรออก
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    const telUrl = getTelHref(center.phone);
-                                                    handleGatedAction('call', undefined, () => {
-                                                        setIsInfoUnlocked(true);
-                                                        window.location.href = telUrl;
-                                                    });
-                                                    gtag.event({ action: 'click_reveal_phone', category: 'Conversion', label: center.name });
-                                                    logTraffic('click_phone');
-                                                }}
-                                                className="w-full flex items-center justify-between p-3.5 bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-indigo-50/80 border border-blue-200 hover:border-blue-400 rounded-2xl transition-all hover:shadow-md active:scale-[0.98] group cursor-pointer text-left"
-                                            >
-                                                <div className="flex items-center gap-3 min-w-0">
-                                                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
-                                                        <Phone className="w-5 h-5 fill-current" />
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <div className="text-[11px] font-semibold text-gray-500 leading-tight">เบอร์โทรติดต่อศูนย์ดูแล</div>
-                                                        <div className="text-sm sm:text-base font-extrabold text-blue-900 mt-0.5">
-                                                            {formatPhone(center.phone).slice(0, 7)}xxxx
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <span className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full transition-all bg-blue-600 text-white shadow-xs group-hover:bg-blue-700 flex items-center gap-1">
-                                                    <Eye className="w-3.5 h-3.5" />
-                                                    กดดูเบอร์โทร
-                                                </span>
-                                            </button>
-                                        )
-                                    )} */}
+                                    {/* 1. ปุ่ม LINE หาเจ้าหน้าที่ */}
+                                    <a
+                                        href="https://line.me/R/ti/p/%40256zihiv"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => {
+                                            gtag.event({ action: 'click_line_button', category: 'Conversion', label: center.name });
+                                            gtag.gtagReportLineConversion();
+                                            logTraffic('click_line');
+                                        }}
+                                        className="w-full flex items-center justify-center px-5 py-3.5 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                    >
+                                        <img
+                                            src="/images/LINE_APP_iOS.png"
+                                            alt="LINE Icon"
+                                            className="w-5 h-5 object-contain mr-2 flex-shrink-0 animate-pulse"
+                                        />
+                                        LINE หาเจ้าหน้าที่
+                                    </a>
 
-                                    {/* 1. ปุ่มนัดเยี่ยมชมศูนย์ดูแล (Design เดิม: สีน้ำเงิน rounded-full -> แสดง Card ตามในรูปภาพทันที) */}
+                                    {/* 2. ปุ่ม Facebook */}
+                                    <a
+                                        href="https://www.facebook.com/profile.php?id=61584261862432"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => {
+                                            gtag.event({ action: 'click_facebook_button', category: 'Conversion', label: center.name });
+                                            logTraffic('click_facebook');
+                                        }}
+                                        className="w-full flex items-center justify-center px-5 py-3.5 bg-[#1877F2] hover:bg-[#0c63d4] text-white text-base font-extrabold rounded-full shadow hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
+                                    >
+                                        <Facebook className="w-5 h-5 mr-2 text-white fill-current flex-shrink-0" />
+                                        ติดต่อผ่าน Facebook
+                                    </a>
+
+                                    {/* 3. ปุ่มนัดเยี่ยมชมศูนย์ดูแล */}
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -1917,27 +1772,7 @@ export default function CenterDetailClient({
                                         นัดเยี่ยมชมศูนย์ดูแล
                                     </button>
 
-                                    {/* 2. ปุ่มติดต่อผ่าน LINE (Design เดิม: สีเขียว rounded-full - เปิด LINE ทางเราได้ทันที ไม่ต้องกรอกข้อมูล) */}
-                                    <a
-                                        href="https://line.me/R/ti/p/%40256zihiv"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={() => {
-                                            gtag.event({ action: 'click_line_button', category: 'Conversion', label: center.name });
-                                            gtag.gtagReportLineConversion();
-                                            logTraffic('click_line');
-                                        }}
-                                        className="w-full flex items-center justify-center px-5 py-3 bg-[#06C755] text-white text-base font-extrabold rounded-full shadow hover:bg-[#05a044] hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer"
-                                    >
-                                        <img
-                                            src="/images/LINE_APP_iOS.png"
-                                            alt="LINE Icon"
-                                            className="w-5 h-5 object-contain mr-2 flex-shrink-0 animate-pulse"
-                                        />
-                                        ติดต่อผ่าน LINE
-                                    </a>
-
-                                    {/* 3. ปุ่มเปิดแผนที่ / นำทาง (Design เดิม: สีขาวขอบเทา rounded-full - เปิด Google Maps ได้ทันที) */}
+                                    {/* 4. ปุ่มเปิดแผนที่ / นำทาง */}
                                     <a
                                         href={googleMapsDirectionsUrl}
                                         target="_blank"
@@ -1957,10 +1792,10 @@ export default function CenterDetailClient({
                                 <div className="mt-4 pt-3.5 border-t border-gray-100 text-center space-y-1">
                                     <p className="text-xs text-emerald-700 font-semibold flex items-center justify-center gap-1.5">
                                         <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                                        <span>ปรึกษาและนัดชมสถานที่จริงฟรี ไม่มีค่าบริการแอบแฝง</span>
+                                        <span>ปรึกษาและสอบถามข้อมูลฟรี ไม่มีค่าบริการแอบแฝง</span>
                                     </p>
                                     <p className="text-[11px] text-gray-400">
-                                        ThaiCareCenter ประสานงานตรวจเช็กเตียงว่างและสิทธิประโยชน์ตรงกับศูนย์ให้ฟรี
+                                        ทีมงาน ThaiCareCenter ประสานงานตรวจเช็กเตียงว่างและสิทธิประโยชน์ให้ฟรี
                                     </p>
                                 </div>
                             </div>
@@ -2020,15 +1855,11 @@ export default function CenterDetailClient({
                                                     </div>
                                                 )}
 
-                                                {/* Partner / Status Badge */}
+                                                {/* Status Badge */}
                                                 <div className="absolute bottom-3 right-3 flex items-center">
-                                                    {nc.isPartner ? (
-                                                        <OfficialPartnerBadge variant="badge" size="sm" />
-                                                    ) : (
-                                                        <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
-                                                            ข้อมูลเบื้องต้น
-                                                        </span>
-                                                    )}
+                                                    <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
+                                                        ข้อมูลเบื้องต้น
+                                                    </span>
                                                 </div>
                                             </div>
                                             <div className="p-5 flex-grow flex flex-col justify-between">
@@ -2100,15 +1931,11 @@ export default function CenterDetailClient({
                                                     </div>
                                                 ) : null}
 
-                                                {/* Partner / Status Badge */}
+                                                {/* Status Badge */}
                                                 <div className="absolute bottom-3 right-3 flex items-center">
-                                                    {rc.isPartner ? (
-                                                        <OfficialPartnerBadge variant="badge" size="sm" />
-                                                    ) : (
-                                                        <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
-                                                            ข้อมูลเบื้องต้น
-                                                        </span>
-                                                    )}
+                                                    <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
+                                                        ข้อมูลเบื้องต้น
+                                                    </span>
                                                 </div>
                                             </div>
                                             <div className="p-5 flex-grow flex flex-col justify-between">

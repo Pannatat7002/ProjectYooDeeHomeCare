@@ -247,18 +247,10 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     const targetPrice = Number(normalizedCenter.price) || 0;
     const selectedRelatedMap = new Map<number, any>();
 
-    // 1. ศูนย์ Partner ในจังหวัดเดียวกัน (หากมีรัศมี <= 7 กม. ให้อยู่ลำดับแรก)
+    // 1. ศูนย์ในจังหวัดเดียวกันที่มีระยะใกล้เคียง (หากมีรัศมี <= 7 กม. ให้อยู่ลำดับแรก)
     sameProvinceCenters
-        .filter((c: any) => c.isPartner)
-        .sort((a: any, b: any) => {
-            const aIn7 = a.distanceKm !== undefined && a.distanceKm <= 7 ? 1 : 0;
-            const bIn7 = b.distanceKm !== undefined && b.distanceKm <= 7 ? 1 : 0;
-            if (aIn7 !== bIn7) return bIn7 - aIn7;
-            if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
-                return a.distanceKm - b.distanceKm;
-            }
-            return 0;
-        })
+        .filter((c: any) => c.distanceKm !== undefined && c.distanceKm <= 7)
+        .sort((a: any, b: any) => (a.distanceKm || 0) - (b.distanceKm || 0))
         .forEach((c: any) => {
             if (selectedRelatedMap.size < 3) selectedRelatedMap.set(c.id, c);
         });
@@ -287,9 +279,6 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         sameProvinceCenters
             .filter((c: any) => !selectedRelatedMap.has(c.id))
             .sort((a: any, b: any) => {
-                if (Boolean(a.isPartner) !== Boolean(b.isPartner)) {
-                    return a.isPartner ? -1 : 1;
-                }
                 if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
                     return a.distanceKm - b.distanceKm;
                 }
@@ -307,9 +296,6 @@ export default async function Page({ params }: { params: Promise<{ name: string 
             .sort((a: any, b: any) => {
                 if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
                     return a.distanceKm - b.distanceKm;
-                }
-                if (Boolean(a.isPartner) !== Boolean(b.isPartner)) {
-                    return a.isPartner ? -1 : 1;
                 }
                 return 0;
             })

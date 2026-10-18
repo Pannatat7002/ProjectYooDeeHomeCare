@@ -85,7 +85,7 @@ export default function Footer() {
                         {/* Social Media Links */}
                         <div className="flex space-x-3 pt-4">
                             <a
-                                href="https://www.facebook.com/share/17rrsmB3fj"
+                                href="https://www.facebook.com/profile.php?id=61584261862432"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Facebook"

@@ -224,15 +224,8 @@ export function findNearbyCareCentersForSearch(
         }
     }
 
-    // จัดเรียงผลลัพธ์: Partner ในระยะใกล้เคียงจะได้คะแนนพิเศษ จากนั้นเรียงตามระยะทางใกล้สุด
-    const sorted = [...filteredResults].sort((a, b) => {
-        // ถ้าทั้งคู่ห่างกันไม่เกิน 3 กม. และมีฝ่ายหนึ่งเป็น Partner ให้ Partner ขึ้นก่อน
-        if (Math.abs(a.distanceKm - b.distanceKm) <= 3) {
-            if (a.center.isPartner && !b.center.isPartner) return -1;
-            if (!a.center.isPartner && b.center.isPartner) return 1;
-        }
-        return a.distanceKm - b.distanceKm;
-    });
+    // จัดเรียงผลลัพธ์: เรียงตามระยะทางใกล้สุด
+    const sorted = [...filteredResults].sort((a, b) => a.distanceKm - b.distanceKm);
 
     const finalCenters = sorted.slice(0, maxResults).map(item => ({
         ...item.center,

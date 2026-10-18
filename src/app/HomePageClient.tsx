@@ -244,15 +244,11 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationL
             </div>
           )}
 
-          {/* Partner / Status Badge */}
+          {/* Status Badge */}
           <div className="absolute bottom-3 right-3 flex items-center">
-            {center.isPartner ? (
-              <OfficialPartnerBadge variant="badge" size="sm" />
-            ) : (
-              <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
-                ข้อมูลเบื้องต้น
-              </span>
-            )}
+            <span className="text-[10px] font-medium text-slate-600 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
+              ข้อมูลเบื้องต้น
+            </span>
           </div>
         </div>
 
