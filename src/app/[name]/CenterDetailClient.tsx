@@ -190,18 +190,11 @@ const VerificationByMOPHCard = ({
                     <h3 className="text-sm sm:text-base font-bold text-gray-900 break-words group-hover:text-emerald-700 transition-colors">
                         สถานประกอบการที่ได้รับอนุญาต
                     </h3>
-                    {(mophOrder || licenseNumber || mophApprovedDate) && (
+                    {mophApprovedDate && (
                         <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-600">
-                            {(mophOrder || licenseNumber) && (
-                                <span className="inline-flex items-center font-medium bg-gray-100 text-gray-800 px-2 py-0.5 rounded">
-                                    เลขลำดับ: #{mophOrder || licenseNumber}
-                                </span>
-                            )}
-                            {mophApprovedDate && (
-                                <span className="text-gray-500">
-                                    อนุญาตเมื่อ: {mophApprovedDate}
-                                </span>
-                            )}
+                            <span className="text-gray-500">
+                                อนุญาตเมื่อ: {mophApprovedDate}
+                            </span>
                         </div>
                     )}
                 </div>
@@ -813,11 +806,11 @@ const RoomTypeCard = ({
             {/* Bottom Row: Status and Inquiry Button */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 {/* Bed Status */}
-                {/* <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm font-extrabold px-3.5 py-2 rounded-md w-fit">
+                <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs sm:text-sm font-extrabold px-3.5 py-2 rounded-md w-fit">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-                    {room.status || 'เตียงว่างพร้อมดูแลทันที'}
-                </div> */}
-                <div></div>
+                    <span>{room.status || 'เตียงว่างพร้อมดูแลทันที'}</span>
+                </div>
+
                 {/* Inquiry Button */}
                 <button
                     type="button"
@@ -1306,7 +1299,7 @@ export default function CenterDetailClient({
                         {/* ✅ ใช้ isTrue เช็ค hasGovernmentCertificate */}
                         {isTrue(center.hasGovernmentCertificate) && (
                             <div className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
-                                <ShieldCheck className="h-3 w-3 mr-1" /> รับรองจาก กรม สบส. {center.mophOrder ? `(#${center.mophOrder})` : ''}
+                                <ShieldCheck className="h-3 w-3 mr-1" /> รับรองจาก กรม สบส.
                             </div>
                         )}
 
@@ -1441,8 +1434,8 @@ export default function CenterDetailClient({
                             </section>
                         )}
 
-                        {/* ✅ Packages */}
-                        {Array.isArray(center.packages) && center.packages.length > 0 && (
+                        {/* ✅ Packages (ซ่อนไว้ชั่วคราว)
+                        Array.isArray(center.packages) && center.packages.length > 0 && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-2xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-slate-100 -mx-4 sm:mx-0">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 mb-6 gap-2">
                                     <div>
@@ -1463,6 +1456,7 @@ export default function CenterDetailClient({
                                             className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm transition-all duration-300 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/5 group flex flex-col h-full"
                                         >
                                             {/* 1. ส่วนหัว (ชื่อแพ็กเกจและราคา) */}
+                                            {/*
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-baseline pb-4 border-b border-slate-100 mb-4 gap-2">
                                                 <h4 className="font-bold text-xl sm:text-2xl text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
                                                     {pkg.name}
@@ -1474,8 +1468,10 @@ export default function CenterDetailClient({
                                                     <span className="text-xs sm:text-sm font-semibold text-slate-500">/ ต่อเดือน</span>
                                                 </div>
                                             </div>
+                                            */}
 
                                             {/* 2. ส่วนรายละเอียด (Details) */}
+                                            {/*
                                             <div className="flex-grow">
                                                 {pkg.details && Array.isArray(pkg.details) && pkg.details.length > 0 ? (
                                                     <ul className="space-y-3">
@@ -1494,8 +1490,10 @@ export default function CenterDetailClient({
                                                     </div>
                                                 )}
                                             </div>
+                                            */}
 
                                             {/* 3. ปุ่มสอบถามแพ็กเกจนี้ */}
+                                            {/*
                                             <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end">
                                                 <button
                                                     type="button"
@@ -1510,7 +1508,8 @@ export default function CenterDetailClient({
                                     ))}
                                 </div>
                             </section>
-                        )}
+                        )
+                        */}
 
                         {(hasValidCoordinates || center.mapUrl) && (
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
