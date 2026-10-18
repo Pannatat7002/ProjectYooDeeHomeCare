@@ -268,11 +268,10 @@ export default function ConsultationManagement() {
                                     setStatusFilter(st);
                                     setCurrentPage(1);
                                 }}
-                                className={`px-2.5 py-1 rounded-lg transition-all ${
-                                    statusFilter === st
+                                className={`px-2.5 py-1 rounded-lg transition-all ${statusFilter === st
                                         ? 'bg-white text-slate-900 shadow-xs font-semibold'
                                         : 'text-slate-500 hover:text-slate-800'
-                                }`}
+                                    }`}
                             >
                                 {st === 'all' && 'ทั้งหมด'}
                                 {st === 'pending' && 'รอติดตาม'}
@@ -289,11 +288,10 @@ export default function ConsultationManagement() {
                     <button
                         onClick={toggleWrap}
                         title={isWrapText ? 'กำลังตัดคำขึ้นบรรทัดใหม่ (คลิกเพื่อสลับเป็นย่อบรรทัดเดียว)' : 'กำลังย่อบรรทัดเดียว (คลิกเพื่อสลับเป็นตัดคำขึ้นบรรทัดใหม่)'}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-xl border flex items-center gap-1.5 transition-all ${
-                            isWrapText
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-xl border flex items-center gap-1.5 transition-all ${isWrapText
                                 ? 'bg-blue-50 border-blue-200 text-blue-700'
                                 : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
+                            }`}
                     >
                         <span>{isWrapText ? 'ตัดคำขึ้นบรรทัดใหม่' : 'ย่อบรรทัดเดียว'}</span>
                     </button>
@@ -302,11 +300,10 @@ export default function ConsultationManagement() {
                     <button
                         onClick={toggleCompact}
                         title="ปรับระยะห่างของแถวในตาราง"
-                        className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
-                            isCompact
+                        className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${isCompact
                                 ? 'bg-blue-50 border-blue-200 text-blue-700'
                                 : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
+                            }`}
                     >
                         {isCompact ? 'ตารางกะทัดรัด' : 'ตารางสบายตา'}
                     </button>
@@ -337,11 +334,10 @@ export default function ConsultationManagement() {
                                     {ALL_COLUMNS.map(col => (
                                         <label
                                             key={col.key}
-                                            className={`flex items-center justify-between px-2 py-1.5 rounded-lg select-none ${
-                                                col.canHide
+                                            className={`flex items-center justify-between px-2 py-1.5 rounded-lg select-none ${col.canHide
                                                     ? 'cursor-pointer hover:bg-slate-50'
                                                     : 'opacity-50 cursor-not-allowed'
-                                            }`}
+                                                }`}
                                         >
                                             <span className="text-slate-700 font-medium">{col.label}</span>
                                             <input
@@ -489,11 +485,10 @@ export default function ConsultationManagement() {
                                                     {item.message ? (
                                                         <p
                                                             title={item.message}
-                                                            className={`text-slate-600 text-xs ${
-                                                                isWrapText
+                                                            className={`text-slate-600 text-xs ${isWrapText
                                                                     ? 'break-words whitespace-normal max-w-xs leading-relaxed'
                                                                     : 'truncate max-w-[220px]'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             {item.message}
                                                         </p>
