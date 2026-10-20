@@ -112,6 +112,7 @@ export interface Consultation {
     condition?: string;
     roomType: string;
     room_type?: string;
+    location?: string;
     convenientTime: string;
     convenient_time?: string;
     message: string;

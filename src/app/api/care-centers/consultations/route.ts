@@ -30,7 +30,7 @@ export async function POST(request: Request) {
             name, phone, roomType, branch, budget, convenientTime,
             lineId, email, message,
             recipientName, recipientAge, relationshipToRecipient,
-            patientCondition, condition
+            patientCondition, condition, location, userLocation
         } = body;
 
         // Validate required fields: phone is essential
@@ -56,7 +56,8 @@ export async function POST(request: Request) {
                 ? Number(recipientAge)
                 : ((body.recipient_age !== undefined && body.recipient_age !== null) ? Number(body.recipient_age) : undefined),
             relationshipToRecipient: relationshipToRecipient || body.relationship_to_recipient || '',
-            roomType: roomType || body.room_type || 'ยังไม่ระบุห้องพัก',
+            roomType: roomType || body.room_type || 'ไม่ระบุ',
+            location: location || userLocation || body.location || '',
             branch: branch || 'ศูนย์ทั่วไป',
             budget: budget || 'ยังไม่ระบุ',
             patientCondition: patientCondition || condition || body.patient_condition || '',

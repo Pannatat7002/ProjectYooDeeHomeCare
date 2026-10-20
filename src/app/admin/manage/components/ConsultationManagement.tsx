@@ -639,6 +639,11 @@ export default function ConsultationManagement() {
                                 )}
                                 <p className="text-slate-600">งบประมาณ: {selectedConsultation.budget || '-'}</p>
                                 <p className="text-slate-600">ประเภทห้อง: {selectedConsultation.roomType || '-'}</p>
+                                {selectedConsultation.location && (
+                                    <p className="text-slate-600">
+                                        ทำเล/ตำแหน่ง: <span className="font-medium text-slate-800">{selectedConsultation.location}</span>
+                                    </p>
+                                )}
                                 <p className="text-slate-600">ช่วงเวลาสะดวก: {selectedConsultation.convenientTime || '-'}</p>
                             </div>
 

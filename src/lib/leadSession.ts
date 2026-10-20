@@ -3,6 +3,8 @@
 export interface VerifiedLeadData {
     phone: string;
     name?: string;
+    location?: string;
+    roomType?: string;
     patientCondition?: string;
     condition?: string;
     budget?: string;
@@ -59,6 +61,8 @@ export function getVerifiedLead(): VerifiedLeadData | null {
 export function saveVerifiedLead(data: {
     phone: string;
     name?: string;
+    location?: string;
+    roomType?: string;
     patientCondition?: string;
     condition?: string;
     budget?: string;
@@ -68,6 +72,8 @@ export function saveVerifiedLead(data: {
     const leadData: VerifiedLeadData = {
         phone: data.phone,
         name: data.name || '',
+        location: data.location || '',
+        roomType: data.roomType || '',
         patientCondition: condition,
         condition: condition,
         budget: data.budget || '',

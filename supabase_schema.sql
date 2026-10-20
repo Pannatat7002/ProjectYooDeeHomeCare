@@ -79,6 +79,8 @@ CREATE TABLE IF NOT EXISTS public.consultations (
     branch TEXT DEFAULT '',
     budget TEXT DEFAULT '',
     room_type TEXT DEFAULT '',
+    patient_condition TEXT DEFAULT '',
+    location TEXT DEFAULT '',
     convenient_time TEXT DEFAULT '',
     message TEXT DEFAULT '',
     status TEXT DEFAULT 'pending',

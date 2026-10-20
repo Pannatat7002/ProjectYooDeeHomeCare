@@ -959,45 +959,22 @@ export default function CenterDetailClient({
         destinationUrl?: string,
         onProceed?: () => void
     ) => {
-        const verified = getVerifiedLead();
-        if (verified && verified.phone) {
-            // 🎯 กรณีผู้ใช้เคยยืนยันเบอร์แล้ว: ปลดล็อกศูนย์นี้ทันที
-            unlockThisCenter();
+        // ตรวจสอบว่าศูนย์นี้เคยปลดล็อกในเซสชันนี้แล้วหรือไม่
+        let isCurrentCenterUnlocked = false;
+        try {
+            const unlockedStr = sessionStorage.getItem('tcc_unlocked_centers');
+            if (unlockedStr) {
+                const list = JSON.parse(unlockedStr);
+                if (Array.isArray(list) && center?.id && list.includes(center.id)) {
+                    isCurrentCenterUnlocked = true;
+                }
+            }
+        } catch {
+            // ignore
+        }
 
-            // 🎯 บันทึก Lead สำหรับศูนย์นี้ให้อัตโนมัติทันทีใน Background!
-            const actionTextMap: Record<string, string> = {
-                navigation: 'เปิดแผนที่นำทาง',
-                call: 'โทรติดต่อเจ้าหน้าที่',
-                line: 'ติดต่อผ่าน LINE',
-                consultation: 'นัดหมายเยี่ยมชม',
-                view_info: 'กดดูข้อมูลเกี่ยวกับศูนย์',
-                contact: 'ติดต่อศูนย์ดูแล'
-            };
-            const actionLabel = actionTextMap[actionType] || actionType;
-
-            fetch('/api/care-centers/consultations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: verified.name || 'ผู้สนใจบริการ (เคยยืนยันเบอร์แล้ว)',
-                    phone: verified.phone,
-                    branch: center.name,
-                    patientCondition: verified.patientCondition || verified.condition || '',
-                    condition: verified.patientCondition || verified.condition || '',
-                    budget: verified.budget || 'ยังไม่ระบุ',
-                    convenientTime: verified.timeframe || 'ด่วนภายใน 7 วัน',
-                    message: `[Returning User] ติดตามความสนใจ: ${actionLabel} ที่ศูนย์ "${center.name}" (${center.province || ''})${verified.patientCondition ? ` | อาการ: ${verified.patientCondition}` : ''} | งบ: ${verified.budget || '-'}`,
-                    roomType: 'ยังไม่ระบุห้องพัก'
-                })
-            }).catch(() => { });
-
-            gtag.event({
-                action: `returning_lead_${actionType}`,
-                category: 'Engagement',
-                label: `${center.name} | ${verified.phone}`
-            });
-
-            // ดำเนินการต่อทันที (เปิดเว็บ/โทรออก/เปิดแผนที่) ไร้รอยต่อ
+        if (isCurrentCenterUnlocked) {
+            // ศูนย์นี้เคยยืนยันแล้วในเซสชันนี้ -> ให้ผ่านได้ทันที
             if (onProceed) {
                 onProceed();
             } else if (destinationUrl) {
@@ -1010,10 +987,11 @@ export default function CenterDetailClient({
             return;
         }
 
-        // ยังไม่เคยยืนยันเบอร์: เปิด Lead Capture Modal เพื่อเก็บข้อมูลครั้งแรก
+        // หากยังไม่ได้ปลดล็อกศูนย์นี้ (หรือเปลี่ยนไปดูศูนย์อื่น):
+        // ให้เปิด LeadCaptureModal ซึ่งจะดึงข้อมูลเดิมที่เคยกรอก (ชื่อ, เบอร์, อาการ, ห้อง, ตำแหน่ง) มาแสดงอัตโนมัติ
         setLeadModalConfig({ actionType, destinationUrl, onProceed });
         setIsLeadModalOpen(true);
-    }, [center, unlockThisCenter]);
+    }, [center]);
 
     const handleLeadSuccess = useCallback(() => {
         unlockThisCenter();
@@ -1055,6 +1033,24 @@ export default function CenterDetailClient({
     const [formData, setFormData] = useState<ConsultationFormData>(initialFormData);
     // Submit Status: idle | submitting | success | error
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+    // ดึงข้อมูลที่เคยกรอกไว้มาแสดงในแบบฟอร์มปรึกษาและติดต่อเจ้าหน้าที่อัตโนมัติ
+    useEffect(() => {
+        const verified = getVerifiedLead();
+        if (verified && (verified.phone || verified.name)) {
+            setFormData(prev => ({
+                ...prev,
+                name: prev.name || verified.name || '',
+                phone: prev.phone || verified.phone || '',
+                roomType: prev.roomType || verified.roomType || '',
+                budget: prev.budget || verified.budget || '',
+            }));
+            setContactStaffFormData(prev => ({
+                name: prev.name || verified.name || '',
+                phone: prev.phone || verified.phone || '',
+            }));
+        }
+    }, []);
 
     // ✅ ฟังก์ชันสร้าง Link พร้อม UTM โดยดึงค่าจาก API
     const createOutboundLink = (url?: string | null, content: string = 'detail_page_sidebar') => {
