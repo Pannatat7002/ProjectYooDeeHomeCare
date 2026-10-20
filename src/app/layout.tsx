@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import MascotAssistant from "../components/MascotAssistant";
 import CookieConsentBanner from "../components/CookieConsentBanner";
+import CenterBasketDrawer from "../components/CenterBasketDrawer";
 
 const sarabun = Sarabun({
   weight: ['300', '400', '500', '600', '700'],
@@ -150,6 +151,7 @@ export default function RootLayout({
           {children}
         </main>
         <MascotAssistant />
+        <CenterBasketDrawer />
         <CookieConsentBanner />
         <Footer />
         <Analytics />

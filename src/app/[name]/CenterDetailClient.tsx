@@ -15,7 +15,8 @@ import {
     Navigation,
     Eye,
     Sparkles,
-    Facebook
+    Facebook,
+    Building2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,7 @@ import * as gtag from '../../lib/gtag';
 import { CareCenter, RoomType } from '../../types/index';
 import LeadCaptureModal, { LeadActionType } from '../../components/LeadCaptureModal';
 import { getVerifiedLead, saveVerifiedLead } from '../../lib/leadSession';
+import { addCenterToBasket, removeCenterFromBasket, isCenterInBasket } from '../../lib/centerBasketSession';
 import { getVisitorTrackingData } from '../../lib/visitorTracking';
 import { IconSearchTransit } from '../../components/icons/CustomIcons';
 import { NearbyTransitStation, findTopNearbyTransitStations } from '../../lib/transitStations';
@@ -993,12 +995,61 @@ export default function CenterDetailClient({
         setIsLeadModalOpen(true);
     }, [center]);
 
+    // สถานะว่าศูนย์นี้อยู่ในตระกร้าหรือไม่
+    const [isInBasket, setIsInBasket] = useState(false);
+
+    useEffect(() => {
+        if (!center?.id) return;
+        setIsInBasket(isCenterInBasket(center.id));
+
+        const handleBasketUpdated = () => {
+            if (center?.id) setIsInBasket(isCenterInBasket(center.id));
+        };
+        window.addEventListener('tcc_basket_updated', handleBasketUpdated);
+        return () => window.removeEventListener('tcc_basket_updated', handleBasketUpdated);
+    }, [center?.id]);
+
+    const handleToggleBasket = useCallback(() => {
+        if (!center?.id) return;
+        if (isInBasket) {
+            removeCenterFromBasket(center.id);
+            setIsInBasket(false);
+        } else {
+            addCenterToBasket({
+                id: center.id,
+                name: center.name,
+                slug: center.name.replace(/\s+/g, '-'),
+                imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
+                address: center.address || '',
+                province: center.province || '',
+                price: center.price || 0,
+                phone: center.phone || '',
+                actionType: 'manual'
+            });
+            setIsInBasket(true);
+        }
+    }, [center, isInBasket]);
+
     const handleLeadSuccess = useCallback(() => {
         unlockThisCenter();
+        if (center?.id) {
+            addCenterToBasket({
+                id: center.id,
+                name: center.name,
+                slug: center.name.replace(/\s+/g, '-'),
+                imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
+                address: center.address || '',
+                province: center.province || '',
+                price: center.price || 0,
+                phone: center.phone || '',
+                actionType: leadModalConfig.actionType
+            });
+            setIsInBasket(true);
+        }
         if (leadModalConfig.onProceed) {
             leadModalConfig.onProceed();
         }
-    }, [leadModalConfig, unlockThisCenter]);
+    }, [center, leadModalConfig, unlockThisCenter]);
 
     const logTraffic = useCallback((eventType: string) => {
         if (!center) return;
@@ -1127,6 +1178,19 @@ export default function CenterDetailClient({
                         timeframe: formData.convenientTime,
                     });
                 }
+                if (center?.id) {
+                    addCenterToBasket({
+                        id: center.id,
+                        name: center.name,
+                        slug: center.name.replace(/\s+/g, '-'),
+                        imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
+                        address: center.address || '',
+                        province: center.province || '',
+                        price: center.price || 0,
+                        phone: center.phone || '',
+                        actionType: 'consultation'
+                    });
+                }
                 gtag.event({ action: 'submit_form_success', category: 'Conversion', label: center?.name || 'Unknown' });
                 gtag.gtagReportConversion();
 
@@ -1180,6 +1244,25 @@ export default function CenterDetailClient({
 
             if (res.ok) {
                 setContactStaffSubmitStatus('success');
+                if (contactStaffFormData.phone) {
+                    saveVerifiedLead({
+                        phone: contactStaffFormData.phone,
+                        name: contactStaffFormData.name,
+                    });
+                }
+                if (center?.id) {
+                    addCenterToBasket({
+                        id: center.id,
+                        name: center.name,
+                        slug: center.name.replace(/\s+/g, '-'),
+                        imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
+                        address: center.address || '',
+                        province: center.province || '',
+                        price: center.price || 0,
+                        phone: center.phone || '',
+                        actionType: 'contact_staff'
+                    });
+                }
                 gtag.event({ action: 'submit_contact_staff_success', category: 'Conversion', label: center?.name || 'Unknown' });
                 gtag.gtagReportConversion();
 
@@ -1304,6 +1387,20 @@ export default function CenterDetailClient({
                         <div className="flex items-center bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold border border-gray-200">
                             <Info className="h-3 w-3 mr-1" /> ข้อมูลเบื้องต้น
                         </div>
+
+                        {/* ปุ่มบันทึกในตระกร้าศูนย์ที่เลือก */}
+                        <button
+                            type="button"
+                            onClick={handleToggleBasket}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 shadow-2xs ${
+                                isInBasket
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
+                            }`}
+                        >
+                            <Building2 className={`w-3.5 h-3.5 ${isInBasket ? 'text-emerald-600' : 'text-gray-400'}`} />
+                            <span>{isInBasket ? '✓ บันทึกในตระกร้าแล้ว' : '+ เพิ่มในตระกร้า'}</span>
+                        </button>
                     </div>
                 </div>
 
@@ -2006,6 +2103,7 @@ export default function CenterDetailClient({
                 isOpen={isLeadModalOpen}
                 onClose={() => setIsLeadModalOpen(false)}
                 onSuccess={handleLeadSuccess}
+                centerId={center.id}
                 centerName={center.name}
                 centerPhone={center.phone}
                 centerImageUrl={center.imageUrls?.[0] || center.brandLogoUrl || ''}

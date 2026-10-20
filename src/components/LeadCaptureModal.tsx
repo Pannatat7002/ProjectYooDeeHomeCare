@@ -6,6 +6,7 @@ import { X, CheckCircle2, ChevronDown, Info, ArrowRight, Compass, Phone, Message
 import Link from 'next/link';
 import { saveVerifiedLead, getVerifiedLead, VerifiedLeadData } from '../lib/leadSession';
 import { downloadSlipFromDom, downloadLeadSlipImage, shareSlipFromDom } from '../lib/generateLeadSlip';
+import { addCenterToBasket } from '../lib/centerBasketSession';
 import * as gtag from '../lib/gtag';
 
 export type LeadActionType = 'navigation' | 'call' | 'line' | 'consultation' | 'view_info' | 'contact';
@@ -14,6 +15,7 @@ export interface LeadCaptureModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: (verifiedData: VerifiedLeadData) => void;
+    centerId?: number;
     centerName?: string;
     centerPhone?: string;
     centerImageUrl?: string;
@@ -44,6 +46,7 @@ export default function LeadCaptureModal({
     isOpen,
     onClose,
     onSuccess,
+    centerId,
     centerName = 'ศูนย์ดูแล',
     centerPhone,
     centerImageUrl,
@@ -265,6 +268,19 @@ export default function LeadCaptureModal({
                 budget,
                 timeframe
             });
+
+            // 3. บันทึกศูนย์นี้ลงในตระกร้าศูนย์ที่เลือก (Cookie 30 วัน)
+            if (centerName) {
+                addCenterToBasket({
+                    id: centerId || Math.floor(Math.random() * 900000 + 100000),
+                    name: centerName,
+                    slug: centerName.replace(/\s+/g, '-'),
+                    imageUrl: centerImageUrl || '',
+                    address: centerAddress || '',
+                    phone: centerPhone || '',
+                    actionType: actionType
+                });
+            }
 
             gtag.event({
                 action: 'lead_capture_success',

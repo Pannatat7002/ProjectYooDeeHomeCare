@@ -7,7 +7,8 @@
 import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X, Train, Hospital, Home, Sparkles, AlertCircle } from 'lucide-react';
+import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X, Train, Hospital, Home, Sparkles, AlertCircle, Bookmark } from 'lucide-react';
+import { addCenterToBasket, removeCenterFromBasket, isCenterInBasket } from '../lib/centerBasketSession';
 
 // Inline SVG data URI สำหรับ fallback image — ป้องกัน onError loop
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f3f4f6' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -171,6 +172,42 @@ interface CenterCardProps {
 const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationLabel, badgeLabel }) => {
   const createSlug = (name: string) => encodeURIComponent(name.replace(/\s+/g, '-'));
 
+  const [inBasket, setInBasket] = useState(false);
+
+  useEffect(() => {
+    if (center?.id) {
+      setInBasket(isCenterInBasket(center.id));
+    }
+    const onUpdated = () => {
+      if (center?.id) setInBasket(isCenterInBasket(center.id));
+    };
+    window.addEventListener('tcc_basket_updated', onUpdated);
+    return () => window.removeEventListener('tcc_basket_updated', onUpdated);
+  }, [center?.id]);
+
+  const handleToggleBasket = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!center?.id) return;
+    if (inBasket) {
+      removeCenterFromBasket(center.id);
+      setInBasket(false);
+    } else {
+      addCenterToBasket({
+        id: center.id,
+        name: center.name,
+        slug: center.name.replace(/\s+/g, '-'),
+        imageUrl: center.imageUrls?.[0] || '',
+        address: center.address || '',
+        province: center.province || '',
+        price: center.price || 0,
+        phone: center.phone || '',
+        actionType: 'manual'
+      });
+      setInBasket(true);
+    }
+  };
+
   const distance = useMemo(() => {
     if (userLocation && center.lat && center.lng) {
       return getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, center.lat, center.lng).toFixed(1);
@@ -229,9 +266,23 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationL
             </div>
           ) : null}
 
+          {/* Quick Bookmark / Basket Toggle */}
+          <button
+            type="button"
+            onClick={handleToggleBasket}
+            title={inBasket ? 'นำออกจากตระกร้าศูนย์' : 'บันทึกในตระกร้า'}
+            className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
+              inBasket
+                ? 'bg-emerald-500 text-white hover:bg-emerald-600 scale-105'
+                : 'bg-black/40 hover:bg-black/60 text-white hover:scale-110 backdrop-blur-xs'
+            }`}
+          >
+            <Bookmark className={`w-4 h-4 ${inBasket ? 'fill-current' : ''}`} />
+          </button>
+
           {/* Recommended Nearby Area Badge */}
           {badgeLabel && (
-            <div className="absolute top-3 right-3 bg-blue-600/95 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-400/30">
+            <div className="absolute top-3 right-13 bg-blue-600/95 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-400/30">
               <MapPin className="w-3 h-3 shrink-0" />
               <span>{badgeLabel}</span>
             </div>

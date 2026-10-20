@@ -1,15 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Building2 } from 'lucide-react';
+import { getCenterBasket } from '../lib/centerBasketSession';
 import * as gtag from '../lib/gtag';
 
 export default function Header() {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [basketCount, setBasketCount] = useState(0);
+
+    useEffect(() => {
+        const updateCount = () => {
+            const list = getCenterBasket();
+            setBasketCount(list.length);
+        };
+        updateCount();
+        window.addEventListener('tcc_basket_updated', updateCount);
+        return () => window.removeEventListener('tcc_basket_updated', updateCount);
+    }, []);
 
     // ซ่อน Header หน้าบ้านบนหน้า Admin และหน้า Login
     if (pathname?.startsWith('/admin') || pathname?.startsWith('/login')) {
@@ -78,6 +90,21 @@ export default function Header() {
                             <span className="text-gray-500 hover:text-blue-600 cursor-pointer transition-colors">EN</span>
                         </div>
 
+                        {/* Center Basket Button */}
+                        <button
+                            type="button"
+                            onClick={() => window.dispatchEvent(new Event('tcc_open_basket'))}
+                            className="relative flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-semibold text-gray-700 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl border border-gray-200 hover:border-blue-200 transition-all active:scale-95 cursor-pointer"
+                            title="ศูนย์ที่เคยเลือก / บันทึกไว้"
+                        >
+                            <Building2 className="w-4 h-4 text-blue-600" />
+                            <span className="hidden sm:inline">ศูนย์ที่เลือก</span>
+                            {basketCount > 0 && (
+                                <span className="bg-red-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                    {basketCount}
+                                </span>
+                            )}
+                        </button>
 
                         {/* 3. CTA Button - LINE Contact */}
                         <a
@@ -112,6 +139,24 @@ export default function Header() {
                         {/* 4. ปรับลด spacing ใน Mobile Menu */}
                         <nav className="container max-w-6xl mx-auto px-4 py-3 flex flex-col space-y-1">
                             <Link href="/" className={mobileLinkClasses} onClick={toggleMobileMenu}>หน้าแรก</Link>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    toggleMobileMenu();
+                                    window.dispatchEvent(new Event('tcc_open_basket'));
+                                }}
+                                className="flex items-center justify-between text-left text-gray-900 hover:text-blue-600 py-2 px-3 rounded-md hover:bg-blue-50 transition-all text-base w-full"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <Building2 className="w-5 h-5 text-blue-600" />
+                                    ศูนย์ที่เคยเลือก / บันทึกไว้
+                                </span>
+                                {basketCount > 0 && (
+                                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                        {basketCount}
+                                    </span>
+                                )}
+                            </button>
                             <Link href="/about" className={mobileLinkClasses} onClick={toggleMobileMenu}>เกี่ยวกับเรา</Link>
                             <Link href="/services" className={mobileLinkClasses} onClick={toggleMobileMenu}>บริการของเรา</Link>
                             <Link href="/contact" className={mobileLinkClasses} onClick={toggleMobileMenu}>ติดต่อเรา</Link>
