@@ -472,6 +472,9 @@ export default function ConsultationManagement() {
                                                         {item.branch || 'ไม่ได้ระบุศูนย์'}
                                                     </p>
                                                     <div className="text-xs text-slate-500 mt-0.5 space-y-0.5">
+                                                        {(item.patientCondition || item.patient_condition || item.condition) && (
+                                                            <p className="font-medium text-emerald-700">อาการ: {item.patientCondition || item.patient_condition || item.condition}</p>
+                                                        )}
                                                         {item.budget && <p>งบประมาณ: {item.budget}</p>}
                                                         {item.roomType && <p>ห้อง: {item.roomType}</p>}
                                                         {item.convenientTime && <p>เวลา: {item.convenientTime}</p>}
@@ -629,6 +632,11 @@ export default function ConsultationManagement() {
                             <div className="bg-slate-50 p-3.5 rounded-xl space-y-1">
                                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">บริการที่สนใจ</p>
                                 <p className="font-semibold text-blue-600">ศูนย์: {selectedConsultation.branch || '-'}</p>
+                                {(selectedConsultation.patientCondition || selectedConsultation.patient_condition || selectedConsultation.condition) && (
+                                    <p className="text-slate-800 font-medium">
+                                        อาการ/ภาวะ: <span className="font-semibold text-emerald-700">{selectedConsultation.patientCondition || selectedConsultation.patient_condition || selectedConsultation.condition}</span>
+                                    </p>
+                                )}
                                 <p className="text-slate-600">งบประมาณ: {selectedConsultation.budget || '-'}</p>
                                 <p className="text-slate-600">ประเภทห้อง: {selectedConsultation.roomType || '-'}</p>
                                 <p className="text-slate-600">ช่วงเวลาสะดวก: {selectedConsultation.convenientTime || '-'}</p>

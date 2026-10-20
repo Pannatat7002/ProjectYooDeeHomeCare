@@ -34,6 +34,7 @@ export default function LeadCaptureModal({
 }: LeadCaptureModalProps) {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [patientCondition, setPatientCondition] = useState('ผู้ป่วยติดเตียง');
     const [budget, setBudget] = useState('20,000 - 30,000');
     const [timeframe, setTimeframe] = useState('ด่วนภายใน 7 วัน');
     const [pdpaConsent, setPdpaConsent] = useState(true);
@@ -78,7 +79,7 @@ export default function LeadCaptureModal({
         setSubmitStatus('submitting');
 
         try {
-            // 1. Post Lead to /api/care-centers/consultations พร้อมเก็บข้อมูลสำคัญครบถ้วน (UTM, ช่องทาง, วันที่นัด)
+            // 1. Post Lead to /api/care-centers/consultations พร้อมเก็บข้อมูลสำคัญครบถ้วน (UTM, ช่องทาง, วันที่นัด, อาการ)
             const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
             const utmSource = urlParams?.get('utm_source') || '';
             const utmMedium = urlParams?.get('utm_medium') || '';
@@ -91,11 +92,13 @@ export default function LeadCaptureModal({
                     name: name.trim() || 'ผู้สนใจบริการ',
                     phone: cleanPhone,
                     branch: centerName,
+                    patientCondition,
+                    condition: patientCondition,
                     budget: budget || 'ยังไม่ระบุ',
                     convenientTime: timeframe || 'ด่วนภายใน 7 วัน',
                     message: actionType === 'consultation'
-                        ? `[นัดเยี่ยมชมศูนย์] สนใจนัดเข้าชม: ${centerName} | งบประมาณ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}/${utmMedium}` : ''}`
-                        : `[Lead Capture] ดำเนินการ: ${actionText} ${centerName} | งบ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}` : ''}`,
+                        ? `[นัดเยี่ยมชมศูนย์] สนใจนัดเข้าชม: ${centerName} | อาการ: ${patientCondition} | งบประมาณ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}/${utmMedium}` : ''}`
+                        : `[Lead Capture] ดำเนินการ: ${actionText} ${centerName} | อาการ: ${patientCondition} | งบ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}` : ''}`,
                     roomType: 'ยังไม่ระบุห้องพัก',
                     utmSource,
                     utmMedium,
@@ -107,6 +110,8 @@ export default function LeadCaptureModal({
             const savedData = saveVerifiedLead({
                 phone: cleanPhone,
                 name: name.trim(),
+                patientCondition,
+                condition: patientCondition,
                 budget,
                 timeframe
             });
@@ -252,6 +257,59 @@ export default function LeadCaptureModal({
                                             required
                                             className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all bg-white text-gray-800 text-sm font-medium"
                                         />
+                                    </div>
+                                </div>
+
+                                {/* Patient Condition (อาการ / ภาวะของผู้รับการดูแล) */}
+                                <div>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <label htmlFor="lead-condition" className="block text-xs font-semibold text-gray-700">
+                                            อาการ / ภาวะของผู้รับการดูแล <span className="text-red-500">*</span>
+                                        </label>
+                                        <span className="text-[11px] text-blue-600 font-medium">เลือกอาการหรือแตะปุ่มด่วน</span>
+                                    </div>
+                                    <div className="relative">
+                                        <select
+                                            id="lead-condition"
+                                            value={patientCondition}
+                                            onChange={(e) => setPatientCondition(e.target.value)}
+                                            required
+                                            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all bg-white text-gray-800 text-sm appearance-none cursor-pointer font-medium"
+                                        >
+                                            <option value="ผู้ป่วยติดเตียง">ผู้ป่วยติดเตียง (Bedridden)</option>
+                                            <option value="กึ่งติดเตียง / ใช้วีลแชร์">กึ่งติดเตียง / ใช้วีลแชร์ (Wheelchair)</option>
+                                            <option value="ช่วยเหลือตัวเองได้">ช่วยเหลือตัวเองได้ / เดินได้ปกติ</option>
+                                            <option value="พักฟื้นหลังผ่าตัด / Stroke">พักฟื้นหลังผ่าตัด / Stroke / กายภาพบำบัด</option>
+                                            <option value="สมองเสื่อม / อัลไซเมอร์">สมองเสื่อม / อัลไซเมอร์ (Dementia)</option>
+                                            <option value="ทั่วไป / ยังไม่ระบุ">ทั่วไป / ยังไม่ระบุ</option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                                        </div>
+                                    </div>
+
+                                    {/* Quick Selection Tags */}
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {[
+                                            { label: 'ติดเตียง', val: 'ผู้ป่วยติดเตียง' },
+                                            { label: 'กึ่งติดเตียง/รถเข็น', val: 'กึ่งติดเตียง / ใช้วีลแชร์' },
+                                            { label: 'เดินได้ปกติ', val: 'ช่วยเหลือตัวเองได้' },
+                                            { label: 'พักฟื้น/Stroke', val: 'พักฟื้นหลังผ่าตัด / Stroke' },
+                                            { label: 'สมองเสื่อม', val: 'สมองเสื่อม / อัลไซเมอร์' },
+                                        ].map(item => (
+                                            <button
+                                                key={item.val}
+                                                type="button"
+                                                onClick={() => setPatientCondition(item.val)}
+                                                className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer font-medium ${
+                                                    patientCondition === item.val
+                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                                                        : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                {item.label}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 

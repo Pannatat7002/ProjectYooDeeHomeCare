@@ -101,6 +101,7 @@ export default function ConsultationManagement() {
         recipientName: '',
         recipientAge: '',
         relationshipToRecipient: '',
+        patientCondition: '',
         roomType: '',
         budget: '',
         convenientTime: '',
@@ -175,6 +176,7 @@ export default function ConsultationManagement() {
             recipientName: item.recipientName || item.recipient_name || withSenior.recipientName || withSenior.recipient_name || '',
             recipientAge: String(item.recipientAge ?? item.recipient_age ?? withSenior.recipientAge ?? withSenior.recipient_age ?? ''),
             relationshipToRecipient: item.relationshipToRecipient || item.relationship_to_recipient || withSenior.relationshipToRecipient || withSenior.relationship_to_recipient || '',
+            patientCondition: item.patientCondition || item.patient_condition || item.condition || '',
             roomType: item.roomType || item.room_type || withRoom.roomType || withRoom.room_type || '',
             budget: item.budget || withBudget.budget || '',
             convenientTime: item.convenientTime || item.convenient_time || '',
@@ -214,6 +216,8 @@ export default function ConsultationManagement() {
                 room_type: editForm.roomType,
                 roomType: editForm.roomType,
                 budget: editForm.budget,
+                patient_condition: editForm.patientCondition,
+                patientCondition: editForm.patientCondition,
                 convenient_time: editForm.convenientTime,
                 convenientTime: editForm.convenientTime,
                 message: editForm.message,
@@ -525,6 +529,11 @@ export default function ConsultationManagement() {
                                                         งบประมาณ: <span className="font-medium text-slate-800">{item.budget}</span>
                                                     </div>
                                                 )}
+                                                {(item.patientCondition || item.patient_condition || item.condition) && (
+                                                    <div className="text-xs text-emerald-700 font-semibold mt-0.5">
+                                                        อาการ: {item.patientCondition || item.patient_condition || item.condition}
+                                                    </div>
+                                                )}
                                             </td>
 
                                             {/* ศูนย์ที่สนใจ (Single Customer View) */}
@@ -795,6 +804,16 @@ export default function ConsultationManagement() {
                                             value={editForm.convenientTime}
                                             onChange={e => setEditForm(prev => ({ ...prev, convenientTime: e.target.value }))}
                                             placeholder="เช่น บ่าย 13:00 - 15:00"
+                                            className="w-full mt-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-medium text-slate-600">อาการ / ภาวะผู้สูงอายุ:</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.patientCondition}
+                                            onChange={e => setEditForm(prev => ({ ...prev, patientCondition: e.target.value }))}
+                                            placeholder="เช่น ผู้ป่วยติดเตียง, ช่วยเหลือตัวเองได้"
                                             className="w-full mt-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                                         />
                                     </div>

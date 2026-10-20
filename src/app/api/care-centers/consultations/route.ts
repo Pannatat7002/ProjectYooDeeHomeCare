@@ -29,7 +29,8 @@ export async function POST(request: Request) {
         const {
             name, phone, roomType, branch, budget, convenientTime,
             lineId, email, message,
-            recipientName, recipientAge, relationshipToRecipient
+            recipientName, recipientAge, relationshipToRecipient,
+            patientCondition, condition
         } = body;
 
         // Validate required fields: phone is essential
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
             roomType: roomType || body.room_type || 'ยังไม่ระบุห้องพัก',
             branch: branch || 'ศูนย์ทั่วไป',
             budget: budget || 'ยังไม่ระบุ',
+            patientCondition: patientCondition || condition || body.patient_condition || '',
             convenientTime: convenientTime || body.convenient_time || 'ด่วนภายใน 7 วัน',
             message: message || '',
             utmSource: body.utmSource || body.utm_source || '',

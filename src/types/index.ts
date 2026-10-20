@@ -107,6 +107,9 @@ export interface Consultation {
     relationship_to_recipient?: string;
     branch: string;
     budget: string;
+    patientCondition?: string;
+    patient_condition?: string;
+    condition?: string;
     roomType: string;
     room_type?: string;
     convenientTime: string;

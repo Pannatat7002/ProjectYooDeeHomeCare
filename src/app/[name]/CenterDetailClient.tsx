@@ -982,9 +982,11 @@ export default function CenterDetailClient({
                     name: verified.name || 'ผู้สนใจบริการ (เคยยืนยันเบอร์แล้ว)',
                     phone: verified.phone,
                     branch: center.name,
+                    patientCondition: verified.patientCondition || verified.condition || '',
+                    condition: verified.patientCondition || verified.condition || '',
                     budget: verified.budget || 'ยังไม่ระบุ',
                     convenientTime: verified.timeframe || 'ด่วนภายใน 7 วัน',
-                    message: `[Returning User] ติดตามความสนใจ: ${actionLabel} ที่ศูนย์ "${center.name}" (${center.province || ''}) | งบ: ${verified.budget || '-'}`,
+                    message: `[Returning User] ติดตามความสนใจ: ${actionLabel} ที่ศูนย์ "${center.name}" (${center.province || ''})${verified.patientCondition ? ` | อาการ: ${verified.patientCondition}` : ''} | งบ: ${verified.budget || '-'}`,
                     roomType: 'ยังไม่ระบุห้องพัก'
                 })
             }).catch(() => { });

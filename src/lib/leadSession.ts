@@ -3,6 +3,8 @@
 export interface VerifiedLeadData {
     phone: string;
     name?: string;
+    patientCondition?: string;
+    condition?: string;
     budget?: string;
     timeframe?: string;
     verifiedAt: string;
@@ -57,12 +59,17 @@ export function getVerifiedLead(): VerifiedLeadData | null {
 export function saveVerifiedLead(data: {
     phone: string;
     name?: string;
+    patientCondition?: string;
+    condition?: string;
     budget?: string;
     timeframe?: string;
 }): VerifiedLeadData {
+    const condition = data.patientCondition || data.condition || '';
     const leadData: VerifiedLeadData = {
         phone: data.phone,
         name: data.name || '',
+        patientCondition: condition,
+        condition: condition,
         budget: data.budget || '',
         timeframe: data.timeframe || '',
         verifiedAt: new Date().toISOString()
