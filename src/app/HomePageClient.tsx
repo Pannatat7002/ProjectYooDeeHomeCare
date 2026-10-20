@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'rea
 import { useSearchParams } from 'next/navigation';
 
 import { Search, MapPin, Star, XCircle, ChevronRight, ChevronLeft, ArrowRight, Navigation, Loader2, Phone, MessageCircle, CheckCircle2, ChevronDown, SlidersHorizontal, RotateCcw, HeartPulse, Wallet, X, Train, Hospital, Home, Sparkles, AlertCircle, Bookmark } from 'lucide-react';
-import { addCenterToBasket, removeCenterFromBasket, isCenterInBasket } from '../lib/centerBasketSession';
+import { isCenterInBasket } from '../lib/centerBasketSession';
 
 // Inline SVG data URI สำหรับ fallback image — ป้องกัน onError loop
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f3f4f6' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='18' fill='%239ca3af'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -171,6 +171,16 @@ interface CenterCardProps {
 
 const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationLabel, badgeLabel }) => {
   const createSlug = (name: string) => encodeURIComponent(name.replace(/\s+/g, '-'));
+  const [isInBasket, setIsInBasket] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      setIsInBasket(isCenterInBasket(center.id));
+    };
+    check();
+    window.addEventListener('tcc_basket_updated', check);
+    return () => window.removeEventListener('tcc_basket_updated', check);
+  }, [center.id]);
 
   const distance = useMemo(() => {
     if (userLocation && center.lat && center.lng) {
@@ -230,13 +240,24 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationL
             </div>
           ) : null}
 
-          {/* Recommended Nearby Area Badge */}
-          {badgeLabel && (
-            <div className="absolute top-3 right-3 bg-blue-600/95 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-400/30">
-              <MapPin className="w-3 h-3 shrink-0" />
-              <span>{badgeLabel}</span>
-            </div>
-          )}
+          {/* Top Right Badges */}
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 pointer-events-none z-10">
+            {badgeLabel && (
+              <div className="bg-blue-600/95 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-400/30">
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span>{badgeLabel}</span>
+              </div>
+            )}
+            {isInBasket && (
+              <div
+                className="bg-emerald-600/95 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 border border-emerald-400/40"
+                title="ศูนย์ที่คุณสนใจแล้ว (ลงทะเบียนนัดหมายแล้ว)"
+              >
+                <Bookmark className="w-3 h-3 fill-white text-white shrink-0" />
+                <span>สนใจแล้ว</span>
+              </div>
+            )}
+          </div>
 
           {distance && (
             <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-100">

@@ -50,7 +50,48 @@ export function createCenterSlug(name: string): string {
     }
 }
 
-// ดึงรายการศูนย์ที่อยู่ในตระกร้าจาก Cookie หรือ LocalStorage พร้อม Normalize Slug
+// Helper สำหรับบันทึกข้อมูลทั้งใน LocalStorage (Full object) และ Cookie (Safe-size payload)
+function saveBasket(items: SavedCenterItem[]) {
+    if (typeof window === 'undefined') return;
+
+    // 1. บันทึกข้อมูลแบบเต็ม (Full Objects) ลงใน LocalStorage
+    // LocalStorage มีพื้นที่ 5-10MB จุศูนย์ได้หลายร้อยศูนย์โดยไม่มีปัญหาข้อจำกัด 4KB
+    try {
+        localStorage.setItem(BASKET_STORAGE_KEY, JSON.stringify(items));
+    } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+    }
+
+    // 2. ซิงค์ลง Cookie โดยควบคุมขนาดไม่ให้เกิน 3,200 bytes (Browser Cookie Hard Limit คือ 4,096 bytes)
+    try {
+        // คัดเลือกเฉพาะฟิลด์จำเป็นสำหรับ Cookie (ตัด address ที่ยาวและ slug ที่สามารถคำนวณจาก name ได้)
+        const compactList = items.map(item => ({
+            id: item.id,
+            name: item.name,
+            imageUrl: item.imageUrl && !item.imageUrl.startsWith('data:') ? item.imageUrl.slice(0, 120) : '',
+            province: item.province || '',
+            price: item.price || 0,
+            phone: item.phone || '',
+            selectedAt: item.selectedAt,
+            actionType: item.actionType
+        }));
+
+        let count = compactList.length;
+        let cookiePayload = JSON.stringify(compactList.slice(0, count));
+
+        // ป้องกันไม่ให้ URL encoded string เกิน 3,200 bytes เด็ดขาด ป้องกัน Browser ทิ้ง Cookie
+        while (encodeURIComponent(cookiePayload).length > 3200 && count > 1) {
+            count--;
+            cookiePayload = JSON.stringify(compactList.slice(0, count));
+        }
+
+        setCookie(BASKET_COOKIE_NAME, cookiePayload, COOKIE_DAYS);
+    } catch (e) {
+        console.warn('Cookie save failed:', e);
+    }
+}
+
+// ดึงรายการศูนย์ที่อยู่ในตระกร้าจาก LocalStorage เป็นหลัก (Fallback ไป Cookie) พร้อม Normalize Slug
 export function getCenterBasket(): SavedCenterItem[] {
     if (typeof window === 'undefined') return [];
 
@@ -61,18 +102,28 @@ export function getCenterBasket(): SavedCenterItem[] {
     });
 
     try {
-        // 1. ลองอ่านจาก Cookie ก่อน
-        const cookieVal = getCookie(BASKET_COOKIE_NAME);
-        if (cookieVal) {
-            const parsed = JSON.parse(cookieVal);
-            if (Array.isArray(parsed)) return parsed.map(normalizeItem);
-        }
-
-        // 2. Fallback ไปที่ LocalStorage
+        // 1. อ่านจาก LocalStorage เป็นหลัก (รองรับข้อมูลขนาดใหญ่ ไม่โดนตัดทอน)
         const storageVal = localStorage.getItem(BASKET_STORAGE_KEY);
         if (storageVal) {
             const parsed = JSON.parse(storageVal);
-            if (Array.isArray(parsed)) return parsed.map(normalizeItem);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed.map(normalizeItem);
+            }
+        }
+
+        // 2. Fallback ไปที่ Cookie ถ้า LocalStorage ว่าง
+        const cookieVal = getCookie(BASKET_COOKIE_NAME);
+        if (cookieVal) {
+            const parsed = JSON.parse(cookieVal);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                // ซิงค์กลับเข้า LocalStorage เพื่อความรวดเร็ว
+                try {
+                    localStorage.setItem(BASKET_STORAGE_KEY, JSON.stringify(parsed));
+                } catch {
+                    // ignore
+                }
+                return parsed.map(normalizeItem);
+            }
         }
     } catch (e) {
         console.warn('Error reading center basket:', e);
@@ -90,13 +141,13 @@ export function addCenterToBasket(
     try {
         const current = getCenterBasket();
         // เอาศูนย์ที่มี id เดิมออกก่อน (ถ้ามี) เพื่อนำไปไว้หน้าสุด (Most recent)
-        const filtered = current.filter(item => item.id !== center.id);
+        const filtered = current.filter(item => String(item.id) !== String(center.id));
 
         const cleanName = (center.name || '').trim();
         const safeSlug = createCenterSlug(cleanName || center.slug || '');
 
         const newItem: SavedCenterItem = {
-            id: center.id,
+            id: Number(center.id) || center.id as any,
             name: cleanName,
             slug: safeSlug,
             imageUrl: center.imageUrl || '',
@@ -108,12 +159,10 @@ export function addCenterToBasket(
             actionType: center.actionType || 'manual'
         };
 
-        // จำกัดตระกร้าสูงสุด 20 รายการเพื่อไม่ให้ Cookie มีขนาดใหญ่เกิน 4KB
-        const updated = [newItem, ...filtered].slice(0, 20);
+        // เก็บศูนย์ที่สนใจได้สูงสุด 30 แห่ง
+        const updated = [newItem, ...filtered].slice(0, 30);
 
-        const serialized = JSON.stringify(updated);
-        setCookie(BASKET_COOKIE_NAME, serialized, COOKIE_DAYS);
-        localStorage.setItem(BASKET_STORAGE_KEY, serialized);
+        saveBasket(updated);
 
         // ยิง event เพื่อให้ Component ทุกจุดอัปเดต UI ทันที
         window.dispatchEvent(new CustomEvent('tcc_basket_updated', { detail: updated }));
@@ -126,16 +175,14 @@ export function addCenterToBasket(
 }
 
 // ลบศูนย์ออกจากตระกร้า
-export function removeCenterFromBasket(centerId: number): SavedCenterItem[] {
+export function removeCenterFromBasket(centerId: number | string): SavedCenterItem[] {
     if (typeof window === 'undefined') return [];
 
     try {
         const current = getCenterBasket();
-        const updated = current.filter(item => item.id !== centerId);
+        const updated = current.filter(item => String(item.id) !== String(centerId));
 
-        const serialized = JSON.stringify(updated);
-        setCookie(BASKET_COOKIE_NAME, serialized, COOKIE_DAYS);
-        localStorage.setItem(BASKET_STORAGE_KEY, serialized);
+        saveBasket(updated);
 
         window.dispatchEvent(new CustomEvent('tcc_basket_updated', { detail: updated }));
 
@@ -147,9 +194,9 @@ export function removeCenterFromBasket(centerId: number): SavedCenterItem[] {
 }
 
 // ตรวจสอบว่าศูนย์นี้อยู่ในตระกร้าแล้วหรือไม่
-export function isCenterInBasket(centerId: number): boolean {
+export function isCenterInBasket(centerId: number | string): boolean {
     const list = getCenterBasket();
-    return list.some(item => item.id === centerId);
+    return list.some(item => String(item.id) === String(centerId));
 }
 
 // เคลียร์ตระกร้าทั้งหมด

@@ -1387,11 +1387,11 @@ export default function CenterDetailClient({
                             title={isInBasket ? 'คลิกเพื่อดูศูนย์ที่คุณสนใจทั้งหมด' : 'กรอกข้อมูลเพื่อนัดหมายเข้าชมศูนย์'}
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 shadow-2xs ${
                                 isInBasket
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100'
                                     : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
                             }`}
                         >
-                            <Building2 className={`w-3.5 h-3.5 ${isInBasket ? 'text-emerald-600' : 'text-gray-400'}`} />
+                            <Heart className={`w-3.5 h-3.5 ${isInBasket ? 'text-blue-600 fill-blue-600' : 'text-gray-400'}`} />
                             <span>{isInBasket ? '✓ สนใจศูนย์นี้แล้ว' : '+ สนใจศูนย์นี้'}</span>
                         </button>
                     </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -111,7 +110,7 @@ export default function CenterBasketDrawer() {
                 <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white flex items-center justify-between shrink-0 shadow-sm">
                     <div className="flex items-center gap-2.5">
                         <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white">
-                            <Heart className="w-5 h-5 text-rose-300 fill-rose-300" />
+                            <Heart className="w-5 h-5 text-white fill-white" />
                         </div>
                         <div>
                             <h3 className="text-base sm:text-lg font-bold leading-tight flex items-center gap-2">
@@ -176,30 +175,10 @@ export default function CenterBasketDrawer() {
                                     return (
                                         <div
                                             key={center.id}
-                                            className="pt-3 first:pt-0 group relative flex gap-3 items-start hover:bg-slate-50 p-2.5 rounded-xl transition"
+                                            className="pt-3 first:pt-0 group relative bg-white hover:bg-slate-50 p-3.5 rounded-2xl border border-slate-100 hover:border-slate-200 transition-all shadow-2xs"
                                         >
-                                            {/* Image Thumbnail */}
-                                            <Link
-                                                href={getCenterUrl(center)}
-                                                onClick={() => setIsOpen(false)}
-                                                className="relative w-20 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200 group-hover:opacity-95"
-                                            >
-                                                {center.imageUrl ? (
-                                                    <Image
-                                                        src={center.imageUrl}
-                                                        alt={center.name}
-                                                        fill
-                                                        className="object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                        <Building2 className="w-6 h-6" />
-                                                    </div>
-                                                )}
-                                            </Link>
-
                                             {/* Detail Info */}
-                                            <div className="flex-1 min-w-0 pr-6">
+                                            <div className="flex-1 min-w-0 pr-8">
                                                 <Link
                                                     href={getCenterUrl(center)}
                                                     onClick={() => setIsOpen(false)}
@@ -209,21 +188,21 @@ export default function CenterBasketDrawer() {
                                                 </Link>
 
                                                 {(center.province || center.address) && (
-                                                    <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5 truncate">
-                                                        <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
+                                                    <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-1 truncate">
+                                                        <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                                                         <span className="truncate">{center.province || center.address}</span>
                                                     </p>
                                                 )}
 
                                                 {center.price ? (
-                                                    <p className="text-xs font-bold text-blue-700 mt-1">
+                                                    <p className="text-xs font-bold text-blue-700 mt-1.5">
                                                         ฿{center.price.toLocaleString()}{' '}
                                                         <span className="text-[10px] text-gray-400 font-normal">/เดือน</span>
                                                     </p>
                                                 ) : null}
 
                                                 {/* Action Buttons for this center */}
-                                                <div className="flex items-center gap-2 mt-2">
+                                                <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
                                                     {center.phone && (
                                                         <a
                                                             href={`tel:${center.phone}`}
@@ -267,7 +246,7 @@ export default function CenterBasketDrawer() {
                                                 type="button"
                                                 onClick={(e) => handleRemove(e, center.id)}
                                                 title="นำออกจากศูนย์ที่คุณสนใจ"
-                                                className="absolute top-2.5 right-2 p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                                                className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

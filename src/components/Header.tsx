@@ -94,13 +94,13 @@ export default function Header() {
                         <button
                             type="button"
                             onClick={() => window.dispatchEvent(new Event('tcc_open_basket'))}
-                            className="relative p-2 sm:p-2.5 text-gray-700 hover:text-rose-600 hover:bg-rose-50/80 rounded-full transition-all active:scale-90 cursor-pointer flex items-center justify-center"
+                            className="relative p-2 sm:p-2.5 text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 rounded-full transition-all active:scale-90 cursor-pointer flex items-center justify-center"
                             title={basketCount > 0 ? `ศูนย์ที่คุณสนใจ (${basketCount})` : 'ศูนย์ที่คุณสนใจ'}
                             aria-label={`ศูนย์ที่คุณสนใจ (${basketCount})`}
                         >
-                            <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${basketCount > 0 ? 'text-rose-500 fill-rose-500' : 'text-gray-700 hover:text-rose-600'}`} />
+                            <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${basketCount > 0 ? 'text-blue-600 fill-blue-600' : 'text-gray-700 hover:text-blue-600'}`} />
                             {basketCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 bg-rose-500 text-white text-[11px] font-extrabold min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center border-2 border-white shadow-sm leading-none animate-in zoom-in">
+                                <span className="absolute -top-0.5 -right-0.5 bg-blue-600 text-white text-[11px] font-extrabold min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center border-2 border-white shadow-sm leading-none animate-in zoom-in">
                                     {basketCount > 99 ? '99+' : basketCount}
                                 </span>
                             )}
@@ -145,14 +145,14 @@ export default function Header() {
                                     toggleMobileMenu();
                                     window.dispatchEvent(new Event('tcc_open_basket'));
                                 }}
-                                className="flex items-center justify-between text-left text-gray-900 hover:text-rose-600 py-2 px-3 rounded-md hover:bg-rose-50 transition-all text-base w-full"
+                                className="flex items-center justify-between text-left text-gray-900 hover:text-blue-600 py-2 px-3 rounded-md hover:bg-blue-50 transition-all text-base w-full"
                             >
                                 <span className="flex items-center gap-2">
-                                    <Heart className="w-5 h-5 text-rose-500" />
+                                    <Heart className="w-5 h-5 text-blue-600 fill-blue-600" />
                                     ศูนย์ที่คุณสนใจ
                                 </span>
                                 {basketCount > 0 && (
-                                    <span className="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                    <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                                         {basketCount}
                                     </span>
                                 )}
