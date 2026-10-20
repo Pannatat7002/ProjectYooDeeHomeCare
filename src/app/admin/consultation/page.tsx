@@ -18,6 +18,10 @@ export interface Consultation {
     email?: string;
     roomType?: string;
     room_type?: string;
+    patientCondition?: string;
+    patient_condition?: string;
+    condition?: string;
+    location?: string;
     branch: string;
     budget?: string;
     convenientTime?: string;
