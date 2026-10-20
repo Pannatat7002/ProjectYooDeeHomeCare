@@ -172,42 +172,6 @@ interface CenterCardProps {
 const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationLabel, badgeLabel }) => {
   const createSlug = (name: string) => encodeURIComponent(name.replace(/\s+/g, '-'));
 
-  const [inBasket, setInBasket] = useState(false);
-
-  useEffect(() => {
-    if (center?.id) {
-      setInBasket(isCenterInBasket(center.id));
-    }
-    const onUpdated = () => {
-      if (center?.id) setInBasket(isCenterInBasket(center.id));
-    };
-    window.addEventListener('tcc_basket_updated', onUpdated);
-    return () => window.removeEventListener('tcc_basket_updated', onUpdated);
-  }, [center?.id]);
-
-  const handleToggleBasket = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!center?.id) return;
-    if (inBasket) {
-      removeCenterFromBasket(center.id);
-      setInBasket(false);
-    } else {
-      addCenterToBasket({
-        id: center.id,
-        name: center.name,
-        slug: center.name.replace(/\s+/g, '-'),
-        imageUrl: center.imageUrls?.[0] || '',
-        address: center.address || '',
-        province: center.province || '',
-        price: center.price || 0,
-        phone: center.phone || '',
-        actionType: 'manual'
-      });
-      setInBasket(true);
-    }
-  };
-
   const distance = useMemo(() => {
     if (userLocation && center.lat && center.lng) {
       return getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, center.lat, center.lng).toFixed(1);
@@ -266,23 +230,9 @@ const CenterCard: React.FC<CenterCardProps> = ({ center, userLocation, locationL
             </div>
           ) : null}
 
-          {/* Quick Bookmark / Basket Toggle */}
-          <button
-            type="button"
-            onClick={handleToggleBasket}
-            title={inBasket ? 'นำออกจากตระกร้าศูนย์' : 'บันทึกในตระกร้า'}
-            className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
-              inBasket
-                ? 'bg-emerald-500 text-white hover:bg-emerald-600 scale-105'
-                : 'bg-black/40 hover:bg-black/60 text-white hover:scale-110 backdrop-blur-xs'
-            }`}
-          >
-            <Bookmark className={`w-4 h-4 ${inBasket ? 'fill-current' : ''}`} />
-          </button>
-
           {/* Recommended Nearby Area Badge */}
           {badgeLabel && (
-            <div className="absolute top-3 right-13 bg-blue-600/95 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-400/30">
+            <div className="absolute top-3 right-3 bg-blue-600/95 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-blue-400/30">
               <MapPin className="w-3 h-3 shrink-0" />
               <span>{badgeLabel}</span>
             </div>
@@ -1293,21 +1243,21 @@ export default function HomePageClient({
         const newTotal: number = typeof json.total === 'number' ? json.total : newItems.length;
         const newHasMore: boolean = typeof json.hasMore === 'boolean' ? json.hasMore : false;
 
-          const returnedNearby: CareCenter[] = Array.isArray(json.nearbyCenters) ? json.nearbyCenters : [];
-          const returnedKeywords: string[] = Array.isArray(json.nearbyKeywords) ? json.nearbyKeywords : [];
-          const returnedLocation: string | null = json.matchedLocationName || json.matchedZoneName || null;
-          const returnedRadius: number = typeof json.searchRadiusKm === 'number' ? json.searchRadiusKm : 10;
-          const returnedExpanded: boolean = Boolean(json.isRadiusExpanded);
+        const returnedNearby: CareCenter[] = Array.isArray(json.nearbyCenters) ? json.nearbyCenters : [];
+        const returnedKeywords: string[] = Array.isArray(json.nearbyKeywords) ? json.nearbyKeywords : [];
+        const returnedLocation: string | null = json.matchedLocationName || json.matchedZoneName || null;
+        const returnedRadius: number = typeof json.searchRadiusKm === 'number' ? json.searchRadiusKm : 10;
+        const returnedExpanded: boolean = Boolean(json.isRadiusExpanded);
 
-          setNearbyCenters(returnedNearby);
-          setNearbyKeywords(returnedKeywords);
-          setMatchedLocationName(returnedLocation);
-          setSearchRadiusKm(returnedRadius);
-          setIsRadiusExpanded(returnedExpanded);
-          setSelectedRadiusFilter('auto');
+        setNearbyCenters(returnedNearby);
+        setNearbyKeywords(returnedKeywords);
+        setMatchedLocationName(returnedLocation);
+        setSearchRadiusKm(returnedRadius);
+        setIsRadiusExpanded(returnedExpanded);
+        setSelectedRadiusFilter('auto');
 
-          if (pageToFetch === 1) {
-            if (newItems.length === 0) {
+        if (pageToFetch === 1) {
+          if (newItems.length === 0) {
             setCenters([]);
             setTotalCount(0);
             setHasMore(false);

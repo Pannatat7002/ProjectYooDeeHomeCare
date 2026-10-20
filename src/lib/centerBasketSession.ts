@@ -37,23 +37,42 @@ function deleteCookie(name: string) {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }
 
-// ดึงรายการศูนย์ที่อยู่ในตระกร้าจาก Cookie หรือ LocalStorage
+// Helper สร้าง URL slug ให้ตรงกับ Next.js dynamic route /[name]
+export function createCenterSlug(name: string): string {
+    const raw = (name || '').trim();
+    if (!raw) return '';
+    try {
+        // ถอดรหัสก่อนเผื่อมี string ที่เคย encode มาแล้ว ป้องกัน double encode
+        const decoded = decodeURIComponent(raw);
+        return encodeURIComponent(decoded.replace(/\s+/g, '-'));
+    } catch {
+        return encodeURIComponent(raw.replace(/\s+/g, '-'));
+    }
+}
+
+// ดึงรายการศูนย์ที่อยู่ในตระกร้าจาก Cookie หรือ LocalStorage พร้อม Normalize Slug
 export function getCenterBasket(): SavedCenterItem[] {
     if (typeof window === 'undefined') return [];
+
+    const normalizeItem = (item: SavedCenterItem): SavedCenterItem => ({
+        ...item,
+        name: item.name || '',
+        slug: createCenterSlug(item.name || item.slug || '')
+    });
 
     try {
         // 1. ลองอ่านจาก Cookie ก่อน
         const cookieVal = getCookie(BASKET_COOKIE_NAME);
         if (cookieVal) {
             const parsed = JSON.parse(cookieVal);
-            if (Array.isArray(parsed)) return parsed;
+            if (Array.isArray(parsed)) return parsed.map(normalizeItem);
         }
 
         // 2. Fallback ไปที่ LocalStorage
         const storageVal = localStorage.getItem(BASKET_STORAGE_KEY);
         if (storageVal) {
             const parsed = JSON.parse(storageVal);
-            if (Array.isArray(parsed)) return parsed;
+            if (Array.isArray(parsed)) return parsed.map(normalizeItem);
         }
     } catch (e) {
         console.warn('Error reading center basket:', e);
@@ -64,7 +83,7 @@ export function getCenterBasket(): SavedCenterItem[] {
 
 // เพิ่มหรืออัปเดตศูนย์ในตระกร้า
 export function addCenterToBasket(
-    center: Omit<SavedCenterItem, 'selectedAt'> & { selectedAt?: string }
+    center: Omit<SavedCenterItem, 'selectedAt' | 'slug'> & { selectedAt?: string; slug?: string }
 ): SavedCenterItem[] {
     if (typeof window === 'undefined') return [];
 
@@ -73,10 +92,13 @@ export function addCenterToBasket(
         // เอาศูนย์ที่มี id เดิมออกก่อน (ถ้ามี) เพื่อนำไปไว้หน้าสุด (Most recent)
         const filtered = current.filter(item => item.id !== center.id);
 
+        const cleanName = (center.name || '').trim();
+        const safeSlug = createCenterSlug(cleanName || center.slug || '');
+
         const newItem: SavedCenterItem = {
             id: center.id,
-            name: center.name,
-            slug: center.slug || encodeURIComponent(center.name.replace(/\s+/g, '-')),
+            name: cleanName,
+            slug: safeSlug,
             imageUrl: center.imageUrl || '',
             address: center.address || '',
             province: center.province || '',

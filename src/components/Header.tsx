@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Building2 } from 'lucide-react';
+import { Menu, X, Heart, Building2 } from 'lucide-react';
 import { getCenterBasket } from '../lib/centerBasketSession';
 import * as gtag from '../lib/gtag';
 
@@ -90,18 +90,18 @@ export default function Header() {
                             <span className="text-gray-500 hover:text-blue-600 cursor-pointer transition-colors">EN</span>
                         </div>
 
-                        {/* Center Basket Button */}
+                        {/* Center Interested Button (มุมบนขวา - แสดงแค่ ICON และจำนวนเลขที่เลือก) */}
                         <button
                             type="button"
                             onClick={() => window.dispatchEvent(new Event('tcc_open_basket'))}
-                            className="relative flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-semibold text-gray-700 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl border border-gray-200 hover:border-blue-200 transition-all active:scale-95 cursor-pointer"
-                            title="ศูนย์ที่เคยเลือก / บันทึกไว้"
+                            className="relative p-2 sm:p-2.5 text-gray-700 hover:text-rose-600 hover:bg-rose-50/80 rounded-full transition-all active:scale-90 cursor-pointer flex items-center justify-center"
+                            title={basketCount > 0 ? `ศูนย์ที่คุณสนใจ (${basketCount})` : 'ศูนย์ที่คุณสนใจ'}
+                            aria-label={`ศูนย์ที่คุณสนใจ (${basketCount})`}
                         >
-                            <Building2 className="w-4 h-4 text-blue-600" />
-                            <span className="hidden sm:inline">ศูนย์ที่เลือก</span>
+                            <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${basketCount > 0 ? 'text-rose-500 fill-rose-500' : 'text-gray-700 hover:text-rose-600'}`} />
                             {basketCount > 0 && (
-                                <span className="bg-red-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">
-                                    {basketCount}
+                                <span className="absolute -top-0.5 -right-0.5 bg-rose-500 text-white text-[11px] font-extrabold min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center border-2 border-white shadow-sm leading-none animate-in zoom-in">
+                                    {basketCount > 99 ? '99+' : basketCount}
                                 </span>
                             )}
                         </button>
@@ -145,14 +145,14 @@ export default function Header() {
                                     toggleMobileMenu();
                                     window.dispatchEvent(new Event('tcc_open_basket'));
                                 }}
-                                className="flex items-center justify-between text-left text-gray-900 hover:text-blue-600 py-2 px-3 rounded-md hover:bg-blue-50 transition-all text-base w-full"
+                                className="flex items-center justify-between text-left text-gray-900 hover:text-rose-600 py-2 px-3 rounded-md hover:bg-rose-50 transition-all text-base w-full"
                             >
                                 <span className="flex items-center gap-2">
-                                    <Building2 className="w-5 h-5 text-blue-600" />
-                                    ศูนย์ที่เคยเลือก / บันทึกไว้
+                                    <Heart className="w-5 h-5 text-rose-500" />
+                                    ศูนย์ที่คุณสนใจ
                                 </span>
                                 {basketCount > 0 && (
-                                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                    <span className="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                                         {basketCount}
                                     </span>
                                 )}

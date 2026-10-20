@@ -16,7 +16,8 @@ import {
     Eye,
     Sparkles,
     Facebook,
-    Building2
+    Building2,
+    Heart
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -1012,23 +1013,14 @@ export default function CenterDetailClient({
     const handleToggleBasket = useCallback(() => {
         if (!center?.id) return;
         if (isInBasket) {
-            removeCenterFromBasket(center.id);
-            setIsInBasket(false);
+            // หากบันทึกแล้ว คลิกเพื่อเปิดแถบ "ศูนย์ที่คุณสนใจ"
+            window.dispatchEvent(new Event('tcc_open_basket'));
         } else {
-            addCenterToBasket({
-                id: center.id,
-                name: center.name,
-                slug: center.name.replace(/\s+/g, '-'),
-                imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
-                address: center.address || '',
-                province: center.province || '',
-                price: center.price || 0,
-                phone: center.phone || '',
-                actionType: 'manual'
-            });
-            setIsInBasket(true);
+            // + สนใจศูนย์นี้: ต้องกรอกข้อมูลเยี่ยมชมก่อนเท่านั้น
+            // จึงเปิดฟอร์มกรอกข้อมูลเพื่อนัดหมายเข้าชมศูนย์ (LeadCaptureModal)
+            handleGatedAction('consultation');
         }
-    }, [center, isInBasket]);
+    }, [center, isInBasket, handleGatedAction]);
 
     const handleLeadSuccess = useCallback(() => {
         unlockThisCenter();
@@ -1036,7 +1028,7 @@ export default function CenterDetailClient({
             addCenterToBasket({
                 id: center.id,
                 name: center.name,
-                slug: center.name.replace(/\s+/g, '-'),
+                slug: createSlug(center.name),
                 imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
                 address: center.address || '',
                 province: center.province || '',
@@ -1182,7 +1174,7 @@ export default function CenterDetailClient({
                     addCenterToBasket({
                         id: center.id,
                         name: center.name,
-                        slug: center.name.replace(/\s+/g, '-'),
+                        slug: createSlug(center.name),
                         imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
                         address: center.address || '',
                         province: center.province || '',
@@ -1254,7 +1246,7 @@ export default function CenterDetailClient({
                     addCenterToBasket({
                         id: center.id,
                         name: center.name,
-                        slug: center.name.replace(/\s+/g, '-'),
+                        slug: createSlug(center.name),
                         imageUrl: center.imageUrls?.[0] || center.brandLogoUrl || '',
                         address: center.address || '',
                         province: center.province || '',
@@ -1388,10 +1380,11 @@ export default function CenterDetailClient({
                             <Info className="h-3 w-3 mr-1" /> ข้อมูลเบื้องต้น
                         </div>
 
-                        {/* ปุ่มบันทึกในตระกร้าศูนย์ที่เลือก */}
+                        {/* ปุ่มบันทึกศูนย์ที่คุณสนใจ */}
                         <button
                             type="button"
                             onClick={handleToggleBasket}
+                            title={isInBasket ? 'คลิกเพื่อดูศูนย์ที่คุณสนใจทั้งหมด' : 'กรอกข้อมูลเพื่อนัดหมายเข้าชมศูนย์'}
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 shadow-2xs ${
                                 isInBasket
                                     ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
@@ -1399,7 +1392,7 @@ export default function CenterDetailClient({
                             }`}
                         >
                             <Building2 className={`w-3.5 h-3.5 ${isInBasket ? 'text-emerald-600' : 'text-gray-400'}`} />
-                            <span>{isInBasket ? '✓ บันทึกในตระกร้าแล้ว' : '+ เพิ่มในตระกร้า'}</span>
+                            <span>{isInBasket ? '✓ สนใจศูนย์นี้แล้ว' : '+ สนใจศูนย์นี้'}</span>
                         </button>
                     </div>
                 </div>

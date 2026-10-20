@@ -6,7 +6,7 @@ import { X, CheckCircle2, ChevronDown, Info, ArrowRight, Compass, Phone, Message
 import Link from 'next/link';
 import { saveVerifiedLead, getVerifiedLead, VerifiedLeadData } from '../lib/leadSession';
 import { downloadSlipFromDom, downloadLeadSlipImage, shareSlipFromDom } from '../lib/generateLeadSlip';
-import { addCenterToBasket } from '../lib/centerBasketSession';
+import { addCenterToBasket, createCenterSlug } from '../lib/centerBasketSession';
 import * as gtag from '../lib/gtag';
 
 export type LeadActionType = 'navigation' | 'call' | 'line' | 'consultation' | 'view_info' | 'contact';
@@ -274,7 +274,7 @@ export default function LeadCaptureModal({
                 addCenterToBasket({
                     id: centerId || Math.floor(Math.random() * 900000 + 100000),
                     name: centerName,
-                    slug: centerName.replace(/\s+/g, '-'),
+                    slug: createCenterSlug(centerName),
                     imageUrl: centerImageUrl || '',
                     address: centerAddress || '',
                     phone: centerPhone || '',
