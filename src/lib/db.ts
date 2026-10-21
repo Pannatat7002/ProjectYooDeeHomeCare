@@ -65,16 +65,49 @@ const parseRow = (row: any) => {
     return item;
 };
 
-// --- Cache Invalidation ---
+// --- Cache System with In-Memory TTL & Revalidation ---
 let hospitalsTableExists: boolean | null = false;
 let nearbyHospitalsTableExists: boolean | null = false;
+
+interface CacheEntry<T = any> {
+    data: T;
+    timestamp: number;
+    ttlMs: number;
+}
+
+const globalForCache = globalThis as unknown as {
+    _dbTableCache?: Map<string, CacheEntry>;
+};
+
+const tableCache = globalForCache._dbTableCache ?? new Map<string, CacheEntry>();
+if (process.env.NODE_ENV !== 'production') {
+    globalForCache._dbTableCache = tableCache;
+}
+
+// TTL configuration per table (milliseconds)
+const TABLE_CACHE_TTL: Record<string, number> = {
+    care_centers: 60 * 1000,       // 60 seconds (centers updated by admin, auto-invalidated on change)
+    hospitals: 60 * 60 * 1000,     // 1 hour
+    ads: 5 * 60 * 1000,            // 5 minutes
+    blogs: 5 * 60 * 1000,          // 5 minutes
+    contacts: 30 * 1000,           // 30 seconds
+    consultations: 15 * 1000,      // 15 seconds
+};
+
+export const invalidateTableCache = (tableName?: string) => {
+    if (tableName) {
+        tableCache.delete(tableName);
+    } else {
+        tableCache.clear();
+    }
+};
 
 const invalidateCache = (tableName: string) => {
     try {
         if (tableName === 'hospitals') hospitalsTableExists = null;
         if (tableName === 'center_nearby_hospitals') nearbyHospitalsTableExists = null;
+        invalidateTableCache(tableName);
         revalidateTag(tableName, 'max');
-        console.log(`[Cache] Invalidated Next.js tag cache for: ${tableName}`);
     } catch {
         // Ignored outside of Next.js server request context
     }
@@ -82,11 +115,20 @@ const invalidateCache = (tableName: string) => {
 
 // --- Generic CRUD Operations for Supabase ---
 
-const loadDataFromTable = async (tableName: string) => {
+const loadDataFromTable = async (tableName: string, forceFresh = false) => {
     try {
         if (!isSupabaseConfigured()) {
             console.warn(`[Supabase] Warning: Supabase is not configured yet. Returning empty array for table: ${tableName}`);
             return [];
+        }
+
+        const now = Date.now();
+        const ttl = TABLE_CACHE_TTL[tableName] ?? 30 * 1000;
+        const cached = tableCache.get(tableName);
+
+        // Return from in-memory cache if still valid
+        if (!forceFresh && cached && now - cached.timestamp < cached.ttlMs) {
+            return [...cached.data];
         }
 
         let allData: any[] = [];
@@ -117,7 +159,9 @@ const loadDataFromTable = async (tableName: string) => {
             from += PAGE_SIZE;
         }
 
-        return allData.map(parseRow);
+        const parsed = allData.map(parseRow);
+        tableCache.set(tableName, { data: parsed, timestamp: now, ttlMs: ttl });
+        return [...parsed];
     } catch (error) {
         console.error(`[DB Error] Failed to load data from table ${tableName}:`, error);
         return [];
@@ -324,7 +368,7 @@ const saveDataToTable = async (tableName: string, items: any[]) => {
 // ==============================================================================
 
 // 1. CARE CENTERS
-export const getCareCenters = async () => loadDataFromTable('care_centers');
+export const getCareCenters = async (forceFresh = false) => loadDataFromTable('care_centers', forceFresh);
 export const saveCareCenters = async (data: any[]) => saveDataToTable('care_centers', data);
 export const addCareCenter = async (item: any) => {
     const created = await insertDataToTable('care_centers', item);
@@ -400,8 +444,26 @@ export const addAd = async (item: any) => insertDataToTable('ads', item);
 export const updateAd = async (id: number | string, data: any) => updateDataInTable('ads', id, data);
 export const deleteAd = async (id: number | string) => deleteDataFromTable('ads', id);
 
-// 7. TRAFFIC LOGS
-export const getTrafficLogs = async () => loadDataFromTable('traffic');
+// 7. TRAFFIC LOGS (Optimized with order and limit to avoid heavy full-table scans)
+export const getTrafficLogs = async (limit = 2000) => {
+    try {
+        if (!isSupabaseConfigured()) return [];
+        const { data, error } = await supabaseAdmin
+            .from('traffic')
+            .select('*')
+            .order('id', { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error('[Supabase Error] Error fetching traffic logs:', error);
+            return [];
+        }
+        return (data || []).map(parseRow);
+    } catch (e) {
+        console.error('[DB Error] Failed to load traffic logs:', e);
+        return [];
+    }
+};
 export const addTrafficLog = async (item: any) => insertDataToTable('traffic', item);
 
 // 8. PROVIDER SIGNUPS

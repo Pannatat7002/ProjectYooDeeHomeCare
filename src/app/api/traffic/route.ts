@@ -89,7 +89,10 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
     return requireAuth(request, async () => {
         try {
-            const logs = await getTrafficLogs();
+            const { searchParams } = new URL(request.url);
+            const limitParam = searchParams.get('limit');
+            const limit = limitParam ? Math.min(Math.max(1, parseInt(limitParam, 10) || 2000), 10000) : 2000;
+            const logs = await getTrafficLogs(limit);
             // Sort by timestamp descending
             const sortedLogs = [...logs].sort((a: any, b: any) => {
                 return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
