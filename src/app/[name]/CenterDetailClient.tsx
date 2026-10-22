@@ -831,73 +831,67 @@ const RoomTypeCard = ({
                         </div>
                     </div>
                 ) : (
-                    /* ไม่มีรูปภาพ: Minimal Clean Bed Canvas แสดงไอคอนเตียงเรียงกันโปร่งสบายตา ขนาดพอดีขอบ */
-                    <div className="relative w-full h-full bg-gradient-to-b from-slate-50 to-slate-100/60 p-4 sm:p-5 flex items-center justify-center overflow-hidden">
-                        {/* Bed Count Badge มุมขวาบนเพื่อความชัดเจน */}
-                        <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-xs border border-slate-200/80 text-slate-600 text-[11px] font-semibold px-2.5 py-0.5 rounded-full shadow-2xs flex items-center gap-1 z-10 pointer-events-none">
-                            {bedInfo.icon}
-                            <span>{bedInfo.badgeText} ({bedInfo.bedCount} เตียง)</span>
-                        </div>
-
-                        {/* Center: รูปไอคอนเตียง จัดวางสวยงาม มีระยะห่างจากขอบพอเหมาะ ไม่ล้นขอบ */}
-                        <div className="w-full h-full flex items-center justify-center pt-2">
+                    /* ไม่มีรูปภาพ: Minimal Clean Bed Canvas แสดงไอคอนเตียงขยายเต็มขอบพอดี ไม่ล้นขอบ */
+                    <div className="relative w-full h-full bg-gradient-to-b from-slate-50 to-slate-100/60 p-2 sm:p-3 flex items-center justify-center overflow-hidden">
+                        {/* Center: รูปไอคอนเตียง ขยายเต็มขอบพอดี ห้ามเกิน */}
+                        <div className="w-full h-full flex items-center justify-center">
                             {bedInfo.bedCount === 1 ? (
-                                /* กรณีห้องเดี่ยว (1 เตียง): ขนาดพอดีกลางการ์ด */
+                                /* กรณีห้องเดี่ยว (1 เตียง): ขยายเต็มขอบพอดี ไม่ล้น */
                                 <div className="flex items-center justify-center w-full h-full">
                                     <img
                                         src="/images/bed-icon.png"
                                         alt="เตียง 1"
-                                        className="h-20 sm:h-24 max-w-[120px] sm:max-w-[140px] w-auto object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                                        className="h-36 sm:h-44 max-w-[85%] w-auto object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-102"
                                     />
                                 </div>
                             ) : bedInfo.bedCount === 2 ? (
-                                /* กรณีห้องคู่ (2 เตียง): จัดเรียงแนวนอน เว้นช่องว่างสวยงาม */
-                                <div className="flex items-center justify-center gap-4 sm:gap-6 w-full h-full max-w-[260px] mx-auto">
+                                /* กรณีห้องคู่ (2 เตียง): ขยายเต็มขอบพอดี ไม่ล้น */
+                                <div className="flex items-center justify-center gap-3 sm:gap-4 w-full h-full max-w-[340px] sm:max-w-[390px] mx-auto">
                                     {Array.from({ length: 2 }).map((_, i) => (
                                         <div key={i} className="flex items-center justify-center">
                                             <img
                                                 src="/images/bed-icon.png"
                                                 alt={`เตียง ${i + 1}`}
-                                                className="h-16 sm:h-20 max-w-[85px] sm:max-w-[105px] w-auto object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                                                className="h-28 sm:h-34 max-w-[140px] sm:max-w-[165px] w-auto object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-102"
                                             />
                                         </div>
                                     ))}
                                 </div>
                             ) : bedInfo.bedCount === 3 ? (
-                                /* กรณีห้อง 3 เตียง: จัดเรียงแถวเดียว ขนาดกำลังดี ไม่ล้น */
-                                <div className="flex items-center justify-center gap-2 sm:gap-3 w-full h-full max-w-[280px] mx-auto">
+                                /* กรณีห้อง 3 เตียง: ขยายเต็มขอบพอดี ไม่ล้น */
+                                <div className="flex items-center justify-center gap-2 sm:gap-3 w-full h-full max-w-[360px] sm:max-w-[410px] mx-auto">
                                     {Array.from({ length: 3 }).map((_, i) => (
                                         <div key={i} className="flex items-center justify-center">
                                             <img
                                                 src="/images/bed-icon.png"
                                                 alt={`เตียง ${i + 1}`}
-                                                className="h-14 sm:h-16 max-w-[65px] sm:max-w-[80px] w-auto object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                                                className="h-22 sm:h-28 max-w-[100px] sm:max-w-[120px] w-auto object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-102"
                                             />
                                         </div>
                                     ))}
                                 </div>
                             ) : bedInfo.bedCount === 4 ? (
-                                /* กรณีห้องรวม 4 เตียง: จัดเป็น 2 แถว แถวละ 2 เตียง (2x2) */
-                                <div className="grid grid-cols-2 grid-rows-2 w-full h-full max-w-[190px] sm:max-w-[230px] mx-auto items-center justify-items-center gap-2 sm:gap-3">
+                                /* กรณีห้องรวม 4 เตียง (2x2): ขยายเต็มขอบพอดี ไม่ล้น */
+                                <div className="grid grid-cols-2 grid-rows-2 w-full h-full max-w-[280px] sm:max-w-[330px] mx-auto items-center justify-items-center gap-2 sm:gap-3">
                                     {Array.from({ length: 4 }).map((_, i) => (
                                         <div key={i} className="flex items-center justify-center w-full h-full">
                                             <img
                                                 src="/images/bed-icon.png"
                                                 alt={`เตียง ${i + 1}`}
-                                                className="max-h-12 sm:max-h-14 max-w-[70px] sm:max-w-[85px] w-auto h-auto object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                                                className="max-h-20 sm:max-h-24 max-w-[120px] sm:max-w-[140px] w-auto h-auto object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-102"
                                             />
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                /* กรณีห้องรวม (5-6 เตียง): จัดเป็น 2 แถว แถวละ 3 เตียง (3x2) */
-                                <div className="grid grid-cols-3 grid-rows-2 w-full h-full max-w-[240px] sm:max-w-[280px] mx-auto items-center justify-items-center gap-1.5 sm:gap-2">
+                                /* กรณีห้องรวม (5-6 เตียง) (3x2): ขยายเต็มขอบพอดี ไม่ล้น */
+                                <div className="grid grid-cols-3 grid-rows-2 w-full h-full max-w-[340px] sm:max-w-[390px] mx-auto items-center justify-items-center gap-1.5 sm:gap-2.5">
                                     {Array.from({ length: Math.min(bedInfo.bedCount, 6) }).map((_, i) => (
                                         <div key={i} className="flex items-center justify-center w-full h-full">
                                             <img
                                                 src="/images/bed-icon.png"
                                                 alt={`เตียง ${i + 1}`}
-                                                className="max-h-11 sm:max-h-13 max-w-[60px] sm:max-w-[75px] w-auto h-auto object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                                                className="max-h-18 sm:max-h-22 max-w-[95px] sm:max-w-[115px] w-auto h-auto object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-102"
                                             />
                                         </div>
                                     ))}
