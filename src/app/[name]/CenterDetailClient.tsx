@@ -17,7 +17,10 @@ import {
     Sparkles,
     Facebook,
     Building2,
-    Heart
+    Heart,
+    Bed,
+    BedDouble,
+    BedSingle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -721,31 +724,55 @@ const ContactStaffModal: React.FC<ContactStaffModalProps> = ({ isOpen, onClose, 
 };
 
 
-// Helper to get English sub-name
-const getRoomSubName = (name: string) => {
+// Helper to parse bed info from room name (เดี่ยว, คู่, รวม)
+const getBedInfo = (name: string) => {
     const lower = name.toLowerCase();
-    if (lower.includes('เดี่ยว')) return 'Private Room';
-    if (lower.includes('รวม')) return 'Shared Room';
-    if (lower.includes('คู่')) return 'Twin Room';
-    if (lower.includes('พิเศษ')) return 'Special Room';
-    if (lower.includes('premium')) return 'Premium Room';
-    if (lower.includes('vip')) return 'VIP Room';
-    return 'Care Room';
-};
 
-// Helper to get pill badge
-const getRoomBadge = (name: string) => {
-    const lower = name.toLowerCase();
+    // ตรวจจับจำนวนเตียงหากมีระบุตัวเลขในชื่อ เช่น "ห้องรวม 4 เตียง"
+    const bedMatch = name.match(/(\d+)\s*เตียง/);
+    const explicitCount = bedMatch ? parseInt(bedMatch[1], 10) : null;
+
+    // 1. ห้องเดี่ยว (1 เตียง)
     if (lower.includes('เดี่ยว')) {
-        return { text: 'ความเป็นส่วนตัว', icon: <User className="w-4 h-4 text-[#2b64a0]" /> };
+        return {
+            bedCount: explicitCount || 1,
+            badgeText: 'ห้องเดี่ยว',
+            subName: 'Private Room',
+            type: 'single' as const,
+            icon: <BedSingle className="w-4 h-4 text-blue-600" />
+        };
     }
-    if (lower.includes('รวม')) {
-        return { text: 'ราคาประหยัด', icon: <DollarSign className="w-4 h-4 text-[#2b64a0]" /> };
-    }
+
+    // 2. ห้องคู่ (2 เตียง)
     if (lower.includes('คู่')) {
-        return { text: 'พักได้ 2 ท่าน', icon: <Users className="w-4 h-4 text-[#2b64a0]" /> };
+        return {
+            bedCount: explicitCount || 2,
+            badgeText: 'ห้องคู่',
+            subName: 'Twin Room',
+            type: 'double' as const,
+            icon: <BedDouble className="w-4 h-4 text-blue-600" />
+        };
     }
-    return { text: 'มาตรฐาน สบส.', icon: <ShieldCheck className="w-4 h-4 text-[#2b64a0]" /> };
+
+    // 3. ห้องรวม (หากระบุตัวเลขให้ตามนั้น ถ้าไม่ระบุใช้ค่ามาตรฐาน 6 เตียง)
+    if (lower.includes('รวม')) {
+        return {
+            bedCount: explicitCount || 6,
+            badgeText: 'ห้องรวม',
+            subName: 'Shared Room',
+            type: 'shared' as const,
+            icon: <Bed className="w-4 h-4 text-blue-600" />
+        };
+    }
+
+    // 4. ค่าเริ่มต้นห้องพักมาตรฐาน
+    return {
+        bedCount: explicitCount || 1,
+        badgeText: 'ห้องพักมาตรฐาน',
+        subName: 'Standard Room',
+        type: 'standard' as const,
+        icon: <Bed className="w-4 h-4 text-blue-600" />
+    };
 };
 
 // Helper to get default target audience description
@@ -773,84 +800,138 @@ const RoomTypeCard = ({
     onOpenGallery: (images: string[], index: number) => void;
 }) => {
     const images = Array.isArray(room.imageUrls) && room.imageUrls.length > 0 ? room.imageUrls : [];
-    const badge = getRoomBadge(room.name);
-    const subName = getRoomSubName(room.name);
+    const bedInfo = getBedInfo(room.name);
     const targetDesc = room.description || getRoomDefaultDescription(room.name);
 
     return (
-        <div className="bg-white text-slate-800 rounded-none sm:rounded-lg p-4 sm:p-6 shadow-sm border-y border-slate-200 border-x-0 sm:border sm:border-slate-200 -mx-4 sm:mx-0 flex flex-col gap-6 mb-8 sm:mb-10 transition-all duration-300 hover:shadow-md hover:border-blue-200">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col group">
 
-            {/* Top Row: Title & Subtitle + Badge */}
-            <div className="flex flex-row justify-between items-center gap-4 pb-4 border-b border-slate-100">
-                <div className="flex flex-row items-baseline flex-wrap gap-2">
-                    <h3 className="text-xl md:text-3xl font-extrabold text-slate-900 font-sans tracking-tight leading-tight">
-                        {room.name}
-                    </h3>
-                    <span className="inline-block bg-blue-50 text-blue-600 text-[10px] md:text-sm font-extrabold px-2 py-0.5 md:px-2.5 md:py-1 rounded-md uppercase tracking-wider">
-                        {subName}
-                    </span>
-                </div>
+            {/* ส่วนรูปภาพ / Visual Showcase แสดงเต็มกรอบ */}
+            <div className="relative w-full h-48 sm:h-56 overflow-hidden bg-slate-100 shrink-0">
+                {images.length > 0 ? (
+                    /* มีรูปภาพจริง: แสดงรูปภาพเต็มกรอบ */
+                    <div
+                        className="relative w-full h-full cursor-pointer group/img"
+                        onClick={() => onOpenGallery(images, 0)}
+                    >
+                        <img
+                            src={images[0]}
+                            alt={room.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                            onError={(e) => {
+                                e.currentTarget.src = 'https://via.placeholder.com/600x400?text=No+Room+Image';
+                            }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none" />
 
-                {/* Feature Pill Badge */}
-                <div className="bg-blue-50 text-blue-800 text-xs md:text-base font-bold px-2 py-1.5 md:px-3.5 md:py-2 rounded-md shadow-sm flex items-center gap-1.5 border border-blue-100 shrink-0">
-                    {badge.icon}
-                    {badge.text}
-                </div>
-            </div>
-
-            {/* Middle Row: Suitability text */}
-            <div className="flex items-start gap-2 text-sm md:text-base text-slate-700 leading-relaxed">
-                <span className="shrink-0 text-base md:text-lg">🎯</span>
-                <p>
-                    <strong className="text-slate-900 font-sans font-extrabold text-base md:text-lg">เหมาะสำหรับ:</strong> {targetDesc}
-                </p>
-            </div>
-
-            {/* Bottom Row: Status and Inquiry Button */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                {/* Bed Status */}
-                <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs sm:text-sm font-extrabold px-3.5 py-2 rounded-md w-fit">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-                    <span>{room.status || 'เตียงว่างพร้อมดูแลทันที'}</span>
-                </div>
-
-                {/* Inquiry Button */}
-                <button
-                    type="button"
-                    onClick={() => onInquire(room.name)}
-                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm md:text-base font-extrabold shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 self-end"
-                >
-                    <MessageSquare className="w-5 h-5" /> สอบถามราคาห้องนี้
-                </button>
-            </div>
-
-            {/* Images Grid Block inside Card */}
-            {images.length > 0 && (
-                <div className="pt-6 border-t border-slate-100">
-                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0 md:grid md:grid-cols-3 md:gap-3">
-                        {images.map((url, idx) => (
-                            <div
-                                key={url + idx}
-                                onClick={() => onOpenGallery(images, idx)}
-                                className="w-[88%] md:w-full shrink-0 snap-center relative aspect-[4/3] rounded-lg overflow-hidden shadow-sm hover:shadow-md border border-slate-200 group/img cursor-pointer bg-slate-50"
-                            >
-                                <img
-                                    src={url}
-                                    alt={`${room.name} view ${idx + 1}`}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
-                                    onError={(e) => {
-                                        e.currentTarget.src = 'https://via.placeholder.com/600x400?text=No+Room+Image';
-                                    }}
-                                />
-                                {/* Mobile pagination counter */}
-                                <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded font-sans md:hidden">
-                                    {idx + 1} / {images.length}
-                                </div>
-                            </div>
-                        ))}
+                        {/* ปุ่มดูภาพทั้งหมด */}
+                        <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5 hover:bg-black/80 transition-colors">
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>ดูภาพ ({images.length})</span>
+                        </div>
                     </div>
+                ) : (
+                    /* ไม่มีรูปภาพ: Minimal Clean Bed Canvas แสดงไอคอนเตียงเรียงกันโปร่งสบายตา ไม่ใช้กรอบทึบ */
+                    <div className="relative w-full h-full bg-slate-50/80 p-2 sm:p-3 flex items-center justify-center overflow-hidden">
+                        {/* Center: รูปไอคอนเตียงขนาดใหญ่ ชัดเจน ขยายเต็มพื้นที่ชิดขอบ */}
+                        <div className="w-full h-full flex items-center justify-center">
+                            {bedInfo.bedCount <= 3 ? (
+                                /* กรณีแสดงเตียงแค่ row เดียว (ห้องเดี่ยว หรือห้องคู่): เอาไว้ตรงกลางหน้า */
+                                <div className="flex items-center justify-center gap-3 sm:gap-4 w-full h-full">
+                                    {Array.from({ length: bedInfo.bedCount }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className="flex items-center justify-center"
+                                        >
+                                            <img
+                                                src="/images/bed-icon.png"
+                                                alt={`เตียง ${i + 1}`}
+                                                className={`${
+                                                    bedInfo.bedCount === 1
+                                                        ? 'h-32 sm:h-40 max-w-[90%]'
+                                                        : 'h-28 sm:h-36 max-w-[130px] sm:max-w-[160px]'
+                                                } w-auto object-contain drop-shadow-xs transition-transform duration-300`}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : bedInfo.bedCount === 4 ? (
+                                /* กรณีห้องรวม 4 เตียง: จัดเป็น 2 แถว แถวละ 2 เตียง (2x2) ตรงกลางหน้า */
+                                <div className="grid grid-cols-2 grid-rows-2 w-full h-full max-w-[280px] sm:max-w-[320px] mx-auto items-center justify-items-center gap-1 sm:gap-2">
+                                    {Array.from({ length: 4 }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className="flex items-center justify-center w-full h-full p-0.5 sm:p-1"
+                                        >
+                                            <img
+                                                src="/images/bed-icon.png"
+                                                alt={`เตียง ${i + 1}`}
+                                                className="w-full h-full max-h-20 sm:max-h-24 object-contain drop-shadow-xs transition-transform duration-300"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                /* กรณีห้องรวม (6 เตียง): แสดงเต็มกรอบชิดขอบ 3x2 */
+                                <div className="grid grid-cols-3 grid-rows-2 w-full h-full items-center justify-items-center gap-1 sm:gap-2">
+                                    {Array.from({ length: bedInfo.bedCount }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className="flex items-center justify-center w-full h-full p-0.5 sm:p-1"
+                                        >
+                                            <img
+                                                src="/images/bed-icon.png"
+                                                alt={`เตียง ${i + 1}`}
+                                                className="w-full h-full max-h-20 sm:max-h-24 object-contain drop-shadow-xs transition-transform duration-300"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* รายละเอียดห้องพัก & ปุ่มติดต่อสอบถาม */}
+            <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
+                <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            {room.name}
+                        </h3>
+                    </div>
+
+                    {/* จุดเด่นประจำห้องพัก */}
+                    <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100/80 text-slate-600 text-xs font-medium">
+                            <ShieldCheck className="w-3 h-3 text-blue-600" /> ม่านกั้นแยกสัดส่วน
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100/80 text-slate-600 text-xs font-medium">
+                            <CheckCircle2 className="w-3 h-3 text-blue-600" /> กริ่งกดเรียกพยาบาล
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100/80 text-slate-600 text-xs font-medium">
+                            <Users className="w-3 h-3 text-blue-600" /> ทีมดูแล 24 ชม.
+                        </span>
+                    </div>
+
+                    {/* เหมาะสำหรับ (Minimal Text ไม่มีกรอบล้อม) */}
+                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed pt-1">
+                        <strong className="text-slate-700 font-medium">เหมาะสำหรับ:</strong> {targetDesc}
+                    </p>
                 </div>
-            )}
+
+                {/* ปุ่ม Action สอบถามราคา */}
+                <div className="pt-2">
+                    <button
+                        type="button"
+                        onClick={() => onInquire(room.name)}
+                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-2xs hover:shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                        <MessageSquare className="w-3.5 h-3.5" /> สอบถามราคาห้องนี้
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
@@ -1385,11 +1466,10 @@ export default function CenterDetailClient({
                             type="button"
                             onClick={handleToggleBasket}
                             title={isInBasket ? 'คลิกเพื่อดูศูนย์ที่คุณสนใจทั้งหมด' : 'กรอกข้อมูลเพื่อนัดหมายเข้าชมศูนย์'}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 shadow-2xs ${
-                                isInBasket
-                                    ? 'bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100'
-                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
-                            }`}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 shadow-2xs ${isInBasket
+                                ? 'bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100'
+                                : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
+                                }`}
                         >
                             <Heart className={`w-3.5 h-3.5 ${isInBasket ? 'text-blue-600 fill-blue-600' : 'text-gray-400'}`} />
                             <span>{isInBasket ? '✓ สนใจศูนย์นี้แล้ว' : '+ สนใจศูนย์นี้'}</span>
@@ -1409,7 +1489,7 @@ export default function CenterDetailClient({
                         <img
                             src={mainImage}
                             alt="Main center view"
-                            className="relative z-10 max-w-full max-h-full object-contain transition-all duration-500 cursor-pointer hover:scale-101"
+                            className="relative z-10 w-full h-full object-cover transition-all duration-500 cursor-pointer hover:scale-101"
                             onClick={() => {
                                 const currentIndex = allImages.indexOf(mainImage);
                                 handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
@@ -1506,15 +1586,11 @@ export default function CenterDetailClient({
                             <section className="bg-white p-4 sm:p-6 rounded-none sm:rounded-lg shadow-none sm:shadow-sm border-y border-x-0 sm:border border-gray-100 -mx-4 sm:mx-0">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 mb-6">
                                     <div className="flex flex-col">
-                                        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">ประเภทห้องพักและสถานะเตียงว่าง</h2>
-                                        <p className="text-sm text-gray-500 mt-1 font-medium">ข้อมูลความพร้อมในการให้บริการของแต่ละประเภทห้องพัก</p>
+                                        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">ประเภทห้องพัก</h2>
+                                        <p className="text-sm text-gray-500 mt-1 font-medium">ข้อมูลและรายละเอียดของแต่ละประเภทห้องพัก</p>
                                     </div>
-                                    <span className="text-xs md:text-sm text-blue-600 font-extrabold bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 mt-1 sm:mt-0 flex items-center gap-1">
-                                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
-                                        อัปเดตเรียลไทม์
-                                    </span>
                                 </div>
-                                <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {center.roomTypes.map((room, idx) => (
                                         <RoomTypeCard key={idx} room={room} onInquire={handleInquireRoom} onOpenGallery={handleOpenGallery} />
                                     ))}
@@ -1544,7 +1620,7 @@ export default function CenterDetailClient({
                                             className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm transition-all duration-300 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/5 group flex flex-col h-full"
                                         >
                                             {/* 1. ส่วนหัว (ชื่อแพ็กเกจและราคา) */}
-                                            {/*
+                        {/*
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-baseline pb-4 border-b border-slate-100 mb-4 gap-2">
                                                 <h4 className="font-bold text-xl sm:text-2xl text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
                                                     {pkg.name}
@@ -1558,8 +1634,8 @@ export default function CenterDetailClient({
                                             </div>
                                             */}
 
-                                            {/* 2. ส่วนรายละเอียด (Details) */}
-                                            {/*
+                        {/* 2. ส่วนรายละเอียด (Details) */}
+                        {/*
                                             <div className="flex-grow">
                                                 {pkg.details && Array.isArray(pkg.details) && pkg.details.length > 0 ? (
                                                     <ul className="space-y-3">
@@ -1580,8 +1656,8 @@ export default function CenterDetailClient({
                                             </div>
                                             */}
 
-                                            {/* 3. ปุ่มสอบถามแพ็กเกจนี้ */}
-                                            {/*
+                        {/* 3. ปุ่มสอบถามแพ็กเกจนี้ */}
+                        {/*
                                             <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end">
                                                 <button
                                                     type="button"
