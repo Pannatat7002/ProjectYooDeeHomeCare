@@ -1504,7 +1504,7 @@ export default function CenterDetailClient({
                         <img
                             src={mainImage}
                             alt="Main center view"
-                            className="relative z-10 w-full h-full object-cover transition-all duration-500 cursor-pointer hover:scale-101"
+                            className="relative z-10 max-w-full max-h-full object-contain transition-all duration-500 cursor-pointer hover:scale-101"
                             onClick={() => {
                                 const currentIndex = allImages.indexOf(mainImage);
                                 handleOpenGallery(allImages, currentIndex !== -1 ? currentIndex : 0);
