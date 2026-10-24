@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { X, CheckCircle2, ChevronDown, Info, ArrowRight, Compass, Phone, MessageCircle, MapPin, Sparkles, Download, Check, Share2, Facebook } from 'lucide-react';
+import { X, CheckCircle2, ChevronDown, Info, ArrowRight, Compass, Phone, MessageCircle, MapPin, Sparkles, Download, Check, Share2, Facebook, Calendar, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { saveVerifiedLead, getVerifiedLead, VerifiedLeadData } from '../lib/leadSession';
 import { downloadSlipFromDom, downloadLeadSlipImage, shareSlipFromDom } from '../lib/generateLeadSlip';
-import { addCenterToBasket, createCenterSlug } from '../lib/centerBasketSession';
+import { addCenterToBasket, createCenterSlug, isCenterInBasket } from '../lib/centerBasketSession';
 import * as gtag from '../lib/gtag';
 
 export type LeadActionType = 'navigation' | 'call' | 'line' | 'consultation' | 'view_info' | 'contact';
@@ -24,6 +24,7 @@ export interface LeadCaptureModalProps {
     destinationUrl?: string;
     lineUrl?: string;
     facebookUrl?: string;
+    initialRoomType?: string;
 }
 
 const conditionOptions = [
@@ -54,7 +55,8 @@ export default function LeadCaptureModal({
     actionType = 'navigation',
     destinationUrl,
     lineUrl = 'https://line.me/R/ti/p/%40256zihiv',
-    facebookUrl = 'https://www.facebook.com/profile.php?id=61584261862432'
+    facebookUrl = 'https://www.facebook.com/profile.php?id=61584261862432',
+    initialRoomType
 }: LeadCaptureModalProps) {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
@@ -73,60 +75,54 @@ export default function LeadCaptureModal({
     const [hasDownloadedSlip, setHasDownloadedSlip] = useState(false);
     const slipCardRef = useRef<HTMLDivElement>(null);
 
-    // ดึงข้อมูลเดิมที่เคยกรอกมาแสดงอัตโนมัติเมื่อเปิด Modal (เช่น เมื่อเปลี่ยนไปดูศูนย์อื่น)
+    // ดึงข้อมูลเดิมที่เคยกรอกมาแสดงอัตโนมัติเมื่อเปิด Modal
+    // และตรวจเช็กว่าศูนย์นี้เคยกดเยี่ยมชมแล้วหรือไม่ ถ้าเคยแล้วจะไม่แสดงให้กรอกใหม่ แต่จะแสดงใบนัดหมาย (Success) ทันที
     useEffect(() => {
         if (!isOpen) return;
+
+        // หากมีการระบุประเภทห้องพักเข้ามา ให้ใช้ค่านั้นเป็นค่าเริ่มต้น
+        if (initialRoomType) {
+            if (initialRoomType.includes('เดี่ยว')) setRoomType('ห้องเดี่ยว');
+            else if (initialRoomType.includes('คู่')) setRoomType('ห้องคู่');
+            else if (initialRoomType.includes('รวม')) setRoomType('ห้องรวม');
+            else setRoomType(initialRoomType);
+        }
+
         const verified = getVerifiedLead();
         if (verified && (verified.phone || verified.name)) {
             setHasExistingData(true);
             if (verified.name) setName(verified.name);
             if (verified.phone) setPhone(verified.phone);
             if (verified.location) setLocation(verified.location);
-            if (verified.roomType) setRoomType(verified.roomType);
+            if (!initialRoomType && verified.roomType) setRoomType(verified.roomType);
             if (verified.patientCondition || verified.condition) {
                 setPatientCondition(verified.patientCondition || verified.condition || 'ผู้ป่วยติดเตียง');
             }
             if (verified.budget) setBudget(verified.budget);
             if (verified.timeframe) setTimeframe(verified.timeframe);
         }
-    }, [isOpen]);
+
+        // ตรวจสอบว่าศูนย์นี้เคยกดเยี่ยมชมหรือบันทึกไว้ในคุกกี้ (tcc_center_basket) แล้วหรือไม่
+        const alreadyBooked = isCenterInBasket(centerId || 0, centerName);
+        if (alreadyBooked) {
+            setSubmitStatus('success');
+        } else {
+            setSubmitStatus('idle');
+        }
+    }, [isOpen, initialRoomType, centerId, centerName]);
 
     // จัดการปุ่ม Back บนมือถือ (และปุ่ม Esc) เพื่อปิด Modal โดยไม่ให้ออกจากหน้าเว็บ
     const isPushedRef = useRef(false);
+    const onCloseRef = useRef(onClose);
+
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
 
     useEffect(() => {
         if (!isOpen) {
-            isPushedRef.current = false;
-            return;
-        }
-
-        // ดันประวัติหน้าชั่วคราว เพื่อดักจับปุ่ม Back บนมือถือ
-        try {
-            window.history.pushState({ leadCaptureModalOpen: true }, '');
-            isPushedRef.current = true;
-        } catch (e) {
-            console.warn('Failed to pushState for modal:', e);
-        }
-
-        const handlePopState = () => {
-            isPushedRef.current = false;
-            onClose();
-        };
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        };
-
-        window.addEventListener('popstate', handlePopState);
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            window.removeEventListener('popstate', handlePopState);
-            window.removeEventListener('keydown', handleKeyDown);
-
-            // หากปิด Modal ผ่านปุ่มในหน้าเว็บ (ไม่ใช่การกด Back เอง) ให้ถอยประวัติกลับ 1 สเต็ป
+            setSubmitStatus('idle');
+            setErrorMessage('');
             if (isPushedRef.current) {
                 isPushedRef.current = false;
                 try {
@@ -137,28 +133,62 @@ export default function LeadCaptureModal({
                     // Ignore
                 }
             }
+            return;
+        }
+
+        // ดันประวัติหน้าชั่วคราว เพื่อดักจับปุ่ม Back บนมือถือ
+        if (!isPushedRef.current) {
+            try {
+                window.history.pushState({ leadCaptureModalOpen: true }, '');
+                isPushedRef.current = true;
+            } catch (e) {
+                console.warn('Failed to pushState for modal:', e);
+            }
+        }
+
+        const handlePopState = () => {
+            isPushedRef.current = false;
+            onCloseRef.current();
         };
-    }, [isOpen, onClose]);
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onCloseRef.current();
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
-    const actionText = {
-        navigation: 'เปิดแผนที่นำทางสู่',
-        call: 'โทรติดต่อเจ้าหน้าที่',
-        line: 'ติดต่อผ่าน LINE ของ',
-        consultation: 'นัดหมายเยี่ยมชม',
-        view_info: 'ดูข้อมูลและรายละเอียดของ',
-        contact: 'ติดต่อศูนย์ดูแล'
-    }[actionType] || 'ดูข้อมูลของ';
+    const actionText = initialRoomType
+        ? `สอบถามราคา: ${initialRoomType}`
+        : ({
+            navigation: 'เปิดแผนที่นำทางสู่',
+            call: 'โทรติดต่อเจ้าหน้าที่',
+            line: 'ติดต่อผ่าน LINE ของ',
+            consultation: 'นัดหมายเยี่ยมชม',
+            view_info: 'ดูข้อมูลและรายละเอียดของ',
+            contact: 'ติดต่อศูนย์ดูแล'
+        }[actionType] || 'ดูข้อมูลของ');
 
-    const buttonText = {
-        navigation: 'ยืนยันและเปิดแผนที่นำทาง',
-        call: 'ยืนยันและโทรออก',
-        line: 'ยืนยันและเปิด LINE',
-        consultation: 'ยืนยันข้อมูลเพื่อนัดหมาย',
-        view_info: 'ยืนยันเพื่อดูข้อมูลศูนย์',
-        contact: 'ยืนยันเพื่อติดต่อศูนย์ดูแล'
-    }[actionType] || 'ยืนยันข้อมูล';
+    const buttonText = initialRoomType
+        ? `ยืนยันสอบถามราคา ${initialRoomType}`
+        : ({
+            navigation: 'ยืนยันและเปิดแผนที่นำทาง',
+            call: 'ยืนยันและโทรออก',
+            line: 'ยืนยันและเปิด LINE',
+            consultation: 'ยืนยันข้อมูลเพื่อนัดหมาย',
+            view_info: 'ยืนยันเพื่อดูข้อมูลศูนย์',
+            contact: 'ยืนยันเพื่อติดต่อศูนย์ดูแล'
+        }[actionType] || 'ยืนยันข้อมูล');
 
     const handleGetCurrentLocation = () => {
         if (typeof window === 'undefined' || !navigator.geolocation) {
@@ -226,7 +256,7 @@ export default function LeadCaptureModal({
         setSubmitStatus('submitting');
 
         try {
-            // 1. Post Lead to /api/care-centers/consultations พร้อมเก็บข้อมูลสำคัญครบถ้วน
+            // 1. Post Lead to /api/care-centers/consultations พร้อมหน่วงเวลาขั้นต่ำ 800ms เพื่อให้หน้าโหลดแสดงอย่างสมบูรณ์
             const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
             const utmSource = urlParams?.get('utm_source') || '';
             const utmMedium = urlParams?.get('utm_medium') || '';
@@ -235,27 +265,36 @@ export default function LeadCaptureModal({
             const trimmedLocation = location.trim();
             const locationText = trimmedLocation ? ` | ทำเล/ตำแหน่ง: ${trimmedLocation}` : '';
 
-            await fetch('/api/care-centers/consultations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: name.trim(),
-                    phone: cleanPhone,
-                    branch: centerName,
-                    patientCondition,
-                    condition: patientCondition,
-                    roomType: roomType || 'ไม่ระบุ',
-                    location: trimmedLocation,
-                    budget: budget || 'ยังไม่ระบุ',
-                    convenientTime: timeframe || 'ด่วนภายใน 7 วัน',
-                    message: actionType === 'consultation'
-                        ? `[นัดเยี่ยมชมศูนย์] สนใจนัดเข้าชม: ${centerName} | อาการ: ${patientCondition} | ห้อง: ${roomType}${locationText} | งบประมาณ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}/${utmMedium}` : ''}`
-                        : `[Lead Capture] ดำเนินการ: ${actionText} ${centerName} | อาการ: ${patientCondition} | ห้อง: ${roomType}${locationText} | งบ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}` : ''}`,
-                    utmSource,
-                    utmMedium,
-                    utmCampaign
-                })
-            });
+            try {
+                await Promise.all([
+                    fetch('/api/care-centers/consultations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: name.trim(),
+                            phone: cleanPhone,
+                            branch: centerName,
+                            patientCondition,
+                            condition: patientCondition,
+                            roomType: roomType || 'ไม่ระบุ',
+                            location: trimmedLocation,
+                            budget: budget || 'ยังไม่ระบุ',
+                            convenientTime: timeframe || 'ด่วนภายใน 7 วัน',
+                            message: initialRoomType
+                                ? `[สอบถามราคาห้องพัก] สนใจห้อง: ${initialRoomType} | ศูนย์: ${centerName} | อาการ: ${patientCondition} | ห้อง: ${roomType}${locationText} | งบประมาณ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}/${utmMedium}` : ''}`
+                                : actionType === 'consultation'
+                                    ? `[นัดเยี่ยมชมศูนย์] สนใจนัดเข้าชม: ${centerName} | อาการ: ${patientCondition} | ห้อง: ${roomType}${locationText} | งบประมาณ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}/${utmMedium}` : ''}`
+                                    : `[Lead Capture] ดำเนินการ: ${actionText} ${centerName} | อาการ: ${patientCondition} | ห้อง: ${roomType}${locationText} | งบ: ${budget} | ความเร่งด่วน: ${timeframe}${utmSource ? ` | แหล่งที่มา: ${utmSource}` : ''}`,
+                            utmSource,
+                            utmMedium,
+                            utmCampaign
+                        })
+                    }),
+                    new Promise((resolve) => setTimeout(resolve, 800))
+                ]);
+            } catch (fetchErr) {
+                console.warn('API consultation fetch warning:', fetchErr);
+            }
 
             // 2. Save verified lead into Cookie & LocalStorage (30 days TTL) พร้อม roomType และ location
             const savedData = saveVerifiedLead({
@@ -263,7 +302,7 @@ export default function LeadCaptureModal({
                 name: name.trim(),
                 patientCondition,
                 condition: patientCondition,
-                roomType,
+                roomType: initialRoomType || roomType,
                 location: trimmedLocation,
                 budget,
                 timeframe
@@ -271,15 +310,19 @@ export default function LeadCaptureModal({
 
             // 3. บันทึกศูนย์นี้ลงในตระกร้าศูนย์ที่เลือก (Cookie 30 วัน)
             if (centerName) {
-                addCenterToBasket({
-                    id: centerId || Math.floor(Math.random() * 900000 + 100000),
-                    name: centerName,
-                    slug: createCenterSlug(centerName),
-                    imageUrl: centerImageUrl || '',
-                    address: centerAddress || '',
-                    phone: centerPhone || '',
-                    actionType: actionType
-                });
+                try {
+                    addCenterToBasket({
+                        id: centerId || Math.floor(Math.random() * 900000 + 100000),
+                        name: centerName,
+                        slug: createCenterSlug(centerName),
+                        imageUrl: centerImageUrl || '',
+                        address: centerAddress || '',
+                        phone: centerPhone || '',
+                        actionType: actionType
+                    });
+                } catch (basketErr) {
+                    console.warn('Basket save error:', basketErr);
+                }
             }
 
             gtag.event({
@@ -287,6 +330,15 @@ export default function LeadCaptureModal({
                 category: 'Conversion',
                 label: `${centerName} | ${actionType}`
             });
+
+            // 4. แจ้ง onSuccess ไปยัง parent เพื่อปลดล็อกศูนย์
+            if (onSuccess) {
+                try {
+                    onSuccess(savedData);
+                } catch (callbackErr) {
+                    console.warn('onSuccess callback error:', callbackErr);
+                }
+            }
 
             // บันทึกสำเร็จ: แสดงหน้าจอยืนยันพร้อมตัวเลือกบันทึกรูปภาพใบนัดหมาย
             setSubmitStatus('success');
@@ -390,23 +442,25 @@ export default function LeadCaptureModal({
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className={`bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full ${centerImageUrl && submitStatus !== 'success' ? 'max-w-3xl' : 'max-w-lg'
+                className={`bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full ${centerImageUrl && submitStatus === 'idle' ? 'max-w-3xl' : 'max-w-lg'
                     } max-h-[92vh] sm:max-h-[90vh] flex flex-col lg:flex-row overflow-hidden relative cursor-default`}
             >
 
-                {/* Close Button พร้อมคำว่า "ปิด" ให้เห็นชัดเจน */}
-                <button
-                    type="button"
-                    onClick={onClose}
-                    aria-label="ปิดหน้าต่าง"
-                    className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md shadow-md text-xs font-bold transition-all cursor-pointer border border-white/20 active:scale-95"
-                >
-                    <X className="w-4 h-4" />
-                    <span>ปิด</span>
-                </button>
+                {/* Close Button พร้อมคำว่า "ปิด" ให้เห็นชัดเจน (ซ่อนขณะกำลังส่งข้อมูล) */}
+                {submitStatus !== 'submitting' && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="ปิดหน้าต่าง"
+                        className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md shadow-md text-xs font-bold transition-all cursor-pointer border border-white/20 active:scale-95"
+                    >
+                        <X className="w-4 h-4" />
+                        <span>ปิด</span>
+                    </button>
+                )}
 
                 {/* Smartphone Photo Header (Natural aspect ratio, not squeezed) */}
-                {centerImageUrl && submitStatus !== 'success' && (
+                {centerImageUrl && submitStatus === 'idle' && (
                     <div className="relative w-full h-44 sm:h-48 shrink-0 block lg:hidden">
                         <Image
                             src={centerImageUrl}
@@ -426,19 +480,32 @@ export default function LeadCaptureModal({
                     </div>
                 )}
 
-                {/* Left Side: Form Container */}
-                <div className={`flex-1 flex flex-col overflow-y-auto p-4 sm:p-6 ${centerImageUrl && submitStatus !== 'success' ? 'lg:w-7/12' : 'w-full'}`}>
-                    {submitStatus === 'success' ? (
-                        <div className="py-1 space-y-3.5 animate-in fade-in duration-300">
-                            {/* Success Notification Bar */}
-                            <div className="flex items-center gap-2.5 px-3 py-2 bg-emerald-50 border border-emerald-200/80 rounded-xl text-emerald-800">
-                                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                                <div className="text-xs">
-                                    <span className="font-bold">บันทึกข้อมูลสำเร็จ!</span>{' '}
-                                    <span className="text-emerald-700">เจ้าหน้าที่ศูนย์จะติดต่อกลับตามเบอร์ที่ระบุไว้</span>
+                {/* Left Side: Form / Loading / Success Container */}
+                <div className={`flex-1 flex flex-col overflow-y-auto p-4 sm:p-6 ${centerImageUrl && submitStatus === 'idle' ? 'lg:w-7/12' : 'w-full'}`}>
+                    {submitStatus === 'submitting' ? (
+                        /* หน้าโหลดที่แสดงขึ้นมาทันทีเมื่อกดบันทึกหรือนัดเยี่ยมชม */
+                        <div className="py-16 sm:py-24 px-4 text-center flex flex-col items-center justify-center space-y-5 animate-in fade-in duration-300">
+                            <div className="relative flex items-center justify-center">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <Calendar className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 animate-pulse" />
                                 </div>
                             </div>
-
+                            <div className="space-y-1.5 max-w-sm">
+                                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                                    กำลังบันทึกข้อมูลและส่งเรื่องนัดหมาย...
+                                </h3>
+                                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                                    ระบบกำลังจัดเตรียมใบนัดหมายและส่งข้อมูลให้เจ้าหน้าที่ศูนย์ {centerName} กรุณารอสักครู่
+                                </p>
+                            </div>
+                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-100/80 text-xs font-semibold text-blue-700 shadow-2xs">
+                                <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                                <span>กำลังเชื่อมต่อฐานข้อมูลศูนย์ดูแล...</span>
+                            </div>
+                        </div>
+                    ) : submitStatus === 'success' ? (
+                        <div className="py-1 space-y-3.5 animate-in fade-in duration-300">
                             {/* Booking Slip Card (กล่องข้อมูลที่มีรูปภาพศูนย์ด้านบนเหมือนตอนกรอก พร้อมดาวน์โหลดลงเครื่อง) */}
                             <div
                                 ref={slipCardRef}
@@ -454,14 +521,6 @@ export default function LeadCaptureModal({
                                             className="w-full h-full object-cover"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-4 text-white">
-                                            <div className="flex items-center justify-between gap-2 mb-1">
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-200 bg-blue-900/70 backdrop-blur-xs px-2.5 py-0.5 rounded-full">
-                                                    THAI CARE CENTER
-                                                </span>
-                                                <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/70 backdrop-blur-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                    ✓ ใบนัดหมาย
-                                                </span>
-                                            </div>
                                             <h3 className="text-base sm:text-lg font-bold drop-shadow-sm text-white line-clamp-1">
                                                 {centerName}
                                             </h3>
@@ -499,11 +558,11 @@ export default function LeadCaptureModal({
                                     <div className="space-y-1.5 text-xs">
                                         <div className="flex justify-between items-center py-1 border-b border-slate-100">
                                             <span className="text-gray-500">ชื่อผู้ติดต่อ:</span>
-                                            <span className="font-semibold text-gray-800">{name}</span>
+                                            <span className="font-semibold text-gray-800">{name || 'ผู้รับบริการ'}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-1 border-b border-slate-100">
                                             <span className="text-gray-500">หมายเลขโทรศัพท์:</span>
-                                            <span className="font-bold text-blue-700 font-mono text-sm">{phone}</span>
+                                            <span className="font-bold text-blue-700 font-mono text-sm">{phone || '-'}</span>
                                         </div>
                                         {location && (
                                             <div className="flex justify-between items-center py-1 border-b border-slate-100">
@@ -513,19 +572,19 @@ export default function LeadCaptureModal({
                                         )}
                                         <div className="flex justify-between items-center py-1 border-b border-slate-100">
                                             <span className="text-gray-500">อาการ / ภาวะ:</span>
-                                            <span className="font-medium text-gray-800 text-right max-w-[210px] truncate">{patientCondition}</span>
+                                            <span className="font-medium text-gray-800 text-right max-w-[210px] truncate">{patientCondition || 'ทั่วไป / ยังไม่ระบุ'}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-1 border-b border-slate-100">
                                             <span className="text-gray-500">ประเภทห้องพัก:</span>
-                                            <span className="font-semibold text-emerald-700">{roomType || 'ไม่ระบุ'}</span>
+                                            <span className="font-semibold text-emerald-700">{initialRoomType || roomType || 'ไม่ระบุ'}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-1 border-b border-slate-100">
                                             <span className="text-gray-500">งบประมาณต่อเดือน:</span>
-                                            <span className="font-medium text-gray-800">{budget}</span>
+                                            <span className="font-medium text-gray-800">{budget || 'ยังไม่ระบุ'}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-1">
                                             <span className="text-gray-500">ระยะเวลาเข้าพัก:</span>
-                                            <span className="font-medium text-gray-800">{timeframe}</span>
+                                            <span className="font-medium text-gray-800">{timeframe || 'ด่วนภายใน 7 วัน'}</span>
                                         </div>
                                     </div>
 
@@ -554,12 +613,17 @@ export default function LeadCaptureModal({
                                         {isDownloadingSlip ? (
                                             <>
                                                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                                <span>กำลังบันทึกรูปภาพ...</span>
+                                                <span>กำลังดาวน์โหลดรูปภาพ...</span>
+                                            </>
+                                        ) : hasDownloadedSlip ? (
+                                            <>
+                                                <Check className="w-4 h-4 text-emerald-200" />
+                                                <span>ดาวน์โหลดแล้ว</span>
                                             </>
                                         ) : (
                                             <>
                                                 <Download className="w-4 h-4" />
-                                                <span>บันทึกรูปภาพ</span>
+                                                <span>ดาวน์โหลดใบนัดหมาย</span>
                                             </>
                                         )}
                                     </button>
@@ -619,19 +683,8 @@ export default function LeadCaptureModal({
                                             <span>Facebook</span>
                                         </a>
 
-                                        {/* โทร (ถ้ามี centerPhone) หรือ แผนที่นำทาง */}
-                                        {centerPhone ? (
-                                            <a
-                                                href={`tel:${centerPhone}`}
-                                                onClick={() => {
-                                                    gtag.event({ action: 'click_call_button', category: 'Conversion', label: centerName });
-                                                }}
-                                                className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-2xs hover:shadow-xs active:scale-[0.98] cursor-pointer"
-                                            >
-                                                <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                                <span>โทรติดต่อ</span>
-                                            </a>
-                                        ) : destinationUrl && actionType === 'navigation' ? (
+                                        {/* โทรปรึกษาทีมงาน ThaiCareCenter หรือ แผนที่นำทาง */}
+                                        {destinationUrl && actionType === 'navigation' ? (
                                             <a
                                                 href={destinationUrl}
                                                 target="_blank"
@@ -641,48 +694,55 @@ export default function LeadCaptureModal({
                                                 <Compass className="w-3.5 h-3.5 shrink-0" />
                                                 <span>เปิดแผนที่</span>
                                             </a>
-                                        ) : null}
+                                        ) : (
+                                            <a
+                                                href="tel:095-805-7052"
+                                                onClick={() => {
+                                                    gtag.event({ action: 'click_call_advisor_button', category: 'Conversion', label: '095-805-7052' });
+                                                }}
+                                                className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-2xs hover:shadow-xs active:scale-[0.98] cursor-pointer"
+                                            >
+                                                <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                                <span>โทรปรึกษาทีมงาน</span>
+                                            </a>
+                                        )}
                                     </div>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    onClick={onClose}
-                                    className="w-full py-2 text-center text-xs text-gray-500 hover:text-gray-800 font-medium transition cursor-pointer"
-                                >
-                                    ปิดหน้าต่างนี้
-                                </button>
+                                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                                    <button
+                                        type="button"
+                                        onClick={() => setSubmitStatus('idle')}
+                                        className="text-xs text-blue-600 hover:text-blue-800 font-semibold transition cursor-pointer hover:underline"
+                                    >
+                                        แก้ไขข้อมูลการนัดหมาย
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={onClose}
+                                        className="text-xs text-slate-400 hover:text-slate-700 font-medium transition cursor-pointer"
+                                    >
+                                        ปิดหน้าต่าง
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ) : (
                         <div>
                             {/* Header (Desktop & Clean Subtitle) */}
                             <div className="mb-4 pr-6">
-                                <div className="hidden lg:flex items-center gap-2 mb-1.5">
-                                    <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
-                                        {actionText}
-                                    </span>
-                                    <span className="text-[11px] text-emerald-600 font-medium flex items-center gap-0.5">
-                                        <CheckCircle2 className="w-3.5 h-3.5" /> ไม่มีค่าใช้จ่าย
-                                    </span>
-                                </div>
                                 <h2 className="text-lg sm:text-xl font-extrabold text-gray-900 leading-tight">
                                     {centerName}
                                 </h2>
                                 <p className="text-xs text-gray-500 mt-1">
-                                    ระบุข้อมูลเพื่อให้เจ้าหน้าที่ศูนย์ติดต่อประสานงานและเตรียมการต้อนรับ
+                                    {initialRoomType
+                                        ? `ระบุข้อมูลเพื่อให้เจ้าหน้าที่ศูนย์แจ้งราคาและรายละเอียดของ ${initialRoomType}`
+                                        : 'ระบุข้อมูลเพื่อให้เจ้าหน้าที่ศูนย์ติดต่อประสานงานและเตรียมการต้อนรับ'}
                                 </p>
                             </div>
 
                             {/* Form */}
                             <form onSubmit={handleSubmit} className="space-y-3.5">
-                                {hasExistingData && (
-                                    <div className="p-2.5 bg-blue-50/90 border border-blue-200/80 rounded-xl text-blue-700 text-xs flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-                                        <span>แสดงข้อมูลเดิมที่คุณเคยระบุไว้ สามารถตรวจสอบหรือแก้ไขได้ทันที</span>
-                                    </div>
-                                )}
-
                                 {errorMessage && (
                                     <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
                                         <Info className="w-4 h-4 flex-shrink-0 text-red-500" />
@@ -766,7 +826,7 @@ export default function LeadCaptureModal({
                                     </div>
                                 </div>
 
-                                {/* Patient Condition (อาการ / ภาวะของผู้รับการดูแล) - เอา dropdown ออก ใช้ปุ่มเลือกโดยตรง */}
+                                {/* Patient Condition (อาการ / ภาวะของผู้รับการดูแล) */}
                                 <div>
                                     <div className="flex items-center justify-between mb-1.5">
                                         <label className="block text-xs font-semibold text-gray-700">
@@ -883,24 +943,13 @@ export default function LeadCaptureModal({
                                 <div className="pt-2">
                                     <button
                                         type="submit"
-                                        disabled={submitStatus === 'submitting'}
-                                        className={`w-full py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-sm hover:shadow active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''
-                                            }`}
+                                        className="w-full py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-sm hover:shadow active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                        {submitStatus === 'submitting' ? (
-                                            <>
-                                                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                                <span>กำลังบันทึกข้อมูล...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                {actionType === 'navigation' && <Compass className="w-5 h-5" />}
-                                                {actionType === 'call' && <Phone className="w-5 h-5" />}
-                                                {actionType === 'line' && <MessageCircle className="w-5 h-5" />}
-                                                <span>{buttonText}</span>
-                                                <ArrowRight className="w-4 h-4" />
-                                            </>
-                                        )}
+                                        {actionType === 'navigation' && <Compass className="w-5 h-5" />}
+                                        {actionType === 'call' && <Phone className="w-5 h-5" />}
+                                        {actionType === 'line' && <MessageCircle className="w-5 h-5" />}
+                                        <span>{buttonText}</span>
+                                        <ArrowRight className="w-4 h-4" />
                                     </button>
                                 </div>
                             </form>
@@ -909,7 +958,7 @@ export default function LeadCaptureModal({
                 </div>
 
                 {/* Right Side: Center Image (Desktop Only: Edge-to-edge full height, zero ugly borders or framed boxes) */}
-                {centerImageUrl && submitStatus !== 'success' && (
+                {centerImageUrl && submitStatus === 'idle' && (
                     <div className="hidden lg:block lg:w-5/12 shrink-0 relative min-h-[460px] bg-slate-900">
                         <Image
                             src={centerImageUrl}

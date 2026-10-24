@@ -17,7 +17,7 @@ export async function PUT(
             const { id: idParam } = await params;
             const id = parseInt(idParam);
             const body = await request.json();
-            const { username, password, email, fullName, role, isActive } = body;
+            const { username, password, email, fullName, role, isActive, defaultIncentiveRate } = body;
 
             const admins: Admin[] = await getAdmins();
             const adminIndex = admins.findIndex((a) => a.id === id);
@@ -47,6 +47,9 @@ export async function PUT(
             if (fullName) updates.fullName = fullName;
             if (role) updates.role = role;
             if (typeof isActive === 'boolean') updates.isActive = isActive;
+            if (defaultIncentiveRate !== undefined && defaultIncentiveRate !== null && defaultIncentiveRate !== '') {
+                updates.defaultIncentiveRate = Number(defaultIncentiveRate);
+            }
 
             // ถ้ามีการเปลี่ยนรหัสผ่าน
             if (password) {

@@ -132,6 +132,27 @@ export interface Consultation {
     has_shared_room?: boolean;
     customPrice?: string;
     custom_price?: string;
+    // Lead Assignment & Care Advisor Incentive
+    assignedTo?: string | number;
+    assigned_to?: string | number;
+    assignedToName?: string;
+    assigned_to_name?: string;
+    assignedAt?: string;
+    assigned_at?: string;
+    closedPackagePrice?: number;
+    closed_package_price?: number;
+    centerCommissionRate?: string;
+    center_commission_rate?: string;
+    centerCommissionAmount?: number;
+    center_commission_amount?: number;
+    advisorIncentiveRate?: string;
+    advisor_incentive_rate?: string;
+    advisorIncentiveAmount?: number;
+    advisor_incentive_amount?: number;
+    closedAt?: string;
+    closed_at?: string;
+    closedCareCenterName?: string;
+    closed_care_center_name?: string;
 }
 
 export interface ContactMessage {
@@ -151,8 +172,9 @@ export interface Admin {
     password: string; // hashed password
     email: string;
     fullName: string;
-    role: 'super_admin' | 'admin';
+    role: 'super_admin' | 'admin' | 'care_advisor';
     isActive: boolean;
+    defaultIncentiveRate?: number;
     createdAt: string;
     lastLogin?: string;
 }

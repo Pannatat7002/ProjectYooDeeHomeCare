@@ -31,7 +31,7 @@ export default function MascotAssistant() {
     };
 
     return (
-        <div className="fixed bottom-6 right-5 z-40 font-sans print:hidden select-none">
+        <div className="fixed bottom-20 lg:bottom-6 right-4 sm:right-5 z-30 font-sans print:hidden select-none">
             {/* Popover Card */}
             {isOpen && (
                 <div

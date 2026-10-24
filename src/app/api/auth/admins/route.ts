@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     return requireSuperAdmin(request, async () => {
         try {
             const body = await request.json();
-            const { username, password, email, fullName, role } = body;
+            const { username, password, email, fullName, role, defaultIncentiveRate } = body;
 
             // Validation
             if (!username || !password || !email || !fullName) {
@@ -78,6 +78,9 @@ export async function POST(request: NextRequest) {
                 fullName,
                 role: role || 'admin',
                 isActive: true,
+                defaultIncentiveRate: defaultIncentiveRate !== undefined && defaultIncentiveRate !== null && defaultIncentiveRate !== ''
+                    ? Number(defaultIncentiveRate)
+                    : (role === 'care_advisor' ? 15.0 : undefined),
                 createdAt: new Date().toISOString(),
             };
 

@@ -7,8 +7,9 @@ export interface AdminData {
     username: string;
     email: string;
     fullName: string;
-    role: 'super_admin' | 'admin';
+    role: 'super_admin' | 'admin' | 'care_advisor';
     isActive: boolean;
+    defaultIncentiveRate?: number;
     createdAt: string;
     lastLogin?: string;
 }
@@ -70,6 +71,14 @@ export const isAuthenticated = (): boolean => {
 export const isSuperAdmin = (): boolean => {
     const admin = getAdmin();
     return admin?.role === 'super_admin';
+};
+
+/**
+ * ตรวจสอบว่าเป็น care advisor หรือไม่
+ */
+export const isCareAdvisor = (): boolean => {
+    const admin = getAdmin();
+    return admin?.role === 'care_advisor';
 };
 
 /**

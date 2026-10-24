@@ -223,7 +223,11 @@ function AdminSidebarInner({ isOpen = false, onClose }: AdminSidebarProps) {
                                 {adminProfile.fullName || adminProfile.username}
                             </p>
                             <p className="text-[11px] text-slate-400 truncate">
-                                {adminProfile.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+                                {adminProfile.role === 'super_admin'
+                                    ? 'Super Admin'
+                                    : adminProfile.role === 'care_advisor'
+                                    ? 'Care Advisor (Lead)'
+                                    : 'Admin'}
                             </p>
                         </div>
                     </div>

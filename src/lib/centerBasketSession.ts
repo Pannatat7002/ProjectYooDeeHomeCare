@@ -193,10 +193,17 @@ export function removeCenterFromBasket(centerId: number | string): SavedCenterIt
     }
 }
 
-// ตรวจสอบว่าศูนย์นี้อยู่ในตระกร้าแล้วหรือไม่
-export function isCenterInBasket(centerId: number | string): boolean {
+// ตรวจสอบว่าศูนย์นี้อยู่ในตระกร้าแล้วหรือไม่ (ตรวจสอบได้ทั้งจาก id และ ชื่อศูนย์)
+export function isCenterInBasket(centerId?: number | string | null, centerName?: string | null): boolean {
     const list = getCenterBasket();
-    return list.some(item => String(item.id) === String(centerId));
+    const cleanName = (centerName || '').trim().toLowerCase();
+    const cleanId = centerId !== undefined && centerId !== null ? String(centerId).trim() : '';
+
+    return list.some(item => {
+        if (cleanId && String(item.id) === cleanId) return true;
+        if (cleanName && item.name && item.name.trim().toLowerCase() === cleanName) return true;
+        return false;
+    });
 }
 
 // เคลียร์ตระกร้าทั้งหมด

@@ -9,7 +9,7 @@ export const toSnakeCase = (obj: any): any => {
         return obj;
     }
     const result: any = {};
-    const numericFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipient_age', 'center_id', 'recipientAge', 'centerId', 'moph_order', 'mophOrder'];
+    const numericFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipient_age', 'center_id', 'recipientAge', 'centerId', 'moph_order', 'mophOrder', 'closed_package_price', 'closedPackagePrice', 'center_commission_amount', 'centerCommissionAmount', 'advisor_incentive_amount', 'advisorIncentiveAmount', 'default_incentive_rate', 'defaultIncentiveRate'];
     const booleanFields = ['has_commission', 'has_single_room', 'has_shared_room', 'hasCommission', 'hasSingleRoom', 'hasSharedRoom', 'is_published', 'isPublished', 'has_government_certificate', 'hasGovernmentCertificate', 'is_active', 'isActive'];
     for (const key of Object.keys(obj)) {
         const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
@@ -54,7 +54,7 @@ const parseRow = (row: any) => {
     const item = { ...row, ...camel };
 
     // Number conversion check
-    const numberFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipientAge', 'recipient_age', 'centerId', 'center_id', 'mophOrder', 'moph_order'];
+    const numberFields = ['id', 'price', 'lat', 'lng', 'rating', 'recipientAge', 'recipient_age', 'centerId', 'center_id', 'mophOrder', 'moph_order', 'closedPackagePrice', 'closed_package_price', 'centerCommissionAmount', 'center_commission_amount', 'advisorIncentiveAmount', 'advisor_incentive_amount', 'defaultIncentiveRate', 'default_incentive_rate'];
     for (const field of numberFields) {
         if (item[field] !== undefined && item[field] !== null && item[field] !== '') {
             const num = Number(item[field]);
