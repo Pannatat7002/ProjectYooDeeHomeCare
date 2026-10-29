@@ -14,8 +14,14 @@ const NO_CACHE_HEADERS = {
     'Expires': '0',
 };
 
+const PUBLIC_CACHE_HEADERS = {
+    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+};
+
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
+    const isAdminRequest = Boolean(request.headers.get('authorization'));
+    const responseHeaders = isAdminRequest ? NO_CACHE_HEADERS : PUBLIC_CACHE_HEADERS;
     const allRawCenters: CareCenter[] = await getCareCenters();
     let careCenters: CareCenter[] = [...allRawCenters];
 
@@ -171,7 +177,7 @@ export async function GET(request: Request) {
             searchRadiusKm: nearbySearchResult?.searchRadiusKm || 10,
             isRadiusExpanded: nearbySearchResult?.isRadiusExpanded || false,
         }, {
-            headers: NO_CACHE_HEADERS
+            headers: responseHeaders
         });
     }
 
@@ -184,7 +190,7 @@ export async function GET(request: Request) {
         searchRadiusKm: nearbySearchResult?.searchRadiusKm || 10,
         isRadiusExpanded: nearbySearchResult?.isRadiusExpanded || false,
     }, {
-        headers: NO_CACHE_HEADERS
+        headers: responseHeaders
     });
 }
 

@@ -80,23 +80,30 @@ const globalForCache = globalThis as unknown as {
 };
 
 const tableCache = globalForCache._dbTableCache ?? new Map<string, CacheEntry>();
-if (process.env.NODE_ENV !== 'production') {
-    globalForCache._dbTableCache = tableCache;
-}
+globalForCache._dbTableCache = tableCache;
 
 // TTL configuration per table (milliseconds)
 const TABLE_CACHE_TTL: Record<string, number> = {
-    care_centers: 60 * 1000,       // 60 seconds (centers updated by admin, auto-invalidated on change)
-    hospitals: 60 * 60 * 1000,     // 1 hour
-    ads: 5 * 60 * 1000,            // 5 minutes
-    blogs: 5 * 60 * 1000,          // 5 minutes
-    contacts: 30 * 1000,           // 30 seconds
-    consultations: 15 * 1000,      // 15 seconds
+    care_centers: 10 * 60 * 1000,       // 10 minutes (auto-invalidated immediately on admin change)
+    care_centers_light: 10 * 60 * 1000, // 10 minutes (lightweight card projection)
+    hospitals: 6 * 60 * 60 * 1000,      // 6 hours
+    ads: 15 * 60 * 1000,                // 15 minutes
+    blogs: 15 * 60 * 1000,              // 15 minutes
+    blogs_summary: 15 * 60 * 1000,      // 15 minutes (without heavy HTML content)
+    contacts: 60 * 1000,                // 60 seconds (auto-invalidated on new contact)
+    consultations: 60 * 1000,           // 60 seconds (auto-invalidated on new consultation)
+    traffic: 60 * 1000,                 // 60 seconds cache for admin dashboard traffic logs
 };
 
 export const invalidateTableCache = (tableName?: string) => {
     if (tableName) {
         tableCache.delete(tableName);
+        if (tableName === 'care_centers') {
+            tableCache.delete('care_centers_light');
+        }
+        if (tableName === 'blogs') {
+            tableCache.delete('blogs_summary');
+        }
     } else {
         tableCache.clear();
     }
@@ -369,6 +376,111 @@ const saveDataToTable = async (tableName: string, items: any[]) => {
 
 // 1. CARE CENTERS
 export const getCareCenters = async (forceFresh = false) => loadDataFromTable('care_centers', forceFresh);
+
+const LIGHT_CENTER_COLUMNS = 'id, name, price, province, district, address, lat, lng, rating, type, is_partner, status, image_urls, brand_name, brand_logo_url, has_government_certificate';
+
+export const getCareCentersLight = async (): Promise<any[]> => {
+    try {
+        if (!isSupabaseConfigured()) return [];
+        const now = Date.now();
+
+        // 1. Reuse full cache if already warm in memory
+        const fullCached = tableCache.get('care_centers');
+        if (fullCached && now - fullCached.timestamp < fullCached.ttlMs) {
+            return [...fullCached.data];
+        }
+
+        // 2. Check lightweight cache
+        const lightCached = tableCache.get('care_centers_light');
+        const ttl = TABLE_CACHE_TTL.care_centers_light ?? 10 * 60 * 1000;
+        if (lightCached && now - lightCached.timestamp < lightCached.ttlMs) {
+            return [...lightCached.data];
+        }
+
+        let allData: any[] = [];
+        let from = 0;
+        const PAGE_SIZE = 1000;
+
+        while (true) {
+            const { data, error } = await supabaseAdmin
+                .from('care_centers')
+                .select(LIGHT_CENTER_COLUMNS)
+                .eq('status', 'visible')
+                .order('id', { ascending: true })
+                .range(from, from + PAGE_SIZE - 1);
+
+            if (error) {
+                // Fallback to full load if any column name differs in DB schema
+                return getCareCenters();
+            }
+
+            if (!data || data.length === 0) break;
+            allData = allData.concat(data);
+            if (data.length < PAGE_SIZE) break;
+            from += PAGE_SIZE;
+        }
+
+        const parsed = allData.map(parseRow);
+        tableCache.set('care_centers_light', { data: parsed, timestamp: now, ttlMs: ttl });
+        return [...parsed];
+    } catch {
+        return getCareCenters();
+    }
+};
+
+export const getCareCenterByName = async (rawSlugOrName: string): Promise<any | null> => {
+    try {
+        if (!isSupabaseConfigured()) return null;
+        const rawDecoded = decodeURIComponent(rawSlugOrName).trim();
+        const decodedName = rawDecoded.replace(/-/g, ' ').trim();
+        const targetName = decodedName.replace(/\s+/g, '');
+
+        // 1. Check warm in-memory cache first (0 DB queries)
+        const now = Date.now();
+        const fullCached = tableCache.get('care_centers');
+        if (fullCached && now - fullCached.timestamp < fullCached.ttlMs) {
+            return fullCached.data.find((c: any) =>
+                (c.name || '').replace(/\s+/g, '') === targetName || c.name === decodedName || c.name === rawDecoded
+            ) || null;
+        }
+
+        // 2. Direct single-row query from Supabase (saves ~99% egress on cold starts)
+        const candidateNames = Array.from(new Set([decodedName, rawDecoded])).filter(Boolean);
+        if (candidateNames.length > 0) {
+            const { data: exactRows, error } = await supabaseAdmin
+                .from('care_centers')
+                .select('*')
+                .in('name', candidateNames)
+                .limit(1);
+
+            if (!error && exactRows && exactRows.length > 0) {
+                return parseRow(exactRows[0]);
+            }
+        }
+
+        // 3. Fallback for names with multiple spaces or special hyphens: match against lightweight list then fetch 1 row by ID
+        const lightList = await getCareCentersLight();
+        const matched = lightList.find((c: any) =>
+            (c.name || '').replace(/\s+/g, '') === targetName || c.name === decodedName || c.name === rawDecoded
+        );
+        if (matched?.id !== undefined) {
+            const { data: byIdRows, error: idError } = await supabaseAdmin
+                .from('care_centers')
+                .select('*')
+                .eq('id', matched.id)
+                .limit(1);
+            if (!idError && byIdRows && byIdRows.length > 0) {
+                return parseRow(byIdRows[0]);
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error('[DB Error] Failed in getCareCenterByName:', error);
+        return null;
+    }
+};
+
 export const saveCareCenters = async (data: any[]) => saveDataToTable('care_centers', data);
 export const addCareCenter = async (item: any) => {
     const created = await insertDataToTable('care_centers', item);
@@ -408,6 +520,73 @@ export const deleteContact = async (id: number | string) => deleteDataFromTable(
 
 // 4. BLOGS
 export const getBlogs = async () => loadDataFromTable('blogs');
+
+export const getBlogsSummary = async (): Promise<any[]> => {
+    try {
+        if (!isSupabaseConfigured()) return [];
+        const now = Date.now();
+
+        // 1. Reuse full blogs cache if warm
+        const fullCached = tableCache.get('blogs');
+        if (fullCached && now - fullCached.timestamp < fullCached.ttlMs) {
+            return [...fullCached.data];
+        }
+
+        // 2. Check lightweight summary cache (excludes heavy HTML content column)
+        const summaryCached = tableCache.get('blogs_summary');
+        const ttl = TABLE_CACHE_TTL.blogs_summary ?? 15 * 60 * 1000;
+        if (summaryCached && now - summaryCached.timestamp < summaryCached.ttlMs) {
+            return [...summaryCached.data];
+        }
+
+        const { data, error } = await supabaseAdmin
+            .from('blogs')
+            .select('id, title, slug, excerpt, cover_image, created_at, author, is_published, is_featured, is_recent, category')
+            .order('id', { ascending: true });
+
+        if (error || !data) {
+            return getBlogs();
+        }
+
+        const parsed = data.map(parseRow);
+        tableCache.set('blogs_summary', { data: parsed, timestamp: now, ttlMs: ttl });
+        return [...parsed];
+    } catch {
+        return getBlogs();
+    }
+};
+
+export const getBlogBySlugFromDb = async (slug: string): Promise<any | null> => {
+    try {
+        if (!isSupabaseConfigured()) return null;
+        const decodedSlug = decodeURIComponent(slug).trim();
+
+        // 1. Reuse full blogs cache if warm
+        const now = Date.now();
+        const fullCached = tableCache.get('blogs');
+        if (fullCached && now - fullCached.timestamp < fullCached.ttlMs) {
+            return fullCached.data.find((b: any) => (b.slug || '').trim() === decodedSlug) || null;
+        }
+
+        // 2. Direct single-row query from Supabase
+        const { data, error } = await supabaseAdmin
+            .from('blogs')
+            .select('*')
+            .eq('slug', decodedSlug)
+            .limit(1);
+
+        if (!error && data && data.length > 0) {
+            return parseRow(data[0]);
+        }
+
+        // 3. Fallback if slug has trailing whitespace in DB
+        const allBlogs = await getBlogs();
+        return allBlogs.find((b: any) => (b.slug || '').trim() === decodedSlug) || null;
+    } catch {
+        return null;
+    }
+};
+
 export const saveBlogs = async (data: any[]) => saveDataToTable('blogs', data);
 export const addBlog = async (item: any) => insertDataToTable('blogs', item);
 export const updateBlog = async (id: number | string, data: any) => updateDataInTable('blogs', id, data);
@@ -444,10 +623,18 @@ export const addAd = async (item: any) => insertDataToTable('ads', item);
 export const updateAd = async (id: number | string, data: any) => updateDataInTable('ads', id, data);
 export const deleteAd = async (id: number | string) => deleteDataFromTable('ads', id);
 
-// 7. TRAFFIC LOGS (Optimized with order and limit to avoid heavy full-table scans)
+// 7. TRAFFIC LOGS (Optimized with in-memory cache, order and limit to avoid heavy full-table scans)
 export const getTrafficLogs = async (limit = 2000) => {
     try {
         if (!isSupabaseConfigured()) return [];
+        const cacheKey = `traffic_${limit}`;
+        const now = Date.now();
+        const cached = tableCache.get(cacheKey);
+        const ttl = TABLE_CACHE_TTL.traffic ?? 60 * 1000;
+        if (cached && now - cached.timestamp < cached.ttlMs) {
+            return [...cached.data];
+        }
+
         const { data, error } = await supabaseAdmin
             .from('traffic')
             .select('*')
@@ -458,13 +645,27 @@ export const getTrafficLogs = async (limit = 2000) => {
             console.error('[Supabase Error] Error fetching traffic logs:', error);
             return [];
         }
-        return (data || []).map(parseRow);
+        const parsed = (data || []).map(parseRow);
+        tableCache.set(cacheKey, { data: parsed, timestamp: now, ttlMs: ttl });
+        return [...parsed];
     } catch (e) {
         console.error('[DB Error] Failed to load traffic logs:', e);
         return [];
     }
 };
-export const addTrafficLog = async (item: any) => insertDataToTable('traffic', item);
+export const addTrafficLog = async (item: any) => {
+    try {
+        if (!isSupabaseConfigured()) return false;
+        const dbItem = toSnakeCase(item);
+        const { error } = await supabaseAdmin.from('traffic').insert([dbItem]);
+        if (error) {
+            return insertDataToTable('traffic', item);
+        }
+        return true;
+    } catch {
+        return false;
+    }
+};
 
 // 8. PROVIDER SIGNUPS
 export const appendProviderSignup = async (data: any) => {

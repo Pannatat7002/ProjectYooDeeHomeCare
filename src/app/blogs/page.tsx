@@ -1,14 +1,14 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
 // ตรวจสอบ path
-import { getBlogs } from '../../lib/db';
+import { getBlogsSummary } from '../../lib/db';
 import { Blog } from '../../types';
 import { Calendar, User, ArrowRight, BookOpen, Lightbulb, TrendingUp } from 'lucide-react';
 import BlogImage from './BlogImage';
 
 
-// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
-export const revalidate = 300;
+// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 1 ชั่วโมง
+export const revalidate = 3600;
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
@@ -118,7 +118,7 @@ const BlogGrid = ({ blogList, title, icon }: BlogGridProps) => (
 export default async function BlogsPage() {
     let rawBlogs: Blog[] = [];
     try {
-        rawBlogs = await getBlogs();
+        rawBlogs = await getBlogsSummary();
     } catch (error) {
         console.error("Error fetching blogs on server:", error);
     }

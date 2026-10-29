@@ -20,7 +20,10 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ['image/webp'],
+    minimumCacheTTL: 2592000, // แคชรูปที่แปลงแล้วบน CDN นาน 30 วัน ลดการดึงไฟล์ซ้ำจาก Supabase Storage
+    deviceSizes: [640, 1080, 1920],
+    imageSizes: [64, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',

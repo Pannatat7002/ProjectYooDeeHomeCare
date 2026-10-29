@@ -1,15 +1,16 @@
+import { cache } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 // ตรวจสอบ path
-import { getBlogs } from '../../../lib/db';
+import { getBlogsSummary, getBlogBySlugFromDb } from '../../../lib/db';
 import { Blog } from '../../../types';
 import { Calendar, User, ArrowLeft, Clock, ClipboardCheck, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 // สมมติว่า ShareButtons เป็น Client Component
 import ShareButtons from './components/ShareButtons';
 
-// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
-export const revalidate = 300;
+// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 1 ชั่วโมง
+export const revalidate = 3600;
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -19,20 +20,15 @@ interface Props {
 // 1. Data Fetching and Helpers
 // --------------------------------------------------------------------------
 
-async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
-    const blogs: Blog[] = await getBlogs();
-    const decodedSlug = decodeURIComponent(slug).trim();
+const getBlogBySlug = cache(async (slug: string): Promise<Blog | undefined> => {
+    const blog = await getBlogBySlugFromDb(slug);
+    return blog || undefined;
+});
 
-    return blogs.find((b: Blog) => {
-        const dbSlug = (b.slug || '').trim();
-        return dbSlug === decodedSlug;
-    });
-}
-
-// สร้าง path สำหรับทุกบทความที่เผยแพร่ตอน build time
+// สร้าง path สำหรับทุกบทความที่เผยแพร่ตอน build time (ใช้ getBlogsSummary เพื่อไม่ดึง HTML content ขนาดใหญ่)
 export async function generateStaticParams() {
     try {
-        const blogs: Blog[] = await getBlogs();
+        const blogs: Blog[] = await getBlogsSummary();
         return blogs
             .filter((b: Blog) => {
                 const val = b.isPublished;

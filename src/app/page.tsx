@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense } from 'react';
-import { getCareCenters, getAds, getBlogs } from '../lib/db';
+import { getCareCenters, getAds, getBlogsSummary } from '../lib/db';
 import HomePageClient from './HomePageClient';
 
-// กำหนดให้หน้าเว็บถูกทำ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
-export const revalidate = 300; 
+// กำหนดให้หน้าเว็บถูกทำ Incremental Static Regeneration (ISR) ทุกๆ 1 ชั่วโมง (และล้างแคชทันทีเมื่อแอดมินอัปเดตข้อมูล)
+export const revalidate = 3600; 
 
 export default async function Page() {
-    // 1. ดึงข้อมูลทั้งหมดบนฝั่ง Server แบบคู่ขนานผ่าน Promise.all
+    // 1. ดึงข้อมูลทั้งหมดบนฝั่ง Server แบบคู่ขนานผ่าน Promise.all (ใช้ getBlogsSummary เพื่อไม่ดึง HTML content ขนาดใหญ่)
     const [allCenters, allAds, allBlogs] = await Promise.all([
         getCareCenters(),
         getAds(),
-        getBlogs()
+        getBlogsSummary()
     ]);
 
     // 2. คัดกรองข้อมูลก่อนส่งให้ Client เพื่อลดขนาดของ JSON payload

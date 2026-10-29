@@ -1,4 +1,5 @@
-import { getCareCenters, getNearbyHospitalsByCenterId } from '../../lib/db';
+import { cache } from 'react';
+import { getCareCenterByName, getCareCentersLight, getNearbyHospitalsByCenterId } from '../../lib/db';
 import { calculateHaversineDistance } from '../../lib/hospitalProximity';
 import { findTopNearbyTransitStations } from '../../lib/transitStations';
 import { getRoadDistance } from '../../lib/osrmRouting';
@@ -6,9 +7,12 @@ import CenterDetailClient from './CenterDetailClient';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
-// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 5 นาที
-export const revalidate = 300; 
+// กำหนดการ revalidate หน้าเว็บแบบ Incremental Static Regeneration (ISR) ทุกๆ 1 ชั่วโมง (และล้างแคชทันทีเมื่อแอดมินอัปเดตข้อมูล)
+export const revalidate = 3600; 
 export const dynamicParams = true;
+
+// Deduplicate single-center lookup between generateMetadata and Page within the same request
+const getCenterCached = cache(async (name: string) => getCareCenterByName(name));
 
 // ⚡ ปรับ generateStaticParams ให้เป็น On-Demand (ISR)
 // เพื่อป้องกันปัญหา Vercel Linux Filesystem จำกัดความยาวชื่อโฟลเดอร์ภาษาไทย (ENAMETOOLONG)
@@ -20,13 +24,7 @@ export async function generateStaticParams() {
 // 1. สร้าง Metadata สำหรับ SEO รายหน้าแบบ Dynamic
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
     const { name } = await params;
-    const decodedName = decodeURIComponent(name).replace(/-/g, ' ');
-    const careCenters = await getCareCenters();
-    
-    const targetName = decodedName.replace(/\s+/g, '');
-    const center = careCenters.find((c: any) =>
-        c.name.replace(/\s+/g, '') === targetName || c.name === decodedName
-    );
+    const center = await getCenterCached(name);
 
     if (!center) {
         return {
@@ -59,20 +57,17 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
 // 2. Server Component หลัก
 export default async function Page({ params }: { params: Promise<{ name: string }> }) {
     const { name } = await params;
-    const decodedName = decodeURIComponent(name).replace(/-/g, ' ');
     
-    // ดึงข้อมูลผ่าน Cache Layer บน Server
-    const careCenters = await getCareCenters();
-    
-    const targetName = decodedName.replace(/\s+/g, '');
-    const center = careCenters.find((c: any) =>
-        c.name.replace(/\s+/g, '') === targetName || c.name === decodedName
-    );
+    // ดึงข้อมูลเฉพาะศูนย์ที่เปิดดู (ไม่ดึงรายละเอียดหนักๆ ของทั้ง 950 ศูนย์)
+    const center = await getCenterCached(name);
 
-    // หากไม่พบข้อมูลศูนย์ดูแลใน Google Sheets ให้ส่งกลับหน้า 404 ของ Next.js ทันที
+    // หากไม่พบข้อมูลศูนย์ดูแล ให้ส่งกลับหน้า 404 ของ Next.js ทันที
     if (!center) {
         notFound();
     }
+
+    // ดึงเฉพาะคอลัมน์เบาๆ สำหรับคำนวณศูนย์ใกล้เคียง 3 แห่ง และศูนย์แนะนำ 3 แห่ง
+    const careCenters = await getCareCentersLight();
 
     // ทำการ Normalize ข้อมูลตั้งต้นเพื่อป้องกันปัญหา Props เป็น Null / undefined ที่ Client
     const normalizedCenter = {
@@ -304,7 +299,32 @@ export default async function Page({ params }: { params: Promise<{ name: string 
             });
     }
 
-    const relatedCenters = Array.from(selectedRelatedMap.values()).slice(0, 3);
+    const toCardCenter = (c: any) => ({
+        id: c.id,
+        name: c.name,
+        price: c.price,
+        province: c.province,
+        district: c.district,
+        address: c.address,
+        lat: c.lat,
+        lng: c.lng,
+        rating: c.rating,
+        type: c.type,
+        isPartner: c.isPartner,
+        status: c.status,
+        imageUrls: Array.isArray(c.imageUrls) ? c.imageUrls.slice(0, 1) : [],
+        brandName: c.brandName,
+        brandLogoUrl: c.brandLogoUrl,
+        hasGovernmentCertificate: c.hasGovernmentCertificate,
+        distanceKm: c.distanceKm,
+        phone: '',
+        description: '',
+        services: [],
+        packages: [],
+    });
+
+    nearbyCenters = nearbyCenters.map(toCardCenter);
+    const relatedCenters = Array.from(selectedRelatedMap.values()).slice(0, 3).map(toCardCenter);
 
     // 3. สร้าง Schema.org JSON-LD สำหรับให้ AI Search Engine (เช่น Perplexity, ChatGPT) อ่านข้อมูลโครงสร้าง
     const BASE_URL = 'https://thaicarecenter.com';
