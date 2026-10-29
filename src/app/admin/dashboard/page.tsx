@@ -100,8 +100,8 @@ export default function DashboardPage() {
             const totalLineClicks = logs.filter((l: any) => l.eventType === 'click_line').length;
 
             const totalConsultations = rawConsults.length;
-            const pendingConsultations = rawConsults.filter((c: any) => !c.status || c.status === 'pending' || c.status === 'urgent').length;
-            const followedUpConsultations = rawConsults.filter((c: any) => c.status === 'followed_up' || c.status === 'verified').length;
+            const pendingConsultations = rawConsults.filter((c: any) => !c.status || c.status === 'pending' || c.status === 'urgent' || c.status === 'new' || c.status === 'verified').length;
+            const followedUpConsultations = rawConsults.filter((c: any) => c.status === 'followed_up').length;
             const closedConsultations = rawConsults.filter((c: any) => c.status === 'closed').length;
 
             const newContacts = rawContacts.filter((c: any) => !c.status || c.status === 'new').length;

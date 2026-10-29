@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AdminSidebar from '@/src/components/AdminSidebar';
+import AdminNotificationCenter from '@/src/components/AdminNotificationCenter';
 import { Menu, ShieldCheck } from 'lucide-react';
 
 export default function AdminLayout({
@@ -47,7 +48,22 @@ export default function AdminLayout({
                         <span className="font-bold text-slate-800 text-sm">Admin Panel</span>
                     </div>
 
-                    <div className="w-9" />
+                    {/* Mobile Notification Center */}
+                    <AdminNotificationCenter />
+                </header>
+
+                {/* Desktop Top Bar with Realtime Notification Center */}
+                <header className="hidden lg:flex sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-6 py-2.5 items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs font-semibold text-slate-600">
+                            ThaiCareCenter Admin • ระบบตรวจจับเคสเรียลไทม์พร้อมทำงาน
+                        </span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <AdminNotificationCenter />
+                    </div>
                 </header>
 
                 {/* Main Content */}

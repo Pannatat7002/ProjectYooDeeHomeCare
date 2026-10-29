@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConsultations, addConsultation } from '../../../../lib/db';
 import { requireAuth } from '../../../../lib/middleware';
+import { notifyNewConsultation } from '../../../../lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
             utmSource: body.utmSource || body.utm_source || '',
             utmMedium: body.utmMedium || body.utm_medium || '',
             utmCampaign: body.utmCampaign || body.utm_campaign || '',
-            status: body.status || 'verified',
+            status: body.status || 'pending',
             notes: body.notes || '',
             centerCallStatus: body.centerCallStatus || body.center_call_status || 'not_called',
             hasCommission: body.hasCommission !== undefined
@@ -87,6 +88,11 @@ export async function POST(request: Request) {
         await addConsultation(newConsultation);
 
         console.log('✅ Consultation added successfully:', newConsultation.id);
+
+        // Dispatch instant alert to configured webhooks / LINE Notify
+        notifyNewConsultation(newConsultation).catch(err => {
+            console.error('Error sending consultation notification:', err);
+        });
 
         return NextResponse.json(
             {

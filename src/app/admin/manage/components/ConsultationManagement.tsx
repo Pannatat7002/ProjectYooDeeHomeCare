@@ -184,8 +184,12 @@ export default function ConsultationManagement() {
                 ((item.recipientName || '').toLowerCase().includes(q)) ||
                 ((item.message || '').toLowerCase().includes(q));
 
+            const s = (item.status || 'pending').toLowerCase();
             const matchStatus =
-                statusFilter === 'all' || (item.status || '').toLowerCase() === statusFilter;
+                statusFilter === 'all' ||
+                (statusFilter === 'pending'
+                    ? (s === 'pending' || s === 'urgent' || s === 'verified' || s === 'new' || (s !== 'followed_up' && s !== 'closed'))
+                    : s === statusFilter);
 
             return matchSearch && matchStatus;
         });
